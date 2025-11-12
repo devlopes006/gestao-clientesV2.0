@@ -20,6 +20,31 @@ enum InviteStatus {
   EXPIRED
 }
 
+enum ClientPlan {
+  GESTAO
+  ESTRUTURA
+  FREELANCER
+  PARCERIA
+  CONSULTORIA
+  OUTRO
+}
+
+enum SocialChannel {
+  INSTAGRAM
+  FACEBOOK
+  TIKTOK
+  YOUTUBE
+  LINKEDIN
+  TWITTER
+  OUTRO
+}
+
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
+  LATE
+}
+
 model User {
   id          String  @id @default(cuid())
   firebaseUid String  @unique
@@ -63,27 +88,33 @@ model Member {
 }
 
 model Client {
-  id           String        @id @default(cuid())
-  name         String
-  email        String?
-  phone        String?
-  status       String        @default("new") // new | onboarding | active | paused | closed
-  plan         String? // plano do cliente (ex: starter, pro)
-  mainChannel  String? // canal principal (ex: instagram, tiktok)
-  orgId        String
-  org          Org           @relation(fields: [orgId], references: [id])
-  clientUserId String? // Usuário (role CLIENT) associado exclusivamente a este cliente
-  clientUser   User?         @relation(fields: [clientUserId], references: [id])
-  tasks        Task[]
-  media        Media[]
-  mediaFolders MediaFolder[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  invites      Invite[]
-  strategies   Strategy[]
-  brandings    Branding[]
-  finances     Finance[]
-  meetings     Meeting[]
+  id            String         @id @default(cuid())
+  name          String
+  email         String?
+  phone         String?
+  status        String         @default("new") // new | onboarding | active | paused | closed
+  plan          ClientPlan? // plano do cliente
+  mainChannel   SocialChannel? // canal principal
+  // Informações de contrato (sensíveis - apenas OWNER)
+  contractValue Float? // valor mensal do contrato
+  paymentDay    Int? // dia do mês para pagamento (1-31)
+  contractStart DateTime? // início do contrato
+  contractEnd   DateTime? // fim do contrato (null = indefinido)
+  paymentStatus PaymentStatus  @default(PENDING) // status do pagamento
+  orgId         String
+  org           Org            @relation(fields: [orgId], references: [id])
+  clientUserId  String? // Usuário (role CLIENT) associado exclusivamente a este cliente
+  clientUser    User?          @relation(fields: [clientUserId], references: [id])
+  tasks         Task[]
+  media         Media[]
+  mediaFolders  MediaFolder[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  invites       Invite[]
+  strategies    Strategy[]
+  brandings     Branding[]
+  finances      Finance[]
+  meetings      Meeting[]
 
   @@unique([clientUserId])
 }

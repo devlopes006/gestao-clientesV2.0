@@ -1,8 +1,7 @@
-import { Toaster } from '@/components/ui/toaster'
 import { UserProvider } from '@/context/UserContext'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import { Toaster as Sonner } from 'sonner'
+import { Toaster } from 'sonner'
 import './globals.css'
 
 // Se você for usar Firebase Auth (frontend)
@@ -29,7 +28,6 @@ export default function RootLayout({
           {children}
         </UserProvider>
         <Toaster />
-        <Sonner />
       </body>
     </html>
   )

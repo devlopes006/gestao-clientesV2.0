@@ -118,7 +118,7 @@ export default function MembersAdminPage() {
     <div className="space-y-8 md:space-y-10">
       {/* Cabeçalho com botão voltar */}
       <div className="flex items-center gap-4">
-        <Link href="/admin">
+        <Link href="/">
           <Button variant="outline" size="sm" className="gap-2">
             <ArrowLeft className="h-4 w-4" />
             Voltar

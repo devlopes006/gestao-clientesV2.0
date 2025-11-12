@@ -6,10 +6,10 @@ import { NextResponse } from 'next/server'
 // GET /api/clients/[id]/dashboard
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const clientId = params.id
+    const { id: clientId } = await params
     const { user, orgId, role } = await getSessionProfile()
     if (!user || !orgId || !role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -148,7 +148,7 @@ export async function GET(
       },
       counts: {
         tasks: taskStats,
-        branding: brandingCount,
+        brandings: brandingCount,
         media: mediaCount,
         strategies: strategyCount,
         meetings: {

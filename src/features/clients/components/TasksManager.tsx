@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Select } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { CalendarDays, CheckCircle2, Clock, Edit, Flag, ListTodo, Plus, Trash2, X } from 'lucide-react'
@@ -34,6 +35,7 @@ export function TasksManager({ clientId, initialTasks = [] }: TasksManagerProps)
   const [editing, setEditing] = useState<TaskItem | null>(null)
   const [statusFilter, setStatusFilter] = useState<TaskStatus | 'all'>('all')
   const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState(true)
 
   const [form, setForm] = useState({
     title: '',
@@ -68,6 +70,8 @@ export function TasksManager({ clientId, initialTasks = [] }: TasksManagerProps)
       } catch {
         // fallback: keep initialTasks if provided
         if (initialTasks.length) setTasks(initialTasks)
+      } finally {
+        setLoading(false)
       }
     }
     load()
@@ -179,6 +183,17 @@ export function TasksManager({ clientId, initialTasks = [] }: TasksManagerProps)
     } catch {
       // noop
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="flex flex-col items-center gap-3">
+          <LoadingSpinner size="lg" />
+          <p className="text-sm text-slate-500">Carregando tarefas...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

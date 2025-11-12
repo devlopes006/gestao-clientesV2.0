@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { ClientStatus } from '@/types/client'
 import { AppClient } from '@/types/tables'
+import type { ClientPlan, SocialChannel } from '@prisma/client'
 
 export async function listClientsByOrg(orgId: string): Promise<AppClient[]> {
   const rows = await prisma.client.findMany({
@@ -19,6 +20,10 @@ export async function listClientsByOrg(orgId: string): Promise<AppClient[]> {
     main_channel: r.mainChannel ?? null,
     orgId: r.orgId,
     clientUserId: r.clientUserId ?? null,
+    contract_value: r.contractValue ?? null,
+    payment_day: r.paymentDay ?? null,
+    contract_start: r.contractStart?.toISOString() ?? null,
+    contract_end: r.contractEnd?.toISOString() ?? null,
     created_at: r.createdAt.toISOString(),
     updated_at: r.updatedAt.toISOString(),
   }))
@@ -41,6 +46,10 @@ export async function getClientById(id: string): Promise<AppClient | null> {
     main_channel: client.mainChannel ?? null,
     orgId: client.orgId,
     clientUserId: client.clientUserId ?? null,
+    contract_value: client.contractValue ?? null,
+    payment_day: client.paymentDay ?? null,
+    contract_start: client.contractStart?.toISOString() ?? null,
+    contract_end: client.contractEnd?.toISOString() ?? null,
     created_at: client.createdAt.toISOString(),
     updated_at: client.updatedAt.toISOString(),
   }
@@ -51,9 +60,13 @@ export interface CreateClientInput {
   email?: string
   phone?: string
   status?: ClientStatus
-  plan?: string
-  mainChannel?: string
+  plan?: ClientPlan
+  mainChannel?: SocialChannel
   orgId: string
+  contractStart?: Date
+  contractEnd?: Date
+  paymentDay?: number
+  contractValue?: number
 }
 
 export async function createClient(
@@ -68,6 +81,10 @@ export async function createClient(
       plan: data.plan,
       mainChannel: data.mainChannel,
       orgId: data.orgId,
+      contractStart: data.contractStart,
+      contractEnd: data.contractEnd,
+      paymentDay: data.paymentDay,
+      contractValue: data.contractValue,
     },
   })
 
@@ -81,6 +98,10 @@ export async function createClient(
     main_channel: client.mainChannel ?? null,
     orgId: client.orgId,
     clientUserId: client.clientUserId ?? null,
+    contract_value: client.contractValue ?? null,
+    payment_day: client.paymentDay ?? null,
+    contract_start: client.contractStart?.toISOString() ?? null,
+    contract_end: client.contractEnd?.toISOString() ?? null,
     created_at: client.createdAt.toISOString(),
     updated_at: client.updatedAt.toISOString(),
   }

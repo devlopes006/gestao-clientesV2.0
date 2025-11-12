@@ -27,13 +27,19 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 
     // Suporte a filtrar por pasta via query ?folderId=xxx
     const url = new URL(req.url)
-    const folderId = url.searchParams.get('folderId')
+    const folderIdParam = url.searchParams.get('folderId')
+
+    // Se folderId é string vazia, busca apenas arquivos sem pasta (na raiz)
+    const folderFilter =
+      folderIdParam === '' || folderIdParam === null
+        ? { folderId: null } // Apenas arquivos na raiz
+        : { folderId: folderIdParam } // Arquivos da pasta específica
 
     const media = await prisma.media.findMany({
       where: {
         clientId,
         orgId,
-        folderId: folderId ? folderId : undefined,
+        ...folderFilter,
       },
       orderBy: { createdAt: 'desc' },
       include: {

@@ -8,7 +8,6 @@ import {
   ArrowLeft,
   Briefcase,
   Calendar,
-  CreditCard,
   FileText,
   Image,
   Info,
@@ -50,7 +49,6 @@ export default async function ClientLayout({ children, params }: ClientLayoutPro
     { href: `/clients/${id}/media`, label: 'Mídias', icon: Image },
     { href: `/clients/${id}/strategy`, label: 'Estratégia', icon: Lightbulb },
     { href: `/clients/${id}/branding`, label: 'Branding', icon: Briefcase },
-    { href: `/clients/${id}/finance`, label: 'Financeiro', icon: CreditCard },
     { href: `/clients/${id}/reports`, label: 'Relatórios', icon: FileText },
     { href: `/clients/${id}/meetings`, label: 'Reuniões', icon: Calendar },
     { href: `/clients/${id}/invite`, label: 'Convidar', icon: UserPlus },
@@ -86,8 +84,8 @@ export default async function ClientLayout({ children, params }: ClientLayoutPro
                     variant="ghost"
                     size="sm"
                     className={`gap-2 ${item.destructive
-                        ? 'text-red-600 hover:text-red-700 hover:bg-red-50'
-                        : 'hover:bg-slate-100'
+                      ? 'text-red-600 hover:text-red-700 hover:bg-red-50'
+                      : 'hover:bg-slate-100'
                       }`}
                   >
                     <Icon className="h-4 w-4" />

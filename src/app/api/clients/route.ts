@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { getSessionProfile } from '@/services/auth/session'
 import { createClient } from '@/services/repositories/clients'
 import { ClientStatus } from '@/types/client'
+import type { ClientPlan, SocialChannel } from '@prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
@@ -13,7 +14,18 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { name, email, phone, status, plan, mainChannel } = body
+    const {
+      name,
+      email,
+      phone,
+      status,
+      plan,
+      mainChannel,
+      contractStart,
+      contractEnd,
+      paymentDay,
+      contractValue,
+    } = body
 
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
       return NextResponse.json({ error: 'Nome é obrigatório' }, { status: 400 })
@@ -24,9 +36,13 @@ export async function POST(req: NextRequest) {
       email: email?.trim(),
       phone: phone?.trim(),
       status: status as ClientStatus,
-      plan: plan?.trim(),
-      mainChannel: mainChannel?.trim(),
+      plan: plan ? (plan as ClientPlan) : undefined,
+      mainChannel: mainChannel ? (mainChannel as SocialChannel) : undefined,
       orgId,
+      contractStart: contractStart ? new Date(contractStart) : undefined,
+      contractEnd: contractEnd ? new Date(contractEnd) : undefined,
+      paymentDay: paymentDay ? parseInt(paymentDay) : undefined,
+      contractValue: contractValue ? parseFloat(contractValue) : undefined,
     })
 
     return NextResponse.json(client, { status: 201 })

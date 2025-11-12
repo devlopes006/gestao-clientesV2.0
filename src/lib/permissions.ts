@@ -11,6 +11,7 @@ export type AppResource =
   | 'member'
   | 'branding'
   | 'strategy'
+  | 'finance'
 
 const rules: Record<AppRole, Record<AppAction, AppResource[]>> = {
   OWNER: {
@@ -22,9 +23,19 @@ const rules: Record<AppRole, Record<AppAction, AppResource[]>> = {
       'member',
       'branding',
       'strategy',
+      'finance',
     ],
-    create: ['client', 'task', 'media', 'branding', 'strategy'],
-    read: ['org', 'client', 'task', 'media', 'member', 'branding', 'strategy'],
+    create: ['client', 'task', 'media', 'branding', 'strategy', 'finance'],
+    read: [
+      'org',
+      'client',
+      'task',
+      'media',
+      'member',
+      'branding',
+      'strategy',
+      'finance',
+    ],
     update: [
       'org',
       'client',
@@ -33,8 +44,17 @@ const rules: Record<AppRole, Record<AppAction, AppResource[]>> = {
       'member',
       'branding',
       'strategy',
+      'finance',
     ],
-    delete: ['client', 'task', 'media', 'member', 'branding', 'strategy'],
+    delete: [
+      'client',
+      'task',
+      'media',
+      'member',
+      'branding',
+      'strategy',
+      'finance',
+    ],
   },
   STAFF: {
     manage: ['client', 'task', 'media', 'branding', 'strategy'],

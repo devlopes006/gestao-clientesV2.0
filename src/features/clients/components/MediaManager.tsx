@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { AppRole, can } from '@/lib/permissions'
 import { fetcher } from '@/lib/swr'
@@ -354,7 +355,14 @@ export function MediaManager({ clientId }: MediaManagerProps) {
             )}
 
             {/* Arquivos */}
-            {(mediaLoading || foldersLoading) && <div className="text-sm text-slate-500">Carregando...</div>}
+            {(mediaLoading || foldersLoading) && (
+              <div className="flex items-center justify-center py-12">
+                <div className="flex flex-col items-center gap-3">
+                  <LoadingSpinner size="lg" />
+                  <p className="text-sm text-slate-500">Carregando arquivos...</p>
+                </div>
+              </div>
+            )}
             {(mediaError || foldersError) && <div className="text-sm text-red-600">Falha ao carregar</div>}
 
             {filtered.length === 0 && !mediaLoading && (
@@ -525,6 +533,7 @@ export function MediaManager({ clientId }: MediaManagerProps) {
                     Cancelar
                   </Button>
                   <Button type="submit" disabled={uploading || (!editingItem && !uploadForm.file)}>
+                    {uploading && <LoadingSpinner size="sm" className="mr-2" />}
                     {uploading ? 'Enviando...' : editingItem ? 'Salvar' : 'Upload'}
                   </Button>
                 </div>

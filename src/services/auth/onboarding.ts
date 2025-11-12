@@ -1,68 +1,132 @@
-import { getFirestore, Timestamp } from 'firebase-admin/firestore'
+import { prisma } from '@/lib/prisma'
+import { getFirestore } from 'firebase-admin/firestore'
 
-type OnboardingPayload = {
+export interface OnboardingData {
   uid: string
   email: string
   name: string
 }
 
-type OnboardingResult = {
-  created: boolean
-  updated: boolean
-  hasOrganization: boolean
-}
-
+/**
+ * Cria o usuário e a organização na primeira autenticação.
+ * Persiste tanto no Firestore (tempo real) quanto no PostgreSQL (queries).
+ * Se já existir, apenas atualiza o último login.
+ */
 export async function handleUserOnboarding({
   uid,
   email,
   name,
-}: OnboardingPayload): Promise<OnboardingResult> {
+}: OnboardingData) {
   const db = getFirestore()
   const userRef = db.collection('users').doc(uid)
-  const snapshot = await userRef.get()
+  const userSnap = await userRef.get()
 
-  if (!snapshot.exists) {
-    await userRef.set({
-      email,
-      name,
-      orgId: null,
-      role: 'OWNER',
-      createdAt: Timestamp.now(),
-      updatedAt: Timestamp.now(),
+  if (userSnap.exists) {
+    // Usuário já existe → apenas atualiza login no Firestore
+    await userRef.update({ lastLogin: new Date() })
+
+    // Verifica se usuário existe no PostgreSQL antes de atualizar
+    const existingUser = await prisma.user.findUnique({
+      where: { firebaseUid: uid },
     })
 
-    return {
-      created: true,
-      updated: false,
-      hasOrganization: false,
+    if (existingUser) {
+      await prisma.user.update({
+        where: { firebaseUid: uid },
+        data: { updatedAt: new Date() },
+      })
+    } else {
+      console.warn(
+        `⚠️ Usuário ${uid} existe no Firestore mas não no PostgreSQL. Sincronizando...`
+      )
+      // Sincroniza do Firestore para PostgreSQL
+      const result = await prisma.$transaction(async (tx) => {
+        const user = await tx.user.create({
+          data: {
+            firebaseUid: uid,
+            email,
+            name,
+          },
+        })
+
+        const org = await tx.org.create({
+          data: {
+            name: `${name}'s Org`,
+            ownerId: user.id,
+          },
+        })
+
+        await tx.member.create({
+          data: {
+            userId: user.id,
+            orgId: org.id,
+            role: 'OWNER',
+          },
+        })
+
+        return { user, org }
+      })
+      console.log(
+        `✅ Usuário sincronizado no PostgreSQL (ID: ${result.user.id})`
+      )
     }
+    return
   }
 
-  const data = snapshot.data() as Record<string, unknown>
-  const updates: Record<string, unknown> = {}
+  // ✅ Cria novo usuário e org no PostgreSQL (transação)
+  const result = await prisma.$transaction(async (tx) => {
+    // Cria User
+    const user = await tx.user.create({
+      data: {
+        firebaseUid: uid,
+        email,
+        name,
+      },
+    })
 
-  if (!data.email) {
-    updates.email = email
-  }
+    // Cria Org com owner
+    const org = await tx.org.create({
+      data: {
+        name: `${name}'s Org`,
+        ownerId: user.id,
+      },
+    })
 
-  if (!data.name) {
-    updates.name = name
-  }
+    // Cria Member (vínculo do owner com a org)
+    await tx.member.create({
+      data: {
+        userId: user.id,
+        orgId: org.id,
+        role: 'OWNER',
+      },
+    })
 
-  if (Object.keys(updates).length > 0) {
-    updates.updatedAt = Timestamp.now()
-    await userRef.update(updates)
+    return { user, org }
+  })
 
-    return {
-      created: false,
-      updated: true,
-      hasOrganization: Boolean(data.orgId),
-    }
-  }
+  // ✅ Cria também no Firestore (para queries em tempo real)
+  const orgId = result.org.id
+  const orgRef = db.collection('orgs').doc(orgId)
 
-  return {
-    created: false,
-    updated: false,
-    hasOrganization: Boolean(data.orgId),
-  }
+  await orgRef.set({
+    name: result.org.name,
+    ownerId: uid,
+    members: [uid],
+    createdAt: new Date(),
+  })
+
+  await userRef.set({
+    uid,
+    email,
+    name,
+    orgId,
+    role: 'OWNER',
+    createdAt: new Date(),
+    lastLogin: new Date(),
+  })
+
+  console.log(`✅ Novo usuário criado: ${name} (${email})`)
+  console.log(
+    `✅ Persistido no PostgreSQL (User ID: ${result.user.id}, Org ID: ${result.org.id})`
+  )
 }

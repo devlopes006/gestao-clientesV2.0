@@ -1,23 +1,13 @@
 'use client'
 
-import { initializeApp, getApps, getApp } from 'firebase/app'
+import { db, firebaseApp } from '@/lib/firebase'
 import { getAuth } from 'firebase/auth'
-import { addDoc, collection, doc, getFirestore, serverTimestamp, updateDoc } from 'firebase/firestore'
+import { addDoc, collection, doc, serverTimestamp, updateDoc } from 'firebase/firestore'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-}
-
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp()
-
-
+// Usa inicialização centralizada de Firebase do módulo lib/firebase
+// Evita duplicação e possíveis diferenças de env
 
 export default function OnboardingPage() {
   const [name, setName] = useState('')
@@ -29,11 +19,10 @@ export default function OnboardingPage() {
 
     setLoading(true)
     try {
-      const auth = getAuth(app)
+      if (!firebaseApp || !db) throw new Error('Firebase não inicializado corretamente')
+      const auth = getAuth(firebaseApp)
       const user = auth.currentUser
       if (!user) throw new Error('Usuário não autenticado.')
-
-      const db = getFirestore(app)
 
       // Cria nova organização
       const orgRef = await addDoc(collection(db, 'orgs'), {
@@ -51,7 +40,7 @@ export default function OnboardingPage() {
         updatedAt: serverTimestamp(),
       })
 
-      router.push('/dashboard')
+      router.push('/')
     } catch (err) {
       console.error('Erro ao criar organização:', err)
       alert('Erro ao criar organização. Tente novamente.')

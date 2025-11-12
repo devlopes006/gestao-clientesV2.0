@@ -1,36 +1,143 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gestão de Clientes
 
-## Getting Started
+Aplicação Next.js para gestão de clientes, tarefas e mídia com autenticação Firebase e persistência híbrida (Firestore + Prisma/PostgreSQL planejado).
 
-First, run the development server:
+## ✨ Stack
+
+- Next.js 16 (App Router)
+- React 19
+- TypeScript 5
+- TailwindCSS 4
+- Firebase Auth + Firestore (runtime atual)
+- Firebase Admin (onboarding server-side)
+- Prisma + PostgreSQL (schema definido, integração futura)
+- Zod (validações futuras)
+
+## 🚀 Executando localmente
+
+Pré-requisitos:
+
+- Node 20+
+- PNPM (recomendado) ou Yarn/NPM
+- Banco PostgreSQL se for usar Prisma (opcional por enquanto)
+
+1. Clone o repositório e instale dependências:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Configure variáveis de ambiente no arquivo `.env.local`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+NEXT_PUBLIC_FIREBASE_API_KEY=xxxxx
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=xxxxx.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=xxxxx
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=xxxxx.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=xxxxxx
+NEXT_PUBLIC_FIREBASE_APP_ID=1:xxxx:web:xxxxx
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@xxxxx.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+DATABASE_URL=postgresql://user:pass@localhost:5432/gestao
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Inicie o servidor de desenvolvimento:
 
-## Learn More
+```bash
+pnpm dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. Abra <http://localhost:3000>
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🗂 Estrutura
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```text
+src/
+  app/              # Rotas App Router
+  components/       # Componentes reutilizáveis
+  context/          # Providers (UserContext)
+  lib/              # Integrações (firebase, prisma, permissions)
+  services/         # Lógica de domínio (onboarding)
+  types/            # Tipos globais
+```
 
-## Deploy on Vercel
+## ✅ Refactors Recentes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Corrigido lookup de organização em `ProtectedRoute` (antes assumia orgId = uid).
+- Centralizado uso do Firebase em `lib/firebase` (removido init duplicado em onboarding).
+- Corrigido nome do arquivo `tailwind.config.ts` (antes `taliwind.config.ts`).
+- Adicionado tema base de cores brand e limpeza do README.
+- Script robusto de `prisma-generate` pós instalação.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🧪 Próximos Passos Recomendados
+
+- [ ] Implementar persistência principal em PostgreSQL usando Prisma (espelhar dados críticos de Firestore).
+- [ ] Adicionar rota API segura para ações server-side com verificação de permissões.
+- [ ] Criar hook `usePermissions(role)` para simplificar checks no frontend.
+- [ ] Criar testes unitários (Jest ou Vitest) para `permissions.ts` e `handleUserOnboarding`.
+- [ ] Ajustar fluxo de login para setar cookie `auth` (middleware depende dele).
+- [ ] Adicionar Sentry ou Logtail para observabilidade.
+
+## 🔐 Permissões (RBAC)
+
+Regra definida em `lib/permissions.ts`. Exemplo de uso:
+
+```ts
+import { can } from '@/lib/permissions'
+if (!can(role, 'update', 'client')) throw new Error('Acesso negado')
+```
+
+## ⚠ Notas sobre Segurança
+
+- Nunca commitar `FIREBASE_PRIVATE_KEY` sem aspas e com \n escapado.
+- Ativar regras do Firestore restringindo leitura/escrita por `auth.uid` e `orgId` (ver `firestore.rules`).
+- Considerar trocar cookie `auth` para `HttpOnly` + `Secure`.
+
+## 🗄 PostgreSQL & Prisma
+
+## 🔒 Regras Firestore (Resumo)
+
+Trecho principal das regras em `firestore.rules`:
+
+```firestore
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function userId() { return request.auth.uid; }
+    match /users/{uid} {
+      allow read, update: if isSignedIn() && uid == userId();
+      allow create, delete: if false; // Apenas via Admin SDK
+    }
+    match /orgs/{orgId} {
+      allow read: if isSignedIn() && (userId() in resource.data.members);
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && resource.data.ownerId == userId();
+    }
+  }
+}
+```
+
+Use o console do Firebase para publicar essas regras. Ajuste conforme novas coleções aninhadas (tasks, clients, media) mantiverem o mesmo padrão de membros.
+
+O schema em `prisma/schema.prisma` já modela Users/Orgs/Clients/Tasks/Media. Migrar gradualmente dados criados no Firestore ou manter Firestore para eventos em tempo real e Postgres para consultas transacionais.
+
+Gerar cliente:
+
+```bash
+pnpm prisma generate
+```
+
+Criar migração:
+
+```bash
+pnpm prisma migrate dev --name init
+```
+
+## 📜 Licença
+
+MIT
+
+---
+
+> Mantido por Dev-Lops.

@@ -1,43 +1,48 @@
-import { getApp, getApps, initializeApp } from 'firebase/app'
-import { getAuth, GoogleAuthProvider } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
+import { getClientEnv, validateClientEnv } from '@/lib/env'
+import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app'
+import { Auth, getAuth, GoogleAuthProvider } from 'firebase/auth'
+import { Firestore, getFirestore } from 'firebase/firestore'
 
-// Only initialize Firebase in the browser. This avoids throwing during
-// server-side module evaluation (Next.js app router may import client
-// components during build/SSR). If env vars are missing, log a warning
-// instead of throwing so the server can continue to render.
-
+// Evita crash durante SSR (Next.js avalia módulos client-side no build)
 const isClient = typeof window !== 'undefined'
 
+// Configuração do Firebase
+const cenv = getClientEnv()
+const v = validateClientEnv(cenv)
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: cenv.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: cenv.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: cenv.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: cenv.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: cenv.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: cenv.NEXT_PUBLIC_FIREBASE_APP_ID,
 }
 
-let firebaseApp: ReturnType<typeof initializeApp> | null = null
-let db: ReturnType<typeof getFirestore> | null = null
-let auth: ReturnType<typeof getAuth> | null = null
-let provider: GoogleAuthProvider | null = null
+// Inicialização condicional — só no cliente
+let firebaseApp: FirebaseApp | undefined
+let db: Firestore | undefined
+let auth: Auth | undefined
+let provider: GoogleAuthProvider | undefined
 
 if (isClient) {
-  const missing = Object.entries(firebaseConfig)
-    .filter(([, v]) => !v)
-    .map(([k]) => k)
-
-  if (missing.length) {
-    // Do not throw during module evaluation; warn and let client handle
-    // missing config at runtime.
-    console.warn(`Missing Firebase env vars: ${missing.join(', ')}`)
-  } else {
-    firebaseApp =
-      getApps().length > 0 ? getApp() : initializeApp(firebaseConfig)
+  if (!v.ok) {
+    console.warn(`⚠️ Missing Firebase env vars: ${v.missing.join(', ')}`)
+  }
+  // Type refinement: ensure all required properties are present before init
+  if (
+    firebaseConfig.apiKey &&
+    firebaseConfig.projectId &&
+    firebaseConfig.appId
+  ) {
+    firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig)
     db = getFirestore(firebaseApp)
     auth = getAuth(firebaseApp)
     provider = new GoogleAuthProvider()
+  } else {
+    // Avoid throwing to keep dev experience smoother; initialization will be skipped.
+    console.warn(
+      '⚠️ Firebase initialization skipped due to missing critical env vars.'
+    )
   }
 }
 

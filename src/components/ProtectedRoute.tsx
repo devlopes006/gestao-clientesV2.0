@@ -3,60 +3,87 @@
 import { useUser } from '@/context/UserContext'
 import { db } from '@/lib/firebase'
 import { doc, getDoc } from 'firebase/firestore'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useUser()
   const router = useRouter()
-  const pathname = usePathname()
-  const [checkingOrg, setCheckingOrg] = useState(true)
+
+  const [checking, setChecking] = useState(true)
 
   useEffect(() => {
-    if (loading) return
+    const verifyOrg = async () => {
+      // Ainda está carregando o estado de autenticação
+      if (loading) {
+        setChecking(true)
+        return
+      }
 
-    if (!user) {
-      setCheckingOrg(false)
-      router.replace('/login')
-      return
-    }
+      // Sem usuário → redireciona para login
+      if (!user) {
+        router.replace('/login')
+        return
+      }
 
-    if (!db) {
-      setCheckingOrg(false)
-      return
-    }
+      // Firestore não inicializado
+      if (!db) {
+        console.error('❌ Firestore não inicializado!')
+        setChecking(false)
+        return
+      }
 
-    let active = true
-
-    const verifyOrganization = async () => {
       try {
-        const userDoc = await getDoc(doc(db, 'users', user.uid))
-        const hasOrg = userDoc.exists() && Boolean(userDoc.data()?.orgId)
+        // Primeiro buscamos o documento do usuário para obter orgId
+        const userRef = doc(db, 'users', user.uid)
+        const userSnap = await getDoc(userRef)
 
-        if (!hasOrg && !pathname.startsWith('/onboarding')) {
+        if (!userSnap.exists()) {
+          // Usuário ainda não foi provisionado pelo fluxo de callback admin
           router.replace('/onboarding')
           return
         }
-      } catch (error) {
-        console.error('Erro ao verificar organização do usuário:', error)
-      } finally {
-        if (active) {
-          setCheckingOrg(false)
+
+        const data = userSnap.data() as { orgId?: string }
+        if (!data?.orgId) {
+          router.replace('/onboarding')
+          return
         }
+
+        // Verifica se a organização existe
+        const orgRef = doc(db, 'orgs', data.orgId)
+        const orgSnap = await getDoc(orgRef)
+        if (!orgSnap.exists()) {
+          router.replace('/onboarding')
+          return
+        }
+
+        // Tudo OK, permite acesso
+        setChecking(false)
+      } catch (err) {
+        console.error('⚠️ Erro ao verificar organização do usuário:', err)
+        setChecking(false)
       }
     }
 
-    void verifyOrganization()
+    void verifyOrg()
+  }, [user, loading, router])
 
-    return () => {
-      active = false
-    }
-  }, [loading, user, router, pathname])
-
-  if (loading || checkingOrg) {
-    return <div className="p-8 text-gray-500">Carregando...</div>
+  // Mostra loading enquanto verifica
+  if (loading || checking) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center gap-3 text-gray-600 animate-pulse">
+          <div className="h-8 w-8 rounded-full border-4 border-t-transparent border-gray-400 animate-spin" />
+          <p className="text-sm">
+            {loading ? 'Carregando...' : 'Verificando conta...'}
+          </p>
+        </div>
+      </div>
+    )
   }
 
+  // Caso não tenha usuário após loading (previne render prematuro)
   if (!user) return null
 
   return <>{children}</>

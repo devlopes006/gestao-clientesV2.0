@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userId() {
+      return request.auth.uid;
+    }
+
+    // Users: each user can read/write own document; creation happens via server admin.
+    match /users/{uid} {
+      allow read, update: if isSignedIn() && uid == userId();
+      allow create: if false; // only server
+      allow delete: if false;
+    }
+
+    // Orgs: owner has full control; members read; membership stored in org doc.
+    match /orgs/{orgId} {
+      allow read: if isSignedIn() && (userId() in resource.data.members);
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && resource.data.ownerId == userId();
+    }
+
+    // Tasks scoped by org and optionally by client
+    match /orgs/{orgId}/tasks/{taskId} {
+      allow read: if isSignedIn() && (userId() in get(/databases/$(database)/documents/orgs/$(orgId)).data.members);
+      allow create, update, delete: if isSignedIn() && (userId() in get(/databases/$(database)/documents/orgs/$(orgId)).data.members);
+    }
+
+    // Clients
+    match /orgs/{orgId}/clients/{clientId} {
+      allow read: if isSignedIn() && (userId() in get(/databases/$(database)/documents/orgs/$(orgId)).data.members);
+      allow create, update, delete: if isSignedIn() && (userId() in get(/databases/$(database)/documents/orgs/$(orgId)).data.members);
+    }
+
+    // Media: only members can manipulate
+    match /orgs/{orgId}/media/{mediaId} {
+      allow read: if isSignedIn() && (userId() in get(/databases/$(database)/documents/orgs/$(orgId)).data.members);
+      allow create, update, delete: if isSignedIn() && (userId() in get(/databases/$(database)/documents/orgs/$(orgId)).data.members);
+    }
+  }
+}

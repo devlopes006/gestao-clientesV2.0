@@ -1,32 +1,30 @@
 #!/usr/bin/env node
-import { spawn } from 'node:child_process'
-import { join } from 'node:path'
-import { existsSync } from 'node:fs'
+import { execSync } from 'node:child_process'
 
-if (!process.env.DATABASE_URL) {
-  process.env.DATABASE_URL =
-    'postgresql://postgres:postgres@127.0.0.1:5432/postgres?schema=public'
+const tryRun = (cmd) => {
+  try {
+    execSync(cmd, { stdio: 'inherit' })
+    return true
+  } catch {
+    return false
+  }
 }
 
-const isWindows = process.platform === 'win32'
-const prismaBin = join(
-  process.cwd(),
-  'node_modules',
-  '.bin',
-  `prisma${isWindows ? '.cmd' : ''}`,
+const cmds = [
+  'pnpm prisma generate',
+  'yarn prisma generate',
+  'npm run prisma generate',
+  'npx prisma generate',
+  'prisma generate',
+]
+
+for (const cmd of cmds) {
+  if (tryRun(cmd)) {
+    process.exit(0)
+  }
+}
+
+console.warn(
+  '[postinstall] Failed to run `prisma generate` with known package managers.'
 )
-
-if (!existsSync(prismaBin)) {
-  console.error('Could not find local Prisma CLI at', prismaBin)
-  process.exit(1)
-}
-
-const child = spawn(prismaBin, ['generate'], {
-  stdio: 'inherit',
-  env: process.env,
-  shell: isWindows,
-})
-
-child.on('exit', (code) => {
-  process.exit(code ?? 0)
-})
+process.exit(0)

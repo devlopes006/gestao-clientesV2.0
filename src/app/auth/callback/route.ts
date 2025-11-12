@@ -1,7 +1,7 @@
-import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
 import { adminAuth } from '@/lib/firebaseAdmin'
 import { handleUserOnboarding } from '@/services/auth/onboarding'
+import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
 
 export async function GET(req: Request) {
   const cookieStore = await cookies() // 👈 cookies() é assíncrono em Next 14+
@@ -14,17 +14,13 @@ export async function GET(req: Request) {
   try {
     const decoded = await adminAuth.verifyIdToken(token)
 
-    const onboardingResult = await handleUserOnboarding({
+    await handleUserOnboarding({
       uid: decoded.uid,
       email: decoded.email!,
       name: decoded.name || decoded.email!.split('@')[0],
     })
 
-    const destination = onboardingResult.hasOrganization
-      ? '/dashboard'
-      : '/onboarding'
-
-    return NextResponse.redirect(new URL(destination, req.url))
+    return NextResponse.redirect(new URL('/', req.url))
   } catch (err) {
     console.error('Erro ao validar token:', err)
     return NextResponse.redirect(new URL('/login', req.url))

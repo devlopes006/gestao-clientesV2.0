@@ -1,4 +1,4 @@
-import { Role } from '@/generated/prisma/enums'
+import { Role } from '@prisma/client'
 
 type AppAction = 'manage' | 'create' | 'read' | 'update' | 'delete'
 type AppResource = 'org' | 'client' | 'task' | 'media' | 'member'

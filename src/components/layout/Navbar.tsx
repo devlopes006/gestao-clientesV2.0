@@ -5,16 +5,18 @@ import { motion } from 'framer-motion'
 import {
   Bell,
   ChevronDown,
+  DollarSign, LayoutDashboard,
   LogOut,
   Menu,
   Search,
   Settings,
   User,
+  Users,
   X,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface NavbarProps {
   onMenuClick: () => void
@@ -100,10 +102,10 @@ export function Navbar({ onMenuClick, isSidebarOpen }: NavbarProps) {
 
           {/* Logo / Brand */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-shadow">
+            <div className="w-8 h-8 rounded-lg bg-linear-to-tr from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-shadow">
               <span className="text-white font-bold text-sm">MG</span>
             </div>
-            <span className="hidden sm:block text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="hidden sm:block text-lg font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               MyGest
             </span>
           </Link>
@@ -128,6 +130,33 @@ export function Navbar({ onMenuClick, isSidebarOpen }: NavbarProps) {
 
         {/* Right Section */}
         <div className="flex items-center gap-2">
+          {/* Quick Nav (Desktop) */}
+          <div className="hidden md:flex items-center gap-1 mr-2">
+            <Link
+              href="/clients"
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+              title="Clientes"
+            >
+              <Users className="w-4 h-4" />
+              <span className="hidden lg:inline">Clientes</span>
+            </Link>
+            <Link
+              href="/finance"
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+              title="Financeiro"
+            >
+              <DollarSign className="w-4 h-4" />
+              <span className="hidden lg:inline">Financeiro</span>
+            </Link>
+            <Link
+              href="/admin"
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+              title="Admin"
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span className="hidden lg:inline">Admin</span>
+            </Link>
+          </div>
           {/* Search Button - Mobile */}
           <button
             className="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -179,12 +208,28 @@ export function Navbar({ onMenuClick, isSidebarOpen }: NavbarProps) {
                       </div>
                     ) : (
                       notifications.map((notification) => (
-                        <Link
+                        <div
                           key={notification.id}
-                          href={notification.link}
-                          onClick={() => setShowNotifications(false)}
-                          className={`block p-4 border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors ${notification.unread ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
-                            }`}
+                          onClick={async () => {
+                            try {
+                              // Marcar como lida localmente
+                              // Chamar endpoint para persistir leitura (opcional)
+                              await fetch('/api/notifications/read', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ id: notification.id }),
+                              })
+                            } catch (err) {
+                              console.error('Erro marcando notificação como lida', err)
+                            }
+                            // Atualiza estado local e navega
+                            setNotifications((prev) => prev.map((n) => n.id === notification.id ? { ...n, unread: false } : n))
+                            setUnreadCount((c) => Math.max(0, c - (notification.unread ? 1 : 0)))
+                            setShowNotifications(false)
+                            // navega para a rota da notificação
+                            if (notification.link) router.push(notification.link)
+                          }}
+                          className={`block p-4 border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer ${notification.unread ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
                         >
                           <div className="flex items-start gap-3">
                             {notification.unread && (
@@ -202,7 +247,7 @@ export function Navbar({ onMenuClick, isSidebarOpen }: NavbarProps) {
                               </p>
                             </div>
                           </div>
-                        </Link>
+                        </div>
                       ))
                     )}
                   </div>
@@ -222,12 +267,12 @@ export function Navbar({ onMenuClick, isSidebarOpen }: NavbarProps) {
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-linear-to-tr from-blue-600 to-purple-600 flex items-center justify-center">
                 <User className="w-4 h-4 text-white" />
               </div>
               <div className="hidden sm:block text-left">
                 <p className="text-sm font-medium text-slate-900 dark:text-white">
-                  {user?.name || 'Usuário'}
+                  {user?.email ?? 'Usuário'}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   {user?.email}
@@ -250,7 +295,7 @@ export function Navbar({ onMenuClick, isSidebarOpen }: NavbarProps) {
                 >
                   <div className="p-3 border-b border-slate-200 dark:border-slate-700">
                     <p className="text-sm font-medium text-slate-900 dark:text-white">
-                      {user?.name || 'Usuário'}
+                      {user?.email ?? 'Usuário'}
                     </p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                       {user?.email}

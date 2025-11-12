@@ -25,7 +25,7 @@ export function ClientsWithBottlenecks({ clients, maxDisplay = 5 }: ClientsWithB
 
   if (clientsWithIssues.length === 0) {
     return (
-      <Card className="border-2 border-green-200/60 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-950/20 dark:to-emerald-950/20">
+      <Card className="border-2 border-green-200/60 bg-linear-to-br from-green-50/50 to-emerald-50/50 dark:from-green-950/20 dark:to-emerald-950/20">
         <CardContent className="p-4 sm:p-6">
           <div className="text-center py-4 sm:py-6">
             <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-green-100 dark:bg-green-950/50 flex items-center justify-center mb-3">
@@ -42,7 +42,7 @@ export function ClientsWithBottlenecks({ clients, maxDisplay = 5 }: ClientsWithB
   }
 
   return (
-    <Card className="border border-red-200/60 bg-gradient-to-br from-red-50/30 to-orange-50/30 dark:from-red-950/10 dark:to-orange-950/10">
+    <Card className="border border-red-200/60 bg-linear-to-br from-red-50/30 to-orange-50/30 dark:from-red-950/10 dark:to-orange-950/10">
       <CardHeader className="p-4 sm:p-6 pb-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -185,10 +185,11 @@ function getClientIssues(metrics: ClientHealthMetrics): Array<{ message: string;
   const issues: Array<{ message: string; severity: 'high' | 'medium' | 'low' }> = []
 
   // Tarefas atrasadas
-  if (metrics.tasksOverdue > 0) {
+  const overdue = metrics.tasksOverdue ?? 0
+  if (overdue > 0) {
     issues.push({
-      message: `${metrics.tasksOverdue} tarefa${metrics.tasksOverdue > 1 ? 's' : ''} atrasada${metrics.tasksOverdue > 1 ? 's' : ''}`,
-      severity: metrics.tasksOverdue > 3 ? 'high' : 'medium'
+      message: `${overdue} tarefa${overdue > 1 ? 's' : ''} atrasada${overdue > 1 ? 's' : ''}`,
+      severity: overdue > 3 ? 'high' : 'medium'
     })
   }
 

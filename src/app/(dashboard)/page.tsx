@@ -1,6 +1,5 @@
 'use client'
 
-import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { Card } from '@/components/ui/card'
 import { ClientsWithBottlenecks, type ClientHealthMetrics } from '@/features/clients/components'
@@ -66,9 +65,7 @@ interface DashboardData {
 export default function DashboardPage() {
   return (
     <ProtectedRoute>
-      <DashboardLayout>
-        <RealtimeDashboard />
-      </DashboardLayout>
+      <RealtimeDashboard />
     </ProtectedRoute>
   )
 }
@@ -100,7 +97,7 @@ function RealtimeDashboard() {
 
   if (loading) {
     return (
-      <div className="relative flex h-screen items-center justify-center bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-100 dark:from-slate-950 dark:via-blue-950/20 dark:to-slate-900">
+      <div className="relative flex min-h-[60vh] items-center justify-center bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-100 dark:from-slate-950 dark:via-blue-950/20 dark:to-slate-900 rounded-xl">
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-linear-to-tr from-blue-500 to-purple-600 opacity-20 blur-xl animate-pulse" />

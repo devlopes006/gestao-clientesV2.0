@@ -4,9 +4,12 @@ import { cn } from '@/lib/utils'
 import { motion } from 'framer-motion'
 import {
   BarChart3,
+  Calendar,
   ChevronDown,
   ChevronRight,
   DollarSign,
+  FileText,
+  FolderKanban,
   Home,
   LayoutDashboard,
   Settings,
@@ -14,7 +17,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface SidebarProps {
   isOpen: boolean
@@ -25,16 +28,76 @@ interface MenuItem {
   label: string
   icon: React.ReactNode
   href: string
-  badge?: string
+  badge?: string | number
+  badgeColor?: 'purple' | 'red' | 'blue' | 'green'
   submenu?: {
     label: string
     href: string
+    badge?: number
   }[]
+}
+
+interface SidebarStats {
+  role: string
+  counters: {
+    clients: {
+      total: number
+      active: number
+      withBottlenecks: number
+    }
+    tasks: {
+      total: number
+      pending: number
+      overdue: number
+    }
+    finance: {
+      revenue: number
+      expenses: number
+      balance: number
+      overdueInstallments: number
+    }
+    meetings: {
+      upcoming: number
+    }
+  }
 }
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname()
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['clients'])
+  const [stats, setStats] = useState<SidebarStats | null>(null)
+
+  // Buscar estatísticas do sidebar
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch('/api/sidebar-stats')
+        if (res.ok) {
+          const data = await res.json()
+          setStats(data)
+        }
+      } catch (error) {
+        console.error('Erro ao buscar stats do sidebar:', error)
+      }
+    }
+
+    fetchStats()
+  }, [])
+
+  // Helper para classes de badge dinâmicas
+  const getBadgeClass = (color?: string) => {
+    switch (color) {
+      case 'red':
+        return 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300'
+      case 'blue':
+        return 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300'
+      case 'green':
+        return 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-300'
+      case 'purple':
+      default:
+        return 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+    }
+  }
 
   const toggleSubmenu = (label: string) => {
     setExpandedMenus((prev) =>
@@ -51,24 +114,47 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       href: '/',
     },
     {
+      label: 'Tarefas',
+      icon: <FolderKanban className="w-5 h-5" />,
+      href: '/tasks',
+      badge: stats?.counters.tasks.pending ?? undefined,
+      badgeColor: stats?.counters.tasks.pending ? 'red' : 'blue',
+    },
+    {
       label: 'Clientes',
       icon: <Users className="w-5 h-5" />,
       href: '/clients',
+      badge: stats?.counters.clients.total,
+      badgeColor: 'blue',
       submenu: [
-        { label: 'Todos os Clientes', href: '/clients' },
+        { label: 'Todos os Clientes', href: '/clients', badge: stats?.counters.clients.total },
         { label: 'Adicionar Cliente', href: '/clients/new' },
-        { label: 'Gargalos', href: '/clients?filter=bottlenecks' },
+        { label: 'Gargalos', href: '/clients?filter=bottlenecks', badge: stats?.counters.clients.withBottlenecks },
       ],
+    },
+    {
+      label: 'Agenda',
+      icon: <Calendar className="w-5 h-5" />,
+      href: '/calendar',
+      badge: stats?.counters.meetings.upcoming ?? undefined,
+      badgeColor: stats?.counters.meetings.upcoming ? 'green' : undefined,
     },
     {
       label: 'Financeiro',
       icon: <DollarSign className="w-5 h-5" />,
       href: '/finance',
+      badge: stats?.counters.finance.overdueInstallments,
+      badgeColor: stats?.counters.finance.overdueInstallments ? 'red' : undefined,
       submenu: [
         { label: 'Visão Geral', href: '/finance' },
         { label: 'Receitas', href: '/finance?type=income' },
         { label: 'Despesas', href: '/finance?type=expense' },
       ],
+    },
+    {
+      label: 'Mídia',
+      icon: <FileText className="w-5 h-5" />,
+      href: '/media',
     },
     {
       label: 'Relatórios',
@@ -84,7 +170,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       label: 'Admin',
       icon: <LayoutDashboard className="w-5 h-5" />,
       href: '/admin',
-      badge: 'OWNER',
+      badge: stats?.role === 'OWNER' ? 'OWNER' : undefined,
+      badgeColor: 'purple',
     },
     {
       label: 'Configurações',
@@ -109,18 +196,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       )}
 
       {/* Sidebar */}
-      <motion.aside
-        initial={false}
-        animate={{
-          x: isOpen ? 0 : '-100%',
-        }}
-        transition={{
-          type: 'spring',
-          damping: 30,
-          stiffness: 300,
-        }}
+      <aside
         className={cn(
-          'fixed left-0 top-16 bottom-0 z-40 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-lg overflow-hidden',
+          'fixed left-0 top-16 bottom-0 z-40 w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-lg overflow-hidden transform transition-transform',
+          isOpen ? 'translate-x-0' : '-translate-x-full',
           'lg:translate-x-0 lg:static lg:shadow-none'
         )}
       >
@@ -146,7 +225,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     </div>
                     <div className="flex items-center gap-2">
                       {item.badge && (
-                        <span className="text-[10px] px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full font-medium">
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${getBadgeClass(item.badgeColor)}`}>
                           {item.badge}
                         </span>
                       )}
@@ -173,7 +252,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                       <span className="font-medium text-sm">{item.label}</span>
                     </div>
                     {item.badge && (
-                      <span className="text-[10px] px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full font-medium">
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${getBadgeClass(item.badgeColor)}`}>
                         {item.badge}
                       </span>
                     )}
@@ -212,7 +291,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
           {/* Sidebar Footer */}
           <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-            <div className="p-3 rounded-lg bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-100 dark:border-blue-800">
+            <div className="p-3 rounded-lg bg-linear-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-100 dark:border-blue-800">
               <p className="text-xs font-medium text-slate-900 dark:text-white mb-1">
                 💡 Dica do dia
               </p>
@@ -222,7 +301,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             </div>
           </div>
         </div>
-      </motion.aside>
+      </aside>
     </>
   )
 }

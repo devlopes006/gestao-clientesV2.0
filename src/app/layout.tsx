@@ -1,3 +1,4 @@
+import AppShell from '@/components/layout/AppShell'
 import { UserProvider } from '@/context/UserContext'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
@@ -11,7 +12,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Gestão de Clientes',
+  title: 'MyGest',
   description: 'Sistema completo de gestão com controle de usuários e permissões',
 }
 

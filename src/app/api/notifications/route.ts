@@ -13,11 +13,11 @@ export async function GET() {
     }
 
     const decoded = await adminAuth.verifyIdToken(token)
-    const userId = decoded.uid
+    const firebaseUid = decoded.uid
 
     // Busca o usuário e sua org
     const user = await prisma.user.findUnique({
-      where: { firebaseUid: userId },
+      where: { firebaseUid },
       include: { memberships: { include: { org: true } } },
     })
 
@@ -26,6 +26,7 @@ export async function GET() {
     }
 
     const orgId = user.memberships[0].orgId
+    const appUserId = user.id
 
     // Buscar tarefas urgentes, reuniões próximas e pagamentos pendentes
     const [urgentTasks, upcomingMeetings, overdueInstallments] =
@@ -80,7 +81,7 @@ export async function GET() {
         }),
       ])
 
-    // Montar notificações
+    // Montar notificações (dinâmicas)
     const notifications: Array<{
       id: string
       type: string
@@ -142,7 +143,21 @@ export async function GET() {
       })
     })
 
-    // Ordenar por mais recente
+    // Buscar notificações já lidas no banco para este usuário
+    const readNotifs = await prisma.notification.findMany({
+      where: { userId: appUserId, orgId, read: true },
+      select: { id: true },
+    })
+    const readIds = new Set(readNotifs.map((n) => n.id))
+
+    // Marcar como lidas conforme o banco
+    for (const n of notifications) {
+      if (readIds.has(n.id)) {
+        n.unread = false
+      }
+    }
+
+    // Ordenar por prioridade de tipo
     notifications.sort((a, b) => {
       // Priorizar por tipo: task > payment > meeting
       const typeOrder = { task: 0, payment: 1, meeting: 2 }
@@ -154,7 +169,7 @@ export async function GET() {
 
     return NextResponse.json({
       notifications: notifications.slice(0, 10), // Limitar a 10
-      unreadCount: notifications.length,
+      unreadCount: notifications.filter((n) => n.unread).length,
     })
   } catch (error) {
     console.error('Erro ao buscar notificações:', error)
@@ -180,4 +195,51 @@ function getTimeAgo(date: Date): string {
   if (seconds < 3600) return `${Math.floor(seconds / 60)}min atrás`
   if (seconds < 86400) return `${Math.floor(seconds / 3600)}h atrás`
   return `${Math.floor(seconds / 86400)}d atrás`
+}
+
+export async function POST(req: Request) {
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get('auth')?.value
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const decoded = await adminAuth.verifyIdToken(token)
+    const firebaseUid = decoded.uid
+
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid },
+      include: { memberships: true },
+    })
+    if (!user || user.memberships.length === 0) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+    const orgId = user.memberships[0].orgId
+
+    const body = await req.json()
+    const { id } = body || {}
+    if (!id) {
+      return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+    }
+
+    // Persistir estado de leitura por usuário/org. Usa o próprio "id" do item dinâmico
+    await prisma.notification.upsert({
+      where: { id },
+      update: { read: true, userId: user.id, orgId },
+      create: {
+        id,
+        read: true,
+        userId: user.id,
+        orgId,
+        type: 'custom',
+        title: 'read-marker',
+      },
+    })
+
+    return NextResponse.json({ ok: true })
+  } catch (error) {
+    console.error('Erro ao marcar notificação como lida:', error)
+    return NextResponse.json({ error: 'Failed to mark read' }, { status: 500 })
+  }
 }

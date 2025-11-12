@@ -52,8 +52,9 @@ model User {
   name        String?
   image       String?
 
-  memberships Member[]
-  orgs        Org[]    @relation("OrgOwner")
+  memberships   Member[]
+  orgs          Org[]          @relation("OrgOwner")
+  notifications Notification[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -61,18 +62,19 @@ model User {
 }
 
 model Org {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  ownerId     String
-  owner       User     @relation("OrgOwner", fields: [ownerId], references: [id])
-  members     Member[]
-  clients     Client[]
-  tasks       Task[]
-  media       Media[]
-  invites     Invite[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String         @id @default(cuid())
+  name          String
+  description   String?
+  ownerId       String
+  owner         User           @relation("OrgOwner", fields: [ownerId], references: [id])
+  members       Member[]
+  clients       Client[]
+  tasks         Task[]
+  media         Media[]
+  invites       Invite[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  notifications Notification[]
 }
 
 model Member {
@@ -265,4 +267,24 @@ model Installment {
   updatedAt DateTime      @updatedAt
 
   @@index([clientId, dueDate])
+}
+
+// Persistência de notificações para usuários/org
+model Notification {
+  id        String   @id @default(cuid())
+  orgId     String?
+  org       Org?     @relation(fields: [orgId], references: [id])
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  type      String
+  title     String
+  message   String?  @db.Text
+  link      String?
+  clientId  String?
+  priority  String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, orgId])
 }

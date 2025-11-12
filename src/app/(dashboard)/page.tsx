@@ -1,6 +1,7 @@
 'use client'
 
 import { ProtectedRoute } from '@/components/ProtectedRoute'
+import AppShell from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/card'
 import { ClientsWithBottlenecks, type ClientHealthMetrics } from '@/features/clients/components'
 import { ActivitiesCalendar } from '@/features/dashboard/components/ActivitiesCalendar'
@@ -65,7 +66,9 @@ interface DashboardData {
 export default function DashboardPage() {
   return (
     <ProtectedRoute>
-      <RealtimeDashboard />
+      <AppShell>
+        <RealtimeDashboard />
+      </AppShell>
     </ProtectedRoute>
   )
 }

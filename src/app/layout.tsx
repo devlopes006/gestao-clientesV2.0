@@ -1,4 +1,3 @@
-import AppShell from '@/components/layout/AppShell'
 import { UserProvider } from '@/context/UserContext'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'

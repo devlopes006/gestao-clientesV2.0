@@ -1,0 +1,203 @@
+import { adminAuth } from '@/lib/firebaseAdmin'
+import { prisma } from '@/lib/prisma'
+import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
+
+// Helper para mapear status/urgência
+function isPending(status: string) {
+  return ['pending', 'todo'].includes(status)
+}
+function isInProgress(status: string) {
+  return ['in_progress', 'in-progress'].includes(status)
+}
+function isDone(status: string) {
+  return ['done', 'completed'].includes(status)
+}
+function computeUrgency(t: {
+  dueDate: Date | null
+  priority: string
+  status: string
+}) {
+  if (isDone(t.status)) return 0
+  let score = 0
+  if (t.priority === 'high') score += 3
+  else if (t.priority === 'medium') score += 2
+  else score += 1
+  if (t.dueDate) {
+    const diffMs = t.dueDate.getTime() - Date.now()
+    const diffDays = diffMs / (1000 * 60 * 60 * 24)
+    if (diffDays <= 0) score += 4 // atraso
+    else if (diffDays <= 1) score += 3
+    else if (diffDays <= 3) score += 2
+    else if (diffDays <= 7) score += 1
+  }
+  return score
+}
+
+export async function GET() {
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get('auth')?.value
+
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const decoded = await adminAuth.verifyIdToken(token)
+    const userId = decoded.uid
+
+    // Busca o usuário e sua org
+    const user = await prisma.user.findUnique({
+      where: { firebaseUid: userId },
+      include: { memberships: { include: { org: true } } },
+    })
+
+    if (!user || user.memberships.length === 0) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+
+    const orgId = user.memberships[0].orgId
+
+    // Tasks mais completas (para métricas), limit maior
+    const [clients, tasks] = await Promise.all([
+      prisma.client.findMany({
+        where: { orgId },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+        select: { id: true, name: true, email: true, createdAt: true },
+      }),
+      prisma.task.findMany({
+        where: { orgId },
+        orderBy: { createdAt: 'desc' },
+        take: 200,
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          description: true,
+          createdAt: true,
+          priority: true,
+          dueDate: true,
+          clientId: true,
+          client: { select: { id: true, name: true } },
+        },
+      }),
+    ])
+
+    // Agregações
+    const taskAggByClient: Record<
+      string,
+      {
+        total: number
+        pending: number
+        inProgress: number
+        done: number
+        urgent: number
+        name: string
+      }
+    > = {}
+    let mostPendingClient: {
+      clientId: string
+      pending: number
+      name: string
+    } | null = null
+    let mostUrgentClient: {
+      clientId: string
+      urgent: number
+      name: string
+    } | null = null
+
+    const urgentTasks: Array<{
+      id: string
+      title: string
+      status: string
+      description: string | null
+      createdAt: Date
+      priority: string
+      dueDate: Date | null
+      clientId: string
+      client: { id: string; name: string }
+      urgencyScore: number
+    }> = []
+
+    for (const t of tasks) {
+      const key = t.clientId
+      if (!taskAggByClient[key]) {
+        taskAggByClient[key] = {
+          total: 0,
+          pending: 0,
+          inProgress: 0,
+          done: 0,
+          urgent: 0,
+          name: t.client.name,
+        }
+      }
+      const bucket = taskAggByClient[key]
+      bucket.total += 1
+      if (isPending(t.status)) bucket.pending += 1
+      else if (isInProgress(t.status)) bucket.inProgress += 1
+      else if (isDone(t.status)) bucket.done += 1
+
+      const urgencyScore = computeUrgency({
+        dueDate: t.dueDate,
+        priority: t.priority,
+        status: t.status,
+      })
+      if (urgencyScore >= 5) {
+        // threshold "urgente"
+        bucket.urgent += 1
+        urgentTasks.push({
+          id: t.id,
+          title: t.title,
+          status: t.status,
+          description: t.description,
+          createdAt: t.createdAt,
+          priority: t.priority,
+          dueDate: t.dueDate,
+          clientId: t.clientId,
+          client: t.client,
+          urgencyScore,
+        })
+      }
+
+      if (!mostPendingClient || bucket.pending > mostPendingClient.pending) {
+        mostPendingClient = {
+          clientId: key,
+          pending: bucket.pending,
+          name: bucket.name,
+        }
+      }
+      if (!mostUrgentClient || bucket.urgent > mostUrgentClient.urgent) {
+        mostUrgentClient = {
+          clientId: key,
+          urgent: bucket.urgent,
+          name: bucket.name,
+        }
+      }
+    }
+
+    urgentTasks.sort((a, b) => b.urgencyScore - a.urgencyScore)
+
+    return NextResponse.json({
+      clients,
+      tasks,
+      metrics: {
+        totals: {
+          clients: clients.length,
+          tasks: tasks.length,
+        },
+        mostPendingClient,
+        mostUrgentClient,
+        urgentTasks: urgentTasks.slice(0, 15),
+        taskAggByClient,
+      },
+      user: { id: user.id, name: user.name, email: user.email },
+    })
+  } catch (error) {
+    console.error('Erro ao buscar dados do dashboard:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch dashboard data' },
+      { status: 500 }
+    )
+  }
+}

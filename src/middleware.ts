@@ -20,7 +20,7 @@ export async function middleware(req: NextRequest) {
   }
 
   if (isLoginRoute) {
-    return NextResponse.redirect(new URL('/dashboard', req.url))
+    return NextResponse.redirect(new URL('/', req.url))
   }
 
   return NextResponse.next()
@@ -28,7 +28,12 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
+    '/',
+    '/clients/:path*',
+    '/client/:path*',
+    '/admin/:path*',
     '/dashboard/:path*',
+    '/api/invites/:path*',
     '/onboarding/:path*',
     '/login/:path*',
     '/auth/:path*',

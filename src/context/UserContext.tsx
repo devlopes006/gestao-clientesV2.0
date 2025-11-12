@@ -7,7 +7,7 @@ import { createContext, ReactNode, useContext, useEffect, useState } from 'react
 interface UserContextType {
   user: User | null
   loading: boolean
-  loginWithGoogle: () => Promise<void>
+  loginWithGoogle: (inviteToken?: string | null) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -35,7 +35,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe()
   }, [])
 
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = async (inviteToken?: string | null) => {
     if (!auth || !provider) throw new Error('Firebase auth not initialized')
 
     // Faz login com Google
@@ -54,8 +54,27 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       throw new Error('Falha ao criar sessão')
     }
 
-    // Redireciona para dashboard sem reload
-    router.push('/dashboard')
+    // Se houver convite, tenta aceitar antes de redirecionar
+    let nextPath: string | null = null
+    if (inviteToken) {
+      try {
+        const r = await fetch('/api/invites/accept', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: inviteToken }),
+        })
+        if (r.ok) {
+          const j = await r.json()
+          nextPath = j.nextPath || null
+        }
+      } catch (e) {
+        console.error('Falha ao aceitar convite:', e)
+      }
+    }
+
+    // Força atualização do cache e redireciona
+    router.refresh()
+    router.push(nextPath || '/')
   }
 
   const logout = async () => {
@@ -68,7 +87,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       // Faz logout do Firebase
       await signOut(auth)
 
-      // Redireciona para login sem reload
+      // Força refresh e redireciona
+      router.refresh()
       router.push('/login')
     } catch (error) {
       console.error('Erro ao fazer logout:', error)

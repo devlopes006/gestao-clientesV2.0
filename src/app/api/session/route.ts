@@ -1,7 +1,33 @@
 import { adminAuth } from '@/lib/firebaseAdmin'
 import { handleUserOnboarding } from '@/services/auth/onboarding'
+import { getSessionProfile } from '@/services/auth/session'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+/**
+ * Retorna informações da sessão atual do usuário
+ */
+export async function GET() {
+  try {
+    const { user, orgId, role } = await getSessionProfile()
+
+    if (!user || !orgId) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    }
+
+    return NextResponse.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+      orgId,
+      role,
+    })
+  } catch (err) {
+    console.error('Erro ao obter sessão', err)
+    return NextResponse.json({ error: 'Session error' }, { status: 500 })
+  }
+}
 
 /**
  * Recebe ID token Firebase do cliente, seta cookie HttpOnly seguro,

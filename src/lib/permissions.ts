@@ -1,33 +1,58 @@
-import { Role } from '@prisma/client'
+// Keep this file isomorphic (usable on server and client) by avoiding
+// dependencies on server-only packages like @prisma/client in runtime code.
+export type AppRole = 'OWNER' | 'STAFF' | 'CLIENT'
 
-type AppAction = 'manage' | 'create' | 'read' | 'update' | 'delete'
-type AppResource = 'org' | 'client' | 'task' | 'media' | 'member'
+export type AppAction = 'manage' | 'create' | 'read' | 'update' | 'delete'
+export type AppResource =
+  | 'org'
+  | 'client'
+  | 'task'
+  | 'media'
+  | 'member'
+  | 'branding'
+  | 'strategy'
 
-const rules: Record<Role, Record<AppAction, AppResource[]>> = {
+const rules: Record<AppRole, Record<AppAction, AppResource[]>> = {
   OWNER: {
-    manage: ['org', 'client', 'task', 'media', 'member'],
-    create: ['client', 'task', 'media'],
-    read: ['org', 'client', 'task', 'media', 'member'],
-    update: ['org', 'client', 'task', 'media', 'member'],
-    delete: ['client', 'task', 'media', 'member'],
+    manage: [
+      'org',
+      'client',
+      'task',
+      'media',
+      'member',
+      'branding',
+      'strategy',
+    ],
+    create: ['client', 'task', 'media', 'branding', 'strategy'],
+    read: ['org', 'client', 'task', 'media', 'member', 'branding', 'strategy'],
+    update: [
+      'org',
+      'client',
+      'task',
+      'media',
+      'member',
+      'branding',
+      'strategy',
+    ],
+    delete: ['client', 'task', 'media', 'member', 'branding', 'strategy'],
   },
   STAFF: {
-    manage: ['client', 'task', 'media'],
-    create: ['task', 'media'],
-    read: ['org', 'client', 'task', 'media'],
-    update: ['client', 'task', 'media'],
-    delete: ['task', 'media'],
+    manage: ['client', 'task', 'media', 'branding', 'strategy'],
+    create: ['task', 'media', 'branding', 'strategy'],
+    read: ['org', 'client', 'task', 'media', 'branding', 'strategy'],
+    update: ['client', 'task', 'media', 'branding', 'strategy'],
+    delete: ['task', 'media', 'branding', 'strategy'],
   },
   CLIENT: {
     manage: [],
     create: [],
-    read: ['client', 'media', 'task'],
+    read: ['client', 'media', 'task', 'branding', 'strategy'],
     update: [],
     delete: [],
   },
 }
 
-export function can(role: Role, action: AppAction, resource: AppResource) {
+export function can(role: AppRole, action: AppAction, resource: AppResource) {
   const allowed = rules[role]?.[action]
   return allowed?.includes(resource) ?? false
 }

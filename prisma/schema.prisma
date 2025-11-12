@@ -13,6 +13,13 @@ enum Role {
   CLIENT
 }
 
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  CANCELED
+  EXPIRED
+}
+
 model User {
   id          String  @id @default(cuid())
   firebaseUid String  @unique
@@ -25,6 +32,7 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  client    Client?
 }
 
 model Org {
@@ -37,6 +45,7 @@ model Org {
   clients     Client[]
   tasks       Task[]
   media       Media[]
+  invites     Invite[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -54,38 +63,153 @@ model Member {
 }
 
 model Client {
-  id        String   @id @default(cuid())
-  name      String
-  email     String?
-  phone     String?
-  orgId     String
-  org       Org      @relation(fields: [orgId], references: [id])
-  tasks     Task[]
-  media     Media[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String        @id @default(cuid())
+  name         String
+  email        String?
+  phone        String?
+  status       String        @default("new") // new | onboarding | active | paused | closed
+  plan         String? // plano do cliente (ex: starter, pro)
+  mainChannel  String? // canal principal (ex: instagram, tiktok)
+  orgId        String
+  org          Org           @relation(fields: [orgId], references: [id])
+  clientUserId String? // Usuário (role CLIENT) associado exclusivamente a este cliente
+  clientUser   User?         @relation(fields: [clientUserId], references: [id])
+  tasks        Task[]
+  media        Media[]
+  mediaFolders MediaFolder[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  invites      Invite[]
+  strategies   Strategy[]
+  brandings    Branding[]
+  finances     Finance[]
+  meetings     Meeting[]
+
+  @@unique([clientUserId])
 }
 
 model Task {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  status      String    @default("todo") // todo | in-progress | done
+  priority    String    @default("medium") // low | medium | high
+  assignee    String? // Responsável opcional
+  dueDate     DateTime? // Prazo opcional
+  clientId    String
+  orgId       String
+  org         Org       @relation(fields: [orgId], references: [id])
+  client      Client    @relation(fields: [clientId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Media {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  // Upload real: fileKey (S3/storage path), mimeType, size
+  fileKey     String? // caminho no storage (S3 key ou path local)
+  mimeType    String? // ex: image/png, video/mp4, application/pdf
+  fileSize    Int? // tamanho em bytes
+  url         String? // URL pública (gerada ou legado)
+  type        String // image | video | document (categoria visual)
+  folderId    String? // pasta pai (null = raiz)
+  folder      MediaFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  clientId    String
+  orgId       String
+  org         Org          @relation(fields: [orgId], references: [id])
+  client      Client       @relation(fields: [clientId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+// Pastas de organização de mídias
+model MediaFolder {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  parentId    String? // pasta pai (null = raiz)
+  parent      MediaFolder?  @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children    MediaFolder[] @relation("FolderHierarchy")
+  media       Media[]
+  clientId    String
+  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([clientId, parentId])
+}
+
+model Invite {
+  id            String       @id @default(cuid())
+  orgId         String
+  org           Org          @relation(fields: [orgId], references: [id])
+  email         String
+  roleRequested Role
+  token         String       @unique
+  status        InviteStatus @default(PENDING)
+  clientId      String? // Se convite para CLIENT, pode referenciar um Client existente
+  client        Client?      @relation(fields: [clientId], references: [id])
+  expiresAt     DateTime
+  acceptedAt    DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+// Estratégias de negócio do cliente
+model Strategy {
   id          String   @id @default(cuid())
   title       String
   description String?
-  status      String   @default("pending")
+  type        String // objective | action-plan | target-audience | kpi
+  content     String   @db.Text
   clientId    String
-  orgId       String
-  org         Org      @relation(fields: [orgId], references: [id])
-  client      Client   @relation(fields: [clientId], references: [id])
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-model Media {
-  id        String   @id @default(cuid())
-  url       String
-  type      String
-  clientId  String
-  orgId     String
-  org       Org      @relation(fields: [orgId], references: [id])
-  client    Client   @relation(fields: [clientId], references: [id])
-  createdAt DateTime @default(now())
+// Materiais de branding do cliente
+model Branding {
+  id          String   @id @default(cuid())
+  title       String
+  type        String // logo | color-palette | typography | manual | template | asset
+  description String?
+  fileUrl     String?
+  content     String?  @db.Text // Para paletas de cores, tipografia, etc
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Transações financeiras do cliente
+model Finance {
+  id          String   @id @default(cuid())
+  type        String // income | expense
+  amount      Float
+  description String?
+  category    String? // Categoria da transação
+  date        DateTime @default(now())
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Reuniões agendadas com o cliente
+model Meeting {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  location    String? // Presencial, link de reunião, etc
+  status      String   @default("scheduled") // scheduled | completed | cancelled
+  notes       String?  @db.Text // Notas da reunião
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

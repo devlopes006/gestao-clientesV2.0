@@ -2,9 +2,7 @@ import 'dotenv/config'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    typedRoutes: false,
-  },
+  typedRoutes: false,
 }
 
 export default nextConfig

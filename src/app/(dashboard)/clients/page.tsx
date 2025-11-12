@@ -1,74 +1,101 @@
-'use client'
-
-import { ProtectedRoute } from '@/components/ProtectedRoute'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { StatusBadge } from '@/features/clients/components/StatusBadge'
+import { formatDate } from '@/lib/utils'
+import { getSessionProfile } from '@/services/auth/session'
+import { listClientsByOrg } from '@/services/repositories/clients'
+import { ClientStatus } from '@/types/client'
+import type { AppClient } from '@/types/tables'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
-export default function ClientsPage() {
+export const revalidate = 60
+
+export default async function ClientsPage() {
+  const { user, orgId } = await getSessionProfile()
+
+  if (!user || !orgId) {
+    return (
+      <Card className="p-8 text-center text-slate-500 bg-slate-50 border border-dashed space-y-3">
+        <p>Você precisa estar autenticado para ver os clientes.</p>
+        <Button size="sm" className="rounded-full" onClick={() => { }}>
+          <Link href="/login">Ir para login</Link>
+        </Button>
+      </Card>
+    )
+  }
+
+  let clients: AppClient[] = []
+  try {
+    clients = await listClientsByOrg(orgId)
+  } catch (error) {
+    console.error('🚨 Erro ao carregar clientes:', error)
+    return (
+      <Card className="p-6 text-red-600 bg-rose-50 border-rose-200 shadow-sm">
+        Erro ao carregar clientes. Tente novamente.
+      </Card>
+    )
+  }
+
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
-        <nav className="bg-white shadow-sm border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-16 items-center">
-              <div className="flex items-center gap-8">
-                <Link href="/dashboard" className="text-xl font-bold text-brand-600">
-                  MyGest
-                </Link>
-                <div className="flex gap-4">
-                  <Link
-                    href="/dashboard"
-                    className="text-gray-700 hover:text-brand-600 font-medium"
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
-                    href="/dashboard/clients"
-                    className="text-brand-600 font-medium border-b-2 border-brand-600 pb-1"
-                  >
-                    Clientes
-                  </Link>
+    <div className="space-y-10 animate-in fade-in duration-300 p-8">
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Link href="/">
+            <Button variant="outline" size="sm" className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Voltar
+            </Button>
+          </Link>
+          <div className="flex-1">
+            <p className="text-sm font-medium uppercase tracking-[0.15em] text-slate-400">
+              Gestão de clientes
+            </p>
+            <h1 className="text-3xl font-semibold text-slate-900">Meus Clientes</h1>
+            <p className="text-sm text-slate-500 max-w-md mt-1">
+              Visualize e gerencie todos os clientes da sua organização com informações atualizadas.
+            </p>
+          </div>
+          <Button size="lg" className="rounded-full bg-slate-900 hover:bg-slate-800 text-white px-6 shadow-md transition-all">
+            <Link href="/clients/new">➕ Novo Cliente</Link>
+          </Button>
+        </div>
+      </div>
+
+      {!clients.length ? (
+        <Card className="p-8 text-center border border-dashed text-slate-500 bg-slate-50 space-y-2">
+          <p className="text-lg font-medium">Nenhum cliente cadastrado ainda.</p>
+          <p className="text-slate-400 text-sm">Que tal começar agora?</p>
+          <Button size="sm" className="mt-4 rounded-full">
+            <Link href="/clients/new">➕ Adicionar Cliente</Link>
+          </Button>
+        </Card>
+      ) : (
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {clients.map(client => (
+            <Card
+              key={client.id}
+              className="group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="relative flex flex-col gap-3">
+                <div className="flex items-start justify-between">
+                  <h3 className="font-semibold text-lg text-slate-900">{client.name}</h3>
+                  <StatusBadge status={client.status as ClientStatus} />
+                </div>
+                <p className="text-sm text-slate-500">{client.plan ?? '—'} • {client.main_channel ?? '—'}</p>
+                <p className="text-xs text-slate-400">
+                  Criado em <span className="font-medium text-slate-500">{formatDate(client.created_at)}</span>
+                </p>
+                <div className="pt-2 flex justify-end">
+                  <Button variant="outline" size="sm" className="rounded-full border-slate-300 hover:bg-slate-100 hover:text-slate-900 text-slate-600 text-xs font-medium transition-all">
+                    <Link href={`/clients/${client.id}/info`}>Ver detalhes</Link>
+                  </Button>
                 </div>
               </div>
-            </div>
-          </div>
-        </nav>
-
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">Clientes</h1>
-            <button className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors">
-              + Novo Cliente
-            </button>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-            <div className="max-w-md mx-auto">
-              <svg
-                className="w-16 h-16 mx-auto text-gray-400 mb-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Nenhum cliente cadastrado
-              </h3>
-              <p className="text-gray-500 mb-6">
-                Comece adicionando seu primeiro cliente para gerenciar projetos e tarefas.
-              </p>
-              <button className="px-6 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors font-medium">
-                Adicionar Primeiro Cliente
-              </button>
-            </div>
-          </div>
-        </main>
-      </div>
-    </ProtectedRoute>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }

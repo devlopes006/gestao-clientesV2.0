@@ -20,6 +20,7 @@ export async function GET(req: Request) {
       name: decoded.name || decoded.email!.split('@')[0],
     })
 
+    // Redireciona para a home (dashboard) após onboarding
     return NextResponse.redirect(new URL('/', req.url))
   } catch (err) {
     console.error('Erro ao validar token:', err)

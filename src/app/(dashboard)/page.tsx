@@ -4,12 +4,12 @@ import { ProtectedRoute } from '@/components/ProtectedRoute'
 import AppShell from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/card'
 import { ClientsWithBottlenecks, type ClientHealthMetrics } from '@/features/clients/components'
-import { ActivitiesCalendar } from '@/features/dashboard/components/ActivitiesCalendar'
+import { MonthlyCalendar } from '@/features/dashboard/components/MonthlyCalendar'
 import { can, type AppRole } from '@/lib/permissions'
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 interface DashboardData {
@@ -80,11 +80,25 @@ function RealtimeDashboard() {
   const [error, setError] = useState<string | null>(null)
   const [showOnlyIssues, setShowOnlyIssues] = useState(true)
   const [role, setRole] = useState<string | null>(null)
+  const [monthKey, setMonthKey] = useState<string>(() => {
+    const now = new Date()
+    const mm = String(now.getMonth() + 1).padStart(2, '0')
+    return `${now.getFullYear()}-${mm}`
+  })
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    // sync from URL on mount / changes
+    const m = searchParams?.get('month')
+    if (m && m !== monthKey) {
+      setMonthKey(m)
+    }
+  }, [searchParams, monthKey])
 
   useEffect(() => {
     async function loadDashboard() {
       try {
-        const res = await fetch('/api/dashboard')
+        const res = await fetch(`/api/dashboard?month=${encodeURIComponent(monthKey)}`)
         if (!res.ok) {
           throw new Error('Falha ao carregar dashboard')
         }
@@ -104,7 +118,7 @@ function RealtimeDashboard() {
     }
 
     void loadDashboard()
-  }, [])
+  }, [monthKey])
 
   if (loading) {
     return (
@@ -232,7 +246,25 @@ function RealtimeDashboard() {
 
         {/* Coluna 2 - Calendário */}
         {data.activities && data.activities.length > 0 && (
-          <ActivitiesCalendar activities={data.activities} />
+          <MonthlyCalendar
+            key={monthKey}
+            activities={data.activities}
+            initialMonth={(() => {
+              const [y, m] = monthKey.split('-').map((n) => Number(n))
+              return new Date(y, (m || 1) - 1, 1)
+            })()}
+            onMonthChange={(d) => {
+              const mm = String(d.getMonth() + 1).padStart(2, '0')
+              const value = `${d.getFullYear()}-${mm}`
+              setMonthKey(value)
+              try {
+                // update URL query for shareability
+                const url = new URL(window.location.href)
+                url.searchParams.set('month', value)
+                window.history.replaceState(null, '', url.toString())
+              } catch {}
+            }}
+          />
         )}
       </div>
 

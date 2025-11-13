@@ -1,6 +1,13 @@
 'use client'
 import { auth, provider } from '@/lib/firebase'
-import { onAuthStateChanged, signInWithPopup, signOut, User } from 'firebase/auth'
+import {
+  getRedirectResult,
+  onAuthStateChanged,
+  signInWithPopup,
+  signInWithRedirect,
+  signOut,
+  User
+} from 'firebase/auth'
 import { useRouter } from 'next/navigation'
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
 
@@ -12,6 +19,14 @@ interface UserContextType {
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
+
+// Helper para detectar se é mobile
+function isMobileDevice(): boolean {
+  if (typeof window === 'undefined') return false
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  ) || window.innerWidth < 768
+}
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
@@ -27,6 +42,28 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       return
     }
 
+    // Verifica se houve redirect de login (mobile)
+    const handleRedirectResult = async () => {
+      if (!auth) return
+      try {
+        const result = await getRedirectResult(auth)
+        if (result?.user) {
+          console.log('[UserContext] Redirect result detectado:', result.user.uid)
+          // Recupera token de convite salvo antes do redirect
+          const savedToken = sessionStorage.getItem('pendingInviteToken')
+          if (savedToken) {
+            sessionStorage.removeItem('pendingInviteToken')
+          }
+          // Processa a sessão após redirect
+          await processLoginResult(result.user, savedToken)
+        }
+      } catch (error) {
+        console.error('[UserContext] Erro ao processar redirect:', error)
+      }
+    }
+
+    handleRedirectResult()
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       console.log('[UserContext] onAuthStateChanged disparado:', firebaseUser?.uid || 'null')
       setUser(firebaseUser)
@@ -36,20 +73,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe()
   }, [])
 
-  const loginWithGoogle = async (inviteToken?: string | null) => {
-    if (!auth || !provider) throw new Error('Firebase auth not initialized')
-
-    console.log('[UserContext] Iniciando login com Google, inviteToken:', inviteToken)
-
-    // Faz login com Google
-    const result = await signInWithPopup(auth, provider)
-
-    // Atualiza o estado do usuário imediatamente
-    console.log('[UserContext] setUser com:', result.user.uid)
-    setUser(result.user)
+  const processLoginResult = async (firebaseUser: User, inviteToken?: string | null) => {
+    console.log('[UserContext] Processando resultado do login para:', firebaseUser.uid)
+    setUser(firebaseUser)
 
     // Obtém token FRESCO (força refresh)
-    const idToken = await result.user.getIdToken(true)
+    const idToken = await firebaseUser.getIdToken(true)
     if (!idToken) throw new Error('Falha ao obter ID token do usuário')
 
     console.log('[UserContext] Token obtido, criando sessão...')
@@ -144,10 +173,43 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       }
     }
 
-    console.log('[UserContext] User state antes de redirecionar:', !!result.user)
+    console.log('[UserContext] User state antes de redirecionar:', !!firebaseUser)
     console.log('[UserContext] Redirecionando para:', nextPath)
     router.refresh()
     if (nextPath) router.push(nextPath)
+  }
+
+  const loginWithGoogle = async (inviteToken?: string | null) => {
+    if (!auth || !provider) throw new Error('Firebase auth not initialized')
+
+    console.log('[UserContext] Iniciando login com Google, inviteToken:', inviteToken)
+
+    // Salva o token de convite no sessionStorage para recuperar após redirect
+    if (inviteToken) {
+      sessionStorage.setItem('pendingInviteToken', inviteToken)
+    }
+
+    const isMobile = isMobileDevice()
+    console.log('[UserContext] Dispositivo mobile detectado:', isMobile)
+
+    if (isMobile) {
+      // Mobile: usa redirect (mais confiável em mobile)
+      console.log('[UserContext] Usando signInWithRedirect para mobile')
+      await signInWithRedirect(auth, provider)
+      // O fluxo continua no useEffect após o redirect
+    } else {
+      // Desktop: usa popup (experiência melhor)
+      console.log('[UserContext] Usando signInWithPopup para desktop')
+      const result = await signInWithPopup(auth, provider)
+
+      // Recupera token de convite se houver
+      const savedToken = sessionStorage.getItem('pendingInviteToken')
+      if (savedToken) {
+        sessionStorage.removeItem('pendingInviteToken')
+      }
+
+      await processLoginResult(result.user, savedToken || inviteToken)
+    }
   }
 
   const logout = async () => {

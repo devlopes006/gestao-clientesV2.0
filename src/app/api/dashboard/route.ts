@@ -26,7 +26,8 @@ function computeUrgency(t: {
   if (t.dueDate) {
     const diffMs = t.dueDate.getTime() - Date.now()
     const diffDays = diffMs / (1000 * 60 * 60 * 24)
-    if (diffDays <= 0) score += 4 // atraso
+    if (diffDays <= 0)
+      score += 4 // atraso
     else if (diffDays <= 1) score += 3
     else if (diffDays <= 3) score += 2
     else if (diffDays <= 7) score += 1
@@ -34,7 +35,7 @@ function computeUrgency(t: {
   return score
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const cookieStore = await cookies()
     const token = cookieStore.get('auth')?.value
@@ -235,8 +236,45 @@ export async function GET() {
       }
     })
 
-    // Preparar atividades para o calendário (reuniões + tarefas com prazo)
-    const activities = [
+    // Determinar intervalo mensal (default: mês atual) ou por query param ?month=YYYY-MM ou ?start&end
+    const url = new URL(req.url)
+    const monthParam = url.searchParams.get('month') // YYYY-MM
+    const rangeStartParam = url.searchParams.get('start')
+    const rangeEndParam = url.searchParams.get('end')
+
+    let rangeStart: Date
+    let rangeEnd: Date
+    if (rangeStartParam && rangeEndParam) {
+      const rs = new Date(rangeStartParam)
+      const re = new Date(rangeEndParam)
+      if (!Number.isNaN(rs.getTime()) && !Number.isNaN(re.getTime())) {
+        rangeStart = rs
+        rangeEnd = re
+      } else {
+        throw new Error('Invalid start/end query params')
+      }
+    } else if (monthParam) {
+      const [y, m] = monthParam.split('-').map((n) => Number(n))
+      const year = Number.isFinite(y) ? y : new Date().getFullYear()
+      const monthIdx = Number.isFinite(m) ? m - 1 : new Date().getMonth()
+      rangeStart = new Date(year, monthIdx, 1, 0, 0, 0, 0)
+      rangeEnd = new Date(year, monthIdx + 1, 0, 23, 59, 59, 999)
+    } else {
+      const now = new Date()
+      rangeStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0)
+      rangeEnd = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+        999
+      )
+    }
+
+    // Preparar atividades para o calendário (reuniões + tarefas com prazo), filtradas pelo mês
+    const activitiesAll = [
       ...meetings.map((m) => ({
         id: m.id,
         title: m.title,
@@ -256,7 +294,11 @@ export async function GET() {
           clientName: t.client.name,
           status: t.status,
         })),
-    ].sort((a, b) => a.date.getTime() - b.date.getTime())
+    ]
+
+    const activities = activitiesAll
+      .filter((a) => a.date >= rangeStart && a.date <= rangeEnd)
+      .sort((a, b) => a.date.getTime() - b.date.getTime())
 
     return NextResponse.json({
       clients,

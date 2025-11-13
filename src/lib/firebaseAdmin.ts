@@ -36,7 +36,7 @@ if (!getApps().length) {
     )
   }
 
-  const app = initializeApp({
+  initializeApp({
     credential: cert({
       projectId: senv.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
       clientEmail: senv.FIREBASE_CLIENT_EMAIL,

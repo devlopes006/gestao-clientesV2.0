@@ -18,9 +18,7 @@ export async function GET() {
 
     const finances = await prisma.finance.findMany({
       where: {
-        client: {
-          orgId,
-        },
+        orgId,
       },
       include: {
         client: {
@@ -66,13 +64,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (!clientId) {
-      return NextResponse.json(
-        { error: 'Cliente é obrigatório' },
-        { status: 400 }
-      )
-    }
-
     // If clientId is provided, verify it belongs to the org
     if (clientId) {
       const client = await prisma.client.findUnique({
@@ -90,9 +81,10 @@ export async function POST(req: NextRequest) {
 
     const finance = await prisma.finance.create({
       data: {
-        clientId: clientId,
+        orgId,
+        clientId: clientId ?? null,
         type,
-        amount: parseFloat(amount),
+        amount: typeof amount === 'string' ? parseFloat(amount) : amount,
         description,
         category,
         date: date ? new Date(date) : new Date(),
@@ -143,14 +135,9 @@ export async function PATCH(req: NextRequest) {
     // Verify finance belongs to org
     const existingFinance = await prisma.finance.findUnique({
       where: { id: financeId },
-      include: { client: true },
     })
 
-    if (
-      !existingFinance ||
-      !existingFinance.client ||
-      existingFinance.client.orgId !== orgId
-    ) {
+    if (!existingFinance || existingFinance.orgId !== orgId) {
       return NextResponse.json(
         { error: 'Transação não encontrada' },
         { status: 404 }
@@ -179,7 +166,9 @@ export async function PATCH(req: NextRequest) {
       where: { id: financeId },
       data: {
         ...(type !== undefined && { type }),
-        ...(amount !== undefined && { amount: parseFloat(amount) }),
+        ...(amount !== undefined && {
+          amount: typeof amount === 'string' ? parseFloat(amount) : amount,
+        }),
         ...(description !== undefined && { description }),
         ...(category !== undefined && { category }),
         ...(date !== undefined && { date: new Date(date) }),
@@ -231,14 +220,9 @@ export async function DELETE(req: NextRequest) {
     // Verify finance belongs to org
     const existingFinance = await prisma.finance.findUnique({
       where: { id: financeId },
-      include: { client: true },
     })
 
-    if (
-      !existingFinance ||
-      !existingFinance.client ||
-      existingFinance.client.orgId !== orgId
-    ) {
+    if (!existingFinance || existingFinance.orgId !== orgId) {
       return NextResponse.json(
         { error: 'Transação não encontrada' },
         { status: 404 }

@@ -305,7 +305,11 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
     }
 
     if (clientFilter !== 'all') {
-      result = result.filter((f) => f.clientId === clientFilter)
+      if (clientFilter === '') {
+        result = result.filter((f) => !f.clientId)
+      } else {
+        result = result.filter((f) => f.clientId === clientFilter)
+      }
     }
 
     if (dateFilter) {
@@ -775,17 +779,16 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="clientId">Cliente <span className="text-red-500">*</span></Label>
+                      <Label htmlFor="clientId">Cliente (opcional)</Label>
                       <Select
                         id="clientId"
                         value={formData.clientId}
                         onChange={(e) =>
                           setFormData({ ...formData, clientId: e.target.value })
                         }
-                        required
                         disabled={submitting}
                       >
-                        <option value="">Selecione um cliente</option>
+                        <option value="">Sem cliente específico</option>
                         {clients.map((client) => (
                           <option key={client.id} value={client.id}>
                             {client.name}

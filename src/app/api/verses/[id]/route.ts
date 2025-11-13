@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const env = getServerEnv()
   if (!env?.BIBLE_API_BASE) {
@@ -14,7 +14,8 @@ export async function GET(
   }
 
   try {
-    const url = `${env.BIBLE_API_BASE.replace(/\/$/, '')}/verses/${params.id}`
+    const { id } = await params
+    const url = `${env.BIBLE_API_BASE.replace(/\/$/, '')}/verses/${id}`
     const res = await fetch(url, {
       headers: env.BIBLE_API_TOKEN
         ? { Authorization: `Bearer ${env.BIBLE_API_TOKEN}` }

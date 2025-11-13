@@ -46,7 +46,8 @@ export async function GET() {
 
     const now = new Date()
     const dayOfYear = Math.floor(
-      (now - new Date(now.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24)
+      (now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) /
+        (1000 * 60 * 60 * 24)
     )
     const selected = books[dayOfYear % books.length]
 

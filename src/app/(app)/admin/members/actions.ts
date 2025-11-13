@@ -179,7 +179,7 @@ export async function inviteStaffAction(formData: FormData) {
           to: email,
           token: pendingInvite.token,
           orgName: org?.name || 'Organização',
-          roleRequested: pendingInvite.roleRequested,
+          roleRequested: pendingInvite.roleRequested as 'STAFF' | 'CLIENT',
           clientName: client?.name || undefined,
         })
         const emailSent = !(result as any)?.skipped
@@ -221,7 +221,7 @@ export async function inviteStaffAction(formData: FormData) {
       to: email,
       token,
       orgName: org?.name || 'Organização',
-      roleRequested: inviteRole,
+      roleRequested: inviteRole as 'STAFF' | 'CLIENT',
       clientName: client?.name || undefined,
     })
     const emailSent = !(sendResult as any)?.skipped
@@ -316,7 +316,7 @@ export async function resendInviteAction(formData: FormData) {
       to: invite.email,
       token: invite.token,
       orgName: org?.name || 'Organização',
-      roleRequested: invite.roleRequested,
+      roleRequested: invite.roleRequested as 'STAFF' | 'CLIENT',
       clientName: client?.name || undefined,
     })
   } catch (e) {

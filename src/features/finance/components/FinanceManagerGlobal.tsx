@@ -139,7 +139,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
       amount: '',
       description: '',
       category: '',
-      date: new Date().toISOString().split('T')[0],
+      date: formatDateInput(new Date()),
       clientId: '',
     })
     setEditingItem(null)
@@ -775,16 +775,17 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="clientId">Cliente (opcional)</Label>
+                      <Label htmlFor="clientId">Cliente <span className="text-red-500">*</span></Label>
                       <Select
                         id="clientId"
                         value={formData.clientId}
                         onChange={(e) =>
                           setFormData({ ...formData, clientId: e.target.value })
                         }
+                        required
                         disabled={submitting}
                       >
-                        <option value="">Sem cliente específico</option>
+                        <option value="">Selecione um cliente</option>
                         {clients.map((client) => (
                           <option key={client.id} value={client.id}>
                             {client.name}

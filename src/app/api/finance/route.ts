@@ -66,6 +66,13 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    if (!clientId) {
+      return NextResponse.json(
+        { error: 'Cliente é obrigatório' },
+        { status: 400 }
+      )
+    }
+
     // If clientId is provided, verify it belongs to the org
     if (clientId) {
       const client = await prisma.client.findUnique({
@@ -83,7 +90,7 @@ export async function POST(req: NextRequest) {
 
     const finance = await prisma.finance.create({
       data: {
-        clientId: clientId || null,
+        clientId: clientId,
         type,
         amount: parseFloat(amount),
         description,

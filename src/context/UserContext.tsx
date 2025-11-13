@@ -15,9 +15,12 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useState 
 // Utility function to detect mobile devices
 const isMobileDevice = () => {
   if (typeof window === 'undefined') return false
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+  // Melhor detecção de mobile: verifica user agent E touch capability
+  const hasTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+  const mobileUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
     navigator.userAgent
-  ) || window.innerWidth < 768
+  )
+  return (mobileUserAgent || hasTouchScreen) && window.innerWidth < 1024
 }
 
 interface UserContextType {
@@ -200,23 +203,28 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     console.log('[UserContext] Usando método de login:', useMobile ? 'redirect' : 'popup')
 
     try {
+      // Mobile: sempre usar redirect (popups não funcionam bem)
       if (useMobile) {
+        console.log('[UserContext] Mobile detectado, usando signInWithRedirect')
         await signInWithRedirect(auth, provider)
         // redirect flow continues in checkRedirectResult
-      } else {
-        try {
-          const result = await signInWithPopup(auth, provider)
-          await handleAuthResult(result.user, inviteToken)
-        } catch (e: unknown) {
-          // Fallback para redirect se popup falhar (bloqueado pelo navegador)
-          const code = (e as { code?: string } | null | undefined)?.code || ''
-          const popupIssues = ['auth/popup-blocked', 'auth/cancelled-popup-request', 'auth/popup-closed-by-user']
-          if (popupIssues.includes(code)) {
-            console.warn('[UserContext] Popup falhou, tentando redirect...')
-            await signInWithRedirect(auth, provider)
-          } else {
-            throw e
-          }
+        return
+      }
+
+      // Desktop: tentar popup primeiro, fallback para redirect
+      try {
+        console.log('[UserContext] Desktop: tentando popup')
+        const result = await signInWithPopup(auth, provider)
+        await handleAuthResult(result.user, inviteToken)
+      } catch (e: unknown) {
+        // Fallback para redirect se popup falhar (bloqueado pelo navegador)
+        const code = (e as { code?: string } | null | undefined)?.code || ''
+        const popupIssues = ['auth/popup-blocked', 'auth/cancelled-popup-request', 'auth/popup-closed-by-user']
+        if (popupIssues.includes(code)) {
+          console.warn('[UserContext] Popup falhou, tentando redirect...')
+          await signInWithRedirect(auth, provider)
+        } else {
+          throw e
         }
       }
     } catch (error) {

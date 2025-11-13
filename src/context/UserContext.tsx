@@ -204,9 +204,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         try {
           const result = await signInWithPopup(auth, provider)
           await handleAuthResult(result.user, inviteToken)
-        } catch (e: any) {
+        } catch (e: unknown) {
           // Fallback para redirect se popup falhar (bloqueado pelo navegador)
-          const code = e?.code || ''
+          const code = (e as { code?: string } | null | undefined)?.code || ''
           const popupIssues = ['auth/popup-blocked', 'auth/cancelled-popup-request', 'auth/popup-closed-by-user']
           if (popupIssues.includes(code)) {
             console.warn('[UserContext] Popup falhou, tentando redirect...')

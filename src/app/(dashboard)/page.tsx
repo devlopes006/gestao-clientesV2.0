@@ -93,7 +93,7 @@ function RealtimeDashboard() {
     if (m && m !== monthKey) {
       setMonthKey(m)
     }
-  }, [searchParams])
+  }, [searchParams, monthKey])
 
   useEffect(() => {
     async function loadDashboard() {
@@ -247,6 +247,7 @@ function RealtimeDashboard() {
         {/* Coluna 2 - Calendário */}
         {data.activities && data.activities.length > 0 && (
           <MonthlyCalendar
+            key={monthKey}
             activities={data.activities}
             initialMonth={(() => {
               const [y, m] = monthKey.split('-').map((n) => Number(n))

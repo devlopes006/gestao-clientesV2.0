@@ -181,7 +181,7 @@ export async function inviteStaffAction(formData: FormData) {
           roleRequested: pendingInvite.roleRequested as 'STAFF' | 'CLIENT',
           clientName: client?.name || undefined,
         })
-        const emailSent = !(result as { skipped?: boolean })?.skipped
+        const emailSent = !result.skipped
         return { ok: true, reusedToken: true, emailSent }
       } catch (e) {
         console.error('Falha ao reenviar e-mail de convite (Resend):', e)
@@ -223,7 +223,7 @@ export async function inviteStaffAction(formData: FormData) {
       roleRequested: inviteRole as 'STAFF' | 'CLIENT',
       clientName: client?.name || undefined,
     })
-    const emailSent = !(sendResult as { skipped?: boolean })?.skipped
+    const emailSent = !sendResult.skipped
     return {
       ok: true,
       reusedToken: false,

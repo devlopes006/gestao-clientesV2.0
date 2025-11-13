@@ -1,5 +1,8 @@
 # Gestão de Clientes
 
+![CI - Development](https://github.com/devlopes006/gestao-clientesV2.0/actions/workflows/ci-dev.yml/badge.svg?branch=develop)
+![CI/CD - Production](https://github.com/devlopes006/gestao-clientesV2.0/actions/workflows/ci-prod.yml/badge.svg?branch=master)
+
 Aplicação Next.js para gestão de clientes, tarefas e mídia com autenticação Firebase e persistência híbrida (Firestore + Prisma/PostgreSQL planejado).
 
 ## ✨ Stack
@@ -27,7 +30,7 @@ Pré-requisitos:
 pnpm install
 ```
 
-2. Configure variáveis de ambiente no arquivo `.env.local`:
+1. Configure variáveis de ambiente no arquivo `.env.local`:
 
 ```bash
 NEXT_PUBLIC_FIREBASE_API_KEY=xxxxx
@@ -41,13 +44,13 @@ FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY----
 DATABASE_URL=postgresql://user:pass@localhost:5432/gestao
 ```
 
-3. Inicie o servidor de desenvolvimento:
+1. Inicie o servidor de desenvolvimento:
 
 ```bash
 pnpm dev
 ```
 
-4. Abra <http://localhost:3000>
+1. Abra <http://localhost:3000>
 
 ## 🗂 Estrutura
 
@@ -74,7 +77,7 @@ src/
 - [ ] Implementar persistência principal em PostgreSQL usando Prisma (espelhar dados críticos de Firestore).
 - [ ] Adicionar rota API segura para ações server-side com verificação de permissões.
 - [ ] Criar hook `usePermissions(role)` para simplificar checks no frontend.
-- [ ] Criar testes unitários (Jest ou Vitest) para `permissions.ts` e `handleUserOnboarding`.
+- [ ] Criar testes unitários (Vitest) para `permissions.ts` e `handleUserOnboarding`.
 - [ ] Ajustar fluxo de login para setar cookie `auth` (middleware depende dele).
 - [ ] Adicionar Sentry ou Logtail para observabilidade.
 

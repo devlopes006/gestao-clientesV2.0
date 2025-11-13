@@ -51,7 +51,9 @@ export type InviteEmailParams = {
   clientName?: string | null
 }
 
-export async function sendInviteEmail(params: InviteEmailParams) {
+export async function sendInviteEmail(
+  params: InviteEmailParams
+): Promise<{ skipped: boolean; id?: string }> {
   if (!client) {
     console.warn('[Resend] RESEND_API_KEY not set; skipping email send')
     return { skipped: true }
@@ -84,7 +86,14 @@ export async function sendInviteEmail(params: InviteEmailParams) {
     html,
     text,
   })
-  return result
+  try {
+    const id =
+      (result as { id?: string } | { data?: { id?: string } | null })?.id ??
+      (result as { data?: { id?: string } | null })?.data?.id
+    return { skipped: false, id }
+  } catch {
+    return { skipped: false }
+  }
 }
 
 // Using string renderer with internal HTML escaper

@@ -1,4 +1,4 @@
-import { app } from '@/lib/firebase'
+import { firebaseApp } from '@/lib/firebase'
 import {
   getDatabase,
   onDisconnect,
@@ -15,7 +15,8 @@ import { useEffect } from 'react'
 export function usePresence(userId?: string) {
   useEffect(() => {
     if (!userId) return
-    const db = getDatabase(app)
+    if (!firebaseApp) return
+    const db = getDatabase(firebaseApp)
     const statusRef = ref(db, `/status/${userId}`)
 
     // Marca como online ao conectar

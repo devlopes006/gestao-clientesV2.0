@@ -16,7 +16,7 @@ export type CalendarActivity = {
   status?: string
 }
 
-export function MonthlyCalendar({ activities, onMonthChange }: { activities: CalendarActivity[]; onMonthChange?: (month: Date) => void }) {
+export function MonthlyCalendar({ activities, onMonthChange, initialMonth }: { activities: CalendarActivity[]; onMonthChange?: (month: Date) => void; initialMonth?: Date }) {
   const [cursor, setCursor] = useState(() => {
     const d = new Date()
     d.setDate(1)
@@ -44,6 +44,16 @@ export function MonthlyCalendar({ activities, onMonthChange }: { activities: Cal
     }
     return { startOfMonth, endOfMonth, days }
   }, [cursor])
+
+  // Sync cursor when initialMonth changes
+  useMemo(() => {
+    if (initialMonth) {
+      const d = new Date(initialMonth)
+      d.setDate(1)
+      d.setHours(0, 0, 0, 0)
+      setCursor(d)
+    }
+  }, [initialMonth])
 
   const normalized = useMemo(() => {
     return activities.map((a) => ({

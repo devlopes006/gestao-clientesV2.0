@@ -9,7 +9,7 @@ import { can, type AppRole } from '@/lib/permissions'
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 interface DashboardData {
@@ -85,6 +85,15 @@ function RealtimeDashboard() {
     const mm = String(now.getMonth() + 1).padStart(2, '0')
     return `${now.getFullYear()}-${mm}`
   })
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    // sync from URL on mount / changes
+    const m = searchParams?.get('month')
+    if (m && m !== monthKey) {
+      setMonthKey(m)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     async function loadDashboard() {
@@ -239,9 +248,20 @@ function RealtimeDashboard() {
         {data.activities && data.activities.length > 0 && (
           <MonthlyCalendar
             activities={data.activities}
+            initialMonth={(() => {
+              const [y, m] = monthKey.split('-').map((n) => Number(n))
+              return new Date(y, (m || 1) - 1, 1)
+            })()}
             onMonthChange={(d) => {
               const mm = String(d.getMonth() + 1).padStart(2, '0')
-              setMonthKey(`${d.getFullYear()}-${mm}`)
+              const value = `${d.getFullYear()}-${mm}`
+              setMonthKey(value)
+              try {
+                // update URL query for shareability
+                const url = new URL(window.location.href)
+                url.searchParams.set('month', value)
+                window.history.replaceState(null, '', url.toString())
+              } catch {}
             }}
           />
         )}

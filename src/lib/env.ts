@@ -29,6 +29,9 @@ const serverSchema = z.object({
   DATABASE_URL: z.string().optional(),
   BIBLE_API_BASE: z.string().optional(),
   BIBLE_API_TOKEN: z.string().optional(),
+  RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM: z.string().optional(),
+  APP_BASE_URL: z.string().url().optional(),
 })
 
 export type ClientEnv = z.infer<typeof clientSchema>
@@ -70,6 +73,9 @@ export function getServerEnv(): ServerEnv | null {
     DATABASE_URL: process.env.DATABASE_URL,
     BIBLE_API_BASE: process.env.BIBLE_API_BASE,
     BIBLE_API_TOKEN: process.env.BIBLE_API_TOKEN,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    EMAIL_FROM: process.env.EMAIL_FROM,
+    APP_BASE_URL: process.env.APP_BASE_URL,
   }
   const parsed = serverSchema.safeParse(raw)
   if (parsed.success) return parsed.data

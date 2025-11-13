@@ -3,15 +3,41 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 interface InvitePayload {
   id: string
   email: string
   roleRequested: string
-  status: string
+  status: 'PENDING' | 'ACCEPTED' | 'CANCELED' | 'EXPIRED' | string
   expiresAt: string
   createdAt: string
+}
+
+function StatusBadge({ status }: { status: InvitePayload['status'] }) {
+  const styles =
+    status === 'PENDING'
+      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+      : status === 'ACCEPTED'
+        ? 'bg-blue-50 text-blue-700 border-blue-200'
+        : status === 'CANCELED'
+          ? 'bg-amber-50 text-amber-700 border-amber-200'
+          : 'bg-rose-50 text-rose-700 border-rose-200'
+  const label =
+    status === 'PENDING'
+      ? 'Pendente'
+      : status === 'ACCEPTED'
+        ? 'Aceito'
+        : status === 'CANCELED'
+          ? 'Cancelado'
+          : status === 'EXPIRED'
+            ? 'Expirado'
+            : status
+  return (
+    <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${styles}`}>
+      {label}
+    </span>
+  )
 }
 
 export default function AcceptInvitePage({ params }: { params: { token: string } }) {
@@ -37,40 +63,103 @@ export default function AcceptInvitePage({ params }: { params: { token: string }
     void load()
   }, [token])
 
+  const expiresLabel = useMemo(() => {
+    if (!invite?.expiresAt) return null
+    try {
+      return new Date(invite.expiresAt).toLocaleString('pt-BR', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      })
+    } catch {
+      return null
+    }
+  }, [invite])
+
+  const canAccept = invite?.status === 'PENDING'
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-background">
-      <div className="w-full max-w-lg">
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle>Aceitar convite</CardTitle>
-            <CardDescription>Revise os detalhes antes de prosseguir.</CardDescription>
+    <div className="min-h-screen w-full bg-linear-to-b from-indigo-50 via-white to-white">
+      <div className="mx-auto max-w-2xl px-6 py-10">
+        <div className="mb-8 flex items-center justify-center">
+          <div className="flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 text-indigo-700">
+            <div className="h-2 w-2 rounded-full bg-indigo-600" />
+            <span className="text-xs font-medium tracking-wide">Gestão de Clientes</span>
+          </div>
+        </div>
+
+        <Card className="shadow-xl border-slate-200">
+          <CardHeader className="text-center border-b bg-slate-50">
+            <CardTitle className="text-xl">Aceitar convite</CardTitle>
+            <CardDescription className="mt-1">
+              Revise os detalhes e continue para criar/entrar na sua conta.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {loading && <p className="text-sm text-muted-foreground">Validando convite...</p>}
-            {!loading && error && (
-              <p className="text-sm font-medium text-destructive">{error}</p>
-            )}
-            {!loading && invite && (
-              <div className="space-y-3 text-sm">
-                <p><span className="font-medium">E-mail:</span> {invite.email}</p>
-                <p><span className="font-medium">Papel:</span> {invite.roleRequested}</p>
-                <p><span className="font-medium">Expira em:</span> {new Date(invite.expiresAt).toLocaleDateString('pt-BR')}</p>
-                {invite.status !== 'PENDING' && (
-                  <p className="text-xs text-muted-foreground">Status: {invite.status}</p>
-                )}
+
+          <CardContent className="space-y-6 p-6">
+            {loading && (
+              <div className="flex items-center justify-center gap-3 text-slate-600">
+                <div className="h-5 w-5 rounded-full border-2 border-t-transparent border-slate-400 animate-spin" />
+                <p className="text-sm">Validando convite...</p>
               </div>
             )}
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={() => router.push('/login')}>Voltar</Button>
-              <Button
-                disabled={!invite || invite.status !== 'PENDING'}
-                onClick={() => router.push(`/login?invite=${token}`)}
-              >
-                Aceitar e entrar
-              </Button>
-            </div>
+
+            {!loading && error && (
+              <div className="rounded-md border border-rose-200 bg-rose-50 p-4 text-rose-700">
+                <p className="text-sm font-medium">{error}</p>
+                <p className="mt-1 text-xs text-rose-600">
+                  Verifique com o administrador se o convite ainda está válido.
+                </p>
+              </div>
+            )}
+
+            {!loading && invite && (
+              <div className="space-y-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1 text-sm">
+                    <p className="text-slate-500">Convite para</p>
+                    <p className="font-medium text-slate-900">{invite.email}</p>
+                    <p className="text-slate-500">Papel: <span className="font-medium">{invite.roleRequested}</span></p>
+                    {expiresLabel && (
+                      <p className="text-slate-500">Expira em: <span className="font-medium">{expiresLabel}</span></p>
+                    )}
+                  </div>
+                  <StatusBadge status={invite.status} />
+                </div>
+
+                {invite.status === 'ACCEPTED' && (
+                  <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-xs text-blue-700">
+                    Este convite já foi aceito. Faça login para continuar.
+                  </div>
+                )}
+                {invite.status === 'CANCELED' && (
+                  <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700">
+                    Este convite foi cancelado pelo administrador.
+                  </div>
+                )}
+                {invite.status === 'EXPIRED' && (
+                  <div className="rounded-md border border-rose-200 bg-rose-50 p-3 text-xs text-rose-700">
+                    Este convite expirou. Solicite um novo convite ao administrador.
+                  </div>
+                )}
+
+                <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                  <Button variant="outline" onClick={() => router.push('/login')}>Entrar</Button>
+                  <Button
+                    disabled={!canAccept}
+                    onClick={() => router.push(`/login?invite=${token}`)}
+                    className="px-6"
+                  >
+                    Aceitar convite e entrar
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
+
+        <div className="mt-6 text-center text-xs text-slate-500">
+          Ao continuar, você concorda com os termos de uso da plataforma.
+        </div>
       </div>
     </div>
   )

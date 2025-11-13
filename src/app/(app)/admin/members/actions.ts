@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma'
 import { generateInviteToken } from '@/lib/tokens'
 import { getSessionProfile } from '@/services/auth/session'
+import { sendInviteEmail } from '@/services/email/resend'
 import { Role } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 
@@ -95,16 +96,29 @@ export async function inviteStaffAction(formData: FormData) {
     )
   }
 
-  const email = (formData.get('email') as string)?.toLowerCase().trim()
+  const rawEmail = (formData.get('email') as string) || ''
+  const email = rawEmail.toLowerCase().trim()
   // Nome opcional (pode ser usado futuramente)
   const fullNameRaw = formData.get('full_name') as string | null
   // deliberately unused: retained for future customization; prefix to ignore
   void fullNameRaw
   const inviteRole = formData.get('role') as Role
   const clientId = formData.get('client_id') as string | null
+  const allowResendExisting =
+    (formData.get('allow_resend_existing') as string | null)?.toLowerCase() ===
+    'true'
 
   if (!email) {
     throw new Error('Email é obrigatório')
+  }
+  // Validação simples de e-mail no servidor
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i
+  if (!emailRegex.test(email)) {
+    throw new Error('Email inválido')
+  }
+  // Evitar auto-convite
+  if (user.email && email === user.email.toLowerCase()) {
+    throw new Error('Você não pode enviar convite para o próprio e-mail')
   }
   if (!['STAFF', 'CLIENT'].includes(inviteRole)) {
     throw new Error('Papel inválido para convite')
@@ -133,18 +147,55 @@ export async function inviteStaffAction(formData: FormData) {
     throw new Error('Este e-mail já possui acesso à organização')
   }
 
+  // Limite de taxa simples: até 10 convites nos últimos 5 minutos por organização
+  const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000)
+  const invitesRecent = await prisma.invite.count({
+    where: { orgId, createdAt: { gte: fiveMinAgo } },
+  })
+  if (invitesRecent >= 10) {
+    throw new Error(
+      'Muitas solicitações: aguarde alguns minutos antes de enviar mais convites'
+    )
+  }
+
   // Convite pendente existente?
   const pendingInvite = await prisma.invite.findFirst({
     where: { orgId, email, status: 'PENDING' },
   })
   if (pendingInvite) {
+    if (allowResendExisting) {
+      try {
+        const org = await prisma.org.findUnique({
+          where: { id: orgId },
+          select: { name: true },
+        })
+        const client = pendingInvite.clientId
+          ? await prisma.client.findUnique({
+              where: { id: pendingInvite.clientId },
+              select: { name: true },
+            })
+          : null
+        const result = await sendInviteEmail({
+          to: email,
+          token: pendingInvite.token,
+          orgName: org?.name || 'Organização',
+          roleRequested: pendingInvite.roleRequested,
+          clientName: client?.name || undefined,
+        })
+        const emailSent = !(result as any)?.skipped
+        return { ok: true, reusedToken: true, emailSent }
+      } catch (e) {
+        console.error('Falha ao reenviar e-mail de convite (Resend):', e)
+        return { ok: true, reusedToken: true, emailSent: false }
+      }
+    }
     throw new Error('Já existe um convite pendente para este e-mail')
   }
 
   const token = generateInviteToken(32)
   const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7) // 7 dias
 
-  await prisma.invite.create({
+  const createdInvite = await prisma.invite.create({
     data: {
       orgId,
       email,
@@ -155,8 +206,41 @@ export async function inviteStaffAction(formData: FormData) {
     },
   })
 
-  // TODO: Enviar e-mail com link de aceite /invite/${token}
-  revalidatePath('/admin/members')
+  try {
+    const org = await prisma.org.findUnique({
+      where: { id: orgId },
+      select: { name: true },
+    })
+    const client = clientId
+      ? await prisma.client.findUnique({
+          where: { id: clientId },
+          select: { name: true },
+        })
+      : null
+    const sendResult = await sendInviteEmail({
+      to: email,
+      token,
+      orgName: org?.name || 'Organização',
+      roleRequested: inviteRole,
+      clientName: client?.name || undefined,
+    })
+    const emailSent = !(sendResult as any)?.skipped
+    return {
+      ok: true,
+      reusedToken: false,
+      emailSent,
+      inviteId: createdInvite.id,
+    }
+  } catch (e) {
+    console.error('Falha ao enviar e-mail de convite (Resend):', e)
+    return {
+      ok: true,
+      reusedToken: false,
+      emailSent: false,
+      inviteId: createdInvite.id,
+    }
+  }
+  // no return path here because we already returned above
 }
 
 export async function cancelInviteAction(formData: FormData) {
@@ -177,6 +261,108 @@ export async function cancelInviteAction(formData: FormData) {
   await prisma.invite.update({
     where: { id: inviteId },
     data: { status: 'CANCELED' },
+  })
+  revalidatePath('/admin/members')
+}
+
+export async function deleteInviteAction(formData: FormData) {
+  const { user, orgId, role } = await getSessionProfile()
+  if (!user || !orgId || role !== 'OWNER') {
+    throw new Error('Não autorizado.')
+  }
+  const inviteId = formData.get('invite_id') as string
+  if (!inviteId) throw new Error('ID do convite não fornecido')
+
+  const invite = await prisma.invite.findUnique({ where: { id: inviteId } })
+  if (!invite || invite.orgId !== orgId) {
+    throw new Error('Convite não encontrado')
+  }
+  if (invite.status === 'ACCEPTED') {
+    throw new Error('Não é possível excluir convites já aceitos')
+  }
+  await prisma.invite.delete({ where: { id: inviteId } })
+  revalidatePath('/admin/members')
+}
+
+export async function resendInviteAction(formData: FormData) {
+  const { user, orgId, role } = await getSessionProfile()
+  if (!user || !orgId || role !== 'OWNER') {
+    throw new Error('Não autorizado.')
+  }
+  const inviteId = formData.get('invite_id') as string
+  if (!inviteId) throw new Error('ID do convite não fornecido')
+
+  const invite = await prisma.invite.findUnique({ where: { id: inviteId } })
+  if (!invite || invite.orgId !== orgId) {
+    throw new Error('Convite não encontrado')
+  }
+  if (invite.status !== 'PENDING') {
+    throw new Error('Apenas convites pendentes podem ser reenviados')
+  }
+
+  const org = await prisma.org.findUnique({
+    where: { id: orgId },
+    select: { name: true },
+  })
+  const client = invite.clientId
+    ? await prisma.client.findUnique({
+        where: { id: invite.clientId },
+        select: { name: true },
+      })
+    : null
+
+  try {
+    await sendInviteEmail({
+      to: invite.email,
+      token: invite.token,
+      orgName: org?.name || 'Organização',
+      roleRequested: invite.roleRequested,
+      clientName: client?.name || undefined,
+    })
+  } catch (e) {
+    console.error('Falha ao reenviar e-mail de convite (Resend):', e)
+    throw new Error('Falha ao reenviar e-mail')
+  }
+
+  revalidatePath('/admin/members')
+}
+
+export async function deactivateMemberAction(formData: FormData) {
+  const { user, orgId, role } = await getSessionProfile()
+  if (!user || !orgId || role !== 'OWNER') {
+    throw new Error('Não autorizado.')
+  }
+  const memberId = formData.get('member_id') as string
+  if (!memberId) throw new Error('ID do membro não fornecido')
+
+  const member = await prisma.member.findUnique({ where: { id: memberId } })
+  if (!member || member.orgId !== orgId)
+    throw new Error('Membro não encontrado')
+  if (member.role === 'OWNER')
+    throw new Error('Não é possível desativar um proprietário')
+
+  await prisma.member.update({
+    where: { id: memberId },
+    data: { isActive: false },
+  })
+  revalidatePath('/admin/members')
+}
+
+export async function activateMemberAction(formData: FormData) {
+  const { user, orgId, role } = await getSessionProfile()
+  if (!user || !orgId || role !== 'OWNER') {
+    throw new Error('Não autorizado.')
+  }
+  const memberId = formData.get('member_id') as string
+  if (!memberId) throw new Error('ID do membro não fornecido')
+
+  const member = await prisma.member.findUnique({ where: { id: memberId } })
+  if (!member || member.orgId !== orgId)
+    throw new Error('Membro não encontrado')
+
+  await prisma.member.update({
+    where: { id: memberId },
+    data: { isActive: true },
   })
   revalidatePath('/admin/members')
 }

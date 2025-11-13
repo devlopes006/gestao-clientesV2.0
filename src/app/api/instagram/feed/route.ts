@@ -1,14 +1,16 @@
 import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 
-// Basic Display API: https://graph.instagram.com/{user-id}/media?fields=id,media_url,permalink,thumbnail_url,media_type&access_token=...
-// Usa o access token OAuth do cliente específico armazenado no banco de dados
+// Instagram Graph API (Business):
+// GET https://graph.facebook.com/v19.0/{ig-user-id}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp
+// Requer Page Access Token associado à Página vinculada à conta IG Profissional
 
 export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url)
     const clientId = url.searchParams.get('clientId')
     const limit = url.searchParams.get('limit') || '12'
+    const mode = (process.env.INSTAGRAM_OAUTH_MODE || 'graph').toLowerCase()
 
     if (!clientId) {
       return NextResponse.json(
@@ -57,11 +59,18 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const igUrl = `https://graph.instagram.com/${encodeURIComponent(
-      client.instagramUserId
-    )}/media?fields=id,media_url,permalink,thumbnail_url,media_type&limit=${encodeURIComponent(
-      limit
-    )}&access_token=${encodeURIComponent(client.instagramAccessToken)}`
+    const igUrl =
+      mode === 'basic'
+        ? `https://graph.instagram.com/${encodeURIComponent(
+            client.instagramUserId
+          )}/media?fields=id,media_url,permalink,thumbnail_url,media_type&limit=${encodeURIComponent(
+            limit
+          )}&access_token=${encodeURIComponent(client.instagramAccessToken)}`
+        : `https://graph.facebook.com/v19.0/${encodeURIComponent(
+            client.instagramUserId
+          )}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp&limit=${encodeURIComponent(
+            limit
+          )}&access_token=${encodeURIComponent(client.instagramAccessToken)}`
 
     const res = await fetch(igUrl, { cache: 'no-store' })
     const data = await res.json()

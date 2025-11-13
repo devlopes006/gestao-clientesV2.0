@@ -92,6 +92,7 @@ model Member {
   userId    String
   orgId     String
   role      Role
+  isActive  Boolean  @default(true)
   user      User     @relation(fields: [userId], references: [id])
   org       Org      @relation(fields: [orgId], references: [id])
   createdAt DateTime @default(now())

@@ -16,7 +16,7 @@ export type CalendarActivity = {
   status?: string
 }
 
-export function MonthlyCalendar({ activities }: { activities: CalendarActivity[] }) {
+export function MonthlyCalendar({ activities, onMonthChange }: { activities: CalendarActivity[]; onMonthChange?: (month: Date) => void }) {
   const [cursor, setCursor] = useState(() => {
     const d = new Date()
     d.setDate(1)
@@ -58,17 +58,20 @@ export function MonthlyCalendar({ activities }: { activities: CalendarActivity[]
     const d = new Date(cursor)
     d.setMonth(d.getMonth() - 1)
     setCursor(d)
+    onMonthChange?.(new Date(d))
   }
   const nextMonth = () => {
     const d = new Date(cursor)
     d.setMonth(d.getMonth() + 1)
     setCursor(d)
+    onMonthChange?.(new Date(d))
   }
   const goToday = () => {
     const d = new Date()
     d.setDate(1)
     d.setHours(0, 0, 0, 0)
     setCursor(d)
+    onMonthChange?.(new Date(d))
     setSelectedDate(new Date())
   }
 
@@ -108,7 +111,7 @@ export function MonthlyCalendar({ activities }: { activities: CalendarActivity[]
             <select
               className="h-9 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-2 text-sm"
               value={filter}
-              onChange={(e) => setFilter(e.target.value as any)}
+              onChange={(e) => setFilter(e.target.value as 'all' | 'meeting' | 'task')}
               title="Filtrar atividades"
               aria-label="Filtrar atividades"
             >

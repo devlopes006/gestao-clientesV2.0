@@ -80,11 +80,16 @@ function RealtimeDashboard() {
   const [error, setError] = useState<string | null>(null)
   const [showOnlyIssues, setShowOnlyIssues] = useState(true)
   const [role, setRole] = useState<string | null>(null)
+  const [monthKey, setMonthKey] = useState<string>(() => {
+    const now = new Date()
+    const mm = String(now.getMonth() + 1).padStart(2, '0')
+    return `${now.getFullYear()}-${mm}`
+  })
 
   useEffect(() => {
     async function loadDashboard() {
       try {
-        const res = await fetch('/api/dashboard')
+        const res = await fetch(`/api/dashboard?month=${encodeURIComponent(monthKey)}`)
         if (!res.ok) {
           throw new Error('Falha ao carregar dashboard')
         }
@@ -104,7 +109,7 @@ function RealtimeDashboard() {
     }
 
     void loadDashboard()
-  }, [])
+  }, [monthKey])
 
   if (loading) {
     return (
@@ -232,7 +237,13 @@ function RealtimeDashboard() {
 
         {/* Coluna 2 - Calendário */}
         {data.activities && data.activities.length > 0 && (
-          <MonthlyCalendar activities={data.activities} />
+          <MonthlyCalendar
+            activities={data.activities}
+            onMonthChange={(d) => {
+              const mm = String(d.getMonth() + 1).padStart(2, '0')
+              setMonthKey(`${d.getFullYear()}-${mm}`)
+            }}
+          />
         )}
       </div>
 

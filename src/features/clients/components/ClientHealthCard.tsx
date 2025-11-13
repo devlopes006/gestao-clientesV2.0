@@ -19,9 +19,10 @@ interface ClientHealthCardProps {
   metrics: ClientHealthMetrics
   variant?: 'compact' | 'detailed'
   onClientClick?: (clientId: string) => void
+  canViewAmounts?: boolean
 }
 
-export function ClientHealthCard({ metrics, variant = 'detailed', onClientClick }: ClientHealthCardProps) {
+export function ClientHealthCard({ metrics, variant = 'detailed', onClientClick, canViewAmounts = true }: ClientHealthCardProps) {
   // Calcular indicadores de saúde
   const healthScore = calculateHealthScore(metrics)
   const issues = getClientIssues(metrics)
@@ -63,12 +64,14 @@ export function ClientHealthCard({ metrics, variant = 'detailed', onClientClick 
             </div>
             <div className="text-center p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
               <div className={`text-lg font-bold ${metrics.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {new Intl.NumberFormat('pt-BR', {
-                  style: 'currency',
-                  currency: 'BRL',
-                  minimumFractionDigits: 0,
-                  maximumFractionDigits: 0
-                }).format(metrics.balance)}
+                {canViewAmounts
+                  ? new Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                  }).format(metrics.balance)
+                  : '••••'}
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400">Saldo</p>
             </div>
@@ -94,7 +97,7 @@ export function ClientHealthCard({ metrics, variant = 'detailed', onClientClick 
                     ? 'text-orange-600 dark:text-orange-400'
                     : 'text-yellow-700 dark:text-yellow-400'
                   }`}>
-                  {issues[0].message}
+                  {issues[0].type === 'balance' && !canViewAmounts ? 'O cliente está com saldo negativo.' : issues[0].message}
                 </span>
               </div>
             </div>
@@ -131,7 +134,9 @@ export function ClientHealthCard({ metrics, variant = 'detailed', onClientClick 
             : 'bg-red-50 border-red-200'
             }`}>
             <div className={`text-2xl font-bold ${metrics.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(metrics.balance)}
+              {canViewAmounts
+                ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(metrics.balance)
+                : '••••'}
             </div>
             <p className="text-xs text-slate-600 mt-1">Balanço</p>
           </div>

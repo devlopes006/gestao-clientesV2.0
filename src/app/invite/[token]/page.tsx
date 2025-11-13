@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { use, useEffect, useMemo, useState } from 'react'
 
 interface InvitePayload {
   id: string
@@ -40,8 +40,8 @@ function StatusBadge({ status }: { status: InvitePayload['status'] }) {
   )
 }
 
-export default function AcceptInvitePage({ params }: { params: { token: string } }) {
-  const { token } = params
+export default function AcceptInvitePage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = use(params)
   const router = useRouter()
   const [invite, setInvite] = useState<InvitePayload | null>(null)
   const [loading, setLoading] = useState(true)
@@ -128,7 +128,8 @@ export default function AcceptInvitePage({ params }: { params: { token: string }
 
                 {invite.status === 'ACCEPTED' && (
                   <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-xs text-blue-700">
-                    Este convite já foi aceito. Faça login para continuar.
+                    <p className="font-medium mb-1">✓ Convite já aceito</p>
+                    <p>Entre com sua conta para acessar a organização.</p>
                   </div>
                 )}
                 {invite.status === 'CANCELED' && (

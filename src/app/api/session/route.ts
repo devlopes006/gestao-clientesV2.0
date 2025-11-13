@@ -35,13 +35,18 @@ export async function GET() {
  */
 export async function POST(req: Request) {
   try {
-    const { idToken } = (await req.json()) as { idToken?: string }
+    const { idToken, skipOrgCreation } = (await req.json()) as {
+      idToken?: string
+      skipOrgCreation?: boolean
+    }
     if (!idToken) {
       return NextResponse.json({ error: 'Missing idToken' }, { status: 400 })
     }
 
+    console.log('[Session API] Verificando token Firebase...')
     // Verifica token para extrair expiração e garantir validade
     const decoded = await adminAuth.verifyIdToken(idToken)
+    console.log('[Session API] Token válido para usuário:', decoded.uid)
 
     const cookieStore = await cookies()
     // exp expira em segundos; converte para Date
@@ -55,16 +60,58 @@ export async function POST(req: Request) {
       expires,
     })
 
+    console.log(
+      '[Session API] Cookie de sessão criado, iniciando onboarding...'
+    )
     // Faz onboarding do usuário (cria/atualiza no Firestore e PostgreSQL)
+    // Se skipOrgCreation=true, não cria org (caso de convite)
     await handleUserOnboarding({
       uid: decoded.uid,
       email: decoded.email!,
       name: decoded.name || decoded.email!.split('@')[0],
+      skipOrgCreation: skipOrgCreation || false,
     })
 
+    console.log('[Session API] ✅ Sessão criada com sucesso')
     return NextResponse.json({ ok: true })
   } catch (err) {
-    console.error('Erro ao criar sessão', err)
+    console.error('Erro ao criar sessão:', err)
+    let details: any = undefined
+    try {
+      // Tenta decodificar o payload sem verificar para ajudar no debug
+      // Isso facilita identificar mismatch de projeto (aud/iss) durante o dev
+      const body = await req
+        .clone()
+        .json()
+        .catch(() => ({}) as any)
+      const rawToken: string | undefined = body?.idToken
+      if (rawToken) {
+        const parts = rawToken.split('.')
+        if (parts.length === 3) {
+          const payload = JSON.parse(
+            Buffer.from(parts[1], 'base64').toString('utf8')
+          )
+          details = {
+            uid: payload.user_id,
+            aud: payload.aud,
+            iss: payload.iss,
+            iat: payload.iat,
+            exp: payload.exp,
+          }
+        }
+      }
+    } catch {}
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(
+        '[Session API] Token inválido. Claims decodificadas (sem verificação):',
+        details
+      )
+      return NextResponse.json(
+        { error: 'Invalid token', details },
+        { status: 401 }
+      )
+    }
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
   }
 }

@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { getSessionProfile } from '@/services/auth/session'
+import { FieldValue, getFirestore } from 'firebase-admin/firestore'
 import { NextRequest, NextResponse } from 'next/server'
 
 // Aceita convite: cria membership e, se papel CLIENT, vincula ou cria Client exclusivo.
@@ -19,6 +20,13 @@ export async function POST(req: Request) {
         { error: 'Convite não encontrado' },
         { status: 404 }
       )
+    // Segurança extra: garante que o e-mail do convite corresponde ao do usuário logado
+    if (invite.email.toLowerCase() !== user.email.toLowerCase()) {
+      return NextResponse.json(
+        { error: 'Convite não corresponde ao e-mail do usuário' },
+        { status: 403 }
+      )
+    }
     if (invite.status !== 'PENDING')
       return NextResponse.json(
         { error: 'Convite não está pendente' },
@@ -73,6 +81,53 @@ export async function POST(req: Request) {
       where: { id: invite.id },
       data: { status: 'ACCEPTED', acceptedAt: new Date() },
     })
+
+    // Atualiza Firestore com orgId e role para permitir acesso
+    try {
+      const userFromDb = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { firebaseUid: true },
+      })
+
+      if (userFromDb?.firebaseUid) {
+        console.log(
+          `[Accept Invite] Atualizando Firestore para usuário ${userFromDb.firebaseUid}`
+        )
+        const db = getFirestore()
+        const userRef = db.collection('users').doc(userFromDb.firebaseUid)
+        await userRef.set(
+          {
+            orgId: invite.orgId,
+            role: invite.roleRequested,
+            updatedAt: new Date(),
+          },
+          { merge: true }
+        )
+        console.log(
+          `[Accept Invite] ✅ Firestore atualizado com orgId: ${invite.orgId}`
+        )
+
+        // Garante que o usuário está listado como membro na org (necessário pelas rules de leitura)
+        const orgRef = db.collection('orgs').doc(invite.orgId)
+        await orgRef.set(
+          { members: FieldValue.arrayUnion(userFromDb.firebaseUid) },
+          { merge: true }
+        )
+        console.log(
+          `[Accept Invite] ✅ Adicionado ${userFromDb.firebaseUid} aos membros da org ${invite.orgId}`
+        )
+      } else {
+        console.warn(
+          '[Accept Invite] ⚠️ firebaseUid não encontrado para o usuário'
+        )
+      }
+    } catch (fsError) {
+      console.error('Erro ao atualizar Firestore:', fsError)
+    }
+
+    const { revalidatePath } = await import('next/cache')
+    revalidatePath('/admin/members')
+
     return NextResponse.json({ ok: true, nextPath })
   } catch (e) {
     console.error('Erro ao aceitar convite', e)

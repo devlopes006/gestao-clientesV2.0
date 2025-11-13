@@ -28,6 +28,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      console.log('[UserContext] onAuthStateChanged disparado:', firebaseUser?.uid || 'null')
       setUser(firebaseUser)
       setLoading(false)
     })
@@ -38,43 +39,115 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const loginWithGoogle = async (inviteToken?: string | null) => {
     if (!auth || !provider) throw new Error('Firebase auth not initialized')
 
+    console.log('[UserContext] Iniciando login com Google, inviteToken:', inviteToken)
+
     // Faz login com Google
-    await signInWithPopup(auth, provider)
-    const idToken = await auth.currentUser?.getIdToken()
+    const result = await signInWithPopup(auth, provider)
+
+    // Atualiza o estado do usuário imediatamente
+    console.log('[UserContext] setUser com:', result.user.uid)
+    setUser(result.user)
+
+    // Obtém token FRESCO (força refresh)
+    const idToken = await result.user.getIdToken(true)
     if (!idToken) throw new Error('Falha ao obter ID token do usuário')
 
+    console.log('[UserContext] Token obtido, criando sessão...')
+
     // Seta cookie de sessão HttpOnly e faz onboarding via rota API
+    // Se houver convite (link), não cria org automaticamente (evita criar org se ele aceitar)
     const response = await fetch('/api/session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ idToken }),
+      body: JSON.stringify({ idToken, skipOrgCreation: !!inviteToken }),
     })
 
     if (!response.ok) {
+      let errorText = ''
+      let errorJson: any = undefined
+      try {
+        errorJson = await response.json()
+        errorText = JSON.stringify(errorJson)
+      } catch {
+        errorText = await response.text()
+      }
+      console.error('[UserContext] Erro ao criar sessão:', errorText)
+
+      // Se token inválido, faz logout para limpar estado e mostra detalhes no dev
+      const isInvalid =
+        (typeof errorText === 'string' && errorText.includes('Invalid token')) ||
+        (errorJson && errorJson.error === 'Invalid token')
+      if (isInvalid) {
+        if (errorJson?.details) {
+          console.warn('[UserContext] Detalhes do token (dev):', errorJson.details)
+        }
+        console.warn('[UserContext] Token inválido detectado, fazendo logout...')
+        if (auth) {
+          await signOut(auth)
+          setUser(null)
+        }
+      }
+
       throw new Error('Falha ao criar sessão')
     }
 
-    // Se houver convite, tenta aceitar antes de redirecionar
+    console.log('[UserContext] Sessão criada com sucesso')
+
+    // Após login, verifica convites pendentes para o e-mail do usuário
+    // Preferimos detectar pelo e-mail (mais resiliente do que depender do token no URL)
     let nextPath: string | null = null
-    if (inviteToken) {
-      try {
-        const r = await fetch('/api/invites/accept', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: inviteToken }),
-        })
-        if (r.ok) {
-          const j = await r.json()
-          nextPath = j.nextPath || null
+    try {
+      const inv = await fetch('/api/invites/for-me', { method: 'GET' })
+      if (inv.ok) {
+        const data = await inv.json()
+        const invite = Array.isArray(data?.data) ? data.data[0] : undefined
+        if (invite) {
+          console.log('[UserContext] Convite pendente detectado. Aceitando automaticamente...')
+          const r = await fetch('/api/invites/accept', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: invite.token }),
+          })
+          if (r.ok) {
+            const j = await r.json()
+            nextPath = j.nextPath || null
+            console.log('[UserContext] Convite aceito, nextPath:', nextPath)
+            await new Promise((resolve) => setTimeout(resolve, 1500))
+          } else {
+            console.error('[UserContext] Erro ao aceitar convite:', await r.text())
+          }
         }
-      } catch (e) {
-        console.error('Falha ao aceitar convite:', e)
+      } else {
+        console.warn('[UserContext] Falha ao consultar convites do usuário', await inv.text())
+      }
+    } catch (e) {
+      console.error('[UserContext] Erro ao verificar convites:', e)
+    }
+
+    // Se não houve convite aceito, verifica se o usuário já tem org
+    if (!nextPath) {
+      try {
+        const s = await fetch('/api/session', { method: 'GET' })
+        if (s.ok) {
+          const j = await s.json()
+          if (!j.orgId) {
+            nextPath = '/onboarding'
+          } else {
+            nextPath = '/'
+          }
+        } else {
+          // Caso não autenticado por algum motivo, navega para login
+          nextPath = '/login'
+        }
+      } catch {
+        nextPath = '/'
       }
     }
 
-    // Força atualização do cache e redireciona
+    console.log('[UserContext] User state antes de redirecionar:', !!result.user)
+    console.log('[UserContext] Redirecionando para:', nextPath)
     router.refresh()
-    router.push(nextPath || '/')
+    if (nextPath) router.push(nextPath)
   }
 
   const logout = async () => {

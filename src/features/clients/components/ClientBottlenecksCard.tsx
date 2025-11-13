@@ -6,9 +6,10 @@ import { ClientHealthMetrics, ExtendedMetrics, GARGALO_META, getClientIssues } f
 
 type Props = {
   metrics: ClientHealthMetrics | ExtendedMetrics
+  canViewAmounts?: boolean
 }
 
-export function ClientBottlenecksCard({ metrics }: Props) {
+export function ClientBottlenecksCard({ metrics, canViewAmounts = true }: Props) {
   const issues = getClientIssues(metrics as ExtendedMetrics)
 
   return (
@@ -36,7 +37,9 @@ export function ClientBottlenecksCard({ metrics }: Props) {
                       {issue.severity === 'low' && <span className="text-xs text-yellow-700 font-bold">Baixo</span>}
                     </div>
                     <div className="text-xs text-slate-800 dark:text-slate-200 font-medium">
-                      {meta.description(issue)}
+                      {issue.type === 'balance' && !canViewAmounts
+                        ? 'O cliente está com saldo negativo.'
+                        : meta.description(issue)}
                     </div>
                   </div>
                 </div>

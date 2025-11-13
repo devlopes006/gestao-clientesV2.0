@@ -15,14 +15,10 @@ import { formatDate } from '@/lib/utils'
 import { getSessionProfile } from '@/services/auth/session'
 import { getClientById } from '@/services/repositories/clients'
 import {
-  BarChart3,
-  Calendar,
-  DollarSign,
   FileText,
   FolderKanban,
   Image as ImageIcon,
   Lightbulb,
-  TrendingUp,
   Users
 } from 'lucide-react'
 
@@ -117,6 +113,7 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
   } catch { }
 
   const isOwner = can(role, 'update', 'finance')
+  const canViewAmounts = isOwner
 
   // Buscar dados detalhados para os relatórios
   const [tasks, finances, media, meetings] = await Promise.all([
@@ -184,10 +181,13 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 space-y-6">
             <ClientInfoDisplay client={client} canEdit={isOwner} />
-            <ClientHealthCardWrapper metrics={healthMetrics} />
-            <ClientBottlenecksCard metrics={healthMetrics} />
-            {/* Instagram Feed */}
-            <InstagramGrid clientId={client.id} />
+            {isOwner && (
+              <ClientHealthCardWrapper metrics={healthMetrics} canViewAmounts={canViewAmounts} />
+            )}
+            {isOwner && (
+              <ClientBottlenecksCard metrics={healthMetrics} canViewAmounts={canViewAmounts} />
+            )}
+            {/* Instagram Feed moved to bottom section */}
             {isOwner && (
               <ContractManager
                 clientId={client.id}
@@ -278,82 +278,7 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
             </Card>
           </div>
         </div>
-        {/* Relatórios e Análises (conteúdo incorporado da página de relatórios) */}
-        <div className="space-y-6 mt-6">
-          {/* Overview Cards */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="relative overflow-hidden border-2 border-blue-200/60 shadow-xl shadow-blue-200/50">
-              <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-blue-500 to-purple-500" />
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-700">Taxa de Conclusão</CardTitle>
-                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  {/* icon placeholder (was CheckCircle) */}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-blue-600">{taskStats.completionRate}%</div>
-                <p className="text-xs text-slate-500 mt-1">
-                  {taskStats.completed} de {taskStats.total} tarefas
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="relative overflow-hidden border-2 border-green-200/60 shadow-xl shadow-green-200/50">
-              <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-green-500 to-emerald-500" />
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-700">Balanço Financeiro</CardTitle>
-                <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                  <DollarSign className="h-5 w-5 text-green-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className={`text-3xl font-bold ${financeStats.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(financeStats.balance)}
-                </div>
-                <p className="text-xs text-slate-500 mt-1">
-                  {financeStats.transactions} transações
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="relative overflow-hidden border-2 border-purple-200/60 shadow-xl shadow-purple-200/50">
-              <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-purple-500 to-pink-500" />
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-700">ROI</CardTitle>
-                <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-purple-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-purple-600">{
-                  client.contract_value && financeStats.income > 0
-                    ? Math.round(((financeStats.balance / Number(client.contract_value)) * 100))
-                    : 0
-                }%</div>
-                <p className="text-xs text-slate-500 mt-1">Retorno sobre investimento</p>
-              </CardContent>
-            </Card>
-
-            <Card className="relative overflow-hidden border-2 border-orange-200/60 shadow-xl shadow-orange-200/50">
-              <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-orange-500 to-red-500" />
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-700">Dias Ativo</CardTitle>
-                <div className="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center">
-                  <Calendar className="h-5 w-5 text-orange-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-orange-600">{
-                  client.created_at
-                    ? Math.floor((new Date().getTime() - new Date(client.created_at).getTime()) / (1000 * 60 * 60 * 24))
-                    : 0
-                }</div>
-                <p className="text-xs text-slate-500 mt-1">Desde {new Date(client.created_at).toLocaleDateString('pt-BR')}</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Detailed Stats */}
+        {/* Estatísticas e Conteúdo */}
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Task Breakdown */}
             <Card>
@@ -390,52 +315,6 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
               </CardContent>
             </Card>
 
-            {/* Finance Breakdown */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-green-600" />
-                  <CardTitle>Análise Financeira</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-lg bg-green-50 border border-green-200">
-                  <div>
-                    <p className="text-xs font-medium text-green-700 uppercase tracking-wider">Receitas</p>
-                    <p className="text-2xl font-bold text-green-600 mt-1">
-                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(financeStats.income)}
-                    </p>
-                  </div>
-                  <TrendingUp className="h-8 w-8 text-green-600" />
-                </div>
-
-                <div className="flex items-center justify-between p-4 rounded-lg bg-red-50 border border-red-200">
-                  <div>
-                    <p className="text-xs font-medium text-red-700 uppercase tracking-wider">Despesas</p>
-                    <p className="text-2xl font-bold text-red-600 mt-1">
-                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(financeStats.expense)}
-                    </p>
-                  </div>
-                  <TrendingUp className="h-8 w-8 text-red-600 rotate-180" />
-                </div>
-
-                <div className={`flex items-center justify-between p-4 rounded-lg border-2 ${financeStats.balance >= 0
-                  ? 'bg-blue-50 border-blue-200'
-                  : 'bg-orange-50 border-orange-200'
-                  }`}>
-                  <div>
-                    <p className={`text-xs font-medium uppercase tracking-wider ${financeStats.balance >= 0 ? 'text-blue-700' : 'text-orange-700'
-                      }`}>Saldo</p>
-                    <p className={`text-2xl font-bold mt-1 ${financeStats.balance >= 0 ? 'text-blue-600' : 'text-orange-600'
-                      }`}>
-                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(financeStats.balance)}
-                    </p>
-                  </div>
-                  <DollarSign className={`${financeStats.balance >= 0 ? 'text-blue-600' : 'text-orange-600'}`} />
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Media Stats */}
             <Card>
               <CardHeader>
@@ -466,6 +345,10 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
               </CardContent>
             </Card>
 
+          </div>
+
+          {/* Reuniões e Social */}
+          <div className="grid gap-6 lg:grid-cols-2">
             {/* Meeting Stats */}
             <Card>
               <CardHeader>
@@ -493,9 +376,15 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Instagram Feed */}
+            <div>
+              <InstagramGrid clientId={client.id} />
+            </div>
           </div>
 
           {/* Summary */}
+          {isOwner && (
           <Card className="relative overflow-hidden border-2 border-slate-200/60 shadow-xl">
             <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-size-[200%_100%] animate-gradient" />
             <CardHeader>
@@ -535,18 +424,26 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
               <div className="pt-4 border-t">
                 <p className="text-sm text-slate-600 leading-relaxed">
                   Cliente ativo há <strong>{healthMetrics.daysActive} dias</strong> com <strong>{taskStats.completionRate}%</strong> de taxa de conclusão de tarefas.
-                  {financeStats.balance >= 0 ? (
-                    <> Apresenta balanço financeiro positivo de <strong>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(financeStats.balance)}</strong>.</>
+                  {canViewAmounts ? (
+                    financeStats.balance >= 0 ? (
+                      <> Apresenta balanço financeiro positivo de <strong>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(financeStats.balance)}</strong>.</>
+                    ) : (
+                      <> Atenção: balanço financeiro negativo de <strong>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(financeStats.balance))}</strong>.</>
+                    )
                   ) : (
-                    <> Atenção: balanço financeiro negativo de <strong>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Math.abs(financeStats.balance))}</strong>.</>
+                    financeStats.balance >= 0 ? (
+                      <> Apresenta balanço financeiro positivo.</>
+                    ) : (
+                      <> Atenção: balanço financeiro negativo.</>
+                    )
                   )}
                   {' '}Possui <strong>{mediaStats.total} arquivos</strong> na biblioteca de mídia e <strong>{meetingStats.total} reuniões</strong> registradas.
                 </p>
               </div>
             </CardContent>
           </Card>
+          )}
         </div>
-      </div>
     </ProtectedRoute>
   )
 }

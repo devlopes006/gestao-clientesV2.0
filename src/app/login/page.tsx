@@ -10,16 +10,20 @@ import {
   Sparkles,
   Zap,
 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 export default function LoginPage() {
   const { loginWithGoogle, loading, user } = useUser()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const inviteToken = searchParams.get('invite')
   const [isLoading, setIsLoading] = useState(false)
+  const hasInvite = !!inviteToken
 
   useEffect(() => {
     if (!loading && user) {
+      console.log('[LoginPage] Usuário já autenticado, redirecionando para /')
       router.replace('/')
     }
   }, [loading, user, router])
@@ -27,7 +31,7 @@ export default function LoginPage() {
   const handleLogin = async () => {
     setIsLoading(true)
     try {
-      await loginWithGoogle()
+      await loginWithGoogle(inviteToken)
     } finally {
       setIsLoading(false)
     }
@@ -142,12 +146,25 @@ export default function LoginPage() {
             <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-8 space-y-6">
               {/* Header */}
               <div className="text-center space-y-2">
-                <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
-                  Bem-vindo de volta
-                </h2>
-                <p className="text-slate-600 dark:text-slate-400">
-                  Entre com sua conta para continuar
-                </p>
+                {hasInvite ? (
+                  <>
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
+                      Você foi convidado!
+                    </h2>
+                    <p className="text-slate-600 dark:text-slate-400">
+                      Entre para aceitar o convite e acessar a organização
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
+                      Bem-vindo de volta
+                    </h2>
+                    <p className="text-slate-600 dark:text-slate-400">
+                      Entre com sua conta para continuar
+                    </p>
+                  </>
+                )}
               </div>
 
               {/* Google Button */}
@@ -159,7 +176,7 @@ export default function LoginPage() {
                 {isLoading || loading ? (
                   <div className="flex items-center gap-3">
                     <LoadingSpinner size="sm" className="text-white" />
-                    <span>Conectando...</span>
+                    <span>{hasInvite ? 'Aceitando convite...' : 'Conectando...'}</span>
                   </div>
                 ) : (
                   <div className="flex items-center justify-center gap-3">
@@ -181,7 +198,7 @@ export default function LoginPage() {
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                       />
                     </svg>
-                    <span>Continuar com Google</span>
+                    <span>{hasInvite ? 'Aceitar convite com Google' : 'Continuar com Google'}</span>
                     <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                   </div>
                 )}

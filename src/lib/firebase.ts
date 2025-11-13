@@ -1,6 +1,12 @@
 import { getClientEnv, validateClientEnv } from '@/lib/env'
 import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app'
-import { Auth, getAuth, GoogleAuthProvider } from 'firebase/auth'
+import {
+  Auth,
+  browserLocalPersistence,
+  getAuth,
+  GoogleAuthProvider,
+  setPersistence,
+} from 'firebase/auth'
 import { Firestore, getFirestore } from 'firebase/firestore'
 
 // Evita crash durante SSR (Next.js avalia módulos client-side no build)
@@ -37,6 +43,16 @@ if (isClient) {
     firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig)
     db = getFirestore(firebaseApp)
     auth = getAuth(firebaseApp)
+
+    // Configura persistência local para manter o usuário logado
+    setPersistence(auth, browserLocalPersistence)
+      .then(() => {
+        console.log('✅ Firebase Auth persistence configurada')
+      })
+      .catch((error) => {
+        console.error('❌ Erro ao configurar persistence:', error)
+      })
+
     provider = new GoogleAuthProvider()
   } else {
     // Avoid throwing to keep dev experience smoother; initialization will be skipped.

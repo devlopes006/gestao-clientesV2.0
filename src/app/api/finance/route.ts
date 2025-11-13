@@ -1,3 +1,4 @@
+import { can } from '@/lib/permissions'
 import { prisma } from '@/lib/prisma'
 import { getSessionProfile } from '@/services/auth/session'
 import { NextRequest, NextResponse } from 'next/server'
@@ -9,6 +10,10 @@ export async function GET() {
 
     if (!orgId || !role) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+    }
+
+    if (!can(role as any, 'read', 'finance')) {
+      return NextResponse.json({ error: 'Proibido' }, { status: 403 })
     }
 
     const finances = await prisma.finance.findMany({
@@ -45,6 +50,10 @@ export async function POST(req: NextRequest) {
 
     if (!orgId || !role) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+    }
+
+    if (!can(role as any, 'create', 'finance')) {
+      return NextResponse.json({ error: 'Proibido' }, { status: 403 })
     }
 
     const body = await req.json()
@@ -118,6 +127,10 @@ export async function PATCH(req: NextRequest) {
 
     if (!orgId || !role) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+    }
+
+    if (!can(role as any, 'update', 'finance')) {
+      return NextResponse.json({ error: 'Proibido' }, { status: 403 })
     }
 
     // Verify finance belongs to org
@@ -202,6 +215,10 @@ export async function DELETE(req: NextRequest) {
 
     if (!orgId || !role) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+    }
+
+    if (!can(role as any, 'delete', 'finance')) {
+      return NextResponse.json({ error: 'Proibido' }, { status: 403 })
     }
 
     // Verify finance belongs to org

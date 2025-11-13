@@ -9,9 +9,10 @@ interface ClientsWithBottlenecksProps {
   clients: ClientHealthMetrics[]
   maxDisplay?: number
   showOnlyIssues?: boolean // quando false, mostra top N piores por score, mesmo sem issues
+  canViewAmounts?: boolean
 }
 
-export function ClientsWithBottlenecks({ clients, maxDisplay = 5, showOnlyIssues = true }: ClientsWithBottlenecksProps) {
+export function ClientsWithBottlenecks({ clients, maxDisplay = 5, showOnlyIssues = true, canViewAmounts = true }: ClientsWithBottlenecksProps) {
   // Ordenar clientes do pior para o melhor pela pontuação de saúde
   const sortedClients = [...clients].sort((a, b) => {
     const scoreA = calculateHealthScore(a)
@@ -110,7 +111,9 @@ export function ClientsWithBottlenecks({ clients, maxDisplay = 5, showOnlyIssues
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-slate-700 dark:text-slate-300 line-clamp-1">
-                            {issue.message}
+                            {!canViewAmounts && issue.message.toLowerCase().startsWith('saldo negativo')
+                              ? 'Saldo negativo.'
+                              : issue.message}
                           </p>
                         </div>
                       </div>
@@ -139,7 +142,9 @@ export function ClientsWithBottlenecks({ clients, maxDisplay = 5, showOnlyIssues
                         <span className="text-[10px] text-slate-600 dark:text-slate-400">Saldo</span>
                       </div>
                       <p className={`text-sm font-bold ${client.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(client.balance)}
+                        {canViewAmounts
+                          ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(client.balance)
+                          : '••••'}
                       </p>
                     </div>
                   </div>

@@ -102,39 +102,46 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     )
   }
 
-  const menuItems: MenuItem[] = [
-    {
-      label: 'Clientes',
-      icon: <Users className="w-5 h-5" />,
-      href: '/clients',
-      badge: stats?.counters.clients.total,
-      badgeColor: 'blue',
-      submenu: [
-        { label: 'Todos os Clientes', href: '/clients', badge: stats?.counters.clients.total },
-        { label: 'Adicionar Cliente', href: '/clients/new' },
-        { label: 'Gargalos', href: '/clients?filter=bottlenecks', badge: stats?.counters.clients.withBottlenecks },
-      ],
-    },
-    {
+  const menuItems: MenuItem[] = []
+  // Clientes
+  menuItems.push({
+    label: 'Clientes',
+    icon: <Users className="w-5 h-5" />,
+    href: '/clients',
+    badge: stats?.counters.clients.total,
+    badgeColor: 'blue',
+    submenu: [
+      { label: 'Todos os Clientes', href: '/clients', badge: stats?.counters.clients.total },
+      { label: 'Adicionar Cliente', href: '/clients/new' },
+      { label: 'Gargalos', href: '/clients?filter=bottlenecks', badge: stats?.counters.clients.withBottlenecks },
+    ],
+  })
+  // Financeiro (somente OWNER)
+  if (stats?.role === 'OWNER') {
+    menuItems.push({
       label: 'Financeiro',
       icon: <DollarSign className="w-5 h-5" />,
       href: '/finance',
       badge: stats?.counters.finance.overdueInstallments,
       badgeColor: stats?.counters.finance.overdueInstallments ? 'red' : undefined,
-    },
-    {
+    })
+  }
+  // Admin (somente OWNER)
+  if (stats?.role === 'OWNER') {
+    menuItems.push({
       label: 'Admin',
       icon: <LayoutDashboard className="w-5 h-5" />,
       href: '/admin',
-      badge: stats?.role === 'OWNER' ? 'OWNER' : undefined,
+      badge: 'OWNER',
       badgeColor: 'purple',
-    },
-    {
-      label: 'Configurações',
-      icon: <Settings className="w-5 h-5" />,
-      href: '/settings',
-    },
-  ]
+    })
+  }
+  // Settings
+  menuItems.push({
+    label: 'Configurações',
+    icon: <Settings className="w-5 h-5" />,
+    href: '/settings',
+  })
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'

@@ -5,6 +5,7 @@ import AppShell from '@/components/layout/AppShell'
 import { Card } from '@/components/ui/card'
 import { ClientsWithBottlenecks, type ClientHealthMetrics } from '@/features/clients/components'
 import { ActivitiesCalendar } from '@/features/dashboard/components/ActivitiesCalendar'
+import { can } from '@/lib/permissions'
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
@@ -78,6 +79,7 @@ function RealtimeDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showOnlyIssues, setShowOnlyIssues] = useState(true)
+  const [role, setRole] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadDashboard() {
@@ -88,6 +90,12 @@ function RealtimeDashboard() {
         }
         const json = await res.json()
         setData(json)
+        // Fetch role from session to control financial visibility
+        const sess = await fetch('/api/session')
+        if (sess.ok) {
+          const sjson = await sess.json()
+          setRole(sjson.role || null)
+        }
       } catch {
         setError('Não foi possível carregar os dados.')
       } finally {
@@ -194,7 +202,7 @@ function RealtimeDashboard() {
       {/* Layout em 2 colunas para desktop */}
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         {/* Coluna 1 - Clientes com Gargalos */}
-        {data.clientsHealth && data.clientsHealth.length > 0 && (
+        {(role ? can(role as any, 'update', 'finance') : false) && data.clientsHealth && data.clientsHealth.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Clientes</h2>
@@ -213,7 +221,12 @@ function RealtimeDashboard() {
                 </button>
               </div>
             </div>
-            <ClientsWithBottlenecks clients={data.clientsHealth} maxDisplay={3} showOnlyIssues={showOnlyIssues} />
+            <ClientsWithBottlenecks
+              clients={data.clientsHealth}
+              maxDisplay={3}
+              showOnlyIssues={showOnlyIssues}
+              canViewAmounts={true}
+            />
           </div>
         )}
 

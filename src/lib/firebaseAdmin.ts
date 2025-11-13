@@ -36,13 +36,25 @@ if (!getApps().length) {
     )
   }
 
-  initializeApp({
+  const app = initializeApp({
     credential: cert({
       projectId: senv.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
       clientEmail: senv.FIREBASE_CLIENT_EMAIL,
       privateKey,
     }),
   })
+
+  // Log informativo apenas em desenvolvimento para facilitar diagnóstico de mismatch
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(
+      '[FirebaseAdmin] Inicializado com projectId:',
+      senv.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    )
+    console.log(
+      '[FirebaseAdmin] Client email (domínio):',
+      senv.FIREBASE_CLIENT_EMAIL?.split('@')[1]
+    )
+  }
 }
 
 export const adminAuth = getAuth(getApp())

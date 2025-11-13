@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useUser } from '@/context/UserContext'
 import { firebaseApp } from '@/lib/firebase'
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage'
 import { useState } from 'react'
@@ -13,6 +14,7 @@ export function ProfileForm({ initialName, initialImage }: { initialName: string
   const [image, setImage] = useState(initialImage ?? '')
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const { refreshUser } = useUser()
 
   const onPickFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -49,6 +51,8 @@ export function ProfileForm({ initialName, initialImage }: { initialName: string
         body: JSON.stringify({ name, image }),
       })
       if (!res.ok) throw new Error('Falha ao salvar')
+      // Recarrega usuário do Firebase para refletir displayName no Navbar
+      try { await refreshUser() } catch { }
       toast.success('Perfil atualizado com sucesso')
     } catch {
       toast.error('Não foi possível atualizar o perfil')

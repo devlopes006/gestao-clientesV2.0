@@ -28,6 +28,7 @@ export async function GET() {
           select: {
             email: true,
             name: true,
+            lastActiveAt: true,
           },
         },
       },
@@ -35,6 +36,7 @@ export async function GET() {
     })
 
     // Formatar dados para o frontend
+    const now = Date.now()
     const formattedMembers = members.map((member) => ({
       id: member.id,
       user_id: member.userId,
@@ -44,6 +46,12 @@ export async function GET() {
       email: member.user.email,
       created_at: member.createdAt.toISOString(),
       org_id: member.orgId,
+      last_active_at: member.user.lastActiveAt
+        ? member.user.lastActiveAt.toISOString()
+        : null,
+      online: member.user.lastActiveAt
+        ? now - member.user.lastActiveAt.getTime() < 2 * 60 * 1000
+        : false,
     }))
 
     return NextResponse.json({ data: formattedMembers })

@@ -24,6 +24,7 @@ interface UserContextType {
   loading: boolean
   loginWithGoogle: (inviteToken?: string | null) => Promise<void>
   logout: () => Promise<void>
+  refreshUser: () => Promise<void>
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
@@ -197,14 +198,23 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       if (useMobile) {
-        // On mobile devices, use redirect (popup doesn't work well)
         await signInWithRedirect(auth, provider)
-        // The redirect will happen, and we'll handle the result in useEffect
-        // No code after this line will execute
+        // redirect flow continues in checkRedirectResult
       } else {
-        // On desktop, use popup (better UX)
-        const result = await signInWithPopup(auth, provider)
-        await handleAuthResult(result.user, inviteToken)
+        try {
+          const result = await signInWithPopup(auth, provider)
+          await handleAuthResult(result.user, inviteToken)
+        } catch (e: any) {
+          // Fallback para redirect se popup falhar (bloqueado pelo navegador)
+          const code = e?.code || ''
+          const popupIssues = ['auth/popup-blocked', 'auth/cancelled-popup-request', 'auth/popup-closed-by-user']
+          if (popupIssues.includes(code)) {
+            console.warn('[UserContext] Popup falhou, tentando redirect...')
+            await signInWithRedirect(auth, provider)
+          } else {
+            throw e
+          }
+        }
       }
     } catch (error) {
       console.error('[UserContext] Erro no login:', error)
@@ -232,8 +242,22 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const refreshUser = useCallback(async () => {
+    if (!auth) return
+    if (auth.currentUser) {
+      try {
+        await auth.currentUser.reload()
+      } catch (e) {
+        console.warn('[UserContext] Falha ao recarregar usuário Firebase', e)
+      }
+      setUser(auth.currentUser)
+      // Também força um refresh do router para SSR consumir novos dados
+      try { router.refresh() } catch { }
+    }
+  }, [router])
+
   return (
-    <UserContext.Provider value={{ user, loading, loginWithGoogle, logout }}>
+    <UserContext.Provider value={{ user, loading, loginWithGoogle, logout, refreshUser }}>
       {children}
     </UserContext.Provider>
   )

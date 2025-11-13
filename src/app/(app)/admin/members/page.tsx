@@ -43,6 +43,8 @@ type Member = {
   email?: string | null
   created_at: string | null
   org_id?: string | null
+  last_active_at?: string | null
+  online?: boolean
 }
 
 // 🔹 Utilitário de data
@@ -53,7 +55,10 @@ function formatDate(value: string | null): string {
 }
 
 export default function MembersAdminPage() {
-  const { data, error, isLoading, mutate } = useSWR('/api/members', fetcher)
+  const { data, error, isLoading, mutate } = useSWR('/api/members', fetcher, {
+    refreshInterval: 30_000,
+    revalidateOnFocus: true,
+  })
   const { data: invitesData, mutate: mutateInvites } = useSWR('/api/invites', invitesFetcher)
   const { data: clientsData } = useSWR('/api/clients?lite=1', clientsFetcher)
   const [selectedRole, setSelectedRole] = useState<Role>('STAFF')
@@ -202,6 +207,31 @@ export default function MembersAdminPage() {
     return (
       <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${styles}`}>
         {active ? 'Ativo' : 'Inativo'}
+      </span>
+    )
+  }
+
+  function OnlineIndicator({ online, lastActive }: { online?: boolean; lastActive?: string | null }) {
+    const ts = lastActive ? new Date(lastActive) : null
+    const rel = ts ? new Intl.RelativeTimeFormat('pt-BR', { numeric: 'auto' }) : null
+    let label = ''
+    if (online) {
+      label = 'Online'
+    } else if (ts) {
+      const diffMs = Date.now() - ts.getTime()
+      const diffMin = Math.round(diffMs / 60000)
+      if (diffMin < 60) label = `Visto há ${diffMin} min`
+      else {
+        const diffHr = Math.round(diffMin / 60)
+        label = `Visto há ${diffHr} h`
+      }
+    } else {
+      label = 'Nunca visto'
+    }
+    return (
+      <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${online ? 'bg-green-50 text-green-700 border-green-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+        <span className={`inline-block h-1.5 w-1.5 rounded-full ${online ? 'bg-green-500' : 'bg-slate-400'}`} />
+        {label}
       </span>
     )
   }
@@ -385,11 +415,12 @@ export default function MembersAdminPage() {
                   className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-6 py-5 hover:bg-slate-50/70 transition-colors"
                 >
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-sm font-medium text-slate-900">
                         {m.full_name || m.email?.split('@')[0] || 'Usuário'}
                       </p>
                       <MemberStatusBadge status={m.status} />
+                      <OnlineIndicator online={m.online} lastActive={m.last_active_at} />
                     </div>
                     <div className="flex items-center gap-2 text-xs text-slate-500">
                       <span>{m.email || '—'}</span>

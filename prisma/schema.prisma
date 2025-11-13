@@ -46,11 +46,12 @@ enum PaymentStatus {
 }
 
 model User {
-  id          String  @id @default(cuid())
-  firebaseUid String  @unique
-  email       String  @unique
-  name        String?
-  image       String?
+  id           String    @id @default(cuid())
+  firebaseUid  String    @unique
+  email        String    @unique
+  name         String?
+  image        String?
+  lastActiveAt DateTime?
 
   memberships   Member[]
   orgs          Org[]          @relation("OrgOwner")

@@ -1,7 +1,7 @@
 "use client"
 
 import { useUser } from '@/context/UserContext'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Navbar } from './Navbar'
 import { Sidebar } from './Sidebar'
 
@@ -15,6 +15,34 @@ export default function AppShell({ children }: AppShellProps) {
 
   const toggleSidebar = () => setIsSidebarOpen((s) => !s)
   const closeSidebar = () => setIsSidebarOpen(false)
+
+  // Heartbeat: marca usuário como ativo periodicamente
+  useEffect(() => {
+    let intervalId: number | null = null
+    const beat = async () => {
+      try {
+        await fetch('/api/activity/heartbeat', { method: 'POST' })
+      } catch { }
+    }
+    if (user) {
+      // imediato no mount
+      beat()
+      // a cada 60s
+      intervalId = window.setInterval(beat, 60_000)
+      // ao voltar o foco/visibilidade
+      const onVis = () => {
+        if (document.visibilityState === 'visible') beat()
+      }
+      document.addEventListener('visibilitychange', onVis)
+      return () => {
+        if (intervalId) window.clearInterval(intervalId)
+        document.removeEventListener('visibilitychange', onVis)
+      }
+    }
+    return () => {
+      if (intervalId) window.clearInterval(intervalId)
+    }
+  }, [user])
 
   // While loading, render nothing to avoid flicker
   if (loading) return <>{children}</>

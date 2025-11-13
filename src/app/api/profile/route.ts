@@ -1,3 +1,4 @@
+import { adminAuth } from '@/lib/firebaseAdmin'
 import { prisma } from '@/lib/prisma'
 import { getSessionProfile } from '@/services/auth/session'
 import { NextResponse } from 'next/server'
@@ -29,7 +30,25 @@ export async function PATCH(req: Request) {
   if (typeof body.image === 'string') data.image = body.image.trim() || null
   if (Object.keys(data).length === 0)
     return NextResponse.json({ error: 'No changes' }, { status: 400 })
+  // Atualiza no banco primeiro
   const updated = await prisma.user.update({ where: { id: user.id }, data })
+
+  // Tenta manter o Firebase Auth em sincronia (displayName/photoURL)
+  try {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { firebaseUid: true },
+    })
+    if (dbUser?.firebaseUid) {
+      await adminAuth.updateUser(dbUser.firebaseUid, {
+        displayName: updated.name ?? undefined,
+        photoURL: updated.image ?? undefined,
+      })
+    }
+  } catch (e) {
+    // Não falha a requisição se a atualização no Firebase falhar
+    console.warn('[api/profile] Falha ao atualizar displayName no Firebase', e)
+  }
   return NextResponse.json({
     id: updated.id,
     email: updated.email,

@@ -34,17 +34,24 @@ function LoginPageInner() {
 
     if (wasPendingRedirect) {
       console.log('[LoginPage] 🔄 Redirect pendente detectado, aguardando processamento...')
-      setIsLogging(true)
+
+      // Usar função de transição para evitar cascading renders
+      const timeoutId = setTimeout(() => {
+        setIsLogging(true)
+      }, 0)
 
       // Timeout de segurança: se após 10 segundos ainda estiver loading, resetar
-      const timeout = setTimeout(() => {
+      const cleanupTimeout = setTimeout(() => {
         console.log('[LoginPage] ⚠️ Timeout ao processar redirect, resetando estado')
         setIsLogging(false)
         localStorage.removeItem('pendingAuthRedirect')
         sessionStorage.removeItem('pendingInviteToken')
       }, 10000)
 
-      return () => clearTimeout(timeout)
+      return () => {
+        clearTimeout(timeoutId)
+        clearTimeout(cleanupTimeout)
+      }
     }
   }, [])
 

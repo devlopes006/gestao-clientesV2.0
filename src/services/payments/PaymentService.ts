@@ -9,9 +9,14 @@
  */
 
 import { prisma } from '@/lib/prisma'
-import { PaymentStatus } from '@prisma/client'
+import { Client, Installment, PaymentStatus } from '@prisma/client'
 
 export type PaymentMode = 'monthly' | 'installment'
+
+// Tipo para cliente com installments incluídos
+type ClientWithInstallments = Client & {
+  installments: Installment[]
+}
 
 export type MonthlyPaymentStatus = {
   mode: PaymentMode
@@ -93,13 +98,13 @@ export class PaymentService {
    * Status para pagamento parcelado
    */
   private static async getInstallmentPaymentStatus(
-    client: any,
+    client: ClientWithInstallments,
     startOfMonth: Date,
     endOfMonth: Date,
     now: Date
   ): Promise<MonthlyPaymentStatus> {
     const monthInstallments = client.installments.filter(
-      (i: any) => i.dueDate >= startOfMonth && i.dueDate <= endOfMonth
+      (i: Installment) => i.dueDate >= startOfMonth && i.dueDate <= endOfMonth
     )
 
     if (monthInstallments.length === 0) {
@@ -121,21 +126,23 @@ export class PaymentService {
     }
 
     const paidCount = monthInstallments.filter(
-      (i: any) => i.status === 'CONFIRMED'
+      (i: Installment) => i.status === 'CONFIRMED'
     ).length
     const isPaid = paidCount === monthInstallments.length
     const totalAmount = monthInstallments.reduce(
-      (sum: number, i: any) => sum + i.amount,
+      (sum: number, i: Installment) => sum + i.amount,
       0
     )
     const latestDueDate = new Date(
       Math.max(
-        ...monthInstallments.map((i: any) => new Date(i.dueDate).getTime())
+        ...monthInstallments.map((i: Installment) =>
+          new Date(i.dueDate).getTime()
+        )
       )
     )
     const isLate = !isPaid && now > latestDueDate
     const nextPending = monthInstallments.find(
-      (i: any) => i.status !== 'CONFIRMED'
+      (i: Installment) => i.status !== 'CONFIRMED'
     )
 
     return {
@@ -148,8 +155,8 @@ export class PaymentService {
         ? new Date(
             Math.max(
               ...monthInstallments
-                .filter((i: any) => i.paidAt)
-                .map((i: any) => new Date(i.paidAt).getTime())
+                .filter((i: Installment) => i.paidAt !== null)
+                .map((i: Installment) => new Date(i.paidAt as Date).getTime())
             )
           )
         : null,
@@ -168,7 +175,7 @@ export class PaymentService {
    * Status para pagamento mensal recorrente
    */
   private static async getRecurringPaymentStatus(
-    client: any,
+    client: Client,
     startOfMonth: Date,
     endOfMonth: Date,
     now: Date

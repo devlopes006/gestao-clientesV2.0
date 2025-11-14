@@ -23,12 +23,28 @@ function LoginPageInner() {
 
   // Verificar se há redirect pendente ao montar
   useEffect(() => {
+    console.log('[LoginPage] 🚀 Componente montado')
+    console.log('[LoginPage] URL:', window.location.href)
+    console.log('[LoginPage] Query params:', window.location.search)
+
     const wasPendingRedirect = typeof window !== 'undefined' &&
       localStorage.getItem('pendingAuthRedirect') === 'true'
+
+    console.log('[LoginPage] Redirect pendente?', wasPendingRedirect)
 
     if (wasPendingRedirect) {
       console.log('[LoginPage] 🔄 Redirect pendente detectado, aguardando processamento...')
       setIsLogging(true)
+
+      // Timeout de segurança: se após 10 segundos ainda estiver loading, resetar
+      const timeout = setTimeout(() => {
+        console.log('[LoginPage] ⚠️ Timeout ao processar redirect, resetando estado')
+        setIsLogging(false)
+        localStorage.removeItem('pendingAuthRedirect')
+        sessionStorage.removeItem('pendingInviteToken')
+      }, 10000)
+
+      return () => clearTimeout(timeout)
     }
   }, [])
 

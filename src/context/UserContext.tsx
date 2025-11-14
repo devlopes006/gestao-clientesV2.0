@@ -187,17 +187,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       const wasPendingRedirect = localStorage.getItem('pendingAuthRedirect') === 'true'
       console.log('[UserContext] Tinha redirect pendente?', wasPendingRedirect)
 
-      // Se não tinha redirect pendente, não precisa verificar
-      if (!wasPendingRedirect) {
-        console.log('[UserContext] ⏭️ Sem redirect pendente, pulando verificação')
-        setLoading(false)
-        return
-      }
-
       try {
-        // Aguardar um pouco mais para garantir que o Firebase processou o redirect
+        // SEMPRE tentar pegar o redirect result, mesmo sem flag
+        // Isso garante que funciona mesmo se a flag foi perdida
         console.log('[UserContext] ⏳ Aguardando Firebase processar redirect...')
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await new Promise(resolve => setTimeout(resolve, 1500))
 
         const result = await getRedirectResult(auth)
         console.log('[UserContext] getRedirectResult retornou:', result ? '✅ resultado encontrado' : '❌ null')
@@ -207,6 +201,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           console.log('[UserContext] User UID:', result.user.uid)
           console.log('[UserContext] User email:', result.user.email)
           console.log('[UserContext] User displayName:', result.user.displayName)
+          console.log('[UserContext] Provider data:', result.user.providerData)
 
           // Limpar flag de redirect pendente
           localStorage.removeItem('pendingAuthRedirect')
@@ -224,7 +219,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           await handleAuthResult(result.user, inviteToken)
         } else {
           console.log('[UserContext] ❌ Nenhum redirect result encontrado')
-          // Limpar flag se não havia resultado
+          // Limpar flag apenas se havia uma pendente
           if (wasPendingRedirect) {
             console.log('[UserContext] 🧹 Limpando flag de redirect pendente sem resultado')
             localStorage.removeItem('pendingAuthRedirect')
@@ -236,9 +231,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         const err = error as { code?: string; message?: string }
         console.error('[UserContext] Código do erro:', err.code)
         console.error('[UserContext] Mensagem:', err.message)
-        console.error('[UserContext] Detalhes completos:', error)
+        console.error('[UserContext] Stack:', (error as Error)?.stack)
 
-        // Limpar flag em caso de erro
+        // Limpar storage em caso de erro
         localStorage.removeItem('pendingAuthRedirect')
         sessionStorage.removeItem('pendingInviteToken')
         setLoading(false)
@@ -247,9 +242,36 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     checkRedirectResult()
 
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       console.log('[UserContext] onAuthStateChanged disparado:', firebaseUser?.uid || 'null')
       console.log('[UserContext] Email:', firebaseUser?.email || 'null')
+
+      // Se usuário autenticado mas sem sessão ativa, pode ser resultado de redirect mobile
+      if (firebaseUser) {
+        const wasPendingRedirect = localStorage.getItem('pendingAuthRedirect') === 'true'
+
+        // Verifica se tem sessão ativa
+        try {
+          const sessionCheck = await fetch('/api/session', { method: 'GET' })
+          const hasSession = sessionCheck.ok
+
+          console.log('[UserContext] Tem sessão ativa?', hasSession)
+
+          // Se tem usuário mas não tem sessão e tinha redirect pendente, processar
+          if (!hasSession && wasPendingRedirect) {
+            console.log('[UserContext] 🔄 Usuário autenticado sem sessão, processando...')
+            const inviteToken = sessionStorage.getItem('pendingInviteToken')
+            if (inviteToken) {
+              sessionStorage.removeItem('pendingInviteToken')
+            }
+            localStorage.removeItem('pendingAuthRedirect')
+            await handleAuthResult(firebaseUser, inviteToken)
+          }
+        } catch (error) {
+          console.error('[UserContext] Erro ao verificar sessão:', error)
+        }
+      }
+
       setUser(firebaseUser)
       setLoading(false)
     })

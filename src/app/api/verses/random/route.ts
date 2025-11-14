@@ -1,36 +1,11 @@
 import { NextResponse } from 'next/server'
 
-// Lista reduzida de referências para seleção diária determinística
-const DAILY_REFERENCES = [
-  'John 3:16',
-  'Psalm 23:1',
-  'Romans 8:28',
-  'Philippians 4:13',
-  'Proverbs 3:5-6',
-  'Isaiah 41:10',
-  'Matthew 6:33',
-  'Jeremiah 29:11',
-  'Matthew 11:28',
-  'Psalm 46:1',
-]
-
-function getDailyIndex() {
-  const now = new Date()
-  const seed = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`
-  let hash = 0
-  for (let i = 0; i < seed.length; i++) {
-    hash = (hash << 5) - hash + seed.charCodeAt(i)
-    hash |= 0
-  }
-  return Math.abs(hash) % DAILY_REFERENCES.length
-}
 
 export async function GET() {
   try {
     // Verso aleatório em Português usando bible-api.com
     // Tradução: Almeida (única em português disponível)
     // Documentação: https://bible-api.com/
-    const url = 'https://bible-api.com/john+3:16?translation=almeida'
 
     // Gera um versículo "aleatório" baseado no dia (determinístico)
     const books = [

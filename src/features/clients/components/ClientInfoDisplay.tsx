@@ -1,138 +1,166 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select } from '@/components/ui/select'
-import { formatDateInput, parseDateInput, toLocalISOString } from '@/lib/utils'
-import { ClientStatus } from '@/types/client'
-import { AppClient } from '@/types/tables'
-import { Edit2, Save, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { formatDateInput, parseDateInput, toLocalISOString } from "@/lib/utils";
+import { ClientStatus } from "@/types/client";
+import { AppClient } from "@/types/tables";
+import { Edit2, Save, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface ClientInfoDisplayProps {
-  client: AppClient
-  canEdit: boolean
+  client: AppClient;
+  canEdit: boolean;
 }
 
 export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
-  const [isEditing, setIsEditing] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [connectingInstagram, setConnectingInstagram] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [connectingInstagram, setConnectingInstagram] = useState(false);
 
   // Verificar se retornou do OAuth do Instagram
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const instagramSuccess = params.get('instagram_success')
-    const instagramError = params.get('instagram_error')
-    const instagramWarning = params.get('instagram_warning')
+    const params = new URLSearchParams(window.location.search);
+    const instagramSuccess = params.get("instagram_success");
+    const instagramError = params.get("instagram_error");
+    const instagramWarning = params.get("instagram_warning");
 
-    if (instagramSuccess === 'true') {
-      toast.success('Instagram conectado com sucesso!')
+    if (instagramSuccess === "true") {
+      toast.success("Instagram conectado com sucesso!");
       if (instagramWarning) {
-        toast.warning(instagramWarning)
+        toast.warning(instagramWarning);
       }
       // Limpar query params da URL
-      window.history.replaceState({}, '', window.location.pathname)
+      window.history.replaceState({}, "", window.location.pathname);
       // Recarregar página para mostrar dados atualizados
-      window.location.reload()
+      window.location.reload();
     } else if (instagramError) {
-      toast.error(instagramError)
-      window.history.replaceState({}, '', window.location.pathname)
+      toast.error(instagramError);
+      window.history.replaceState({}, "", window.location.pathname);
     }
-  }, [])
+  }, []);
 
   const [formData, setFormData] = useState({
     name: client.name,
-    email: client.email || '',
-    phone: client.phone || '',
+    email: client.email || "",
+    phone: client.phone || "",
     status: client.status,
-    plan: client.plan || '',
-    mainChannel: client.main_channel || '',
-    instagramUserId: client.instagram_user_id || '',
-    instagramUsername: client.instagram_username || '',
-    contractStart: client.contract_start ? formatDateInput(client.contract_start) : '',
-    contractEnd: client.contract_end ? formatDateInput(client.contract_end) : '',
-    paymentDay: client.payment_day?.toString() || '',
-    contractValue: client.contract_value?.toString() || '',
-  })
+    plan: client.plan || "",
+    mainChannel: client.main_channel || "",
+    instagramUserId: client.instagram_user_id || "",
+    instagramUsername: client.instagram_username || "",
+    contractStart: client.contract_start
+      ? formatDateInput(client.contract_start)
+      : "",
+    contractEnd: client.contract_end
+      ? formatDateInput(client.contract_end)
+      : "",
+    paymentDay: client.payment_day?.toString() || "",
+    contractValue: client.contract_value?.toString() || "",
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      const contractStartToSave = formData.contractStart ? toLocalISOString(parseDateInput(formData.contractStart)) : null
-      const contractEndToSave = formData.contractEnd ? toLocalISOString(parseDateInput(formData.contractEnd)) : null
+      const contractStartToSave = formData.contractStart
+        ? toLocalISOString(parseDateInput(formData.contractStart))
+        : null;
+      const contractEndToSave = formData.contractEnd
+        ? toLocalISOString(parseDateInput(formData.contractEnd))
+        : null;
 
       const response = await fetch(`/api/clients/${client.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
           contractStart: contractStartToSave,
           contractEnd: contractEndToSave,
-          paymentDay: formData.paymentDay ? parseInt(formData.paymentDay) : null,
-          contractValue: formData.contractValue ? parseFloat(formData.contractValue) : null,
+          paymentDay: formData.paymentDay
+            ? parseInt(formData.paymentDay)
+            : null,
+          contractValue: formData.contractValue
+            ? parseFloat(formData.contractValue)
+            : null,
         }),
-      })
+      });
 
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Erro ao atualizar cliente')
+        const data = await response.json();
+        throw new Error(data.error || "Erro ao atualizar cliente");
       }
 
-      toast.success('Cliente atualizado com sucesso!')
-      setIsEditing(false)
-      window.location.reload() // Reload to show updated data
+      toast.success("Cliente atualizado com sucesso!");
+      setIsEditing(false);
+      window.location.reload(); // Reload to show updated data
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erro ao atualizar cliente')
+      toast.error(
+        error instanceof Error ? error.message : "Erro ao atualizar cliente",
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleCancel = () => {
-    setIsEditing(false)
+    setIsEditing(false);
     // Reset form data
     setFormData({
       name: client.name,
-      email: client.email || '',
-      phone: client.phone || '',
+      email: client.email || "",
+      phone: client.phone || "",
       status: client.status,
-      plan: client.plan || '',
-      mainChannel: client.main_channel || '',
-      instagramUserId: client.instagram_user_id || '',
-      instagramUsername: client.instagram_username || '',
-      contractStart: client.contract_start ? formatDateInput(client.contract_start) : '',
-      contractEnd: client.contract_end ? formatDateInput(client.contract_end) : '',
-      paymentDay: client.payment_day?.toString() || '',
-      contractValue: client.contract_value?.toString() || '',
-    })
-  }
+      plan: client.plan || "",
+      mainChannel: client.main_channel || "",
+      instagramUserId: client.instagram_user_id || "",
+      instagramUsername: client.instagram_username || "",
+      contractStart: client.contract_start
+        ? formatDateInput(client.contract_start)
+        : "",
+      contractEnd: client.contract_end
+        ? formatDateInput(client.contract_end)
+        : "",
+      paymentDay: client.payment_day?.toString() || "",
+      contractValue: client.contract_value?.toString() || "",
+    });
+  };
 
   const handleConnectInstagram = async () => {
-    setConnectingInstagram(true)
+    setConnectingInstagram(true);
     try {
       // Solicitar URL de autorização do Instagram
-      const response = await fetch(`/api/instagram/connect?clientId=${client.id}`)
+      const response = await fetch(
+        `/api/instagram/connect?clientId=${client.id}`,
+      );
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Erro ao conectar Instagram')
+        const error = await response.json();
+        throw new Error(error.error || "Erro ao conectar Instagram");
       }
 
-      const { authUrl } = await response.json()
+      const { authUrl } = await response.json();
 
       // Abrir popup ou redirecionar para autorização do Instagram
-      window.location.href = authUrl
+      window.location.href = authUrl;
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erro ao conectar Instagram')
-      setConnectingInstagram(false)
+      toast.error(
+        error instanceof Error ? error.message : "Erro ao conectar Instagram",
+      );
+      setConnectingInstagram(false);
     }
-  }
+  };
 
   if (!isEditing) {
     return (
@@ -162,7 +190,7 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                   Email
                 </p>
                 <p className="text-sm text-slate-900 dark:text-white">
-                  {client.email || 'Não informado'}
+                  {client.email || "Não informado"}
                 </p>
               </div>
               <div>
@@ -170,7 +198,7 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                   Telefone
                 </p>
                 <p className="text-sm text-slate-900 dark:text-white">
-                  {client.phone || 'Não informado'}
+                  {client.phone || "Não informado"}
                 </p>
               </div>
               <div>
@@ -178,7 +206,7 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                   Plano
                 </p>
                 <p className="text-sm text-slate-900 dark:text-white">
-                  {client.plan || 'Não definido'}
+                  {client.plan || "Não definido"}
                 </p>
               </div>
               <div>
@@ -186,14 +214,14 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                   Canal Principal
                 </p>
                 <p className="text-sm text-slate-900 dark:text-white">
-                  {client.main_channel || 'Não definido'}
+                  {client.main_channel || "Não definido"}
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -218,7 +246,9 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                   id="name"
                   required
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   disabled={loading}
                   className="border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-800"
                 />
@@ -231,7 +261,9 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     disabled={loading}
                     className="border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-800"
                   />
@@ -243,7 +275,9 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                     id="phone"
                     type="tel"
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
                     disabled={loading}
                     className="border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-800"
                   />
@@ -254,56 +288,80 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                 <div className="space-y-2">
                   <Label htmlFor="status">Status</Label>
                   <Select
-                    id="status"
                     value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value as ClientStatus })}
+                    onValueChange={(value) =>
+                      setFormData({
+                        ...formData,
+                        status: value as ClientStatus,
+                      })
+                    }
                     disabled={loading}
-                    className="border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-800"
                   >
-                    <option value="new">Novo</option>
-                    <option value="onboarding">Em Onboarding</option>
-                    <option value="active">Ativo</option>
-                    <option value="paused">Pausado</option>
-                    <option value="closed">Encerrado</option>
+                    <SelectTrigger className="border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-800">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="new">Novo</SelectItem>
+                      <SelectItem value="onboarding">Em Onboarding</SelectItem>
+                      <SelectItem value="active">Ativo</SelectItem>
+                      <SelectItem value="paused">Pausado</SelectItem>
+                      <SelectItem value="closed">Encerrado</SelectItem>
+                    </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="plan">Plano</Label>
                   <Select
-                    id="plan"
-                    value={formData.plan}
-                    onChange={(e) => setFormData({ ...formData, plan: e.target.value })}
+                    value={formData.plan || "__NONE__"}
+                    onValueChange={(value) =>
+                      setFormData({
+                        ...formData,
+                        plan: value === "__NONE__" ? "" : value,
+                      })
+                    }
                     disabled={loading}
-                    className="border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-800"
                   >
-                    <option value="">Selecione</option>
-                    <option value="GESTAO">Gestão</option>
-                    <option value="ESTRUTURA">Estrutura</option>
-                    <option value="FREELANCER">Freelancer</option>
-                    <option value="PARCERIA">Parceria</option>
-                    <option value="CONSULTORIA">Consultoria</option>
-                    <option value="OUTRO">Outro</option>
+                    <SelectTrigger className="border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-800">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__NONE__">Selecione</SelectItem>
+                      <SelectItem value="GESTAO">Gestão</SelectItem>
+                      <SelectItem value="ESTRUTURA">Estrutura</SelectItem>
+                      <SelectItem value="FREELANCER">Freelancer</SelectItem>
+                      <SelectItem value="PARCERIA">Parceria</SelectItem>
+                      <SelectItem value="CONSULTORIA">Consultoria</SelectItem>
+                      <SelectItem value="OUTRO">Outro</SelectItem>
+                    </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="mainChannel">Canal Principal</Label>
                   <Select
-                    id="mainChannel"
-                    value={formData.mainChannel}
-                    onChange={(e) => setFormData({ ...formData, mainChannel: e.target.value })}
+                    value={formData.mainChannel || "__NONE__"}
+                    onValueChange={(value) =>
+                      setFormData({
+                        ...formData,
+                        mainChannel: value === "__NONE__" ? "" : value,
+                      })
+                    }
                     disabled={loading}
-                    className="border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-800"
                   >
-                    <option value="">Selecione</option>
-                    <option value="INSTAGRAM">Instagram</option>
-                    <option value="FACEBOOK">Facebook</option>
-                    <option value="TIKTOK">TikTok</option>
-                    <option value="YOUTUBE">YouTube</option>
-                    <option value="LINKEDIN">LinkedIn</option>
-                    <option value="TWITTER">Twitter</option>
-                    <option value="OUTRO">Outro</option>
+                    <SelectTrigger className="border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-800">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__NONE__">Selecione</SelectItem>
+                      <SelectItem value="INSTAGRAM">Instagram</SelectItem>
+                      <SelectItem value="FACEBOOK">Facebook</SelectItem>
+                      <SelectItem value="TIKTOK">TikTok</SelectItem>
+                      <SelectItem value="YOUTUBE">YouTube</SelectItem>
+                      <SelectItem value="LINKEDIN">LinkedIn</SelectItem>
+                      <SelectItem value="TWITTER">Twitter</SelectItem>
+                      <SelectItem value="OUTRO">Outro</SelectItem>
+                    </SelectContent>
                   </Select>
                 </div>
               </div>
@@ -320,7 +378,9 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                     size="sm"
                     className="text-xs"
                   >
-                    {connectingInstagram ? 'Conectando...' : 'Conectar Instagram'}
+                    {connectingInstagram
+                      ? "Conectando..."
+                      : "Conectar Instagram"}
                   </Button>
                 </div>
 
@@ -331,7 +391,12 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                       id="instagramUserId"
                       type="text"
                       value={formData.instagramUserId}
-                      onChange={(e) => setFormData({ ...formData, instagramUserId: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          instagramUserId: e.target.value,
+                        })
+                      }
                       disabled={true}
                       placeholder="Automático após conectar"
                       className="border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500 bg-slate-50 dark:bg-slate-900"
@@ -342,12 +407,19 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="instagramUsername">Instagram Username</Label>
+                    <Label htmlFor="instagramUsername">
+                      Instagram Username
+                    </Label>
                     <Input
                       id="instagramUsername"
                       type="text"
                       value={formData.instagramUsername}
-                      onChange={(e) => setFormData({ ...formData, instagramUsername: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          instagramUsername: e.target.value,
+                        })
+                      }
                       disabled={true}
                       placeholder="Automático após conectar"
                       className="border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500 bg-slate-50 dark:bg-slate-900"
@@ -373,7 +445,12 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                     id="contractStart"
                     type="date"
                     value={formData.contractStart}
-                    onChange={(e) => setFormData({ ...formData, contractStart: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        contractStart: e.target.value,
+                      })
+                    }
                     disabled={loading}
                     className="border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-800"
                   />
@@ -385,7 +462,9 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                     id="contractEnd"
                     type="date"
                     value={formData.contractEnd}
-                    onChange={(e) => setFormData({ ...formData, contractEnd: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, contractEnd: e.target.value })
+                    }
                     disabled={loading}
                     className="border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-800"
                   />
@@ -404,12 +483,16 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                     min="1"
                     max="31"
                     value={formData.paymentDay}
-                    onChange={(e) => setFormData({ ...formData, paymentDay: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, paymentDay: e.target.value })
+                    }
                     placeholder="Ex: 5, 10, 15..."
                     disabled={loading}
                     className="border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-800"
                   />
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Dia do mês (1-31)</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Dia do mês (1-31)
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -420,7 +503,12 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                     min="0"
                     step="0.01"
                     value={formData.contractValue}
-                    onChange={(e) => setFormData({ ...formData, contractValue: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        contractValue: e.target.value,
+                      })
+                    }
                     placeholder="Ex: 1500.00"
                     disabled={loading}
                     className="border-slate-300 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500 bg-white dark:bg-slate-800"
@@ -437,7 +525,7 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                 className="rounded-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg shadow-blue-500/30 gap-2"
               >
                 {loading ? (
-                  'Salvando...'
+                  "Salvando..."
                 ) : (
                   <>
                     <Save className="w-4 h-4" />
@@ -460,5 +548,5 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

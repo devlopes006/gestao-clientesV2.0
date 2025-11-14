@@ -13,7 +13,7 @@ import React, {
 interface DropdownContextValue {
   open: boolean;
   setOpen: (v: boolean) => void;
-  triggerRef: React.RefObject<HTMLButtonElement | null>;
+  id: string;
   side?: "top" | "bottom";
   align?: "start" | "end";
 }
@@ -37,14 +37,18 @@ export function DropdownMenu({
   side = "bottom",
   align = "start",
 }: DropdownMenuProps) {
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const generatedId = React.useId();
+  const id = `dropdown-${generatedId}`;
   const [uncontrolled, setUncontrolled] = useState(false);
   const open = controlledOpen !== undefined ? controlledOpen : uncontrolled;
 
-  const setOpen = (v: boolean) => {
-    if (controlledOpen === undefined) setUncontrolled(v);
-    onOpenChange?.(v);
-  };
+  const setOpen = React.useCallback(
+    (v: boolean) => {
+      if (controlledOpen === undefined) setUncontrolled(v);
+      onOpenChange?.(v);
+    },
+    [controlledOpen, onOpenChange],
+  );
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -52,12 +56,10 @@ export function DropdownMenu({
     }
     if (open) window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
+  }, [open, setOpen]);
 
   return (
-    <DropdownContext.Provider
-      value={{ open, setOpen, triggerRef, side, align }}
-    >
+    <DropdownContext.Provider value={{ open, setOpen, id, side, align }}>
       {children}
     </DropdownContext.Provider>
   );
@@ -75,25 +77,33 @@ interface TriggerProps {
 }
 
 export function DropdownMenuTrigger({ children, asChild }: TriggerProps) {
-  const { setOpen, open, triggerRef } = useDropdown();
+  const { setOpen, open, id } = useDropdown();
   if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as any, {
-      ref: triggerRef,
-      "data-state": open ? "open" : "closed",
-      onClick: (e: React.MouseEvent) => {
-        if (React.isValidElement(children)) {
-          const maybeOnClick = (children.props as any)?.onClick;
-          if (typeof maybeOnClick === "function") maybeOnClick(e);
+    const child = children as React.ReactElement & {
+      props: { onClick?: (e: React.MouseEvent) => void };
+    };
+
+    const existingOnClick = child.props?.onClick;
+
+    const mergedOnClick = (e: React.MouseEvent) => {
+      if (typeof existingOnClick === "function") {
+        try {
+          existingOnClick(e);
+        } catch {
+          // swallow any child handler errors to avoid breaking the menu
         }
-        setOpen(!open);
-      },
+      }
+      setOpen(!open);
+    };
+
+    return React.cloneElement(child, {
+      "data-dropdown-id": id,
+      "data-state": open ? "open" : "closed",
+      onClick: mergedOnClick,
     });
   }
   return (
-    <button
-      ref={triggerRef}
-      data-state={open ? "open" : "closed"}
-      onClick={() => setOpen(!open)}
+    <button data-dropdown-id={id} data-state={open ? "open" : "closed"} onClick={() => setOpen(!open)}
       className="inline-flex items-center rounded-md px-3 py-2 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
     >
       {children}
@@ -112,24 +122,22 @@ export function DropdownMenuContent({
   className,
   sideOffset = 8,
 }: ContentProps) {
-  const { open, setOpen, triggerRef, side, align } = useDropdown();
+  const { open, setOpen, id, side, align } = useDropdown();
   const contentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
       if (!open) return;
-      if (
-        contentRef.current &&
-        !contentRef.current.contains(e.target as Node) &&
-        triggerRef.current &&
-        !triggerRef.current.contains(e.target as Node)
-      ) {
+      const target = e.target as Element | null;
+      const clickedInsideContent = contentRef.current?.contains(target as Node);
+      const clickedOnTrigger = target?.closest?.(`[data-dropdown-id="${id}"]`);
+      if (!clickedInsideContent && !clickedOnTrigger) {
         setOpen(false);
       }
     }
     window.addEventListener("mousedown", onClickOutside);
     return () => window.removeEventListener("mousedown", onClickOutside);
-  }, [open, setOpen]);
+  }, [open, setOpen, id]);
 
   const alignmentClass = align === "end" ? "right-0" : "left-0";
   const verticalPositionClass =

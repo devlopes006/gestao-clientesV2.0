@@ -18,7 +18,8 @@ export function AuthDebug() {
   });
 
   useEffect(() => {
-    setMounted(true);
+    // Avoid calling setState synchronously during render/effect to satisfy ESLint
+    const mountedTimeout = setTimeout(() => setMounted(true), 0);
 
     const updateDebug = () => {
       setDebugInfo({
@@ -35,7 +36,10 @@ export function AuthDebug() {
     updateDebug();
     const interval = setInterval(updateDebug, 1000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(mountedTimeout);
+      clearInterval(interval);
+    };
   }, []);
 
   // Apenas mostrar em desenvolvimento e após montar

@@ -11,8 +11,76 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'MyGest',
-  description: 'Sistema completo de gestão com controle de usuários e permissões',
+  title: {
+    default: 'MyGest - Sistema de Gestão de Clientes',
+    template: '%s | MyGest',
+  },
+  description:
+    'Sistema completo de gestão de clientes com controle de tarefas, finanças, reuniões e branding. Aumente a produtividade da sua equipe com ferramentas intuitivas.',
+  keywords: [
+    'gestão de clientes',
+    'CRM',
+    'gerenciamento de projetos',
+    'controle financeiro',
+    'gestão de tarefas',
+    'sistema de gestão',
+    'produtividade',
+    'organização empresarial',
+  ],
+  authors: [{ name: 'MyGest Team' }],
+  creator: 'MyGest',
+  publisher: 'MyGest',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  ),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'MyGest - Sistema de Gestão de Clientes',
+    description:
+      'Sistema completo de gestão de clientes com controle de tarefas, finanças, reuniões e branding.',
+    url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+    siteName: 'MyGest',
+    locale: 'pt_BR',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'MyGest - Sistema de Gestão de Clientes',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'MyGest - Sistema de Gestão de Clientes',
+    description:
+      'Sistema completo de gestão de clientes com controle de tarefas, finanças, reuniões e branding.',
+    images: ['/og-image.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    // Adicione aqui os códigos de verificação quando disponíveis
+    // google: 'google-verification-code',
+    // yandex: 'yandex-verification-code',
+  },
 }
 
 export default function RootLayout({

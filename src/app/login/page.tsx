@@ -18,8 +18,35 @@ function LoginPageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const inviteToken = searchParams.get('invite')
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLogging, setIsLogging] = useState(false)
   const hasInvite = !!inviteToken
+
+  // Verificar se há redirect pendente ao montar
+  useEffect(() => {
+    console.log('[LoginPage] 🚀 Componente montado')
+    console.log('[LoginPage] URL:', window.location.href)
+    console.log('[LoginPage] Query params:', window.location.search)
+
+    const wasPendingRedirect = typeof window !== 'undefined' &&
+      localStorage.getItem('pendingAuthRedirect') === 'true'
+
+    console.log('[LoginPage] Redirect pendente?', wasPendingRedirect)
+
+    if (wasPendingRedirect) {
+      console.log('[LoginPage] 🔄 Redirect pendente detectado, aguardando processamento...')
+      setIsLogging(true)
+
+      // Timeout de segurança: se após 10 segundos ainda estiver loading, resetar
+      const timeout = setTimeout(() => {
+        console.log('[LoginPage] ⚠️ Timeout ao processar redirect, resetando estado')
+        setIsLogging(false)
+        localStorage.removeItem('pendingAuthRedirect')
+        sessionStorage.removeItem('pendingInviteToken')
+      }, 10000)
+
+      return () => clearTimeout(timeout)
+    }
+  }, [])
 
   useEffect(() => {
     if (!loading && user) {
@@ -29,12 +56,38 @@ function LoginPageInner() {
   }, [loading, user, router])
 
   const handleLogin = async () => {
-    setIsLoading(true)
+    setIsLogging(true)
     try {
       await loginWithGoogle(inviteToken)
-    } finally {
-      setIsLoading(false)
+    } catch (error) {
+      console.error('[LoginPage] Erro no login:', error)
+      setIsLogging(false)
     }
+  }
+
+  // Se está processando redirect, mostrar tela de loading
+  if (isLogging) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-100 dark:from-slate-950 dark:via-blue-950/20 dark:to-slate-900 p-4">
+        <div className="text-center space-y-6">
+          <div className="relative inline-block">
+            <div className="absolute inset-0 bg-linear-to-tr from-blue-600 to-purple-600 rounded-2xl blur-lg opacity-50 animate-pulse" />
+            <div className="relative w-16 h-16 bg-linear-to-tr from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
+              <Sparkles className="w-8 h-8 text-white animate-spin" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+              Conectando...
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400">
+              {hasInvite ? 'Processando convite' : 'Autenticando com Google'}
+            </p>
+          </div>
+          <LoadingSpinner size="lg" />
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -170,10 +223,10 @@ function LoginPageInner() {
               {/* Google Button */}
               <Button
                 onClick={handleLogin}
-                disabled={isLoading || loading}
+                disabled={isLogging || loading}
                 className="w-full h-14 text-base font-semibold bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/40 disabled:opacity-50 disabled:cursor-not-allowed group"
               >
-                {isLoading || loading ? (
+                {isLogging || loading ? (
                   <div className="flex items-center gap-3">
                     <LoadingSpinner size="sm" className="text-white" />
                     <span>{hasInvite ? 'Aceitando convite...' : 'Conectando...'}</span>

@@ -21,8 +21,8 @@ jest.mock('@/lib/firebase', () => ({
 jest.mock('firebase/auth', () => ({
   getRedirectResult: () => mockGetRedirectResult(),
   signOut: () => mockSignOut(),
-  onAuthStateChanged: (auth: any, cb: any) => {
-    cb(mockUser)
+  onAuthStateChanged: (_auth: unknown, cb: (user: unknown) => void) => {
+    cb(mockUser as unknown)
     return () => { }
   },
 }))

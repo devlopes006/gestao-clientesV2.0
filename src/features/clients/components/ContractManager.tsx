@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AlertTriangle,
   Calendar,
@@ -145,153 +144,95 @@ export default function ContractManager({
 
   return (
     <div className="space-y-6">
-      {/* Contract Status */}
-      <div className="relative">
-        <div className="absolute -inset-1 bg-linear-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-20" />
-        <Card className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-slate-200 dark:border-slate-700">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3">
-              <div className="relative">
-                <div className="absolute inset-0 bg-linear-to-tr from-blue-600 to-purple-600 rounded-xl blur-md opacity-50" />
-                <div className="relative w-10 h-10 bg-linear-to-tr from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-white" />
-                </div>
-              </div>
-              <span>Informações do Contrato</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Contract Dates */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                  <Calendar className="w-4 h-4" />
-                  <span>Início do Contrato</span>
-                </div>
-                <p className="text-lg font-semibold text-slate-900 dark:text-white">
-                  {formatDate(contractStart)}
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                  <Calendar className="w-4 h-4" />
-                  <span>Término do Contrato</span>
-                </div>
-                <p className="text-lg font-semibold text-slate-900 dark:text-white">
-                  {contractEnd ? formatDate(contractEnd) : "Indeterminado"}
-                </p>
-              </div>
+      {/* Informações do Contrato */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 mb-2">
+          <TrendingUp className="w-6 h-6 text-blue-600" />
+          <span className="text-base font-semibold text-blue-700">Informações do Contrato</span>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+              <Calendar className="w-4 h-4" />
+              <span>Início</span>
             </div>
-
-            {/* Contract Value and Payment Day */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                  <DollarSign className="w-4 h-4" />
-                  <span>Valor Mensal</span>
-                </div>
-                <p className="text-2xl font-bold bg-linear-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent">
-                  {formatCurrency(contractValue)}
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                  <Calendar className="w-4 h-4" />
-                  <span>Dia de Pagamento</span>
-                </div>
-                <p className="text-lg font-semibold text-slate-900 dark:text-white">
-                  {paymentDay ? `Dia ${paymentDay}` : "Não definido"}
-                </p>
-              </div>
+            <p className="text-lg font-semibold text-slate-900 dark:text-white">{formatDate(contractStart)}</p>
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+              <Calendar className="w-4 h-4" />
+              <span>Término</span>
             </div>
-
-            {/* Contract Status Badge */}
-            <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-slate-600 dark:text-slate-400">
-                  Status do Contrato
-                </span>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    isContractActive()
-                      ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
-                      : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
-                  }`}
-                >
-                  {isContractActive() ? "Ativo" : "Inativo"}
-                </span>
-              </div>
+            <p className="text-lg font-semibold text-slate-900 dark:text-white">{contractEnd ? formatDate(contractEnd) : "Indeterminado"}</p>
+          </div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+              <DollarSign className="w-4 h-4" />
+              <span>Valor Mensal</span>
             </div>
-          </CardContent>
-        </Card>
+            <p className="text-xl font-bold text-green-700 dark:text-green-400">{formatCurrency(contractValue)}</p>
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+              <Calendar className="w-4 h-4" />
+              <span>Dia de Pagamento</span>
+            </div>
+            <p className="text-lg font-semibold text-slate-900 dark:text-white">{paymentDay ? `Dia ${paymentDay}` : "Não definido"}</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-between pt-2">
+          <span className="text-sm text-slate-600 dark:text-slate-400">Status do Contrato</span>
+          <span className={`px-3 py-1 rounded-full text-sm font-medium ${isContractActive() ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"}`}>{isContractActive() ? "Ativo" : "Inativo"}</span>
+        </div>
       </div>
 
-      {/* Payment Status */}
+      {/* Pagamento do Mês Atual */}
       {isContractActive() && (
-        <div className="relative">
-          <div className="absolute -inset-1 bg-linear-to-r from-green-600 to-emerald-600 rounded-3xl blur opacity-20" />
-          <Card className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-slate-200 dark:border-slate-700">
-            <CardHeader>
-              <CardTitle className="text-lg">Pagamento do Mês Atual</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`${getPaymentStatusColor()}`}>
-                    {getPaymentStatusIcon()}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-slate-900 dark:text-white">
-                      {getPaymentStatusText()}
-                    </p>
-                    {daysUntilPayment !== null &&
-                      currentStatus === "PENDING" && (
-                        <p className="text-sm text-slate-600 dark:text-slate-400">
-                          {daysUntilPayment === 0
-                            ? "Vence hoje"
-                            : daysUntilPayment > 0
-                              ? `Vence em ${daysUntilPayment} ${daysUntilPayment === 1 ? "dia" : "dias"}`
-                              : `Atrasado ${Math.abs(daysUntilPayment)} ${Math.abs(daysUntilPayment) === 1 ? "dia" : "dias"}`}
-                        </p>
-                      )}
-                  </div>
-                </div>
-
-                {currentStatus === "PENDING" && (
-                  <Button
-                    onClick={handleConfirmPayment}
-                    disabled={loading}
-                    className="rounded-full bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg shadow-green-500/30"
-                  >
-                    {loading ? "Confirmando..." : "Confirmar Pagamento"}
-                  </Button>
-                )}
-
-                {currentStatus === "CONFIRMED" && (
-                  <div className="px-4 py-2 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">
-                    Pago ✓
-                  </div>
+        <div className="space-y-2 mt-4">
+          <div className="flex items-center gap-3 mb-2">
+            <CheckCircle2 className="w-5 h-5 text-green-600" />
+            <span className="text-base font-semibold text-green-700">Pagamento do Mês Atual</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`${getPaymentStatusColor()}`}>{getPaymentStatusIcon()}</div>
+              <div>
+                <p className="font-semibold text-slate-900 dark:text-white">{getPaymentStatusText()}</p>
+                {daysUntilPayment !== null && currentStatus === "PENDING" && (
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    {daysUntilPayment === 0
+                      ? "Vence hoje"
+                      : daysUntilPayment > 0
+                        ? `Vence em ${daysUntilPayment} ${daysUntilPayment === 1 ? "dia" : "dias"}`
+                        : `Atrasado ${Math.abs(daysUntilPayment)} ${Math.abs(daysUntilPayment) === 1 ? "dia" : "dias"}`}
+                  </p>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            {currentStatus === "PENDING" && (
+              <Button
+                onClick={handleConfirmPayment}
+                disabled={loading}
+                className="rounded-full bg-green-600 hover:bg-green-700 text-white shadow"
+              >
+                {loading ? "Confirmando..." : "Confirmar Pagamento"}
+              </Button>
+            )}
+            {currentStatus === "CONFIRMED" && (
+              <div className="px-4 py-2 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 font-medium">Pago ✓</div>
+            )}
+          </div>
         </div>
       )}
 
+      {/* Aviso de contrato não cadastrado */}
       {!contractStart && (
-        <Card className="bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
-              <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                Nenhuma informação de contrato cadastrada. Edite o cliente para
-                adicionar informações de contrato.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mt-4 flex items-center gap-3">
+          <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+          <p className="text-sm text-yellow-800 dark:text-yellow-200">Nenhuma informação de contrato cadastrada. Edite o cliente para adicionar informações de contrato.</p>
+        </div>
       )}
     </div>
   );

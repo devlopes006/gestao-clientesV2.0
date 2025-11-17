@@ -1,17 +1,9 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import {
-  AlertCircle,
-  Calendar,
-  CheckCircle2,
-  Clock,
-  DollarSign,
-  Info,
-} from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { AlertCircle, Calendar, CheckCircle2, Clock, DollarSign, Info } from "lucide-react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 type MonthlyPaymentStatus = {
@@ -49,6 +41,7 @@ type Props = {
 };
 
 export function PaymentStatusCard({
+  // ...código existente...
   clientId,
   clientName,
   canEdit = false,
@@ -68,48 +61,29 @@ export function PaymentStatusCard({
         fetch(`/api/clients/${clientId}/payment`),
         fetch(`/api/clients/${clientId}/installments-v2`),
       ]);
-
-      if (statusRes.ok) {
-        const data = await statusRes.json();
-        setStatus(data);
-      }
-
-      if (installmentsRes.ok) {
-        const data = await installmentsRes.json();
-        setInstallments(Array.isArray(data) ? data : []);
-      }
-    } catch (error) {
-      console.error("Error loading payment data:", error);
-      toast.error("Erro ao carregar informações de pagamento");
+      const statusJson = await statusRes.json();
+      const installmentsJson = await installmentsRes.json();
+      setStatus(statusJson.status || null);
+      setInstallments(installmentsJson.installments || []);
+    } catch {
+      toast.error("Erro ao carregar dados de pagamento");
     } finally {
       setLoading(false);
     }
   }, [clientId]);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
   const handleConfirmMonthly = async () => {
-    if (!status || status.mode !== "monthly") return;
-
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/clients/${clientId}/payment/confirm`, {
-        method: "POST",
-      });
-
+      const res = await fetch(`/api/clients/${clientId}/payment`, { method: "POST" });
       if (!res.ok) {
         const error = await res.json();
         throw new Error(error.error || "Falha ao confirmar pagamento");
       }
-
       toast.success("Pagamento mensal confirmado!");
       await loadData();
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Erro ao confirmar pagamento",
-      );
+      toast.error(error instanceof Error ? error.message : "Erro ao confirmar pagamento");
     } finally {
       setSubmitting(false);
     }
@@ -156,22 +130,18 @@ export function PaymentStatusCard({
 
   if (loading) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-12">
-          <Spinner size="lg" variant="primary" />
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center py-12">
+        <Spinner size="lg" variant="primary" />
+      </div>
     );
   }
 
   if (!status) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-12 text-slate-500">
-          <Info className="h-5 w-5 mr-2" />
-          Nenhuma informação de pagamento disponível
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center py-12 text-slate-500">
+        <Info className="h-5 w-5 mr-2" />
+        Nenhuma informação de pagamento disponível
+      </div>
     );
   }
 
@@ -196,214 +166,175 @@ export function PaymentStatusCard({
 
   return (
     <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <DollarSign className="h-5 w-5 text-blue-600" />
-            {status.mode === "monthly"
-              ? "Pagamento Mensal"
-              : "Pagamento Parcelado"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Status principal */}
-          <div className={`p-4 rounded-lg border-2 ${getStatusColor()}`}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {getStatusIcon()}
-                <div>
-                  <div className="font-semibold text-sm">
-                    {status.mode === "installment" &&
-                      status.details.installments ? (
-                      <>
-                        {status.details.installments.total > 1
-                          ? `${status.details.installments.total} parcelas este mês`
-                          : "Parcela do mês"}
-                      </>
-                    ) : (
-                      "Mensalidade"
-                    )}
-                  </div>
-                  <div className="text-xs flex items-center gap-1.5 mt-1">
-                    <Calendar className="h-3.5 w-3.5" />
-                    Vencimento: {formatDate(status.dueDate)}
-                  </div>
-                  {status.isPaid && status.paidAt && (
-                    <div className="text-xs mt-1">
-                      Pago em: {formatDate(status.paidAt)}
-                    </div>
-                  )}
+      <div className="flex items-center gap-2 mb-2">
+        <DollarSign className="w-5 h-5 text-blue-600" />
+        <span className="text-base font-semibold text-blue-700">
+          {status.mode === "monthly" ? "Pagamento Mensal" : "Pagamento Parcelado"}
+        </span>
+      </div>
+      {/* Status principal */}
+      <div className={`p-4 rounded-lg border-2 ${getStatusColor()}`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {getStatusIcon()}
+            <div>
+              <div className="font-semibold text-sm">
+                {status.mode === "installment" && status.details.installments ? (
+                  status.details.installments.total > 1
+                    ? `${status.details.installments.total} parcelas este mês`
+                    : "Parcela do mês"
+                ) : "Mensalidade"}
+              </div>
+              <div className="text-xs flex items-center gap-1.5 mt-1">
+                <Calendar className="h-3.5 w-3.5" />
+                Vencimento: {formatDate(status.dueDate)}
+              </div>
+              {status.isPaid && status.paidAt && (
+                <div className="text-xs mt-1">
+                  Pago em: {formatDate(status.paidAt)}
                 </div>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold">
-                  {formatCurrency(status.amount)}
-                </div>
-                <div className="text-xs font-medium capitalize">
-                  {getStatusLabel()}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Informações adicionais */}
-          {status.mode === "monthly" &&
-            status.details.monthlyIncome !== undefined && (
-              <div className="text-sm text-slate-600 bg-slate-50 p-3 rounded">
-                <div className="flex justify-between">
-                  <span>Valor recebido este mês:</span>
-                  <span className="font-medium">
-                    {formatCurrency(status.details.monthlyIncome)}
-                  </span>
-                </div>
-              </div>
-            )}
-
-          {status.mode === "installment" && status.details.installments && (
-            <div className="text-sm space-y-2">
-              <div className="flex justify-between text-slate-600">
-                <span>Total de parcelas no mês:</span>
-                <span className="font-medium">
-                  {status.details.installments.total}
-                </span>
-              </div>
-              <div className="flex justify-between text-green-600">
-                <span>Parcelas pagas:</span>
-                <span className="font-medium">
-                  {status.details.installments.paid}
-                </span>
-              </div>
-              <div className="flex justify-between text-amber-600">
-                <span>Parcelas pendentes:</span>
-                <span className="font-medium">
-                  {status.details.installments.pending}
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* Ação de confirmação */}
-          {canEdit && !status.isPaid && (
-            <div className="pt-2">
-              {status.mode === "monthly" ? (
-                <Button
-                  onClick={handleConfirmMonthly}
-                  disabled={submitting}
-                  className="w-full"
-                  size="lg"
-                >
-                  {submitting ? (
-                    <>
-                      <Spinner size="sm" className="mr-2" />
-                      Processando...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
-                      Confirmar Pagamento Mensal
-                    </>
-                  )}
-                </Button>
-              ) : (
-                status.details.installments?.nextPendingId && (
-                  <Button
-                    onClick={() =>
-                      handleConfirmInstallment(
-                        status.details.installments!.nextPendingId!,
-                      )
-                    }
-                    disabled={submitting}
-                    className="w-full"
-                    size="lg"
-                  >
-                    {submitting ? (
-                      <>
-                        <Spinner size="sm" className="mr-2" />
-                        Processando...
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle2 className="h-4 w-4 mr-2" />
-                        Confirmar Próxima Parcela
-                      </>
-                    )}
-                  </Button>
-                )
               )}
             </div>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-bold">{formatCurrency(status.amount)}</div>
+            <div className="text-xs font-medium capitalize">{getStatusLabel()}</div>
+          </div>
+        </div>
+      </div>
+      {/* Informações adicionais */}
+      {status.mode === "monthly" && status.details.monthlyIncome !== undefined && (
+        <div className="text-sm text-slate-600 bg-slate-50 p-3 rounded">
+          <div className="flex justify-between">
+            <span>Valor recebido este mês:</span>
+            <span className="font-medium">{formatCurrency(status.details.monthlyIncome)}</span>
+          </div>
+        </div>
+      )}
+      {status.mode === "installment" && status.details.installments && (
+        <div className="text-sm space-y-2">
+          <div className="flex justify-between text-slate-600">
+            <span>Total de parcelas no mês:</span>
+            <span className="font-medium">{status.details.installments.total}</span>
+          </div>
+          <div className="flex justify-between text-green-600">
+            <span>Parcelas pagas:</span>
+            <span className="font-medium">{status.details.installments.paid}</span>
+          </div>
+          <div className="flex justify-between text-amber-600">
+            <span>Parcelas pendentes:</span>
+            <span className="font-medium">{status.details.installments.pending}</span>
+          </div>
+        </div>
+      )}
+      {/* Ação de confirmação */}
+      {canEdit && !status.isPaid && (
+        <div className="pt-2">
+          {status.mode === "monthly" ? (
+            <Button
+              onClick={handleConfirmMonthly}
+              disabled={submitting}
+              className="w-full"
+              size="lg"
+            >
+              {submitting ? (
+                <>
+                  <Spinner size="sm" className="mr-2" />
+                  Processando...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Confirmar Pagamento Mensal
+                </>
+              )}
+            </Button>
+          ) : (
+            status.details.installments?.nextPendingId && (
+              <Button
+                onClick={() => handleConfirmInstallment(status.details.installments!.nextPendingId!)}
+                disabled={submitting}
+                className="w-full"
+                size="lg"
+              >
+                {submitting ? (
+                  <>
+                    <Spinner size="sm" className="mr-2" />
+                    Processando...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Confirmar Próxima Parcela
+                  </>
+                )}
+              </Button>
+            )
           )}
-        </CardContent>
-      </Card>
-
+        </div>
+      )}
       {/* Lista de parcelas (se aplicável) */}
       {status.mode === "installment" && installments.length > 0 && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Todas as Parcelas</CardTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowAllInstallments(!showAllInstallments)}
-              >
-                {showAllInstallments ? "Ocultar" : "Mostrar"}
-              </Button>
-            </div>
-          </CardHeader>
+        <div className="border rounded-lg p-4 mt-2">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-base font-semibold">Todas as Parcelas</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAllInstallments(!showAllInstallments)}
+            >
+              {showAllInstallments ? "Ocultar" : "Mostrar"}
+            </Button>
+          </div>
           {showAllInstallments && (
-            <CardContent>
-              <div className="space-y-2">
-                {installments.map((inst) => (
-                  <div
-                    key={inst.id}
-                    className={`p-3 rounded-lg border flex items-center justify-between ${inst.status === "CONFIRMED"
-                      ? "bg-green-50 border-green-200"
-                      : inst.status === "LATE"
-                        ? "bg-red-50 border-red-200"
-                        : "bg-slate-50 border-slate-200"
-                      }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      {inst.status === "CONFIRMED" ? (
-                        <CheckCircle2 className="h-4 w-4 text-green-600" />
-                      ) : inst.status === "LATE" ? (
-                        <AlertCircle className="h-4 w-4 text-red-600" />
-                      ) : (
-                        <Clock className="h-4 w-4 text-slate-400" />
-                      )}
-                      <div>
-                        <div className="text-sm font-medium">
-                          Parcela {inst.number}/{inst.totalInstallments}
-                        </div>
-                        <div className="text-xs text-slate-600">
-                          {formatDate(inst.dueDate)}
-                          {inst.paidAt &&
-                            ` • Pago em ${formatDate(inst.paidAt)}`}
-                        </div>
+            <div className="space-y-2">
+              {installments.map((inst) => (
+                <div
+                  key={inst.id}
+                  className={`p-3 rounded-lg border flex items-center justify-between ${inst.status === "CONFIRMED"
+                    ? "bg-green-50 border-green-200"
+                    : inst.status === "LATE"
+                      ? "bg-red-50 border-red-200"
+                      : "bg-slate-50 border-slate-200"
+                    }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {inst.status === "CONFIRMED" ? (
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    ) : inst.status === "LATE" ? (
+                      <AlertCircle className="h-4 w-4 text-red-600" />
+                    ) : (
+                      <Clock className="h-4 w-4 text-slate-400" />
+                    )}
+                    <div>
+                      <div className="text-sm font-medium">
+                        Parcela {inst.number}/{inst.totalInstallments}
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm font-bold">
-                        {formatCurrency(inst.amount)}
+                      <div className="text-xs text-slate-600">
+                        {formatDate(inst.dueDate)}
+                        {inst.paidAt && ` • Pago em ${formatDate(inst.paidAt)}`}
                       </div>
-                      {canEdit && inst.status !== "CONFIRMED" && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleConfirmInstallment(inst.id)}
-                          disabled={submitting}
-                          className="mt-1 h-7 text-xs"
-                        >
-                          Confirmar
-                        </Button>
-                      )}
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
+                  <div className="text-right">
+                    <div className="text-sm font-bold">{formatCurrency(inst.amount)}</div>
+                    {canEdit && inst.status !== "CONFIRMED" && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleConfirmInstallment(inst.id)}
+                        disabled={submitting}
+                        className="mt-1 h-7 text-xs"
+                      >
+                        Confirmar
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
-        </Card>
+        </div>
       )}
     </div>
   );

@@ -14,6 +14,7 @@ interface Notification {
   clientId: string
   createdAt: Date
 }
+
 export interface NotificationItem {
   id: string
   type: string

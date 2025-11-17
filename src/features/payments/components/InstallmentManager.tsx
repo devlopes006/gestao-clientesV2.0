@@ -25,7 +25,7 @@ import {
   X,
   XCircle,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface InstallmentManagerProps {
@@ -53,49 +53,19 @@ export function InstallmentManager({
     notes: "",
   });
 
-  // ...funções auxiliares e lógica...
-
-  // JSX de retorno
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-2">
-        <CreditCard className="w-5 h-5 text-purple-600" />
-        <span className="text-base font-semibold text-purple-700">Parcelas</span>
-        {canEdit && (
-          <Button size="sm" onClick={() => setIsModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-1" /> Nova Parcela
-          </Button>
-        )}
-      </div>
-      {loading ? (
-        <div className="flex items-center justify-center py-8">
-          <Spinner />
-        </div>
-      ) : installments.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Nenhuma parcela cadastrada.</p>
-      ) : (
-        <div className="divide-y">
-          {installments.map((inst) => (
-            <div key={inst.id} className="py-2 flex items-center justify-between text-sm">
-              <div>
-                <span className="font-semibold text-slate-800 dark:text-white">Parcela {inst.number}</span> —
-                <span className="ml-2 text-slate-600 dark:text-slate-400">{formatDateInput(inst.dueDate)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${inst.status === "CONFIRMED" ? "bg-green-100 text-green-700" : inst.status === "LATE" ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-700"}`}>{inst.status}</span>
-                <span className="font-bold text-purple-700">{new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(inst.amount)}</span>
-                {canEdit && (
-                  <Button size="sm" variant="ghost" onClick={() => setEditingInstallment(inst)}>
-                    <CheckCircle2 className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-      {/* Modal de nova parcela e edição omitido para visual */}
-    </div>
+  // Função para buscar parcelas
+  const loadInstallments = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/clients/${clientId}/installments`);
+      const data = await res.json();
+      setInstallments(data.installments || []);
+    } catch {
+      toast.error("Erro ao carregar parcelas");
+    } finally {
+      setLoading(false);
+    }
+  }, [clientId]);
 
   // Função para criar novas parcelas
   const handleCreateInstallments = async () => {
@@ -103,7 +73,6 @@ export function InstallmentManager({
     try {
       const count = Number(formData.installmentCount);
       const startDateToSave = parseDateInput(formData.startDate);
-
       const res = await fetch(`/api/clients/${clientId}/installments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -112,35 +81,29 @@ export function InstallmentManager({
           startDate: startDateToSave,
         }),
       });
-
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.error || "Falha ao criar parcelas");
       }
-
       toast.success("Parcelas criadas com sucesso!");
       setIsModalOpen(false);
       setFormData({ installmentCount: "", startDate: "" });
       loadInstallments();
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Erro ao criar parcelas",
-      );
+      toast.error(error instanceof Error ? error.message : "Erro ao criar parcelas");
     } finally {
       setSubmitting(false);
     }
   };
 
+  // Função para atualizar parcela
   const handleUpdateInstallment = async () => {
     if (!editingInstallment) return;
-
     setSubmitting(true);
-
     try {
       const paidAtToSave = editForm.paidAt
         ? toLocalISOString(parseDateInput(editForm.paidAt))
         : null;
-
       const res = await fetch(
         `/api/clients/${clientId}/installments?installmentId=${editingInstallment.id}`,
         {
@@ -153,80 +116,67 @@ export function InstallmentManager({
           }),
         },
       );
-
       if (!res.ok) throw new Error("Falha ao atualizar parcela");
-
       toast.success("Parcela atualizada!");
       setEditingInstallment(null);
       loadInstallments();
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Erro ao atualizar parcela",
-      );
+      toast.error(error instanceof Error ? error.message : "Erro ao atualizar parcela");
     } finally {
       setSubmitting(false);
     }
   };
 
+  // Função para deletar todas as parcelas
   const handleDeleteAll = async () => {
-    if (
-      !confirm(
-        "Tem certeza que deseja remover todas as parcelas? Esta ação não pode ser desfeita.",
-      )
-    )
-      return;
-
+    if (!confirm("Tem certeza que deseja remover todas as parcelas? Esta ação não pode ser desfeita.")) return;
     setSubmitting(true);
-
     try {
-      const res = await fetch(`/api/clients/${clientId}/installments`, {
-        method: "DELETE",
-      });
-
+      const res = await fetch(`/api/clients/${clientId}/installments`, { method: "DELETE" });
       if (!res.ok) throw new Error("Falha ao remover parcelas");
-
       toast.success("Parcelas removidas com sucesso!");
       loadInstallments();
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Erro ao remover parcelas",
-      );
+      toast.error(error instanceof Error ? error.message : "Erro ao remover parcelas");
     } finally {
       setSubmitting(false);
     }
   };
 
+  // useEffect para carregar parcelas ao montar
+  useEffect(() => {
+    loadInstallments();
+  }, [clientId, loadInstallments]);
+
+  // Handler para submit do formulário
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleCreateInstallments();
+  };
+
+  // Funções auxiliares de status
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "CONFIRMED":
-        return "text-green-600 bg-green-50 dark:bg-green-950/30";
-      case "LATE":
-        return "text-red-600 bg-red-50 dark:bg-red-950/30";
-      default:
-        return "text-yellow-600 bg-yellow-50 dark:bg-yellow-950/30";
+      case "CONFIRMED": return "text-green-600 bg-green-50 dark:bg-green-950/30";
+      case "LATE": return "text-red-600 bg-red-50 dark:bg-red-950/30";
+      default: return "text-yellow-600 bg-yellow-50 dark:bg-yellow-950/30";
     }
   };
-
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case "CONFIRMED":
-        return "Pago";
-      case "LATE":
-        return "Atrasado";
-      default:
-        return "Pendente";
+      case "CONFIRMED": return "Pago";
+      case "LATE": return "Atrasado";
+      default: return "Pendente";
     }
   };
 
+  // Cálculos de valores
   const totalValue = installments.reduce((sum, inst) => sum + inst.amount, 0);
-  const paidValue = installments
-    .filter((i) => i.status === "CONFIRMED")
-    .reduce((sum, inst) => sum + inst.amount, 0);
-  const pendingCount = installments.filter(
-    (i) => i.status === "PENDING",
-  ).length;
+  const paidValue = installments.filter((i) => i.status === "CONFIRMED").reduce((sum, inst) => sum + inst.amount, 0);
+  const pendingCount = installments.filter((i) => i.status === "PENDING").length;
   const lateCount = installments.filter((i) => i.status === "LATE").length;
 
+  // Removido duplicações e returns soltos. Mantido apenas um return principal.
   if (loading) {
     return (
       <Card>

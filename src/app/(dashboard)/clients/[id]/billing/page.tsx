@@ -31,46 +31,46 @@ export default async function BillingPage({ params, searchParams }: BillingPageP
   return (
     <ProtectedRoute>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <div>
-          <h1 className="text-xl font-semibold">Cobrança — {client.name}</h1>
-          <p className="text-sm text-muted-foreground">Gerencie contrato, parcelas e faturas.</p>
-        </div>
+        {/* Header */}
+        <header className="mb-6">
+          <h1 className="text-2xl font-bold text-blue-700">Cobrança — {client.name}</h1>
+          <p className="text-sm text-slate-500">Gerencie contrato, parcelas e faturas do cliente.</p>
+        </header>
 
-        {/* Status mensal / Parcelas */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Status do mês</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <PaymentStatusCard clientId={client.id} clientName={client.name} canEdit={can(role, "create", "finance")} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Parcelas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <InstallmentManager clientId={client.id} canEdit={can(role, "create", "finance")} />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Contrato */}
-        <ContractManager
-          clientId={client.id}
-          clientName={client.name}
-          contractStart={client.contract_start}
-          contractEnd={client.contract_end}
-          paymentDay={client.payment_day}
-          contractValue={client.contract_value}
-        />
+        {/* Resumo do Cliente */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-base">Resumo do Cliente</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <section className="flex flex-col gap-2 p-4 rounded-lg bg-blue-50 dark:bg-blue-950">
+                <h3 className="text-sm font-semibold text-blue-700 mb-2">Status do mês</h3>
+                <PaymentStatusCard clientId={client.id} clientName={client.name} canEdit={can(role, "create", "finance")} />
+              </section>
+              <section className="flex flex-col gap-2 p-4 rounded-lg bg-purple-50 dark:bg-purple-950">
+                <h3 className="text-sm font-semibold text-purple-700 mb-2">Parcelas</h3>
+                <InstallmentManager clientId={client.id} canEdit={can(role, "create", "finance")} />
+              </section>
+              <section className="flex flex-col gap-2 p-4 rounded-lg bg-pink-50 dark:bg-pink-950">
+                <h3 className="text-sm font-semibold text-pink-700 mb-2">Contrato</h3>
+                <ContractManager
+                  clientId={client.id}
+                  clientName={client.name}
+                  contractStart={client.contract_start}
+                  contractEnd={client.contract_end}
+                  paymentDay={client.payment_day}
+                  contractValue={client.contract_value}
+                />
+              </section>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Faturas */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <CardTitle className="text-base">Faturas</CardTitle>
               <form className="flex items-center gap-2" method="get">
                 <select aria-label="Status da fatura" name="status" defaultValue={status || ''} className="h-8 text-xs border rounded-md px-2 bg-background">
@@ -95,7 +95,7 @@ export default async function BillingPage({ params, searchParams }: BillingPageP
               <p className="text-sm text-muted-foreground">Nenhuma fatura encontrada.</p>
             ) : (
               invoices.map((inv) => (
-                <div key={inv.id} className="py-3 flex items-center justify-between gap-3">
+                <div key={inv.id} className="py-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
                   <div className="min-w-0">
                     <div className="text-sm font-medium">{inv.number} — {new Date(inv.issueDate).toLocaleDateString("pt-BR")} • vence {new Date(inv.dueDate).toLocaleDateString("pt-BR")}</div>
                     <div className="text-xs text-muted-foreground flex items-center gap-2">
@@ -103,7 +103,7 @@ export default async function BillingPage({ params, searchParams }: BillingPageP
                       <span>total {new Intl.NumberFormat("pt-BR", { style: "currency", currency: inv.currency || "BRL" }).format(inv.total)}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 mt-2 md:mt-0">
                     <Link href={`/clients/${client.id}/billing/invoices/${inv.id}`} className="text-xs text-blue-600 hover:text-blue-700">Detalhes</Link>
                     {can(role, "create", "finance") && inv.status !== "PAID" && (
                       <form method="post" action={`/api/billing/invoices/${inv.id}/pay`}>

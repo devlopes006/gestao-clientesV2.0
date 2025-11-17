@@ -455,8 +455,17 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
                   const days = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
                   if (days <= 7) alerts.push({ label: `Token do Instagram expira em ${days} dia(s)`, href: `/clients/${client.id}/settings`, tone: "warning" });
                 }
-
-
+                return alerts.length > 0 ? (
+                  <SectionCard title="Alertas">
+                    <div className="space-y-2">
+                      {alerts.map((alert, idx) => (
+                        <div key={idx} className={`text-sm font-medium text-${alert.tone}-600`}>
+                          <a href={alert.href} className="hover:underline">{alert.label}</a>
+                        </div>
+                      ))}
+                    </div>
+                  </SectionCard>
+                ) : null;
               })()}
               {/* Tendências (últimos 30 dias) */}
               {dash?.trends && (

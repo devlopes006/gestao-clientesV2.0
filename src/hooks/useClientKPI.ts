@@ -1,6 +1,15 @@
 import { useMemo } from 'react'
 
-export function useClientKPI(dash) {
+type ClientKPIDash = {
+  counts: {
+    tasks: { total: number; done: number }
+    media: number
+    strategies: number
+    brandings: number
+  }
+}
+
+export function useClientKPI(dash: ClientKPIDash) {
   return useMemo(
     () => ({
       activeTasks:

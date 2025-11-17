@@ -27,6 +27,7 @@ import {
   Type,
   X,
 } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 
@@ -45,6 +46,8 @@ interface Branding {
   description?: string;
   fileUrl?: string;
   content?: string;
+  thumbUrl?: string;
+  palette?: string[];
   createdAt: Date;
 }
 
@@ -55,6 +58,8 @@ interface MediaUploadResult {
   fileName?: string;
   mimeType?: string;
   fileKey?: string;
+  thumbUrl?: string;
+  colors?: string[];
 }
 
 interface BrandingManagerProps {
@@ -392,12 +397,16 @@ export function BrandingManager({
         description: string | null;
         fileUrl: string | null;
         content: string | null;
+        thumbUrl?: string | null;
+        palette?: string[] | null;
       } = {
         title: String(media.title ?? media.fileName ?? "Arquivo"),
         type,
         description: null,
         fileUrl: media.url ?? null,
         content: null,
+        thumbUrl: media.thumbUrl ?? null,
+        palette: media.colors ?? null,
       };
       const res = await fetch(`/api/clients/${clientId}/branding`, {
         method: "POST",
@@ -411,8 +420,10 @@ export function BrandingManager({
         title: String(created.title ?? body.title),
         type: (created.type as BrandingType) ?? body.type,
         description: (created.description as string | undefined) ?? undefined,
-        fileUrl: (created.fileUrl as string | undefined) ?? body.fileUrl,
+        fileUrl: created.fileUrl ? String(created.fileUrl) : (body.fileUrl ?? undefined),
         content: (created.content as string | undefined) ?? undefined,
+        thumbUrl: (created.thumbUrl as string | undefined) ?? (body.thumbUrl ?? undefined),
+        palette: (created.palette as string[] | null | undefined) ?? (body.palette ?? undefined),
         createdAt: new Date(String(created.createdAt ?? new Date().toISOString())),
       };
       await mutate([newItem, ...(items ?? [])], { revalidate: false });
@@ -539,6 +550,7 @@ export function BrandingManager({
                   <CardHeader
                     role="button"
                     tabIndex={0}
+                    className="cursor-pointer p-4 bg-linear-to-r from-white/50 to-transparent"
                     onClick={() => {
                       resetForm();
                       setForm((f) => ({ ...f, type }));
@@ -568,7 +580,7 @@ export function BrandingManager({
                         {list.map((item) => (
                           <div
                             key={item.id}
-                            className="p-3 border rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
+                            className="p-3 border border-slate-200 rounded-lg bg-white hover:shadow-md transition-transform transform hover:-translate-y-0.5"
                             onDragOver={(e) => e.preventDefault()}
                             onDrop={async (e) => {
                               e.preventDefault();
@@ -596,8 +608,7 @@ export function BrandingManager({
                                 <div className="flex items-center gap-2">
                                   {item.fileUrl ? (
                                     getMediaTypeFromUrl(item.fileUrl) === "image" ? (
-                                      // eslint-disable-next-line @next/next/no-img-element
-                                      <img src={item.fileUrl} alt={item.title} className="h-8 w-8 rounded object-cover" />
+                                      <Image src={item.fileUrl} alt={item.title} width={32} height={32} className="rounded object-cover" sizes="32px" />
                                     ) : getMediaTypeFromUrl(item.fileUrl) === "video" ? (
                                       <video src={item.fileUrl} className="h-8 w-8 rounded object-cover" />
                                     ) : (
@@ -809,8 +820,7 @@ export function BrandingManager({
                           {fileToUpload && fileToUpload.name.toLowerCase().match(/\.(mp4|mov|avi|webm|mkv|flv|mpeg)$/) ? (
                             <video src={filePreviewUrl} controls className="w-full h-auto rounded" />
                           ) : (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={filePreviewUrl} alt="preview" className="w-full h-auto rounded object-contain" />
+                            <Image src={filePreviewUrl} alt="preview" width={800} height={450} className="w-full h-auto rounded object-contain" sizes="(max-width: 768px) 100vw, 800px" />
                           )}
                         </div>
                       )}
@@ -822,8 +832,7 @@ export function BrandingManager({
                               <div key={it.id} className="flex items-center gap-3">
                                 <div className="w-12 h-12 flex items-center justify-center bg-slate-100 rounded overflow-hidden">
                                   {it.previewUrl ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img src={it.previewUrl} alt={it.file.name} className="w-full h-full object-cover" />
+                                    <Image src={it.previewUrl} alt={it.file.name} width={48} height={48} className="w-full h-full object-cover" sizes="48px" />
                                   ) : (
                                     <FileText className="h-5 w-5" />
                                   )}
@@ -840,7 +849,7 @@ export function BrandingManager({
                                 </div>
                                 <div className="flex gap-1">
                                   {it.status !== "uploading" && (
-                                    <Button size="xs" onClick={async () => {
+                                    <Button size="sm" onClick={async () => {
                                       // start upload for this item
                                       setQueue((q) => q.map(x => x.id === it.id ? { ...x, status: 'uploading' } : x));
                                       const media = await uploadSingleFile(it, (pct) => {
@@ -853,7 +862,7 @@ export function BrandingManager({
                                       }
                                     }}>Enviar</Button>
                                   )}
-                                  <Button size="xs" variant="ghost" onClick={() => setQueue((q) => q.filter(x => x.id !== it.id))}>Remover</Button>
+                                  <Button size="sm" variant="ghost" onClick={() => setQueue((q) => q.filter(x => x.id !== it.id))}>Remover</Button>
                                 </div>
                               </div>
                             ))}
@@ -968,11 +977,13 @@ export function BrandingManager({
 
                   <div className="w-full bg-slate-50 dark:bg-slate-800 rounded-md p-4">
                     {getMediaTypeFromUrl(viewerItem.fileUrl) === "image" && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={viewerItem.fileUrl || ""}
                         alt={viewerItem.title}
+                        width={1200}
+                        height={720}
                         className="w-full h-auto object-contain rounded"
+                        sizes="100vw"
                       />
                     )}
                     {getMediaTypeFromUrl(viewerItem.fileUrl) === "video" && (

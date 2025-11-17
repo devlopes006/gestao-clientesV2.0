@@ -1,3 +1,4 @@
+
 "use client";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -7,7 +8,6 @@ import { TaskStats as StatsCards } from "@/features/tasks/components/TaskStats";
 import { useTasks } from "@/features/tasks/hooks/useTasks";
 import { Task, TaskPriority, TaskStatus } from "@/features/tasks/types";
 import { formatDateInput, parseDateInput, toLocalISOString } from "@/lib/utils";
-import type { DragEndEvent, DragStartEvent, UniqueIdentifier } from '@dnd-kit/core';
 import {
   DndContext,
   DragOverlay,
@@ -21,115 +21,25 @@ import {
   useSortable,
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
-import { AlertCircle, Pencil, Plus, Trash2 } from "lucide-react";
+import { AlertCircle, Plus } from "lucide-react";
 import { useState } from "react";
 
-interface TaskCardProps {
-  task: Task;
-  onEdit?: (task: Task) => void;
-  onDelete?: (id: string) => void;
-}
-
-function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
+// Card com drag-and-drop
+function TaskCard({ task }) {
   const { setNodeRef, listeners, attributes, isDragging } = useSortable({ id: task.id });
-  // Color by status
-  const statusColors = {
-    'todo': 'bg-linear-to-br from-white via-yellow-50 to-yellow-100 border-yellow-200 dark:from-slate-900 dark:via-yellow-950 dark:to-yellow-900 dark:border-yellow-900',
-    'in-progress': 'bg-linear-to-br from-white via-blue-50 to-blue-100 border-blue-200 dark:from-slate-900 dark:via-blue-950 dark:to-blue-900 dark:border-blue-900',
-    'done': 'bg-linear-to-br from-white via-emerald-50 to-emerald-100 border-emerald-200 dark:from-slate-900 dark:via-emerald-950 dark:to-emerald-900 dark:border-emerald-900',
-  };
-  const textColors = {
-    'todo': 'text-yellow-800 dark:text-yellow-200',
-    'in-progress': 'text-blue-800 dark:text-blue-200',
-    'done': 'text-emerald-800 dark:text-emerald-200',
-  };
   return (
     <div
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      className={`rounded-2xl px-5 py-4 mb-5 shadow-lg hover:shadow-xl transition-all duration-200 cursor-move flex flex-col gap-3 border-2 ${statusColors[task.status]}${isDragging ? ' opacity-70 scale-95 ring-4 ring-blue-400' : ''}`}
+      className={`bg-white dark:bg-slate-900 border rounded-xl p-3 mb-2 shadow-md hover:shadow-lg transition cursor-move${isDragging ? ' opacity-60 scale-95 ring-2 ring-blue-400' : ''}`}
       style={{ zIndex: isDragging ? 50 : undefined }}
     >
-      <div className="flex items-center gap-3 mb-2">
-        <span className={`inline-block w-2 h-2 rounded-full ${task.status === 'todo' ? 'bg-yellow-400' : task.status === 'in-progress' ? 'bg-blue-400' : 'bg-emerald-400'}`} />
-        <h4 className={`font-bold text-base flex-1 line-clamp-2 ${textColors[task.status]}`}>{task.title}</h4>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            aria-label="Editar tarefa"
-            className="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900 transition"
-            onClick={e => { e.stopPropagation(); onEdit?.(task); }}
-          >
-            <Pencil className="w-4 h-4 text-blue-500" />
-          </button>
-          <button
-            type="button"
-            aria-label="Excluir tarefa"
-            className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900 transition"
-            onClick={e => { e.stopPropagation(); onDelete?.(task.id); }}
-          >
-            <Trash2 className="w-4 h-4 text-red-500" />
-          </button>
-        </div>
-      </div>
-      {task.description && <p className="text-xs text-slate-600 dark:text-slate-300 mb-2 line-clamp-2">{task.description}</p>}
-      <div className="flex items-center gap-3 flex-wrap mt-2">
-        <span className={`text-xs px-3 py-1 rounded font-semibold shadow ${task.status === 'todo' ? 'bg-yellow-100 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-200' : task.status === 'in-progress' ? 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-200' : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-200'}`}>{task.priority}</span>
-        {task.dueDate && <span className={`text-xs flex items-center gap-2 ${textColors[task.status]}`}><svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" className="inline mr-1"><circle cx="7" cy="7" r="6" /></svg>{task.dueDate}</span>}
-      </div>
-    </div>
-  );
-}
-
-interface KanbanColumnProps {
-  column: { id: TaskStatus; title: string; color: string };
-  tasks: Task[];
-  handleEdit: (task: Task) => void;
-  handleDelete: (id: string) => void;
-}
-
-function KanbanColumn({ column, tasks, handleEdit, handleDelete }: KanbanColumnProps) {
-  const { setNodeRef, isOver } = useDroppable({ id: column.id });
-  // Color by column phase
-  const columnColors = {
-    'todo': 'bg-linear-to-br from-yellow-50 via-white to-yellow-100 dark:from-yellow-950 dark:via-slate-900 dark:to-yellow-900',
-    'in-progress': 'bg-linear-to-br from-blue-100 via-white to-blue-200 dark:from-blue-950 dark:via-slate-900 dark:to-blue-900',
-    'done': 'bg-linear-to-br from-emerald-50 via-white to-emerald-100 dark:from-emerald-950 dark:via-slate-900 dark:to-emerald-900',
-  };
-  const borderColors = {
-    'todo': 'border-yellow-200 dark:border-yellow-900',
-    'in-progress': 'border-blue-200 dark:border-blue-900',
-    'done': 'border-emerald-200 dark:border-emerald-900',
-  };
-  const headerColors = {
-    'todo': 'text-yellow-900 dark:text-yellow-100',
-    'in-progress': 'text-blue-900 dark:text-blue-100',
-    'done': 'text-emerald-900 dark:text-emerald-100',
-  };
-  return (
-    <div ref={setNodeRef} className="flex-1 min-w-[260px] max-w-[340px] px-2 md:px-4">
-      <div className={`h-full rounded-3xl shadow-2xl border-2 p-6 md:p-8 transition-all duration-200 ${columnColors[column.id]} ${borderColors[column.id]}${isOver ? ' ring-4 ring-blue-400 scale-[1.03] bg-blue-200 dark:bg-blue-950/60' : ''}`}>
-        <div className={`flex items-center justify-between mb-6 pb-3 border-b font-extrabold text-xl tracking-tight drop-shadow ${headerColors[column.id]} border-blue-200 dark:border-blue-900`}>
-          <h3>{column.title}</h3>
-          <span className={`text-xs rounded-full px-4 py-2 font-bold shadow ${headerColors[column.id]} bg-opacity-10`}>{tasks.length}</span>
-        </div>
-        <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
-          <div className="space-y-5">
-            {tasks.length === 0 ? (
-              <p className={`text-xs text-center py-10 italic ${headerColors[column.id]} opacity-70`}>Nenhuma tarefa nesta coluna</p>
-            ) : (
-              tasks.map((task: Task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                />
-              ))
-            )}
-          </div>
-        </SortableContext>
+      <h4 className="font-semibold text-base mb-2 line-clamp-2 text-blue-700 dark:text-blue-300">{task.title}</h4>
+      {task.description && <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{task.description}</p>}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs px-2 py-1 rounded bg-slate-100 dark:bg-slate-800">{task.priority}</span>
+        {task.dueDate && <span className="text-xs text-muted-foreground flex items-center gap-1">{task.dueDate}</span>}
       </div>
     </div>
   );
@@ -138,17 +48,18 @@ function KanbanColumn({ column, tasks, handleEdit, handleDelete }: KanbanColumnP
 interface TasksPanelProps { clientId: string; initialTasks?: Task[] }
 
 export function TasksPanel({ clientId, initialTasks = [] }: TasksPanelProps) {
+  // useTasks precisa ser chamado antes de usar 'filtered'
   const { tasks, filtered, stats, isLoading, mutate, search, setSearch, statusFilter, setStatusFilter, error } = useTasks({ clientId, initial: initialTasks })
 
   // Kanban columns
   const columns = [
-    { id: 'todo' as TaskStatus, title: 'A Fazer', color: 'bg-slate-100 dark:bg-slate-800' },
-    { id: 'in-progress' as TaskStatus, title: 'Em Progresso', color: 'bg-blue-100 dark:bg-blue-950/30' },
-    { id: 'done' as TaskStatus, title: 'Concluído', color: 'bg-emerald-100 dark:bg-emerald-950/30' },
+    { id: 'todo', title: 'A Fazer', color: 'bg-slate-100 dark:bg-slate-800' },
+    { id: 'in-progress', title: 'Em Progresso', color: 'bg-blue-100 dark:bg-blue-950/30' },
+    { id: 'done', title: 'Concluído', color: 'bg-emerald-100 dark:bg-emerald-950/30' },
   ];
 
   // Drag and drop logic
-  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
   // Dnd-kit sensors
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
@@ -156,6 +67,44 @@ export function TasksPanel({ clientId, initialTasks = [] }: TasksPanelProps) {
     ...col,
     tasks: filtered.filter(t => t.status === col.id)
   }));
+
+  const handleDragStart = (event) => setActiveId(event.active.id);
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+    setActiveId(null);
+    if (!over) return;
+    const activeTask = tasks.find(t => t.id === active.id);
+    if (!activeTask) return;
+    const overColumn = columns.find(c => c.id === over.id);
+    const newStatus = overColumn ? overColumn.id : activeTask.status;
+    if (columns.some(c => c.id === newStatus) && activeTask.status !== newStatus) {
+      await handleStatusChange(activeTask.id, newStatus);
+    }
+  };
+  const activeTask = activeId ? tasks.find(t => t.id === activeId) : null;
+
+  function KanbanColumn({ column, tasks }) {
+    const { setNodeRef, isOver } = useDroppable({ id: column.id });
+    return (
+      <div ref={setNodeRef} className="flex-1 min-w-[280px]">
+        <div className={`h-full rounded-xl shadow-lg border ${column.color} p-3 transition-all duration-200${isOver ? ' ring-4 ring-blue-400 bg-blue-50 dark:bg-blue-950/40' : ''}`}>
+          <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-200 dark:border-slate-700">
+            <h3 className="font-bold text-lg text-blue-800 dark:text-blue-200 tracking-tight">{column.title}</h3>
+            <span className="text-xs bg-slate-200 dark:bg-slate-700 rounded px-2 py-1 font-semibold">{tasks.length}</span>
+          </div>
+          <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+            <div className="space-y-2">
+              {tasks.length === 0 ? (
+                <p className="text-xs text-muted-foreground text-center py-8">Nenhuma tarefa nesta coluna</p>
+              ) : (
+                tasks.map(task => <TaskCard key={task.id} task={task} />)
+              )}
+            </div>
+          </SortableContext>
+        </div>
+      </div>
+    );
+  }
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editing, setEditing] = useState<Task | null>(null)
@@ -212,23 +161,6 @@ export function TasksPanel({ clientId, initialTasks = [] }: TasksPanelProps) {
     setIsModalOpen(false); resetForm();
   }
 
-
-  const handleDragStart = (event: DragStartEvent) => setActiveId(event.active.id);
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveId(null);
-    if (!over) return;
-    const activeTask = tasks.find((t: Task) => t.id === active.id);
-    if (!activeTask) return;
-    const overColumn = columns.find((c) => c.id === over.id);
-    const newStatus = overColumn ? overColumn.id : activeTask.status;
-    if (columns.some((c) => c.id === newStatus) && activeTask.status !== newStatus) {
-      await handleStatusChange(activeTask.id, newStatus as TaskStatus);
-    }
-  };
-
-  const activeTask = activeId ? tasks.find(t => t.id === activeId) : null;
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -276,21 +208,13 @@ export function TasksPanel({ clientId, initialTasks = [] }: TasksPanelProps) {
       <StatsCards stats={stats} />
       <TaskFilters statusFilter={statusFilter} setStatusFilter={setStatusFilter} search={search} setSearch={setSearch} />
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <div className="flex gap-10 md:gap-14 overflow-x-auto pb-8 pt-4">
-          {filteredKanbanTasks.map(col => (
-            <KanbanColumn
-              key={col.id}
-              column={col}
-              tasks={col.tasks}
-              handleEdit={handleEdit}
-              handleDelete={handleDelete}
-            />
-          ))}
+        <div className="flex gap-6 overflow-x-auto pb-4">
+          {filteredKanbanTasks.map(col => <KanbanColumn key={col.id} column={col} tasks={col.tasks} />)}
         </div>
         <DragOverlay>
           {activeTask ? (
-            <div className="scale-110 drop-shadow-2xl px-6 py-4">
-              <TaskCard task={activeTask} onEdit={() => { }} onDelete={() => { }} />
+            <div className="scale-105">
+              <TaskCard task={activeTask} />
             </div>
           ) : null}
         </DragOverlay>

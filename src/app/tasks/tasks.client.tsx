@@ -22,7 +22,6 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-
 import { Calendar, Filter, GripVertical, ListTodo, Plus, Search, User } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import './tasks.client.css';
 
 interface Task {
   id: string
@@ -142,26 +141,39 @@ export default function TasksClient({ initialTasks, updateTaskStatusAction }: { 
 
   const handleDragStart = (event: DragStartEvent) => setActiveId(event.active.id as string)
   const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event
-    setActiveId(null)
-    if (!over) return
-    const activeTask = tasks.find(t => t.id === active.id)
-    if (!activeTask) return
-    const overColumn = columns.find(c => filteredTasks.filter(t => t.status === c.status).some(t => t.id === over.id))
-    const overColumnId = overColumn?.status || (over.id as string)
-    if (columns.some(c => c.id === overColumnId)) {
-      const newStatus = overColumnId as 'todo' | 'in-progress' | 'done'
+    const { active, over } = event;
+    setActiveId(null);
+    if (!over) return;
+    const activeTask = tasks.find(t => t.id === active.id);
+    if (!activeTask) return;
+    // Corrige: busca coluna pelo id do over, não pelo filtro
+    const overColumn = columns.find(c => c.id === over.id);
+    const validStatuses = ['todo', 'in-progress', 'done'] as const;
+    const newStatus = overColumn
+      ? overColumn.status
+      : (validStatuses.includes(over.id as Column['status'])
+        ? (over.id as Column['status'])
+        : activeTask.status);
+    if (columns.some(c => c.id === newStatus)) {
       if (activeTask.status !== newStatus) {
-        setTasks(prev => prev.map(t => t.id === activeTask.id ? { ...t, status: newStatus } : t))
+        setTasks(prev => prev.map(t => t.id === activeTask.id ? { ...t, status: newStatus as typeof t.status } : t));
         try {
-          const updated = await updateTaskStatusAction(activeTask.id, newStatus)
-          setTasks(prev => prev.map(t => t.id === activeTask.id ? { ...t, status: updated.status } : t))
-        } catch {
-          setTasks(prev => prev.map(t => t.id === activeTask.id ? { ...t, status: activeTask.status } : t))
+          const updated = await updateTaskStatusAction(activeTask.id, newStatus);
+          setTasks(prev => prev.map(t => t.id === activeTask.id ? { ...t, status: updated.status } : t));
+        } catch (err: unknown) {
+          if (
+            typeof err === 'object' && err !== null &&
+            'message' in err &&
+            typeof (err as { message?: string }).message === 'string' &&
+            ((err as { message: string }).message.includes('Status inválido') || (err as { message: string }).message.includes('400'))
+          ) {
+            alert('Erro: status de tarefa inválido. Tente novamente ou recarregue a página.');
+          }
+          setTasks(prev => prev.map(t => t.id === activeTask.id ? { ...t, status: activeTask.status } : t));
         }
       }
     }
-  }
+  };
   const activeTask = activeId ? tasks.find(t => t.id === activeId) : null
 
   return (

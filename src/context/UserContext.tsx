@@ -42,7 +42,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     let response: Response
     // const errorJson: { error?: string } | null = null
     try {
-      response = await fetch('/api/session', {
+      const apiUrl = typeof window !== 'undefined' ? new URL('/api/session', window.location.origin).toString() : '/api/session';
+      response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idToken, skipOrgCreation: inviteToken ? true : false })

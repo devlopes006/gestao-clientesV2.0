@@ -19,7 +19,7 @@ export function usePresence(userId?: string) {
     if (!firebaseApp) return
 
     // Verifica se databaseURL está configurado antes de tentar usar Realtime Database
-    const firebaseConfig = firebaseApp.options
+    const firebaseConfig = firebaseApp?.options || {}
     if (!firebaseConfig.databaseURL) {
       // Silenciosamente retorna se não configurado (feature opcional)
       return

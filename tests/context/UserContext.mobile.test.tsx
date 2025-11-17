@@ -36,6 +36,22 @@ describe('Mobile login redirect flow', () => {
     vi.clearAllMocks()
     localStorage.clear()
     sessionStorage.clear()
+    // Mock global fetch for expected endpoints
+    global.fetch = vi.fn((input, init) => {
+      if (typeof input === 'string' && input.includes('/api/session')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ orgId: 'org-1' })
+        });
+      }
+      if (typeof input === 'string' && input.includes('/api/invites/for-me')) {
+        return Promise.resolve({
+          ok: false,
+          json: () => Promise.resolve({ data: [] })
+        });
+      }
+      return Promise.resolve({ ok: false, json: () => Promise.resolve({}) });
+    });
   })
 
   it('should process redirect result and redirect to dashboard', async () => {

@@ -420,7 +420,7 @@ export function BrandingManager({
         title: String(created.title ?? body.title),
         type: (created.type as BrandingType) ?? body.type,
         description: (created.description as string | undefined) ?? undefined,
-        fileUrl: created.fileUrl ? String(created.fileUrl) : (body.fileUrl ?? undefined),
+        fileUrl: created.fileUrl != null ? String(created.fileUrl) : (body.fileUrl ?? undefined),
         content: (created.content as string | undefined) ?? undefined,
         thumbUrl: (created.thumbUrl as string | undefined) ?? (body.thumbUrl ?? undefined),
         palette: (created.palette as string[] | null | undefined) ?? (body.palette ?? undefined),

@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
-import { useNotifications } from "@/hooks/useNotifications";
+import { NotificationItem, useNotifications } from "@/hooks/useNotifications";
 import { cn } from "@/lib/utils";
 import {
   AlertCircle,
@@ -102,7 +102,7 @@ export function NotificationCenter({
   });
 
   const handleNotificationClick = async (
-    notification: (typeof notifications)[0],
+    notification: NotificationItem,
   ) => {
     if (notification.unread) {
       await markAsRead(notification.id);
@@ -112,7 +112,7 @@ export function NotificationCenter({
   const baseUnread = unreadCount > 9 ? "9+" : unreadCount;
 
   // Deduplicate notifications by id to prevent React key collisions
-  const uniqueNotifications = useMemo(() => {
+  const uniqueNotifications: NotificationItem[] = useMemo(() => {
     const seen = new Set<string>();
     const deduped = notifications.filter(n => {
       if (seen.has(n.id)) return false;
@@ -288,7 +288,7 @@ export function NotificationCenter({
                 </div>
               ) : (
                 <div className="divide-y divide-slate-200 dark:divide-slate-700">
-                  {uniqueNotifications.map((notification) => (
+                  {uniqueNotifications.map((notification: NotificationItem) => (
                     <div
                       key={notification.id}
                       className={cn(

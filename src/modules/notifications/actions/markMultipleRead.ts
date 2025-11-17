@@ -4,7 +4,9 @@ import { getSessionProfile } from '@/services/auth/session'
 import { revalidatePath } from 'next/cache'
 import { MarkMultipleReadInput, UINotificationSchema } from '../domain'
 
-export async function markMultipleNotificationsRead(ids: string[]) {
+export async function markMultipleNotificationsRead(
+  ids: string[]
+): Promise<ReturnType<typeof UINotificationSchema.parse>[]> {
   const { user } = await getSessionProfile()
   if (!user) throw new Error('Não autenticado')
   const { ids: validIds } = MarkMultipleReadInput.parse({ ids })

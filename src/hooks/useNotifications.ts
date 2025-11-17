@@ -3,7 +3,6 @@ import { useCallback, useRef, useState } from 'react'
 import useSWR from 'swr'
 
 interface Notification {
-  export type { Notification };
   id: string
   type: string
   title: string
@@ -16,16 +15,16 @@ interface Notification {
   createdAt: Date
 }
 export interface NotificationItem {
-  id: string;
-  type: string;
-  title: string;
-  message: string;
-  time: string;
-  unread: boolean;
-  link: string;
-  priority?: string;
-  clientId: string;
-  createdAt: Date;
+  id: string
+  type: string
+  title: string
+  message: string
+  time: string
+  unread: boolean
+  link: string
+  priority?: string
+  clientId: string
+  createdAt: Date
 }
 
 interface NotificationsResponse {
@@ -55,13 +54,18 @@ export interface UseNotificationsOptions {
 }
 
 export function useNotifications(options?: UseNotificationsOptions): {
-  notifications: NotificationItem[];
-  unreadCount: number;
-  isLoading: boolean;
-  actionLoading: boolean;
-  markAsRead: (id: string) => Promise<void>;
-  markAllAsRead: () => Promise<void>;
-  deleteNotification: (id: string) => Promise<void>;
+  notifications: NotificationItem[]
+  total: number
+  unreadCount: number
+  hasMore: boolean
+  isLoading: boolean
+  error: unknown
+  actionLoading: boolean
+  markAsRead: (id: string) => Promise<void>
+  markMultipleAsRead: (ids: string[]) => Promise<void>
+  markAllAsRead: () => Promise<void>
+  deleteNotification: (id: string) => Promise<void>
+  refresh: () => Promise<NotificationsResponse | undefined>
 } {
   const {
     unreadOnly = false,

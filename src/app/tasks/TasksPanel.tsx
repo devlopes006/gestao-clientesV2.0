@@ -25,7 +25,7 @@ import { AlertCircle, Plus } from "lucide-react";
 import { useState } from "react";
 
 // Card com drag-and-drop
-function TaskCard({ task }) {
+function TaskCard({ task }: { task: Task }) {
   const { setNodeRef, listeners, attributes, isDragging } = useSortable({ id: task.id });
   return (
     <div
@@ -65,25 +65,26 @@ export function TasksPanel({ clientId, initialTasks = [] }: TasksPanelProps) {
 
   const filteredKanbanTasks = columns.map(col => ({
     ...col,
-    tasks: filtered.filter(t => t.status === col.id)
+    tasks: filtered.filter((t: Task) => t.status === col.id)
   }));
 
-  const handleDragStart = (event) => setActiveId(event.active.id);
-  const handleDragEnd = async (event) => {
+  const handleDragStart = (event: import('@dnd-kit/core').DragStartEvent) => setActiveId(String(event.active.id));
+  const handleDragEnd = async (event: import('@dnd-kit/core').DragEndEvent) => {
     const { active, over } = event;
     setActiveId(null);
     if (!over) return;
-    const activeTask = tasks.find(t => t.id === active.id);
+    const activeTask = tasks.find((t: Task) => t.id === active.id);
     if (!activeTask) return;
-    const overColumn = columns.find(c => c.id === over.id);
-    const newStatus = overColumn ? overColumn.id : activeTask.status;
-    if (columns.some(c => c.id === newStatus) && activeTask.status !== newStatus) {
+    const overColumn = columns.find((c) => c.id === over.id);
+    const newStatus = overColumn ? (overColumn.id as TaskStatus) : activeTask.status;
+    if (columns.some((c) => c.id === newStatus) && activeTask.status !== newStatus) {
       await handleStatusChange(activeTask.id, newStatus);
     }
   };
-  const activeTask = activeId ? tasks.find(t => t.id === activeId) : null;
+  const activeTask = activeId ? tasks.find((t: Task) => t.id === activeId) : null;
 
-  function KanbanColumn({ column, tasks }) {
+  type ColumnType = { id: string; title: string; color: string };
+  function KanbanColumn({ column, tasks }: { column: ColumnType; tasks: Task[] }) {
     const { setNodeRef, isOver } = useDroppable({ id: column.id });
     return (
       <div ref={setNodeRef} className="flex-1 min-w-[280px]">
@@ -92,12 +93,12 @@ export function TasksPanel({ clientId, initialTasks = [] }: TasksPanelProps) {
             <h3 className="font-bold text-lg text-blue-800 dark:text-blue-200 tracking-tight">{column.title}</h3>
             <span className="text-xs bg-slate-200 dark:bg-slate-700 rounded px-2 py-1 font-semibold">{tasks.length}</span>
           </div>
-          <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext items={tasks.map((t: Task) => t.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-2">
               {tasks.length === 0 ? (
                 <p className="text-xs text-muted-foreground text-center py-8">Nenhuma tarefa nesta coluna</p>
               ) : (
-                tasks.map(task => <TaskCard key={task.id} task={task} />)
+                tasks.map((task: Task) => <TaskCard key={task.id} task={task} />)
               )}
             </div>
           </SortableContext>
@@ -111,18 +112,7 @@ export function TasksPanel({ clientId, initialTasks = [] }: TasksPanelProps) {
   const [form, setForm] = useState({ title: "", description: "", status: "todo" as TaskStatus, priority: "medium" as TaskPriority, assignee: "", dueDate: "" })
 
   const resetForm = () => { setForm({ title: "", description: "", status: "todo", priority: "medium", assignee: "", dueDate: "" }); setEditing(null) }
-  const handleEdit = (task: Task) => { setEditing(task); setForm({ title: task.title, description: task.description || "", status: task.status, priority: task.priority, assignee: task.assignee || "", dueDate: task.dueDate || "" }); setIsModalOpen(true) }
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("Excluir tarefa?")) return
-    const prev = tasks
-    mutate(prev.filter(t => t.id !== id), false)
-    try {
-      const res = await fetch(`/api/clients/${clientId}/tasks?taskId=${id}`, { method: "DELETE" })
-      if (!res.ok) throw new Error("Falha ao excluir tarefa")
-      mutate()
-    } catch { mutate(prev, false) }
-  }
+  // Removed unused handleEdit and handleDelete functions
 
   const handleStatusChange = async (id: string, status: TaskStatus) => {
     const prev = tasks

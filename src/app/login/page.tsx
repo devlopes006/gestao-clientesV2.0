@@ -2,8 +2,9 @@
 
 import { AuthDebug } from "@/components/AuthDebug";
 import { Button } from "@/components/ui/button";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { Spinner } from "@/components/ui/spinner";
 import { useUser } from "@/context/UserContext";
+import { logger } from "@/lib/logger";
 import {
   ArrowRight,
   CheckCircle2,
@@ -25,15 +26,15 @@ function LoginPageInner() {
 
   // Verificar se há redirect pendente ao montar
   useEffect(() => {
-    console.log("[LoginPage] 🚀 Componente montado");
-    console.log("[LoginPage] URL:", window.location.href);
-    console.log("[LoginPage] Query params:", window.location.search);
+    logger.debug('LoginPage montado', {
+      url: window.location.href,
+      queryParams: window.location.search,
+    });
 
-    const wasPendingRedirect =
-      typeof window !== "undefined" &&
-      localStorage.getItem("pendingAuthRedirect") === "true";
-
-    console.log("[LoginPage] Redirect pendente?", wasPendingRedirect);
+    const wasPendingRedirect = sessionStorage.getItem(
+      "firebaseRedirectPending",
+    );
+    logger.debug('LoginPage: verificando redirect pendente', { wasPendingRedirect });
 
     if (wasPendingRedirect) {
       console.log(
@@ -67,7 +68,7 @@ function LoginPageInner() {
 
   useEffect(() => {
     if (!loading && user) {
-      console.log("[LoginPage] Usuário já autenticado, redirecionando para /");
+      logger.debug('LoginPage: usuário já autenticado, redirecionando');
       router.replace("/");
     }
   }, [loading, user, router]);
@@ -99,23 +100,27 @@ function LoginPageInner() {
   // Se está processando redirect, mostrar tela de loading
   if (isLogging) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-100 dark:from-slate-950 dark:via-blue-950/20 dark:to-slate-900 p-4">
-        <div className="text-center space-y-6">
-          <div className="relative inline-block">
-            <div className="absolute inset-0 bg-linear-to-tr from-blue-600 to-purple-600 rounded-2xl blur-lg opacity-50 animate-pulse" />
-            <div className="relative w-16 h-16 bg-linear-to-tr from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
-              <Sparkles className="w-8 h-8 text-white animate-spin" />
+      <div className="page-background">
+        <div className="min-h-screen flex flex-col items-center justify-center p-4">
+          <div className="text-center space-y-6">
+            <div className="relative inline-block">
+              <div className="absolute inset-0 bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl blur-lg opacity-50 animate-pulse" />
+              <div className="relative w-16 h-16 bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
+                <Sparkles className="w-8 h-8 text-white animate-spin" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                Conectando...
+              </h2>
+              <div className="flex flex-col items-center justify-center gap-2">
+                <p className="text-slate-600 dark:text-slate-400">
+                  {hasInvite ? "Processando convite" : "Autenticando com Google"}
+                </p>
+                <Spinner size="lg" variant="primary" />
+              </div>
             </div>
           </div>
-          <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-              Conectando...
-            </h2>
-            <p className="text-slate-600 dark:text-slate-400">
-              {hasInvite ? "Processando convite" : "Autenticando com Google"}
-            </p>
-          </div>
-          <LoadingSpinner size="lg" />
         </div>
       </div>
     );
@@ -136,26 +141,26 @@ function LoginPageInner() {
           {/* Logo */}
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="absolute inset-0 bg-linear-to-tr from-blue-600 to-purple-600 rounded-2xl blur-lg opacity-50" />
-              <div className="relative w-12 h-12 bg-linear-to-tr from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
+              <div className="absolute inset-0 bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl blur-lg opacity-50" />
+              <div className="relative w-12 h-12 bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
             </div>
-            <span className="text-3xl font-bold bg-linear-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+            <span className="text-3xl font-bold text-gradient-primary">
               MyGest
             </span>
           </div>
 
           {/* Headline */}
           <div className="space-y-4 max-w-lg">
-            <h1 className="text-5xl font-bold leading-tight text-slate-900 dark:text-white">
+            <h1 className="text-4xl sm:text-5xl font-bold leading-tight text-slate-900 dark:text-white">
               Gestão inteligente
               <br />
-              <span className="bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="text-gradient-brand">
                 para seu negócio
               </span>
             </h1>
-            <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
               Centralize clientes, projetos e equipes em uma plataforma moderna
               e intuitiva
             </p>
@@ -182,9 +187,9 @@ function LoginPageInner() {
             ].map((feature) => (
               <div
                 key={feature.title}
-                className="flex items-start gap-4 p-4 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 transition-all hover:bg-white/80 dark:hover:bg-slate-800/80"
+                className="flex items-start gap-4 p-4 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border-2 border-slate-200 dark:border-slate-700 transition-all hover:bg-white/80 dark:hover:bg-slate-800/80 hover:scale-[1.02]"
               >
-                <div className="shrink-0 w-10 h-10 bg-linear-to-tr from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                <div className="shrink-0 w-10 h-10 bg-linear-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center shadow-lg">
                   <feature.icon className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -212,12 +217,12 @@ function LoginPageInner() {
           {/* Mobile Logo */}
           <div className="flex lg:hidden items-center justify-center gap-3 mb-8">
             <div className="relative">
-              <div className="absolute inset-0 bg-linear-to-tr from-blue-600 to-purple-600 rounded-2xl blur-lg opacity-50" />
-              <div className="relative w-12 h-12 bg-linear-to-tr from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
+              <div className="absolute inset-0 bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl blur-lg opacity-50" />
+              <div className="relative w-12 h-12 bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
             </div>
-            <span className="text-3xl font-bold bg-linear-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+            <span className="text-3xl font-bold text-gradient-primary">
               MyGest
             </span>
           </div>
@@ -228,24 +233,24 @@ function LoginPageInner() {
             <div className="absolute -inset-1 bg-linear-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-20" />
 
             {/* Card */}
-            <div className="relative bg-card text-card-foreground rounded-2xl shadow-2xl border border-border p-8 space-y-6 transition-colors">
+            <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border-2 border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-6 transition-all">
               {/* Header */}
               <div className="text-center space-y-2">
                 {hasInvite ? (
                   <>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
                       Você foi convidado!
                     </h2>
-                    <p className="text-slate-600 dark:text-slate-400">
+                    <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
                       Entre para aceitar o convite e acessar a organização
                     </p>
                   </>
                 ) : (
                   <>
-                    <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">
                       Bem-vindo de volta
                     </h2>
-                    <p className="text-slate-600 dark:text-slate-400">
+                    <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
                       Entre com sua conta para continuar
                     </p>
                   </>
@@ -256,11 +261,12 @@ function LoginPageInner() {
               <Button
                 onClick={handleLogin}
                 disabled={isLogging || loading}
-                className="w-full h-14 text-base font-semibold bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/40 disabled:opacity-50 disabled:cursor-not-allowed group"
+                size="lg"
+                className="w-full h-14 text-base font-semibold"
               >
                 {isLogging || loading ? (
                   <div className="flex items-center gap-3">
-                    <LoadingSpinner size="sm" className="text-white" />
+                    <Spinner size="sm" variant="white" />
                     <span>
                       {hasInvite ? "Aceitando convite..." : "Conectando..."}
                     </span>
@@ -297,8 +303,8 @@ function LoginPageInner() {
 
               {/* Error Message */}
               {error && (
-                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                  <p className="text-sm text-red-600 dark:text-red-400 text-center">
+                <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800">
+                  <p className="text-sm text-red-600 dark:text-red-400 text-center font-medium">
                     {error}
                   </p>
                 </div>
@@ -307,10 +313,10 @@ function LoginPageInner() {
               {/* Divider */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-border" />
+                  <div className="w-full border-t-2 border-slate-200 dark:border-slate-700" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">
+                  <span className="bg-white dark:bg-slate-900 px-3 text-slate-500 dark:text-slate-400 font-medium">
                     Acesso seguro
                   </span>
                 </div>
@@ -318,18 +324,18 @@ function LoginPageInner() {
 
               {/* Footer */}
               <div className="space-y-4">
-                <p className="text-center text-xs text-muted-foreground leading-relaxed">
+                <p className="text-center text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                   Ao continuar, você concorda com nossos{" "}
                   <a
                     href="#"
-                    className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline underline-offset-2"
+                    className="font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline underline-offset-2 transition-colors"
                   >
                     Termos de Uso
                   </a>{" "}
                   e{" "}
                   <a
                     href="#"
-                    className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline underline-offset-2"
+                    className="font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline underline-offset-2 transition-colors"
                   >
                     Política de Privacidade
                   </a>
@@ -339,9 +345,9 @@ function LoginPageInner() {
           </div>
 
           {/* Help text */}
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-center text-sm text-slate-600 dark:text-slate-400">
             Precisa de uma conta?{" "}
-            <span className="font-semibold text-foreground">
+            <span className="font-semibold text-slate-900 dark:text-white">
               Solicite acesso ao administrador
             </span>
           </p>

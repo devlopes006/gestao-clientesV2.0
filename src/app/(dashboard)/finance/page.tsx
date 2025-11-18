@@ -1,7 +1,6 @@
 import AppShell from "@/components/layout/AppShell";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { FinanceManagerGlobal } from "@/features/finance/components/FinanceManagerGlobal";
+import { FinanceManagerGlobal } from "@/features/finance/components/FinanceManagerGlobalLazy";
 import { can, type AppRole } from "@/lib/permissions";
 import { getSessionProfile } from "@/services/auth/session";
 import { redirect } from "next/navigation";
@@ -14,12 +13,10 @@ export default async function FinancePage() {
     redirect("/");
 
   return (
-    <ProtectedRoute>
-      <AppShell>
-        <PageLayout centered={false}>
-          <FinanceManagerGlobal orgId={orgId} />
-        </PageLayout>
-      </AppShell>
-    </ProtectedRoute>
+    <AppShell>
+      <PageLayout centered={false}>
+        <FinanceManagerGlobal orgId={orgId} />
+      </PageLayout>
+    </AppShell>
   );
 }

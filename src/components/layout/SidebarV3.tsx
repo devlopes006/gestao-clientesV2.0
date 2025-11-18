@@ -15,6 +15,7 @@ import { BibleVerseWidget } from "@/features/verses/BibleVerseWidget";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  AlertCircle,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -27,6 +28,7 @@ import {
   User as UserIcon,
   Users,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -38,7 +40,7 @@ interface SidebarV3Props {
 
 interface NavItemGroup {
   label: string;
-  items: Array<{ href: string; label: string; icon: React.ReactNode }>;
+  items: Array<{ href: string; label: string; icon: React.ReactNode; roles?: string[] }>;
 }
 
 const groups: NavItemGroup[] = [
@@ -49,11 +51,19 @@ const groups: NavItemGroup[] = [
         href: "/clients",
         label: "Clientes",
         icon: <Users className="w-4 h-4" />,
+        roles: ["OWNER", "STAFF"], // Acessível para OWNER e STAFF
       },
       {
-        href: "/finance",
-        label: "Financeiro",
+        href: "/billing",
+        label: "Cobrança",
         icon: <DollarSign className="w-4 h-4" />,
+        roles: ["OWNER"], // Apenas OWNER
+      },
+      {
+        href: "/billing/overdue",
+        label: "Inadimplência",
+        icon: <AlertCircle className="w-4 h-4" />,
+        roles: ["OWNER"],
       },
     ],
   },
@@ -64,11 +74,13 @@ const groups: NavItemGroup[] = [
         href: "/admin",
         label: "Administração",
         icon: <LayoutDashboard className="w-4 h-4" />,
+        roles: ["OWNER"], // Apenas OWNER
       },
       {
         href: "/settings",
         label: "Configurações",
         icon: <Settings className="w-4 h-4" />,
+        roles: ["OWNER", "STAFF"], // Acessível para ambos
       },
     ],
   },
@@ -78,6 +90,8 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
   const pathname = usePathname();
   const { user, logout } = useUser();
   const [orgName, setOrgName] = useState("");
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [alertsCount, setAlertsCount] = useState<number>(0);
   const { collapsed, toggleCollapsed } = useSidebar();
   const [profileOpen, setProfileOpen] = useState(false);
   const [showVerse, setShowVerse] = useState(true);
@@ -111,6 +125,8 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
       if (res.ok) {
         const data = await res.json();
         if (data?.orgName) setOrgName(data.orgName);
+        if (data?.role) setUserRole(data.role);
+        if (typeof data?.alertsCount === 'number') setAlertsCount(data.alertsCount);
       }
     });
   }, []);
@@ -124,9 +140,17 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
 
   const filteredGroups = groups.map((g) => ({
     ...g,
-    items: g.items.filter((i) =>
-      i.label.toLowerCase().includes(search.toLowerCase()),
-    ),
+    items: g.items.filter((i) => {
+      // Filtro por busca
+      if (!i.label.toLowerCase().includes(search.toLowerCase())) {
+        return false;
+      }
+      // Filtro por role
+      if (i.roles && userRole && !i.roles.includes(userRole)) {
+        return false;
+      }
+      return true;
+    }),
   }));
 
   return (
@@ -139,21 +163,20 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
       )}
       <aside
         className={cn(
-          // Keep sidebar fixed on all breakpoints so it does not scroll with page content
           "fixed left-0 top-0 z-50 h-screen bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col transition-all duration-300",
-          collapsed ? "w-20" : "w-72",
+          collapsed ? "w-20 lg:w-20" : "w-72 lg:w-72",
           isOpen ? "translate-x-0" : "-translate-x-full",
-          // On large screens ensure it is visible (no translate off-screen). Removed lg:static to prevent scrolling.
           "lg:translate-x-0",
         )}
       >
+        {/* Botão de fechar agora dentro do header, alinhado à direita, só em mobile */}
         {/* Header */}
         <div
           className={cn(
             "border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl",
             collapsed
               ? "px-2 pt-4 pb-4 flex flex-col items-center gap-3"
-              : "flex items-center gap-2 px-4 pt-5 pb-3",
+              : "flex items-center gap-2 px-2 sm:px-4 pt-4 sm:pt-5 pb-2 sm:pb-3",
           )}
         >
           <Link
@@ -223,7 +246,7 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
         {/* Search */}
         <div
           className={cn(
-            "px-4 py-3 border-b border-slate-200 dark:border-slate-800",
+            "px-2 py-2 sm:px-4 sm:py-3 border-b border-slate-200 dark:border-slate-800",
             collapsed && "hidden",
           )}
         >
@@ -240,7 +263,7 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5">
+        <nav className="flex-1 overflow-y-auto px-2 py-2 sm:px-3 sm:py-4 space-y-4 sm:space-y-5 text-[15px] sm:text-base">
           {filteredGroups.map((group) => (
             <div key={group.label} className="px-1">
               {!collapsed && (
@@ -255,7 +278,10 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
                   </div>
                 )}
                 {group.items.map((item) => {
-                  const active = pathname?.startsWith(item.href);
+                  // Ajuste: evitar dupla seleção. '/billing/overdue' não deve ativar '/billing'.
+                  const active = item.href === '/billing'
+                    ? pathname === '/billing' // somente raiz exata
+                    : pathname?.startsWith(item.href);
                   return (
                     <Link
                       key={item.href}
@@ -272,7 +298,14 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
                         {item.icon}
                       </span>
                       {!collapsed && (
-                        <span className="truncate flex-1">{item.label}</span>
+                        <span className="truncate flex-1 flex items-center gap-2">
+                          {item.label}
+                          {item.href === '/billing' && alertsCount > 0 && (
+                            <span className="ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-semibold">
+                              {alertsCount}
+                            </span>
+                          )}
+                        </span>
                       )}
                       {active && !collapsed && (
                         <span className="ml-auto h-2 w-2 rounded-full bg-blue-500" />
@@ -286,7 +319,7 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
         </nav>
 
         {/* Verse / Utilities */}
-        <div className={cn("px-4 pb-3 space-y-3")}>
+        <div className={cn("px-2 pb-2 sm:px-4 sm:pb-3 space-y-2 sm:space-y-3")}>
           {!collapsed && (
             <>
               <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 backdrop-blur p-3 text-slate-700 dark:text-slate-200">
@@ -333,7 +366,7 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
         </div>
 
         {/* User footer */}
-        <div className="mt-auto border-t border-slate-200 dark:border-slate-800 p-3 relative">
+        <div className="mt-auto border-t border-slate-200 dark:border-slate-800 p-2 sm:p-3 relative">
           <DropdownMenu
             open={profileOpen}
             onOpenChange={setProfileOpen}
@@ -355,11 +388,24 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
               >
                 <div
                   className={cn(
-                    "rounded-full bg-linear-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center shadow-sm text-xs font-semibold select-none",
+                    "rounded-full flex items-center justify-center shadow-sm text-xs font-semibold select-none overflow-hidden",
                     collapsed ? "w-10 h-10" : "w-9 h-9",
                   )}
                 >
-                  {userInitials || <UserIcon className="w-4 h-4 text-white" />}
+                  {user?.image ? (
+                    <Image
+                      src={user.image}
+                      alt={user.displayName || user.email || "Avatar"}
+                      width={collapsed ? 40 : 36}
+                      height={collapsed ? 40 : 36}
+                      className="object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-linear-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center text-white">
+                      {userInitials || <UserIcon className="w-4 h-4" />}
+                    </div>
+                  )}
                 </div>
                 {!collapsed && (
                   <div className="flex-1 min-w-0">

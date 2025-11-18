@@ -1,32 +1,34 @@
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ProgressBar } from "@/components/ui/progress-bar";
-import { ClientHealthMetrics } from "@/features/clients/components";
+import { Progress } from "@/components/ui/progress";
 import { ClientInfoDisplay } from "@/features/clients/components/ClientInfoDisplay";
-import ContractManager from "@/features/clients/components/ContractManager";
-import { InstallmentManager } from "@/features/clients/components/InstallmentManager";
-import { PaymentStatusCard } from "@/features/payments/components/PaymentStatusCard";
-import { InstagramGrid } from "@/features/social/InstagramGrid";
 import { can } from "@/lib/permissions";
-import { prisma } from "@/lib/prisma";
-import { formatDate } from "@/lib/utils";
 import { getSessionProfile } from "@/services/auth/session";
+import { getClientDashboard } from "@/services/clients/getClientDashboard";
 import { getClientById } from "@/services/repositories/clients";
-import type { Finance, Media, Meeting, Task } from "@prisma/client";
 import {
+  AlertTriangle,
+  ArrowUpRight,
+  Calendar,
+  CheckCircle2,
   Clock,
+  DollarSign,
   FileText,
   FolderKanban,
   Image as ImageIcon,
-  Lightbulb,
+  Sparkles,
+  TrendingDown,
+  TrendingUp,
   Users,
+  Video,
+  Zap
 } from "lucide-react";
+import Link from "next/link";
 
 interface ClientInfoPageProps {
   params: Promise<{ id: string }>;
 }
-
-// Removed unused StatCard helper to avoid lint warning
 
 export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
   const { id } = await params;
@@ -40,477 +42,818 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
     return null;
   }
 
-  const base = process.env.NEXT_PUBLIC_APP_URL || "";
+  const dash = await getClientDashboard(orgId, id);
 
-  interface ClientDashboard {
-    counts: {
-      tasks: {
-        total: number;
-        todo: number;
-        inProgress: number;
-        done: number;
-        overdue: number;
-      };
-      finance: { income: number; expense: number; net: number };
-      media: number;
-      brandings: number;
-      strategies: number;
-    };
-    meetings: Array<{
-      id: string;
-      title: string;
-      startTime: string;
-      description?: string;
-    }>;
-    urgentTasks: Array<{
-      id: string;
-      title: string;
-      status: string;
-      priority: string;
-      dueDate: string | null;
-      urgencyScore: number;
-    }>;
-  }
-
-  let dash: ClientDashboard | null = null;
-  try {
-    const res = await fetch(`${base}/api/clients/${id}/dashboard`, {
-      cache: "no-store",
-    });
-    if (res.ok) dash = (await res.json()) as ClientDashboard;
-  } catch { }
-
-  const isOwner = can(role, "update", "finance");
-  const canViewAmounts = isOwner;
-
-  // Buscar dados detalhados para os relatórios
-  const [tasks, finances, media, meetings]: [
-    Task[],
-    Finance[],
-    Media[],
-    Meeting[],
-  ] = await Promise.all([
-    prisma.task.findMany({
-      where: { clientId: id },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.finance.findMany({
-      where: { clientId: id },
-      orderBy: { date: "desc" },
-    }),
-    prisma.media.findMany({ where: { clientId: id } }),
-    prisma.meeting.findMany({
-      where: { clientId: id },
-      orderBy: { startTime: "desc" },
-      take: 10,
-    }),
-  ]);
+  // Permissions
+  const canEditClient = can(role, "update", "client");
+  const canManageFinance = can(role, "update", "finance");
+  const canCreateTask = can(role, "create", "task");
+  const canCreateMeeting = can(role, "create", "meeting");
+  const canViewAmounts = canManageFinance;
 
   const taskStats = {
-    total: tasks.length,
-    completed: tasks.filter(
-      (t) => t.status === "done" || t.status === "completed",
-    ).length,
-    inProgress: tasks.filter(
-      (t) => t.status === "in_progress" || t.status === "in-progress",
-    ).length,
-    pending: tasks.filter((t) => t.status === "todo" || t.status === "pending")
-      .length,
+    total: dash?.counts.tasks.total ?? 0,
+    completed: dash?.counts.tasks.done ?? 0,
+    inProgress: dash?.counts.tasks.inProgress ?? 0,
+    pending: dash?.counts.tasks.todo ?? 0,
     completionRate:
-      tasks.length > 0
-        ? Math.round(
-          (tasks.filter(
-            (t) => t.status === "done" || t.status === "completed",
-          ).length /
-            tasks.length) *
-          100,
-        )
+      dash && dash.counts.tasks.total > 0
+        ? Math.round((dash.counts.tasks.done / dash.counts.tasks.total) * 100)
         : 0,
   };
 
   const financeStats = {
-    income: finances
-      .filter((f) => f.type === "income")
-      .reduce((sum, f) => sum + Number(f.amount), 0),
-    expense: finances
-      .filter((f) => f.type === "expense")
-      .reduce((sum, f) => sum + Number(f.amount), 0),
-    balance: 0,
-    transactions: finances.length,
+    income: dash?.counts.finance.income ?? 0,
+    expense: dash?.counts.finance.expense ?? 0,
+    balance: dash?.counts.finance.net ?? 0,
   };
-  financeStats.balance = financeStats.income - financeStats.expense;
 
   const mediaStats = {
-    total: media.length,
-    images: media.filter((m) => m.type === "image").length,
-    videos: media.filter((m) => m.type === "video").length,
-    documents: media.filter((m) => m.type === "document").length,
+    total: dash?.counts.media ?? 0,
+    images: dash?.counts.mediaByType.images ?? 0,
+    videos: dash?.counts.mediaByType.videos ?? 0,
+    documents: dash?.counts.mediaByType.documents ?? 0,
   };
 
   const meetingStats = {
-    total: meetings.length,
-    upcoming: meetings.filter((m) => new Date(m.startTime) > new Date()).length,
-    past: meetings.filter((m) => new Date(m.startTime) <= new Date()).length,
+    total: dash?.counts.meetings.total ?? 0,
+    upcoming: dash?.counts.meetings.upcoming ?? 0,
+    past: dash?.counts.meetings.past ?? 0,
   };
 
-  // Preparar métricas para o ClientHealthCard
-  const healthMetrics: ClientHealthMetrics = {
-    clientId: client.id,
-    clientName: client.name,
-    completionRate: dash?.counts.tasks.total
-      ? Math.round((dash.counts.tasks.done / dash.counts.tasks.total) * 100)
-      : 0,
-    balance: dash?.counts.finance.net || 0,
-    daysActive: client.created_at
-      ? Math.floor(
-        (new Date().getTime() - new Date(client.created_at).getTime()) /
-        (1000 * 60 * 60 * 24),
-      )
-      : 0,
-    tasksTotal: dash?.counts.tasks.total || 0,
-    tasksCompleted: dash?.counts.tasks.done || 0,
-    tasksPending: dash?.counts.tasks.todo || 0,
-    tasksOverdue: dash?.counts.tasks.overdue || 0,
-  };
+  const daysActive = client.created_at
+    ? Math.floor(
+      (new Date().getTime() - new Date(client.created_at).getTime()) /
+      (1000 * 60 * 60 * 24)
+    )
+    : 0;
+
+  const now = new Date();
+  const nextDueDate = (() => {
+    if (!client.payment_day) return null;
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const day = Number(client.payment_day);
+    const candidate = new Date(year, month, day);
+    if (candidate >= new Date(year, month, now.getDate())) return candidate;
+    return new Date(year, month + 1, day);
+  })();
 
   return (
     <ProtectedRoute>
-      <div className="bg-background transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-          {/* Grid Principal: Info + Métricas */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            {/* Coluna Esquerda: Informações Principais */}
-            <div className="xl:col-span-2 space-y-8">
-              {/* Card: Info do Cliente */}
-              <ClientInfoDisplay client={client} canEdit={isOwner} />
-
-              {/* Grid: Métricas Rápidas */}
-              {dash && (
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <Card className="bg-card rounded-2xl border border-border shadow-sm hover:shadow-lg transition-all">
-                    <CardContent className="pt-6 pb-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="p-3 rounded-xl bg-linear-to-r from-blue-500 to-cyan-600 shadow-lg">
-                          <FolderKanban className="h-5 w-5 text-white" />
-                        </div>
-                        {dash.counts.tasks.overdue > 0 && (
-                          <span className="text-xs font-semibold px-2 py-1 bg-red-100 text-red-700 rounded-full">
-                            {dash.counts.tasks.overdue} atrasadas
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-3xl font-bold text-foreground">
-                        {dash.counts.tasks.total - dash.counts.tasks.done}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Tarefas ativas • {dash.counts.tasks.done} concluídas
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="bg-card rounded-2xl border border-border shadow-sm hover:shadow-lg transition-all">
-                    <CardContent className="pt-6 pb-5">
-                      <div className="p-3 rounded-xl bg-linear-to-r from-purple-500 to-pink-600 shadow-lg mb-3 w-fit">
-                        <ImageIcon className="h-5 w-5 text-white" />
-                      </div>
-                      <p className="text-3xl font-bold text-foreground">
-                        {dash.counts.media}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Arquivos de mídia
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="bg-card rounded-2xl border border-border shadow-sm hover:shadow-lg transition-all">
-                    <CardContent className="pt-6 pb-5">
-                      <div className="p-3 rounded-xl bg-linear-to-r from-amber-500 to-orange-600 shadow-lg mb-3 w-fit">
-                        <Lightbulb className="h-5 w-5 text-white" />
-                      </div>
-                      <p className="text-3xl font-bold text-foreground">
-                        {dash.counts.strategies}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Estratégias
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="bg-card rounded-2xl border border-border shadow-sm hover:shadow-lg transition-all">
-                    <CardContent className="pt-6 pb-5">
-                      <div className="p-3 rounded-xl bg-linear-to-r from-indigo-500 to-purple-600 shadow-lg mb-3 w-fit">
-                        <FileText className="h-5 w-5 text-white" />
-                      </div>
-                      <p className="text-3xl font-bold text-foreground">
-                        {dash.counts.brandings}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Materiais de branding
-                      </p>
-                    </CardContent>
-                  </Card>
-                </div>
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+          {/* Header do Dashboard
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+            <h1 className="text-3xl font-bold bg-linear-to-r from-slate-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent mb-2">
+                {client.name}
+              </h1> 
+          <div className="flex flex-wrap items-center gap-2">
+            {/* <Badge
+                  variant={client.status === "active" ? "default" : "secondary"}
+                  className="capitalize"
+                >
+                  {client.status}
+                </Badge> */}
+          {/* {client.plan && (
+                  <Badge variant="outline" className="capitalize">
+                    {client.plan}
+                  </Badge>
+                )} */}
+          {/* {daysActive > 0 && (
+                  // <span className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                  //   <Clock className="h-3 w-3" />
+                  //   Cliente há {daysActive} dias
+                  // </span>
+                )} 
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {canCreateTask && (
+                <Link
+                  href={`/clients/${client.id}/tasks`}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white transition-all hover:shadow-lg hover:scale-105"
+                >
+                  <FolderKanban className="h-4 w-4" /> Nova Tarefa
+                </Link>
               )}
-              {isOwner && (
-                <ContractManager
-                  clientId={client.id}
-                  clientName={client.name}
-                  contractStart={client.contract_start}
-                  contractEnd={client.contract_end}
-                  paymentDay={client.payment_day}
-                  contractValue={client.contract_value}
-                />
-              )}
-              {isOwner && (
-                <PaymentStatusCard
-                  clientId={client.id}
-                  clientName={client.name}
-                  canEdit={isOwner}
-                />
-              )}
-
-              {isOwner && (
-                <InstallmentManager clientId={client.id} canEdit={isOwner} />
+              {canManageFinance && (
+                <Link
+                  href={`/clients/${client.id}/billing`}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-linear-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white transition-all hover:shadow-lg hover:scale-105"
+                >
+                  <DollarSign className="h-4 w-4" /> Cobrança
+                </Link>
               )}
             </div>
-            <div className="space-y-6">
-              {/* Metadata Card */}
-              <Card className="border-border shadow-sm hover:shadow-md transition-shadow">
-                <CardHeader className="bg-linear-to-r from-slate-50 to-slate-100/50 dark:from-slate-900/40 dark:to-slate-800/30 border-b border-border/50">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-linear-to-br from-slate-600 to-slate-700 flex items-center justify-center shadow-md">
-                      <FileText className="h-5 w-5 text-white" />
+          </div> /*/}
+
+          {/* Grid Principal */}
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            {/* Coluna Esquerda - 2/3 */}
+            <div className="xl:col-span-2 space-y-6">
+              {/* KPIs Principais */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Taxa de Conclusão */}
+                <Card className="group border-2 border-emerald-200 dark:border-emerald-800 bg-linear-to-br from-emerald-50 to-green-50 dark:from-emerald-950/50 dark:to-green-950/30 hover:shadow-xl transition-all hover:scale-105 cursor-default">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/50 rounded-xl group-hover:scale-110 transition-transform">
+                        <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                      </div>
+                      <span className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+                        {taskStats.completionRate}%
+                      </span>
                     </div>
-                    <CardTitle className="text-lg">Metadados</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-6 space-y-4">
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/40 border border-border/50">
-                    <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
-                    <div className="flex-1">
-                      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
-                        Criado em
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                      Taxa de Conclusão
+                    </p>
+                    <Progress
+                      value={taskStats.completionRate}
+                      className="h-2 bg-emerald-100 dark:bg-emerald-900/30"
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Tarefas Ativas */}
+                <Card className="group border-2 border-blue-200 dark:border-blue-800 bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/30 hover:shadow-xl transition-all hover:scale-105 cursor-default">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="p-2.5 bg-blue-100 dark:bg-blue-900/50 rounded-xl group-hover:scale-110 transition-transform">
+                        <FolderKanban className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                       </div>
-                      <div className="text-sm font-semibold text-foreground">
-                        {formatDate(client.created_at)}
-                      </div>
+                      <span className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                        {taskStats.total - taskStats.completed}
+                      </span>
                     </div>
-                  </div>
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/40 border border-border/50">
-                    <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
-                    <div className="flex-1">
-                      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
-                        Última atualização
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      Tarefas Ativas
+                    </p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                      {taskStats.completed} concluídas
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {/* Mídias */}
+                <Card className="group border-2 border-purple-200 dark:border-purple-800 bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-950/50 dark:to-pink-950/30 hover:shadow-xl transition-all hover:scale-105 cursor-default">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="p-2.5 bg-purple-100 dark:bg-purple-900/50 rounded-xl group-hover:scale-110 transition-transform">
+                        <ImageIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                       </div>
-                      <div className="text-sm font-semibold text-foreground">
-                        {formatDate(client.updated_at)}
-                      </div>
+                      <span className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                        {mediaStats.total}
+                      </span>
                     </div>
-                  </div>
-                  <div className="flex items-start gap-3 p-3 rounded-lg bg-linear-to-br from-indigo-50 to-purple-50/40 dark:from-indigo-900/40 dark:to-purple-900/30 border border-border/50">
-                    <FileText className="h-4 w-4 text-indigo-600 mt-0.5" />
-                    <div className="flex-1">
-                      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
-                        ID do Cliente
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      Arquivos de Mídia
+                    </p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                      {mediaStats.images} imagens
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {/* Reuniões */}
+                <Card className="group border-2 border-amber-200 dark:border-amber-800 bg-linear-to-br from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/30 hover:shadow-xl transition-all hover:scale-105 cursor-default">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="p-2.5 bg-amber-100 dark:bg-amber-900/50 rounded-xl group-hover:scale-110 transition-transform">
+                        <Users className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                       </div>
-                      <div className="text-xs text-foreground font-mono bg-card px-2 py-1.5 rounded border border-border break-all">
-                        {client.id}
-                      </div>
+                      <span className="text-3xl font-bold text-amber-600 dark:text-amber-400">
+                        {meetingStats.upcoming}
+                      </span>
                     </div>
-                  </div>
-                </CardContent>
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      Reuniões Futuras
+                    </p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                      {meetingStats.total} no total
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Informações do Cliente */}
+              <Card className="border-2 shadow-sm hover:shadow-lg transition-all">
+                <ClientInfoDisplay client={client} canEdit={canEditClient} />
               </Card>
 
-              {/* Media Library Card */}
-              <Card className="border-border shadow-sm hover:shadow-md transition-shadow">
-                <CardHeader className="bg-linear-to-r from-purple-50 via-pink-50 to-indigo-50 dark:from-purple-950/30 dark:via-pink-950/30 dark:to-indigo-950/30 border-b border-border/50">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-linear-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-md">
-                      <ImageIcon className="h-5 w-5 text-white" />
+              {/* Resumo Executivo */}
+              {canManageFinance && (
+                <Card className="border-2 shadow-sm hover:shadow-lg transition-all">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 bg-linear-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-lg">
+                        <Zap className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                      </div>
+                      <CardTitle className="text-base font-semibold">
+                        Resumo Executivo
+                      </CardTitle>
                     </div>
-                    <CardTitle className="text-lg">
+                  </CardHeader>
+                  <CardContent className="px-4 pb-4 space-y-4">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="p-4 bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wider">
+                          Status do Projeto
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={`h-3 w-3 rounded-full animate-pulse ${taskStats.completionRate >= 75
+                              ? "bg-green-500"
+                              : taskStats.completionRate >= 50
+                                ? "bg-blue-500"
+                                : taskStats.completionRate >= 25
+                                  ? "bg-amber-500"
+                                  : "bg-red-500"
+                              }`}
+                          />
+                          <span className="text-lg font-bold text-slate-900 dark:text-white">
+                            {taskStats.completionRate >= 75
+                              ? "Excelente"
+                              : taskStats.completionRate >= 50
+                                ? "Bom"
+                                : taskStats.completionRate >= 25
+                                  ? "Regular"
+                                  : "Precisa Atenção"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="p-4 bg-linear-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                        <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wider">
+                          Saúde Financeira
+                        </p>
+                        <div className="flex items-center gap-2">
+                          {financeStats.balance >= 0 ? (
+                            <TrendingUp className="h-5 w-5 text-emerald-600" />
+                          ) : (
+                            <TrendingDown className="h-5 w-5 text-red-600" />
+                          )}
+                          <span className="text-lg font-bold text-slate-900 dark:text-white">
+                            {financeStats.balance >=
+                              (client.contract_value
+                                ? Number(client.contract_value) * 0.5
+                                : 1000)
+                              ? "Lucrativo"
+                              : financeStats.balance >= 0
+                                ? "Equilibrado"
+                                : "Deficitário"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-linear-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-purple-950/30 rounded-xl border border-blue-200 dark:border-blue-800">
+                      <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                        Cliente ativo há{" "}
+                        <strong className="text-blue-600 dark:text-blue-400">
+                          {daysActive} dias
+                        </strong>{" "}
+                        com taxa de conclusão de{" "}
+                        <strong className="text-emerald-600 dark:text-emerald-400">
+                          {taskStats.completionRate}%
+                        </strong>
+                        .
+                        {canViewAmounts &&
+                          (financeStats.balance >= 0 ? (
+                            <>
+                              {" "}
+                              Balanço positivo de{" "}
+                              <strong className="text-emerald-600 dark:text-emerald-400">
+                                {new Intl.NumberFormat("pt-BR", {
+                                  style: "currency",
+                                  currency: "BRL",
+                                }).format(financeStats.balance)}
+                              </strong>
+                            </>
+                          ) : (
+                            <>
+                              {" "}
+                              Déficit de{" "}
+                              <strong className="text-red-600 dark:text-red-400">
+                                {new Intl.NumberFormat("pt-BR", {
+                                  style: "currency",
+                                  currency: "BRL",
+                                }).format(Math.abs(financeStats.balance))}
+                              </strong>
+                            </>
+                          ))}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Desempenho de Tarefas */}
+              <Card className="border-2 shadow-sm hover:shadow-lg transition-all">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 bg-linear-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg">
+                      <FolderKanban className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <CardTitle className="text-base font-semibold">
+                      Desempenho de Tarefas
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-4 pb-4">
+                  {taskStats.total === 0 ? (
+                    <div className="p-6 rounded-xl bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-900/50 border-2 border-dashed border-slate-300 dark:border-slate-700 text-center">
+                      <Sparkles className="h-10 w-10 text-slate-400 dark:text-slate-600 mx-auto mb-3" />
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                        Nenhuma tarefa cadastrada ainda
+                      </p>
+                      {canCreateTask && (
+                        <Link
+                          href={`/clients/${client.id}/tasks`}
+                          className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                        >
+                          Criar a primeira tarefa
+                          <ArrowUpRight className="h-4 w-4" />
+                        </Link>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="h-2.5 w-2.5 rounded-full bg-emerald-500"></div>
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                              Concluídas
+                            </span>
+                          </div>
+                          <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                            {taskStats.completed}
+                          </Badge>
+                        </div>
+                        <Progress
+                          value={(taskStats.completed / taskStats.total) * 100}
+                          className="h-2 bg-emerald-100 dark:bg-emerald-900/30"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="h-2.5 w-2.5 rounded-full bg-blue-500"></div>
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                              Em Progresso
+                            </span>
+                          </div>
+                          <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                            {taskStats.inProgress}
+                          </Badge>
+                        </div>
+                        <Progress
+                          value={(taskStats.inProgress / taskStats.total) * 100}
+                          className="h-2 bg-blue-100 dark:bg-blue-900/30"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="h-2.5 w-2.5 rounded-full bg-amber-500"></div>
+                            <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                              Pendentes
+                            </span>
+                          </div>
+                          <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+                            {taskStats.pending}
+                          </Badge>
+                        </div>
+                        <Progress
+                          value={(taskStats.pending / taskStats.total) * 100}
+                          className="h-2 bg-amber-100 dark:bg-amber-900/30"
+                        />
+                      </div>
+
+                      <div className="pt-4 mt-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                        <span className="text-xs text-slate-600 dark:text-slate-400 font-medium uppercase tracking-wider">
+                          Taxa de Conclusão Geral
+                        </span>
+                        <span className="text-2xl font-bold bg-linear-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
+                          {taskStats.completionRate}%
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Coluna Direita - 1/3 */}
+            <div className="space-y-6">
+              {/* Alertas Inteligentes */}
+              {(() => {
+                const alerts: Array<{
+                  label: string;
+                  href?: string;
+                  tone: "danger" | "warning" | "info";
+                }> = [];
+                if ((dash?.counts.tasks.overdue ?? 0) > 0) {
+                  alerts.push({
+                    label: `${dash?.counts.tasks.overdue} tarefa(s) atrasada(s)`,
+                    href: `/clients/${client.id}/tasks`,
+                    tone: "danger",
+                  });
+                }
+                if (canManageFinance && (dash?.counts.finance.net ?? 0) < 0) {
+                  alerts.push({
+                    label: `Balanço financeiro negativo`,
+                    href: `/clients/${client.id}/finance`,
+                    tone: "danger",
+                  });
+                }
+                const endIso = client.contract_end;
+                if (endIso) {
+                  const end = new Date(endIso);
+                  const diffDays = Math.ceil(
+                    (end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+                  );
+                  if (diffDays > 0 && diffDays <= 15) {
+                    alerts.push({
+                      label: `Contrato vence em ${diffDays} dia(s)`,
+                      href: `/clients/${client.id}/finance`,
+                      tone: "warning",
+                    });
+                  }
+                }
+                const expiresIso = client.instagram_token_expires_at;
+                if (!client.instagram_access_token) {
+                  alerts.push({
+                    label: `Instagram não conectado`,
+                    href: `/clients/${client.id}/settings`,
+                    tone: "info",
+                  });
+                } else if (expiresIso) {
+                  const exp = new Date(expiresIso);
+                  const days = Math.ceil(
+                    (exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+                  );
+                  if (days <= 7)
+                    alerts.push({
+                      label: `Token do Instagram expira em ${days} dia(s)`,
+                      href: `/clients/${client.id}/settings`,
+                      tone: "warning",
+                    });
+                }
+                return alerts.length > 0 ? (
+                  <Card className="border-2 border-red-200 dark:border-red-800 shadow-sm hover:shadow-lg transition-all">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                          <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
+                        </div>
+                        <CardTitle className="text-base font-semibold">
+                          Alertas
+                        </CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="px-4 pb-4">
+                      <div className="space-y-2">
+                        {alerts.map((alert, idx) => (
+                          <Link
+                            key={idx}
+                            href={alert.href || "#"}
+                            className={`block p-3 rounded-lg border-2 text-sm font-medium transition-all hover:scale-105 ${alert.tone === "danger"
+                              ? "bg-red-50 border-red-200 text-red-700 hover:bg-red-100 dark:bg-red-950/30 dark:border-red-800 dark:text-red-300"
+                              : alert.tone === "warning"
+                                ? "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-300"
+                                : "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 dark:bg-blue-950/30 dark:border-blue-800 dark:text-blue-300"
+                              }`}
+                          >
+                            {alert.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : null;
+              })()}
+
+              {/* Tendências */}
+              {dash?.trends && (
+                <Card className="border-2 shadow-sm hover:shadow-lg transition-all">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+                        <TrendingUp className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                      </div>
+                      <CardTitle className="text-base font-semibold">
+                        Tendências (30 dias)
+                      </CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="px-4 pb-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-3 rounded-lg bg-linear-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 border border-blue-200 dark:border-blue-800">
+                        <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Tarefas</div>
+                        <div className={`flex items-center gap-1 font-semibold text-sm ${dash.trends.tasksCreated30dPct > 0
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : dash.trends.tasksCreated30dPct < 0
+                            ? "text-red-600 dark:text-red-400"
+                            : "text-slate-600 dark:text-slate-400"
+                          }`}>
+                          {dash.trends.tasksCreated30dPct > 0 ? "▲" : dash.trends.tasksCreated30dPct < 0 ? "▼" : "–"}
+                          {Math.abs(dash.trends.tasksCreated30dPct)}%
+                        </div>
+                      </div>
+                      <div className="p-3 rounded-lg bg-linear-to-br from-purple-50 to-purple-100 dark:from-purple-950/30 dark:to-purple-900/30 border border-purple-200 dark:border-purple-800">
+                        <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Reuniões</div>
+                        <div className={`flex items-center gap-1 font-semibold text-sm ${dash.trends.meetings30dPct > 0
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : dash.trends.meetings30dPct < 0
+                            ? "text-red-600 dark:text-red-400"
+                            : "text-slate-600 dark:text-slate-400"
+                          }`}>
+                          {dash.trends.meetings30dPct > 0 ? "▲" : dash.trends.meetings30dPct < 0 ? "▼" : "–"}
+                          {Math.abs(dash.trends.meetings30dPct)}%
+                        </div>
+                      </div>
+                      <div className="p-3 rounded-lg bg-linear-to-br from-pink-50 to-pink-100 dark:from-pink-950/30 dark:to-pink-900/30 border border-pink-200 dark:border-pink-800">
+                        <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Mídias</div>
+                        <div className={`flex items-center gap-1 font-semibold text-sm ${dash.trends.media30dPct > 0
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : dash.trends.media30dPct < 0
+                            ? "text-red-600 dark:text-red-400"
+                            : "text-slate-600 dark:text-slate-400"
+                          }`}>
+                          {dash.trends.media30dPct > 0 ? "▲" : dash.trends.media30dPct < 0 ? "▼" : "–"}
+                          {Math.abs(dash.trends.media30dPct)}%
+                        </div>
+                      </div>
+                      <div className="p-3 rounded-lg bg-linear-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/30 border border-emerald-200 dark:border-emerald-800">
+                        <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">Financeiro</div>
+                        <div className={`flex items-center gap-1 font-semibold text-sm ${dash.trends.financeNet30dPct > 0
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : dash.trends.financeNet30dPct < 0
+                            ? "text-red-600 dark:text-red-400"
+                            : "text-slate-600 dark:text-slate-400"
+                          }`}>
+                          {dash.trends.financeNet30dPct > 0 ? "▲" : dash.trends.financeNet30dPct < 0 ? "▼" : "–"}
+                          {Math.abs(dash.trends.financeNet30dPct)}%
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Tarefas Urgentes */}
+              {dash?.urgentTasks && dash.urgentTasks.length > 0 && (
+                <Card className="border-2 border-orange-200 dark:border-orange-800 shadow-sm hover:shadow-lg transition-all">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+                        <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                      </div>
+                      <CardTitle className="text-base font-semibold">
+                        Tarefas Urgentes
+                      </CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="px-4 pb-4">
+                    <div className="space-y-2">
+                      {dash.urgentTasks.slice(0, 5).map((task) => (
+                        <Link
+                          key={task.id}
+                          href={`/clients/${client.id}/tasks`}
+                          className="block p-3 rounded-lg bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 hover:bg-orange-100 dark:hover:bg-orange-900/40 transition-all"
+                        >
+                          <p className="text-sm font-medium text-slate-900 dark:text-white truncate mb-1">
+                            {task.title}
+                          </p>
+                          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                            <Badge variant="outline" className="capitalize">
+                              {task.priority}
+                            </Badge>
+                            {task.dueDate && (
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {new Date(task.dueDate).toLocaleDateString("pt-BR")}
+                              </span>
+                            )}
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Próxima Reunião */}
+              {(() => {
+                const upcoming = (dash?.meetings ?? []).filter(
+                  (m) => new Date(m.startTime) > new Date()
+                );
+                if (upcoming.length === 0) {
+                  return (
+                    <Card className="border-2 shadow-sm hover:shadow-lg transition-all">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                            <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                          </div>
+                          <CardTitle className="text-base font-semibold">
+                            Próxima Reunião
+                          </CardTitle>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="px-4 pb-4">
+                        <div className="p-6 rounded-xl bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-900/50 border-2 border-dashed border-slate-300 dark:border-slate-700 text-center">
+                          <Users className="h-10 w-10 text-slate-400 dark:text-slate-600 mx-auto mb-3" />
+                          <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                            Nenhuma reunião agendada
+                          </p>
+                          {canCreateMeeting && (
+                            <Link
+                              href={`/clients/${client.id}/meetings`}
+                              className="inline-flex items-center gap-2 text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-medium"
+                            >
+                              Agendar agora
+                              <ArrowUpRight className="h-4 w-4" />
+                            </Link>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                }
+                const next = upcoming.sort(
+                  (a, b) =>
+                    new Date(a.startTime).getTime() -
+                    new Date(b.startTime).getTime()
+                )[0];
+                return (
+                  <Card className="border-2 shadow-sm hover:shadow-lg transition-all">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                          <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                        </div>
+                        <CardTitle className="text-base font-semibold">
+                          Próxima Reunião
+                        </CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="px-4 pb-4">
+                      <div className="p-4 bg-linear-to-br from-purple-50 to-indigo-50 dark:from-purple-950/30 dark:to-indigo-950/30 rounded-xl border border-purple-200 dark:border-purple-800">
+                        <p className="text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                          {next.title}
+                        </p>
+                        <p className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {new Date(next.startTime).toLocaleString("pt-BR")}
+                        </p>
+                      </div>
+                      <Link
+                        href={`/clients/${client.id}/meetings`}
+                        className="inline-flex items-center gap-2 mt-3 text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-medium"
+                      >
+                        Ver todas as reuniões
+                        <ArrowUpRight className="h-4 w-4" />
+                      </Link>
+                    </CardContent>
+                  </Card>
+                );
+              })()}
+
+              {/* Próximo Vencimento */}
+              {canManageFinance && nextDueDate && (
+                <Card className="border-2 border-emerald-200 dark:border-emerald-800 shadow-sm hover:shadow-lg transition-all">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+                        <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                      </div>
+                      <CardTitle className="text-base font-semibold">
+                        Próximo Vencimento
+                      </CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="px-4 pb-4">
+                    <div className="p-4 bg-linear-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                      <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">
+                        {nextDueDate.toLocaleDateString("pt-BR")}
+                      </p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400">
+                        Dia do pagamento: {client.payment_day}
+                      </p>
+                    </div>
+                    <Link
+                      href={`/clients/${client.id}/billing`}
+                      className="inline-flex items-center gap-2 mt-3 text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 font-medium"
+                    >
+                      Gerenciar cobrança
+                      <ArrowUpRight className="h-4 w-4" />
+                    </Link>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Biblioteca de Mídia */}
+              <Card className="border-2 shadow-sm hover:shadow-lg transition-all">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 bg-linear-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-lg">
+                      <ImageIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <CardTitle className="text-base font-semibold">
                       Biblioteca de Mídia
                     </CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-6">
+                <CardContent className="px-4 pb-4">
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="text-center p-4 rounded-lg bg-linear-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-900/40 border border-border/50 hover:shadow-md transition-shadow">
-                      <ImageIcon className="h-5 w-5 text-purple-600 mx-auto mb-2" />
-                      <div className="text-2xl font-bold text-purple-600">
+                    <div className="text-center p-4 rounded-xl bg-linear-to-br from-purple-50 to-purple-100 dark:from-purple-950/30 dark:to-purple-900/30 border border-purple-200 dark:border-purple-800 hover:scale-105 transition-transform">
+                      <ImageIcon className="h-6 w-6 text-purple-600 dark:text-purple-400 mx-auto mb-2" />
+                      <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                         {mediaStats.images}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 font-medium">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">
                         Imagens
                       </p>
                     </div>
-                    <div className="text-center p-4 rounded-lg bg-linear-to-br from-pink-50 to-pink-100 dark:from-pink-900/30 dark:to-pink-900/40 border border-border/50 hover:shadow-md transition-shadow">
-                      <FileText className="h-5 w-5 text-pink-600 mx-auto mb-2" />
-                      <div className="text-2xl font-bold text-pink-600">
+                    <div className="text-center p-4 rounded-xl bg-linear-to-br from-pink-50 to-pink-100 dark:from-pink-950/30 dark:to-pink-900/30 border border-pink-200 dark:border-pink-800 hover:scale-105 transition-transform">
+                      <Video className="h-6 w-6 text-pink-600 dark:text-pink-400 mx-auto mb-2" />
+                      <div className="text-2xl font-bold text-pink-600 dark:text-pink-400">
                         {mediaStats.videos}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 font-medium">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">
                         Vídeos
                       </p>
                     </div>
-                    <div className="text-center p-4 rounded-lg bg-linear-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/30 dark:to-indigo-900/40 border border-border/50 hover:shadow-md transition-shadow">
-                      <FileText className="h-5 w-5 text-indigo-600 mx-auto mb-2" />
-                      <div className="text-2xl font-bold text-indigo-600">
+                    <div className="text-center p-4 rounded-xl bg-linear-to-br from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/30 border border-indigo-200 dark:border-indigo-800 hover:scale-105 transition-transform">
+                      <FileText className="h-6 w-6 text-indigo-600 dark:text-indigo-400 mx-auto mb-2" />
+                      <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
                         {mediaStats.documents}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 font-medium">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">
                         Docs
                       </p>
                     </div>
                   </div>
-                  <div className="mt-4 p-4 rounded-lg bg-linear-to-r from-slate-50 to-slate-100 dark:from-slate-900/30 dark:to-slate-800/30 border border-border/50 text-center">
-                    <p className="text-3xl font-bold bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                      {mediaStats.total}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1 font-medium">
-                      Total de arquivos
-                    </p>
-                  </div>
+                  <Link
+                    href={`/clients/${client.id}/media`}
+                    className="inline-flex items-center gap-2 mt-4 text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-medium"
+                  >
+                    Ver biblioteca completa
+                    <ArrowUpRight className="h-4 w-4" />
+                  </Link>
                 </CardContent>
               </Card>
 
-              {/* Task Breakdown */}
-              <Card className="border-border shadow-sm hover:shadow-lg transition-shadow">
-                <CardHeader className="bg-linear-to-r from-blue-50 via-cyan-50 to-blue-50 dark:from-blue-950/30 dark:via-cyan-950/30 dark:to-blue-950/30 border-b border-border/50">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-linear-to-br from-blue-600 to-cyan-600 flex items-center justify-center shadow-md">
-                      <FolderKanban className="h-5 w-5 text-white" />
+              {/* Histórico de Reuniões */}
+              <Card className="border-2 shadow-sm hover:shadow-lg transition-all">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                      <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <div>
-                      <CardTitle className="text-lg">
-                        Desempenho de Tarefas
-                      </CardTitle>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {taskStats.total} tarefas no total
-                      </p>
-                    </div>
+                    <CardTitle className="text-base font-semibold">
+                      Histórico de Reuniões
+                    </CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent className="pt-6 space-y-5">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                        <span className="text-sm font-semibold text-muted-foreground">
-                          Concluídas
-                        </span>
-                      </div>
-                      <span className="text-sm font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-full">
-                        {taskStats.completed}
-                      </span>
-                    </div>
-                    <ProgressBar
-                      value={taskStats.completed}
-                      max={taskStats.total}
-                      color="green"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                        <span className="text-sm font-semibold text-muted-foreground">
-                          Em Progresso
-                        </span>
-                      </div>
-                      <span className="text-sm font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
-                        {taskStats.inProgress}
-                      </span>
-                    </div>
-                    <ProgressBar
-                      value={taskStats.inProgress}
-                      max={taskStats.total}
-                      color="blue"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-amber-500"></div>
-                        <span className="text-sm font-semibold text-muted-foreground">
-                          Pendentes
-                        </span>
-                      </div>
-                      <span className="text-sm font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">
-                        {taskStats.pending}
-                      </span>
-                    </div>
-                    <ProgressBar
-                      value={taskStats.pending}
-                      max={taskStats.total}
-                      color="amber"
-                    />
-                  </div>
-
-                  <div className="pt-4 mt-4 border-t border-border/50">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground font-medium">
-                        Taxa de Conclusão
-                      </span>
-                      <span className="text-lg font-bold bg-linear-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                        {taskStats.completionRate}%
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Meeting Stats */}
-              <Card className="border-border shadow-sm hover:shadow-lg transition-shadow">
-                <CardHeader className="bg-linear-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/30 dark:via-purple-950/30 dark:to-pink-950/30 border-b border-border/50">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-linear-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-md">
-                      <Users className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">
-                        Histórico de Reuniões
-                      </CardTitle>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        Acompanhamento de meetings
-                      </p>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-6">
+                <CardContent className="px-4 pb-4">
                   <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="text-center p-4 rounded-xl bg-linear-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-900/40 border border-border/50 hover:shadow-md transition-shadow">
-                      <Users className="h-5 w-5 text-blue-600 mx-auto mb-2" />
-                      <div className="text-3xl font-bold text-blue-600">
+                    <div className="text-center p-4 rounded-xl bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800 hover:scale-105 transition-transform">
+                      <Users className="h-6 w-6 text-blue-600 dark:text-blue-400 mx-auto mb-2" />
+                      <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                         {meetingStats.upcoming}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 font-medium">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">
                         Próximas
                       </p>
                     </div>
-                    <div className="text-center p-4 rounded-xl bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-900/30 dark:to-slate-800/30 border border-border/50 hover:shadow-md transition-shadow">
-                      <Clock className="h-5 w-5 text-muted-foreground mx-auto mb-2" />
-                      <div className="text-3xl font-bold text-muted-foreground">
+                    <div className="text-center p-4 rounded-xl bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-900/50 border border-slate-200 dark:border-slate-700 hover:scale-105 transition-transform">
+                      <Clock className="h-6 w-6 text-slate-600 dark:text-slate-400 mx-auto mb-2" />
+                      <div className="text-3xl font-bold text-slate-600 dark:text-slate-400">
                         {meetingStats.past}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 font-medium">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">
                         Realizadas
                       </p>
                     </div>
                   </div>
-                  <div className="p-5 rounded-xl bg-linear-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/30 dark:via-purple-950/30 dark:to-pink-950/30 border border-border/50 text-center">
+                  <div className="p-5 rounded-xl bg-linear-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/30 dark:via-purple-950/30 dark:to-pink-950/30 border border-purple-200 dark:border-purple-800 text-center">
                     <div className="flex items-center justify-center gap-2 mb-2">
-                      <Users className="h-5 w-5 text-purple-600" />
-                      <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                      <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                      <span className="text-xs text-slate-600 dark:text-slate-400 font-medium uppercase tracking-wider">
                         Total
                       </span>
                     </div>
                     <p className="text-4xl font-bold bg-linear-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                       {meetingStats.total}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1.5 font-medium">
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 font-medium">
                       reuniões registradas
                     </p>
                   </div>
@@ -518,123 +861,6 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
               </Card>
             </div>
           </div>
-
-          {/* Instagram Feed */}
-          <div>
-            <InstagramGrid clientId={client.id} />
-          </div>
-
-          {/* Summary */}
-          {isOwner && (
-            <Card className="relative overflow-hidden border-2 border-border shadow-xl bg-card transition-colors">
-              <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 bg-size-[200%_100%] animate-gradient" />
-              <CardHeader>
-                <CardTitle className="text-xl">Resumo Executivo</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Status Geral do Projeto
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={`h-3 w-3 rounded-full ${taskStats.completionRate >= 75
-                            ? "bg-green-500"
-                            : taskStats.completionRate >= 50
-                              ? "bg-blue-500"
-                              : taskStats.completionRate >= 25
-                                ? "bg-amber-500"
-                                : "bg-red-500"
-                          }`}
-                      />
-                      <span className="text-base font-semibold text-foreground">
-                        {taskStats.completionRate >= 75
-                          ? "Excelente"
-                          : taskStats.completionRate >= 50
-                            ? "Bom"
-                            : taskStats.completionRate >= 25
-                              ? "Regular"
-                              : "Precisa Atenção"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Saúde Financeira
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={`h-3 w-3 rounded-full ${financeStats.balance >=
-                            (client.contract_value
-                              ? Number(client.contract_value) * 0.5
-                              : 1000)
-                            ? "bg-green-500"
-                            : financeStats.balance >= 0
-                              ? "bg-blue-500"
-                              : "bg-red-500"
-                          }`}
-                      />
-                      <span className="text-base font-semibold text-foreground">
-                        {financeStats.balance >=
-                          (client.contract_value
-                            ? Number(client.contract_value) * 0.5
-                            : 1000)
-                          ? "Lucrativo"
-                          : financeStats.balance >= 0
-                            ? "Equilibrado"
-                            : "Deficitário"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t">
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Cliente ativo há{" "}
-                    <strong>{healthMetrics.daysActive} dias</strong> com{" "}
-                    <strong>{taskStats.completionRate}%</strong> de taxa de
-                    conclusão de tarefas.
-                    {canViewAmounts ? (
-                      financeStats.balance >= 0 ? (
-                        <>
-                          {" "}
-                          Apresenta balanço financeiro positivo de{" "}
-                          <strong>
-                            {new Intl.NumberFormat("pt-BR", {
-                              style: "currency",
-                              currency: "BRL",
-                            }).format(financeStats.balance)}
-                          </strong>
-                          .
-                        </>
-                      ) : (
-                        <>
-                          {" "}
-                          Atenção: balanço financeiro negativo de{" "}
-                          <strong>
-                            {new Intl.NumberFormat("pt-BR", {
-                              style: "currency",
-                              currency: "BRL",
-                            }).format(Math.abs(financeStats.balance))}
-                          </strong>
-                          .
-                        </>
-                      )
-                    ) : financeStats.balance >= 0 ? (
-                      <> Apresenta balanço financeiro positivo.</>
-                    ) : (
-                      <> Atenção: balanço financeiro negativo.</>
-                    )}{" "}
-                    Possui <strong>{mediaStats.total} arquivos</strong> na
-                    biblioteca de mídia e{" "}
-                    <strong>{meetingStats.total} reuniões</strong> registradas.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </div>
     </ProtectedRoute>

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import {
   Select,
   SelectContent,
@@ -12,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDateInput, parseDateInput } from "@/lib/utils";
 import {
@@ -20,6 +20,7 @@ import {
   Calendar,
   DollarSign,
   Edit,
+  FileText,
   Filter,
   Plus,
   Trash2,
@@ -250,7 +251,7 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="flex flex-col items-center gap-3">
-          <LoadingSpinner size="lg" />
+          <Spinner size="lg" variant="primary" />
           <p className="text-sm text-muted-foreground">
             Carregando finanças...
           </p>
@@ -261,409 +262,423 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
 
   return (
     <>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl font-bold bg-linear-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-              Gestão Financeira
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Controle completo de receitas e despesas
-            </p>
-          </div>
-          <Button
-            onClick={() => {
-              resetForm();
-              setIsModalOpen(true);
-            }}
-            className="gap-2 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/30"
-          >
-            <Plus className="h-4 w-4" />
-            Nova Transação
-          </Button>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card className="relative overflow-hidden border-2 border-green-200/60 shadow-xl shadow-green-200/50 transition-colors">
-            <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-green-500 to-emerald-500" />
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-foreground">
-                Receita Total
-              </CardTitle>
-              <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-green-600" />
+      <div className="page-background">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+          {/* Header */}
+          <header className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-linear-to-br from-emerald-500 to-teal-500 rounded-xl shadow-lg">
+                <DollarSign className="h-6 w-6 text-white" />
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-green-600">
-                {formatCurrency(totals.income)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Total de entradas
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="relative overflow-hidden border-2 border-red-200/60 shadow-xl shadow-red-200/50 transition-colors">
-            <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-red-500 to-rose-500" />
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-foreground">
-                Despesas
-              </CardTitle>
-              <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
-                <TrendingDown className="h-5 w-5 text-red-600" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-red-600">
-                {formatCurrency(totals.expense)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Total de saídas
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card
-            className={`relative overflow-hidden border-2 shadow-xl transition-colors ${totals.balance >= 0
-                ? "border-blue-200/60 shadow-blue-200/50"
-                : "border-orange-200/60 shadow-orange-200/50"
-              }`}
-          >
-            <div
-              className={`absolute top-0 left-0 w-full h-2 bg-linear-to-r ${totals.balance >= 0
-                  ? "from-blue-500 to-purple-500"
-                  : "from-orange-500 to-red-500"
-                }`}
-            />
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-foreground">
-                Saldo
-              </CardTitle>
-              <div
-                className={`h-10 w-10 rounded-full flex items-center justify-center ${totals.balance >= 0 ? "bg-blue-100" : "bg-orange-100"
-                  }`}
-              >
-                <DollarSign
-                  className={`h-5 w-5 ${totals.balance >= 0 ? "text-blue-600" : "text-orange-600"
-                    }`}
-                />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div
-                className={`text-3xl font-bold ${totals.balance >= 0 ? "text-blue-600" : "text-orange-600"
-                  }`}
-              >
-                {formatCurrency(totals.balance)}
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                {totals.balance >= 0 ? "Balanço positivo" : "Balanço negativo"}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Filters */}
-        <Card className="transition-colors">
-          <CardContent className="pt-6">
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">
-                  Filtros:
-                </span>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant={filter === "all" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setFilter("all")}
-                  className="text-xs"
-                >
-                  Todas
-                </Button>
-                <Button
-                  variant={filter === "income" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setFilter("income")}
-                  className="text-xs gap-1"
-                >
-                  <ArrowUpCircle className="h-3 w-3" />
-                  Receitas
-                </Button>
-                <Button
-                  variant={filter === "expense" ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setFilter("expense")}
-                  className="text-xs gap-1"
-                >
-                  <ArrowDownCircle className="h-3 w-3" />
-                  Despesas
-                </Button>
-              </div>
-              <div className="flex items-center gap-2 ml-auto">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="month"
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  className="w-40 h-8 text-xs"
-                />
-                {dateFilter && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setDateFilter("")}
-                    className="h-8 px-2"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Transactions List */}
-        <Card className="transition-colors">
-          <CardHeader>
-            <CardTitle>Histórico de Transações</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {filteredFinances.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p className="font-medium">Nenhuma transação encontrada</p>
-                <p className="text-sm mt-1">
-                  {filter !== "all" || dateFilter
-                    ? "Tente ajustar os filtros"
-                    : "Comece adicionando uma transação"}
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                  Gestão Financeira
+                </h1>
+                <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+                  Controle completo de receitas e despesas
                 </p>
               </div>
-            ) : (
-              <div className="space-y-2">
-                {filteredFinances.map((finance) => (
-                  <div
-                    key={finance.id}
-                    className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all hover:shadow-md ${finance.type === "income"
-                        ? "border-green-200 bg-green-50/50 hover:border-green-300"
-                        : "border-red-200 bg-red-50/50 hover:border-red-300"
-                      }`}
-                  >
-                    <div className="flex items-center gap-4 flex-1">
-                      <div
-                        className={`h-12 w-12 rounded-full flex items-center justify-center ${finance.type === "income"
-                            ? "bg-green-100"
-                            : "bg-red-100"
-                          }`}
-                      >
-                        {finance.type === "income" ? (
-                          <ArrowUpCircle className="h-6 w-6 text-green-600" />
-                        ) : (
-                          <ArrowDownCircle className="h-6 w-6 text-red-600" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-semibold text-foreground">
-                            {finance.description || "Sem descrição"}
-                          </h4>
-                          {finance.category && (
-                            <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
-                              {finance.category}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {formatDate(finance.date)}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <div
-                          className={`text-xl font-bold ${finance.type === "income"
-                              ? "text-green-600"
-                              : "text-red-600"
-                            }`}
-                        >
-                          {finance.type === "income" ? "+" : "-"}
-                          {formatCurrency(finance.amount)}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 ml-4">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(finance)}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(finance.id)}
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+            </div>
+            <Button
+              onClick={() => {
+                resetForm();
+                setIsModalOpen(true);
+              }}
+              size="lg"
+              className="gap-2 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg font-semibold"
+            >
+              <Plus className="h-4 w-4" />
+              Nova Transação
+            </Button>
+          </header>
 
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-lg bg-card transition-colors">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>
-                  {editingItem ? "Editar Transação" : "Nova Transação"}
+          {/* Stats Cards */}
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card className="relative overflow-hidden border-2 border-green-200/60 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-bold text-slate-900 dark:text-white">
+                  Receita Total
                 </CardTitle>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setIsModalOpen(false);
-                    resetForm();
-                  }}
-                  className="h-8 w-8 p-0"
+                <div className="h-12 w-12 rounded-full bg-linear-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-md">
+                  <TrendingUp className="h-6 w-6 text-white" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                  {formatCurrency(totals.income)}
+                </div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mt-2">
+                  Total de entradas
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="relative overflow-hidden border-2 border-red-200/60 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-bold text-slate-900 dark:text-white">
+                  Despesas
+                </CardTitle>
+                <div className="h-12 w-12 rounded-full bg-linear-to-br from-red-500 to-rose-500 flex items-center justify-center shadow-md">
+                  <TrendingDown className="h-6 w-6 text-white" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-red-600 dark:text-red-400">
+                  {formatCurrency(totals.expense)}
+                </div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mt-2">
+                  Total de saídas
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card
+              className={`relative overflow-hidden border-2 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm ${totals.balance >= 0
+                ? "border-blue-200/60"
+                : "border-orange-200/60"
+                }`}
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-bold text-slate-900 dark:text-white">
+                  Saldo
+                </CardTitle>
+                <div
+                  className={`h-12 w-12 rounded-full flex items-center justify-center shadow-md ${totals.balance >= 0 ? "bg-linear-to-br from-blue-500 to-purple-500" : "bg-linear-to-br from-orange-500 to-red-500"
+                    }`}
                 >
-                  <X className="h-4 w-4" />
-                </Button>
+                  <DollarSign
+                    className="h-6 w-6 text-white"
+                  />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div
+                  className={`text-3xl font-bold ${totals.balance >= 0 ? "text-blue-600 dark:text-blue-400" : "text-orange-600 dark:text-orange-400"
+                    }`}
+                >
+                  {formatCurrency(totals.balance)}
+                </div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mt-2">
+                  {totals.balance >= 0 ? "Balanço positivo" : "Balanço negativo"}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Filters */}
+          <Card className="border-2 shadow-lg bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+            <CardContent className="pt-6">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-5 w-5 text-slate-500" />
+                  <span className="text-sm font-bold text-slate-900 dark:text-white">
+                    Filtros:
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant={filter === "all" ? "default" : "outline"}
+                    size="lg"
+                    onClick={() => setFilter("all")}
+                    className="text-xs font-semibold border-2"
+                  >
+                    Todas
+                  </Button>
+                  <Button
+                    variant={filter === "income" ? "default" : "outline"}
+                    size="lg"
+                    onClick={() => setFilter("income")}
+                    className="text-xs gap-1.5 font-semibold border-2"
+                  >
+                    <ArrowUpCircle className="h-3 w-3" />
+                    Receitas
+                  </Button>
+                  <Button
+                    variant={filter === "expense" ? "default" : "outline"}
+                    size="lg"
+                    onClick={() => setFilter("expense")}
+                    className="text-xs gap-1.5 font-semibold border-2"
+                  >
+                    <ArrowDownCircle className="h-3 w-3" />
+                    Despesas
+                  </Button>
+                </div>
+                <div className="flex items-center gap-2 ml-auto">
+                  <Calendar className="h-5 w-5 text-slate-500" />
+                  <Input
+                    type="month"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="w-40 h-10 text-xs border-2 font-medium"
+                  />
+                  {dateFilter && (
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      onClick={() => setDateFilter("")}
+                      className="h-10 w-10 p-0 hover:bg-red-100 hover:text-red-600"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Transactions List */}
+          <Card className="border-2 shadow-lg bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-linear-to-br from-slate-600 to-slate-700 rounded-xl shadow-md">
+                  <FileText className="h-5 w-5 text-white" />
+                </div>
+                <CardTitle className="font-bold">Histórico de Transações</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="type">Tipo</Label>
-                  <Select
-                    value={formData.type}
-                    onValueChange={(value) =>
-                      setFormData({
-                        ...formData,
-                        type: value as "income" | "expense",
-                        category: "",
-                      })
-                    }
-                    disabled={submitting}
-                  >
-                    <SelectTrigger className="border-border focus:border-blue-500 focus:ring-blue-500 bg-background transition-colors">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="income">Receita</SelectItem>
-                      <SelectItem value="expense">Despesa</SelectItem>
-                    </SelectContent>
-                  </Select>
+              {filteredFinances.length === 0 ? (
+                <div className="text-center py-14">
+                  <div className="p-5 bg-linear-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-full mb-5 shadow-inner inline-flex">
+                    <DollarSign className="h-12 w-12 text-slate-500" />
+                  </div>
+                  <p className="font-bold text-slate-900 dark:text-white text-base">Nenhuma transação encontrada</p>
+                  <p className="text-sm mt-2 text-slate-600 dark:text-slate-400 font-medium">
+                    {filter !== "all" || dateFilter
+                      ? "Tente ajustar os filtros"
+                      : "Comece adicionando uma transação"}
+                  </p>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="amount">
-                    Valor <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="amount"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    required
-                    value={formData.amount}
-                    onChange={(e) =>
-                      setFormData({ ...formData, amount: e.target.value })
-                    }
-                    placeholder="0.00"
-                    disabled={submitting}
-                  />
+              ) : (
+                <div className="space-y-3">
+                  {filteredFinances.map((finance) => (
+                    <div
+                      key={finance.id}
+                      className={`flex items-center justify-between p-5 rounded-xl border-2 transition-all hover:shadow-lg hover:-translate-y-0.5 ${finance.type === "income"
+                        ? "border-green-200 bg-green-50/50 dark:bg-green-950/20 hover:border-green-400"
+                        : "border-red-200 bg-red-50/50 dark:bg-red-950/20 hover:border-red-400"
+                        }`}
+                    >
+                      <div className="flex items-center gap-4 flex-1">
+                        <div
+                          className={`h-14 w-14 rounded-full flex items-center justify-center shadow-md ${finance.type === "income"
+                            ? "bg-linear-to-br from-green-500 to-emerald-500"
+                            : "bg-linear-to-br from-red-500 to-rose-500"
+                            }`}
+                        >
+                          {finance.type === "income" ? (
+                            <ArrowUpCircle className="h-7 w-7 text-white" />
+                          ) : (
+                            <ArrowDownCircle className="h-7 w-7 text-white" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-bold text-base text-slate-900 dark:text-white">
+                              {finance.description || "Sem descrição"}
+                            </h4>
+                            {finance.category && (
+                              <span className="text-xs px-3 py-1 rounded-full border-2 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold">
+                                {finance.category}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mt-1.5">
+                            {formatDate(finance.date)}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div
+                            className={`text-2xl font-bold ${finance.type === "income"
+                              ? "text-green-600 dark:text-green-400"
+                              : "text-red-600 dark:text-red-400"
+                              }`}
+                          >
+                            {finance.type === "income" ? "+" : "-"}
+                            {formatCurrency(finance.amount)}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 ml-6">
+                        <Button
+                          variant="ghost"
+                          size="lg"
+                          onClick={() => handleEdit(finance)}
+                          className="h-10 w-10 p-0 hover:bg-blue-100 dark:hover:bg-blue-950 hover:scale-110 transition-transform"
+                        >
+                          <Edit className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="lg"
+                          onClick={() => handleDelete(finance.id)}
+                          className="h-10 w-10 p-0 hover:bg-red-100 dark:hover:bg-red-950 hover:scale-110 transition-transform"
+                        >
+                          <Trash2 className="h-5 w-5 text-red-600 dark:text-red-400" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="category">Categoria</Label>
-                  <Select
-                    value={formData.category}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, category: value })
-                    }
-                    disabled={submitting}
-                  >
-                    <SelectTrigger className="border-border focus:border-blue-500 focus:ring-blue-500 bg-background transition-colors">
-                      <SelectValue placeholder="Selecione..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">Selecione...</SelectItem>
-                      {CATEGORIES[formData.type].map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Descrição</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                    placeholder="Detalhes da transação"
-                    rows={3}
-                    disabled={submitting}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="date">Data</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    required
-                    value={formData.date}
-                    onChange={(e) =>
-                      setFormData({ ...formData, date: e.target.value })
-                    }
-                    disabled={submitting}
-                  />
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    type="submit"
-                    disabled={submitting}
-                    className="flex-1 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                  >
-                    {submitting && (
-                      <LoadingSpinner size="sm" className="mr-2" />
-                    )}
-                    {editingItem ? "Salvar" : "Criar"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setIsModalOpen(false);
-                      resetForm();
-                    }}
-                    disabled={submitting}
-                  >
-                    Cancelar
-                  </Button>
-                </div>
-              </form>
+              )}
             </CardContent>
           </Card>
+
+          {/* Modal */}
+          {isModalOpen && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => { setIsModalOpen(false); resetForm(); }}>
+              <Card className="w-full max-w-lg bg-card border-2 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                <CardHeader className="border-b-2 border-slate-200 dark:border-slate-700 bg-linear-to-r from-emerald-500 to-teal-500 pb-5">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-white font-bold flex items-center gap-2">
+                      <DollarSign className="h-6 w-6" />
+                      {editingItem ? "Editar Transação" : "Nova Transação"}
+                    </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      onClick={() => {
+                        setIsModalOpen(false);
+                        resetForm();
+                      }}
+                      className="h-10 w-10 p-0 text-white hover:bg-white/20 rounded-full"
+                    >
+                      <X className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSubmit} className="space-y-5 pt-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="type" className="font-semibold text-slate-900 dark:text-white">Tipo</Label>
+                      <Select
+                        value={formData.type}
+                        onValueChange={(value) =>
+                          setFormData({
+                            ...formData,
+                            type: value as "income" | "expense",
+                            category: "",
+                          })
+                        }
+                        disabled={submitting}
+                      >
+                        <SelectTrigger className="border-2 h-11 font-medium">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="income">Receita</SelectItem>
+                          <SelectItem value="expense">Despesa</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="amount">
+                        <span className="font-semibold text-slate-900 dark:text-white">
+                          Valor <span className="text-red-500">*</span>
+                        </span>
+                      </Label>
+                      <Input
+                        id="amount"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        required
+                        value={formData.amount}
+                        onChange={(e) =>
+                          setFormData({ ...formData, amount: e.target.value })
+                        }
+                        placeholder="0.00"
+                        className="border-2 h-11 font-medium"
+                        disabled={submitting}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="category" className="font-semibold text-slate-900 dark:text-white">Categoria</Label>
+                      <Select
+                        value={formData.category}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, category: value })
+                        }
+                        disabled={submitting}
+                      >
+                        <SelectTrigger className="border-2 h-11 font-medium">
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CATEGORIES[formData.type].map((cat) => (
+                            <SelectItem key={cat} value={cat}>
+                              {cat}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="description" className="font-semibold text-slate-900 dark:text-white">Descrição</Label>
+                      <Textarea
+                        id="description"
+                        value={formData.description}
+                        onChange={(e) =>
+                          setFormData({ ...formData, description: e.target.value })
+                        }
+                        placeholder="Detalhes da transação"
+                        rows={3}
+                        className="border-2 resize-none font-medium"
+                        disabled={submitting}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="date" className="font-semibold text-slate-900 dark:text-white">Data</Label>
+                      <Input
+                        id="date"
+                        type="date"
+                        required
+                        value={formData.date}
+                        onChange={(e) =>
+                          setFormData({ ...formData, date: e.target.value })
+                        }
+                        className="border-2 h-11 font-medium"
+                        disabled={submitting}
+                      />
+                    </div>
+
+                    <div className="flex gap-3 pt-6 border-t-2 border-slate-200 dark:border-slate-700">
+                      <Button
+                        type="submit"
+                        disabled={submitting}
+                        size="lg"
+                        className="flex-1 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 font-semibold"
+                      >
+                        {submitting && (
+                          <Spinner size="sm" />
+                        )}
+                        {editingItem ? "Salvar" : "Criar"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="lg"
+                        className="border-2 font-semibold"
+                        onClick={() => {
+                          setIsModalOpen(false);
+                          resetForm();
+                        }}
+                        disabled={submitting}
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </>
   );
 }

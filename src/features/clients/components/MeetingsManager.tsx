@@ -13,19 +13,22 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDateInput, parseDateInput } from "@/lib/utils";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Calendar,
   CheckCircle2,
   Clock,
   Edit,
+  Loader2,
   MapPin,
   Plus,
   Trash2,
   Video,
   X,
-  XCircle,
+  XCircle
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 
 interface Meeting {
   id: string;
@@ -41,16 +44,46 @@ interface Meeting {
 
 interface MeetingsManagerProps {
   clientId: string;
-  initialMeetings?: Meeting[];
 }
 
-export function MeetingsManager({
-  clientId,
-  initialMeetings = [],
-}: MeetingsManagerProps) {
-  // `clientId` currently unused in this component but kept for API compatibility
-  void clientId;
-  const [meetings, setMeetings] = useState<Meeting[]>(initialMeetings);
+interface MeetingResponse {
+  id: string;
+  title: string;
+  description?: string | null;
+  startTime: string;
+  endTime: string;
+  location?: string | null;
+  status: "scheduled" | "completed" | "cancelled";
+  notes?: string | null;
+  createdAt: string;
+  clientId: string;
+}
+
+const fetcher = async (url: string) => {
+  const res = await fetch(url);
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Erro ao carregar reuniões");
+  }
+  const data: MeetingResponse[] = await res.json();
+  // Convert date strings to Date objects
+  return data.map((item) => ({
+    ...item,
+    description: item.description || undefined,
+    location: item.location || undefined,
+    notes: item.notes || undefined,
+    startTime: new Date(item.startTime),
+    endTime: new Date(item.endTime),
+    createdAt: new Date(item.createdAt),
+  }));
+};
+
+export function MeetingsManager({ clientId }: MeetingsManagerProps) {
+  const queryClient = useQueryClient();
+  const { data: meetings = [], isLoading } = useQuery<Meeting[]>({
+    queryKey: ["meetings", clientId],
+    queryFn: () => fetcher(`/api/clients/${clientId}/meetings`),
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Meeting | null>(null);
 
@@ -83,7 +116,7 @@ export function MeetingsManager({
     e.preventDefault();
 
     if (!formData.startDate || !formData.startTime || !formData.endTime) {
-      alert("Por favor, preencha data e horários");
+      toast.error("Por favor, preencha data e horários");
       return;
     }
 
@@ -98,44 +131,89 @@ export function MeetingsManager({
     endTime.setHours(endHour, endMinute, 0, 0);
 
     if (endTime <= startTime) {
-      alert("O horário de término deve ser posterior ao de início");
+      toast.error("O horário de término deve ser posterior ao de início");
       return;
     }
 
-    if (editingItem) {
-      setMeetings((prev) =>
-        prev.map((item) =>
-          item.id === editingItem.id
-            ? {
-              ...item,
-              title: formData.title,
-              description: formData.description,
-              startTime,
-              endTime,
-              location: formData.location,
-              status: formData.status,
-              notes: formData.notes,
-            }
-            : item,
-        ),
-      );
-    } else {
-      const newItem: Meeting = {
-        id: Date.now().toString(),
-        title: formData.title,
-        description: formData.description,
-        startTime,
-        endTime,
-        location: formData.location,
-        status: formData.status,
-        notes: formData.notes,
-        createdAt: new Date(),
-      };
-      setMeetings((prev) => [newItem, ...prev]);
-    }
+    try {
+      if (editingItem) {
+        // Update existing meeting
+        const res = await fetch(`/api/clients/${clientId}/meetings`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: editingItem.id,
+            title: formData.title,
+            description: formData.description || null,
+            startTime: startTime.toISOString(),
+            endTime: endTime.toISOString(),
+            location: formData.location || null,
+            status: formData.status,
+            notes: formData.notes || null,
+          }),
+        });
 
-    setIsModalOpen(false);
-    resetForm();
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.error || "Erro ao atualizar reunião");
+        }
+
+        const updated = await res.json();
+        // Optimistic update
+        queryClient.setQueryData(["meetings", clientId], meetings.map((m) =>
+          m.id === editingItem.id
+            ? {
+              ...updated,
+              startTime: new Date(updated.startTime),
+              endTime: new Date(updated.endTime),
+              createdAt: new Date(updated.createdAt),
+            }
+            : m
+        ));
+        toast.success("Reunião atualizada com sucesso!");
+      } else {
+        // Create new meeting
+        const res = await fetch(`/api/clients/${clientId}/meetings`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: formData.title,
+            description: formData.description || null,
+            startTime: startTime.toISOString(),
+            endTime: endTime.toISOString(),
+            location: formData.location || null,
+            status: formData.status,
+            notes: formData.notes || null,
+          }),
+        });
+
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.error || "Erro ao criar reunião");
+        }
+
+        const created = await res.json();
+        // Optimistic update
+        queryClient.setQueryData(["meetings", clientId], [
+          {
+            ...created,
+            startTime: new Date(created.startTime),
+            endTime: new Date(created.endTime),
+            createdAt: new Date(created.createdAt),
+          },
+          ...meetings,
+        ]);
+        toast.success("Reunião agendada com sucesso!");
+      }
+
+      setIsModalOpen(false);
+      resetForm();
+    } catch (error) {
+      console.error("Error saving meeting:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Erro ao salvar reunião"
+      );
+    }
   };
 
   const handleEdit = (item: Meeting) => {
@@ -153,9 +231,31 @@ export function MeetingsManager({
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm("Tem certeza que deseja deletar esta reunião?")) {
-      setMeetings((prev) => prev.filter((item) => item.id !== id));
+  const handleDelete = async (id: string) => {
+    if (!confirm("Tem certeza que deseja deletar esta reunião?")) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/clients/${clientId}/meetings`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Erro ao deletar reunião");
+      }
+
+      // Optimistic update
+      queryClient.setQueryData(["meetings", clientId], meetings.filter((m) => m.id !== id));
+      toast.success("Reunião deletada com sucesso!");
+    } catch (error) {
+      console.error("Error deleting meeting:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Erro ao deletar reunião"
+      );
     }
   };
 
@@ -242,27 +342,21 @@ export function MeetingsManager({
 
   return (
     <>
-      <div className="relative bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-100 dark:from-slate-950 dark:via-blue-950/20 dark:to-slate-900">
-        {/* Animated background blobs */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 -left-4 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob" />
-          <div className="absolute top-0 -right-4 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000" />
-          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000" />
-        </div>
-
-        <div className="relative space-y-6 p-6">
+      <div className="page-background">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
+              <h1 className="text-3xl font-bold text-gradient-primary mb-2">
                 Reuniões
-              </h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400">
                 Agende e gerencie reuniões com o cliente
               </p>
             </div>
             <Button
-              className="gap-2 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
+              size="lg"
+              className="gap-2"
               onClick={() => {
                 resetForm();
                 setIsModalOpen(true);
@@ -277,11 +371,11 @@ export function MeetingsManager({
           <div className="grid gap-4 md:grid-cols-3">
             <div className="relative group">
               <div className="absolute -inset-0.5 bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-all duration-200" />
-              <div className="relative bg-blue-50/80 backdrop-blur-sm dark:bg-blue-950/30 rounded-2xl p-5 border border-blue-200/50 dark:border-blue-800/50 hover:-translate-y-1 transition-all duration-200">
+              <div className="relative bg-blue-50/80 backdrop-blur-sm dark:bg-blue-950/30 rounded-2xl p-5 border-2 border-blue-200 dark:border-blue-800 hover:-translate-y-1 transition-all duration-200 shadow-lg">
                 <div className="flex items-center justify-between mb-3">
                   <div className="relative">
                     <div className="absolute inset-0 bg-linear-to-tr from-blue-600 to-purple-600 rounded-xl blur-md opacity-50" />
-                    <div className="relative w-10 h-10 bg-linear-to-tr from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shrink-0">
+                    <div className="relative w-10 h-10 bg-linear-to-tr from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shrink-0 shadow-lg">
                       <Clock className="h-5 w-5 text-white" />
                     </div>
                   </div>
@@ -302,11 +396,11 @@ export function MeetingsManager({
 
             <div className="relative group">
               <div className="absolute -inset-0.5 bg-linear-to-r from-green-600 to-emerald-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-all duration-200" />
-              <div className="relative bg-green-50/80 backdrop-blur-sm dark:bg-green-950/30 rounded-2xl p-5 border border-green-200/50 dark:border-green-800/50 hover:-translate-y-1 transition-all duration-200">
+              <div className="relative bg-emerald-50/80 backdrop-blur-sm dark:bg-emerald-950/30 rounded-2xl p-5 border-2 border-emerald-200 dark:border-emerald-800 hover:-translate-y-1 transition-all duration-200 shadow-lg">
                 <div className="flex items-center justify-between mb-3">
                   <div className="relative">
                     <div className="absolute inset-0 bg-linear-to-tr from-green-600 to-emerald-500 rounded-xl blur-md opacity-50" />
-                    <div className="relative w-10 h-10 bg-linear-to-tr from-green-600 to-emerald-500 rounded-xl flex items-center justify-center shrink-0">
+                    <div className="relative w-10 h-10 bg-linear-to-tr from-green-600 to-emerald-500 rounded-xl flex items-center justify-center shrink-0 shadow-lg">
                       <Video className="h-5 w-5 text-white" />
                     </div>
                   </div>
@@ -327,11 +421,11 @@ export function MeetingsManager({
 
             <div className="relative group">
               <div className="absolute -inset-0.5 bg-linear-to-r from-purple-600 to-pink-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-all duration-200" />
-              <div className="relative bg-purple-50/80 backdrop-blur-sm dark:bg-purple-950/30 rounded-2xl p-5 border border-purple-200/50 dark:border-purple-800/50 hover:-translate-y-1 transition-all duration-200">
+              <div className="relative bg-purple-50/80 backdrop-blur-sm dark:bg-purple-950/30 rounded-2xl p-5 border-2 border-purple-200 dark:border-purple-800 hover:-translate-y-1 transition-all duration-200 shadow-lg">
                 <div className="flex items-center justify-between mb-3">
                   <div className="relative">
                     <div className="absolute inset-0 bg-linear-to-tr from-purple-600 to-pink-600 rounded-xl blur-md opacity-50" />
-                    <div className="relative w-10 h-10 bg-linear-to-tr from-purple-600 to-pink-600 rounded-xl flex items-center justify-center shrink-0">
+                    <div className="relative w-10 h-10 bg-linear-to-tr from-purple-600 to-pink-600 rounded-xl flex items-center justify-center shrink-0 shadow-lg">
                       <Calendar className="h-5 w-5 text-white" />
                     </div>
                   </div>
@@ -354,7 +448,7 @@ export function MeetingsManager({
           {/* Main Card */}
           <div className="relative">
             <div className="absolute -inset-1 bg-linear-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-20" />
-            <Card className="relative bg-white/80 backdrop-blur-sm dark:bg-slate-900/80 border-slate-200/50 dark:border-slate-700/50 shadow-xl">
+            <Card className="relative bg-white/80 backdrop-blur-sm dark:bg-slate-900/80 border-2 border-slate-200 dark:border-slate-700 shadow-xl" variant="default" hover>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Calendar className="h-5 w-5" />
@@ -362,78 +456,102 @@ export function MeetingsManager({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {sortedMeetings.length === 0 ? (
-                  <div className="text-center py-12 text-slate-500">
-                    <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p className="font-medium">Nenhuma reunião agendada</p>
-                    <p className="text-sm mt-1">
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                  </div>
+                ) : sortedMeetings.length === 0 ? (
+                  <div className="text-center py-16">
+                    <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-blue-50 dark:bg-blue-950/30 border-2 border-blue-200 dark:border-blue-800 flex items-center justify-center">
+                      <Calendar className="h-10 w-10 text-blue-400 dark:text-blue-500" />
+                    </div>
+                    <p className="font-semibold text-slate-900 dark:text-white mb-1">Nenhuma reunião agendada</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
                       Agende a primeira reunião com este cliente
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {sortedMeetings.map((item) => (
                       <div
                         key={item.id}
-                        className="flex items-start justify-between p-4 border rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors"
+                        className="relative group p-5 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-linear-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-800/50 hover:shadow-lg transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-700"
                       >
-                        <div className="flex items-start gap-4 flex-1">
-                          <div className="p-2 rounded-full bg-slate-200">
-                            {getStatusIcon(item.status)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h4 className="font-semibold text-slate-900">
-                                {item.title}
-                              </h4>
-                              <span
-                                className={`px-2 py-0.5 text-xs rounded-full ${getStatusColor(item.status)}`}
-                              >
-                                {getStatusLabel(item.status)}
-                              </span>
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex items-start gap-4 flex-1 min-w-0">
+                            {/* Icon status */}
+                            <div className={`p-2.5 rounded-xl shrink-0 ${item.status === 'scheduled' ? 'bg-blue-100 dark:bg-blue-950/50' :
+                              item.status === 'completed' ? 'bg-emerald-100 dark:bg-emerald-950/50' :
+                                'bg-red-100 dark:bg-red-950/50'
+                              }`}>
+                              {getStatusIcon(item.status)}
                             </div>
-                            {item.description && (
-                              <p className="text-sm text-slate-600 mt-1">
-                                {item.description}
-                              </p>
-                            )}
-                            <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
-                              <span className="flex items-center gap-1">
-                                <Calendar className="h-3 w-3" />
-                                {formatDateTime(item.startTime)}
-                              </span>
-                              <span>até {formatTime(item.endTime)}</span>
+
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap mb-2">
+                                <h4 className="font-bold text-base text-slate-900 dark:text-white">
+                                  {item.title}
+                                </h4>
+                                <span
+                                  className={`px-2.5 py-1 text-xs font-semibold rounded-full border ${getStatusColor(item.status)}`}
+                                >
+                                  {getStatusLabel(item.status)}
+                                </span>
+                              </div>
+
+                              {item.description && (
+                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">
+                                  {item.description}
+                                </p>
+                              )}
+
+                              <div className="flex items-center gap-4 flex-wrap text-xs text-slate-500 dark:text-slate-400">
+                                <span className="flex items-center gap-1.5 font-medium">
+                                  <Calendar className="h-3.5 w-3.5" />
+                                  {formatDateTime(item.startTime)}
+                                </span>
+                                <span className="flex items-center gap-1.5">
+                                  <Clock className="h-3.5 w-3.5" />
+                                  até {formatTime(item.endTime)}
+                                </span>
+                              </div>
+
+                              {item.location && (
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1.5">
+                                  <MapPin className="h-3.5 w-3.5" />
+                                  {item.location}
+                                </p>
+                              )}
+
+                              {item.notes && (
+                                <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                  <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Notas:</p>
+                                  <p className="text-sm text-slate-600 dark:text-slate-400">{item.notes}</p>
+                                </div>
+                              )}
                             </div>
-                            {item.location && (
-                              <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                                <MapPin className="h-3 w-3" />
-                                {item.location}
-                              </p>
-                            )}
-                            {item.notes && (
-                              <p className="text-sm text-slate-600 mt-2 p-2 bg-white rounded border border-slate-200">
-                                <span className="font-medium">Notas:</span>{" "}
-                                {item.notes}
-                              </p>
-                            )}
                           </div>
-                        </div>
-                        <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleEdit(item)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleDelete(item.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+
+                          {/* Actions */}
+                          <div className="flex gap-1 shrink-0">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleEdit(item)}
+                              className="hover:bg-blue-100 dark:hover:bg-blue-900/50"
+                            >
+                              <Edit className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDelete(item.id)}
+                              className="hover:bg-red-100 dark:hover:bg-red-900/50"
+                            >
+                              <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -583,7 +701,7 @@ export function MeetingsManager({
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="notes">Notas da Reunião (opcional)</Label>
+                      <Label htmlFor="notes" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Notas da Reunião</Label>
                       <Textarea
                         id="notes"
                         value={formData.notes}
@@ -592,22 +710,24 @@ export function MeetingsManager({
                         }
                         rows={4}
                         placeholder="Anotações, decisões, próximos passos..."
+                        className="border-2 border-slate-200 dark:border-slate-700 resize-none"
                       />
                     </div>
 
-                    <div className="flex justify-end gap-2 pt-4">
+                    <div className="flex justify-end gap-3 pt-4 border-t-2 border-slate-200 dark:border-slate-700">
                       <Button
                         type="button"
                         variant="outline"
                         onClick={() => setIsModalOpen(false)}
+                        size="lg"
                       >
                         Cancelar
                       </Button>
                       <Button
                         type="submit"
-                        className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0"
+                        size="lg"
                       >
-                        {editingItem ? "Atualizar" : "Agendar"}
+                        {editingItem ? "Atualizar Reunião" : "Agendar Reunião"}
                       </Button>
                     </div>
                   </form>

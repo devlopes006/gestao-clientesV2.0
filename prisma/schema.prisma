@@ -7,6 +7,368 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String?
+  createdAt     DateTime       @default(now())
+  firebaseUid   String         @unique
+  image         String?
+  updatedAt     DateTime       @updatedAt
+  lastActiveAt  DateTime?
+  client        Client?
+  memberships   Member[]
+  notifications Notification[]
+  orgs          Org[]          @relation("OrgOwner")
+}
+
+model Org {
+  id            String         @id @default(cuid())
+  name          String
+  createdAt     DateTime       @default(now())
+  description   String?
+  ownerId       String
+  updatedAt     DateTime       @updatedAt
+  addressLine1  String?
+  addressLine2  String?
+  city          String?
+  cnpj          String?
+  country       String?
+  phone         String?
+  postalCode    String?
+  state         String?
+  website       String?
+  clients       Client[]
+  finances      Finance[]
+  invites       Invite[]
+  invoices      Invoice[]
+  media         Media[]
+  members       Member[]
+  notifications Notification[]
+  owner         User           @relation("OrgOwner", fields: [ownerId], references: [id])
+  payments      Payment[]
+  subscriptions Subscription[]
+  tasks         Task[]
+}
+
+model Member {
+  id        String   @id @default(cuid())
+  role      Role
+  userId    String
+  orgId     String
+  createdAt DateTime @default(now())
+  isActive  Boolean  @default(true)
+  org       Org      @relation(fields: [orgId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, orgId])
+}
+
+model Client {
+  id                      String         @id @default(cuid())
+  name                    String
+  email                   String?
+  orgId                   String
+  createdAt               DateTime       @default(now())
+  phone                   String?
+  updatedAt               DateTime       @updatedAt
+  status                  String         @default("new")
+  clientUserId            String?        @unique
+  contractEnd             DateTime?
+  contractStart           DateTime?
+  contractValue           Float?
+  paymentDay              Int?
+  paymentStatus           PaymentStatus  @default(PENDING)
+  mainChannel             SocialChannel?
+  plan                    ClientPlan?
+  installmentCount        Int?
+  installmentValue        Float?
+  isInstallment           Boolean        @default(false)
+  installmentPaymentDays  Int[]          @default([])
+  instagramUserId         String?
+  instagramUsername       String?
+  instagramAccessToken    String?
+  instagramTokenExpiresAt DateTime?
+  brandings               Branding[]
+  clientUser              User?          @relation(fields: [clientUserId], references: [id])
+  org                     Org            @relation(fields: [orgId], references: [id])
+  finances                Finance[]
+  installments            Installment[]
+  invites                 Invite[]
+  invoices                Invoice[]
+  media                   Media[]
+  mediaFolders            MediaFolder[]
+  meetings                Meeting[]
+  payments                Payment[]
+  strategies              Strategy[]
+  subscriptions           Subscription[]
+  tasks                   Task[]
+
+  @@index([orgId, status])
+  @@index([orgId, createdAt])
+  @@index([email])
+}
+
+model Task {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  status      String    @default("todo")
+  clientId    String
+  createdAt   DateTime  @default(now())
+  orgId       String
+  updatedAt   DateTime  @updatedAt
+  assignee    String?
+  dueDate     DateTime?
+  priority    String    @default("medium")
+  client      Client    @relation(fields: [clientId], references: [id])
+  org         Org       @relation(fields: [orgId], references: [id])
+
+  @@index([clientId, status])
+  @@index([orgId, dueDate])
+}
+
+model Media {
+  id          String       @id @default(cuid())
+  url         String?
+  type        String
+  clientId    String
+  createdAt   DateTime     @default(now())
+  orgId       String
+  description String?
+  title       String
+  updatedAt   DateTime     @updatedAt
+  fileKey     String?
+  fileSize    Int?
+  folderId    String?
+  mimeType    String?
+  metadata    Json?
+  tags        String[]     @default([])
+  thumbUrl    String?
+  client      Client       @relation(fields: [clientId], references: [id])
+  folder      MediaFolder? @relation(fields: [folderId], references: [id])
+  org         Org          @relation(fields: [orgId], references: [id])
+
+  @@index([clientId, folderId])
+  @@index([tags])
+}
+
+model MediaFolder {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  parentId    String?
+  clientId    String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  media       Media[]
+  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  parent      MediaFolder?  @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children    MediaFolder[] @relation("FolderHierarchy")
+
+  @@index([clientId, parentId])
+}
+
+model Invite {
+  id            String       @id @default(cuid())
+  orgId         String
+  email         String
+  roleRequested Role
+  token         String       @unique
+  status        InviteStatus @default(PENDING)
+  expiresAt     DateTime
+  acceptedAt    DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  clientId      String?
+  client        Client?      @relation(fields: [clientId], references: [id])
+  org           Org          @relation(fields: [orgId], references: [id])
+}
+
+model Strategy {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  type        String
+  content     String
+  clientId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model Branding {
+  id          String   @id @default(cuid())
+  title       String
+  type        String
+  description String?
+  fileUrl     String?
+  content     String?
+  clientId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  thumbUrl    String?
+  palette     Json?
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model Finance {
+  id          String   @id @default(cuid())
+  type        String
+  amount      Float
+  description String?
+  category    String?
+  date        DateTime @default(now())
+  clientId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  orgId       String
+  client      Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  org         Org      @relation(fields: [orgId], references: [id])
+
+  @@index([orgId, date])
+  @@index([clientId, date])
+}
+
+model Meeting {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  location    String?
+  status      String   @default("scheduled")
+  notes       String?
+  clientId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model Installment {
+  id        String        @id @default(cuid())
+  number    Int
+  amount    Float
+  dueDate   DateTime
+  status    PaymentStatus @default(PENDING)
+  paidAt    DateTime?
+  notes     String?
+  clientId  String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  client    Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId, dueDate])
+}
+
+model Subscription {
+  id                 String             @id @default(cuid())
+  orgId              String
+  clientId           String
+  status             SubscriptionStatus @default(ACTIVE)
+  planName           String
+  unitAmount         Float
+  currency           String             @default("BRL")
+  interval           BillingInterval    @default(MONTH)
+  trialEndsAt        DateTime?
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean            @default(false)
+  canceledAt         DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  invoices           Invoice[]
+  client             Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  org                Org                @relation(fields: [orgId], references: [id])
+
+  @@index([orgId, clientId])
+}
+
+model Invoice {
+  id             String        @id @default(cuid())
+  orgId          String
+  clientId       String
+  subscriptionId String?
+  number         String        @unique
+  status         InvoiceStatus @default(DRAFT)
+  issueDate      DateTime      @default(now())
+  dueDate        DateTime
+  subtotal       Float         @default(0)
+  discount       Float         @default(0)
+  tax            Float         @default(0)
+  total          Float         @default(0)
+  currency       String        @default("BRL")
+  notes          String?
+  externalId     String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  client         Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  org            Org           @relation(fields: [orgId], references: [id])
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+  items          InvoiceItem[]
+  payments       Payment[]
+
+  @@index([orgId, clientId, status])
+  @@index([orgId, dueDate])
+  @@index([clientId, status])
+  @@index([subscriptionId])
+}
+
+model InvoiceItem {
+  id          String  @id @default(cuid())
+  invoiceId   String
+  description String
+  quantity    Int     @default(1)
+  unitAmount  Float
+  total       Float
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id                String    @id @default(cuid())
+  orgId             String
+  clientId          String
+  invoiceId         String
+  amount            Float
+  method            String
+  status            String    @default("PAID")
+  paidAt            DateTime?
+  provider          String?
+  providerPaymentId String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  client            Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  invoice           Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  org               Org       @relation(fields: [orgId], references: [id])
+}
+
+model WebhookEvent {
+  id         String   @id @default(cuid())
+  provider   String
+  eventType  String
+  payload    Json
+  receivedAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  orgId     String?
+  userId    String?
+  type      String
+  title     String
+  message   String?
+  link      String?
+  clientId  String?
+  priority  String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  org       Org?     @relation(fields: [orgId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId, orgId])
+}
+
 enum Role {
   OWNER
   STAFF
@@ -45,271 +407,24 @@ enum PaymentStatus {
   LATE
 }
 
-model User {
-  id           String    @id @default(cuid())
-  firebaseUid  String    @unique
-  email        String    @unique
-  name         String?
-  image        String?
-  lastActiveAt DateTime?
-
-  memberships   Member[]
-  orgs          Org[]          @relation("OrgOwner")
-  notifications Notification[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  client    Client?
+enum InvoiceStatus {
+  DRAFT
+  OPEN
+  PAID
+  VOID
+  OVERDUE
+  CANCELED
 }
 
-model Org {
-  id            String         @id @default(cuid())
-  name          String
-  description   String?
-  // Dados de perfil da organização
-  cnpj          String?
-  phone         String?
-  website       String?
-  addressLine1  String?
-  addressLine2  String?
-  city          String?
-  state         String?
-  postalCode    String?
-  country       String?
-  ownerId       String
-  owner         User           @relation("OrgOwner", fields: [ownerId], references: [id])
-  members       Member[]
-  clients       Client[]
-  tasks         Task[]
-  media         Media[]
-  invites       Invite[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  notifications Notification[]
-  finances      Finance[]
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+  INACTIVE
 }
 
-model Member {
-  id        String   @id @default(cuid())
-  userId    String
-  orgId     String
-  role      Role
-  isActive  Boolean  @default(true)
-  user      User     @relation(fields: [userId], references: [id])
-  org       Org      @relation(fields: [orgId], references: [id])
-  createdAt DateTime @default(now())
-
-  @@unique([userId, orgId])
-}
-
-model Client {
-  id                      String         @id @default(cuid())
-  name                    String
-  email                   String?
-  phone                   String?
-  status                  String         @default("new") // new | onboarding | active | paused | closed
-  plan                    ClientPlan? // plano do cliente
-  mainChannel             SocialChannel? // canal principal
-  // Redes sociais
-  instagramUserId         String? // ID do usuário no Instagram (para API)
-  instagramUsername       String? // @username do Instagram
-  instagramAccessToken    String? // Token de acesso OAuth do Instagram
-  instagramTokenExpiresAt DateTime? // Data de expiração do token
-  // Informações de contrato (sensíveis - apenas OWNER)
-  contractValue           Float? // valor mensal do contrato
-  paymentDay              Int? // dia do mês para pagamento (1-31)
-  contractStart           DateTime? // início do contrato
-  contractEnd             DateTime? // fim do contrato (null = indefinido)
-  paymentStatus           PaymentStatus  @default(PENDING) // status do pagamento
-  // Pagamento parcelado
-  isInstallment           Boolean        @default(false) // se o pagamento é parcelado
-  installmentCount        Int? // número total de parcelas
-  installmentValue        Float? // valor de cada parcela
-  orgId                   String
-  org                     Org            @relation(fields: [orgId], references: [id])
-  clientUserId            String? // Usuário (role CLIENT) associado exclusivamente a este cliente
-  clientUser              User?          @relation(fields: [clientUserId], references: [id])
-  tasks                   Task[]
-  media                   Media[]
-  mediaFolders            MediaFolder[]
-  createdAt               DateTime       @default(now())
-  updatedAt               DateTime       @updatedAt
-  invites                 Invite[]
-  strategies              Strategy[]
-  brandings               Branding[]
-  finances                Finance[]
-  meetings                Meeting[]
-  installments            Installment[]
-
-  @@unique([clientUserId])
-}
-
-model Task {
-  id          String    @id @default(cuid())
-  title       String
-  description String?
-  status      String    @default("todo") // todo | in-progress | done
-  priority    String    @default("medium") // low | medium | high
-  assignee    String? // Responsável opcional
-  dueDate     DateTime? // Prazo opcional
-  clientId    String
-  orgId       String
-  org         Org       @relation(fields: [orgId], references: [id])
-  client      Client    @relation(fields: [clientId], references: [id])
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  @@index([clientId, status])
-}
-
-model Media {
-  id          String       @id @default(cuid())
-  title       String
-  description String?
-  // Upload real: fileKey (S3/storage path), mimeType, size
-  fileKey     String? // caminho no storage (S3 key ou path local)
-  mimeType    String? // ex: image/png, video/mp4, application/pdf
-  fileSize    Int? // tamanho em bytes
-  url         String? // URL pública (gerada ou legado)
-  type        String // image | video | document (categoria visual)
-  folderId    String? // pasta pai (null = raiz)
-  folder      MediaFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
-  clientId    String
-  orgId       String
-  org         Org          @relation(fields: [orgId], references: [id])
-  client      Client       @relation(fields: [clientId], references: [id])
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-}
-
-// Pastas de organização de mídias
-model MediaFolder {
-  id          String        @id @default(cuid())
-  name        String
-  description String?
-  parentId    String? // pasta pai (null = raiz)
-  parent      MediaFolder?  @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
-  children    MediaFolder[] @relation("FolderHierarchy")
-  media       Media[]
-  clientId    String
-  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  @@index([clientId, parentId])
-}
-
-model Invite {
-  id            String       @id @default(cuid())
-  orgId         String
-  org           Org          @relation(fields: [orgId], references: [id])
-  email         String
-  roleRequested Role
-  token         String       @unique
-  status        InviteStatus @default(PENDING)
-  clientId      String? // Se convite para CLIENT, pode referenciar um Client existente
-  client        Client?      @relation(fields: [clientId], references: [id])
-  expiresAt     DateTime
-  acceptedAt    DateTime?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-}
-
-// Estratégias de negócio do cliente
-model Strategy {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  type        String // objective | action-plan | target-audience | kpi
-  content     String   @db.Text
-  clientId    String
-  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-// Materiais de branding do cliente
-model Branding {
-  id          String   @id @default(cuid())
-  title       String
-  type        String // logo | color-palette | typography | manual | template | asset
-  description String?
-  fileUrl     String?
-  content     String?  @db.Text // Para paletas de cores, tipografia, etc
-  clientId    String
-  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-// Transações financeiras do cliente
-model Finance {
-  id          String   @id @default(cuid())
-  type        String // income | expense
-  amount      Float
-  description String?
-  category    String? // Categoria da transação
-  date        DateTime @default(now())
-  orgId       String
-  org         Org      @relation(fields: [orgId], references: [id])
-  clientId    String?
-  client      Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([orgId, date])
-  @@index([clientId, date])
-}
-
-// Reuniões agendadas com o cliente
-model Meeting {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  startTime   DateTime
-  endTime     DateTime
-  location    String? // Presencial, link de reunião, etc
-  status      String   @default("scheduled") // scheduled | completed | cancelled
-  notes       String?  @db.Text // Notas da reunião
-  clientId    String
-  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-// Parcelas de pagamento do cliente
-model Installment {
-  id        String        @id @default(cuid())
-  number    Int // número da parcela (1, 2, 3...)
-  amount    Float // valor da parcela
-  dueDate   DateTime // data de vencimento
-  status    PaymentStatus @default(PENDING) // status do pagamento
-  paidAt    DateTime? // data que foi pago
-  notes     String? // observações sobre o pagamento
-  clientId  String
-  client    Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-
-  @@index([clientId, dueDate])
-}
-
-// Persistência de notificações para usuários/org
-model Notification {
-  id        String   @id @default(cuid())
-  orgId     String?
-  org       Org?     @relation(fields: [orgId], references: [id])
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id])
-  type      String
-  title     String
-  message   String?  @db.Text
-  link      String?
-  clientId  String?
-  priority  String?
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId, orgId])
+enum BillingInterval {
+  MONTH
+  YEAR
 }

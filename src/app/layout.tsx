@@ -1,4 +1,7 @@
+import ErrorBoundary from "@/components/ErrorBoundary";
 import AppLayoutClient from "@/components/layout/AppLayoutClient";
+import PostHogProvider from "@/components/providers/PostHogProvider";
+import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
 import { UserProvider } from "@/context/UserContext";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -93,26 +96,35 @@ export default function RootLayout({
       <body
         className={`${inter.className} min-h-screen bg-background text-foreground antialiased transition-colors`}
       >
-        {/* Provider de autenticação global + Sidebar (apenas para usuários autenticados) */}
-        <UserProvider>
-          <AppLayoutClient>{children}</AppLayoutClient>
-        </UserProvider>
-        <Toaster
-          position="top-right"
-          expand={true}
-          richColors
-          closeButton
-          duration={4000}
-          toastOptions={{
-            style: {
-              background: "white",
-              color: "#1e293b",
-              border: "1px solid #e2e8f0",
-            },
-            className: "toast-custom",
-          }}
-        />
+        <PostHogProvider />
+        <ErrorBoundary>
+          <ReactQueryProvider>
+            <UserProvider>
+              <AppLayoutClient>{children}</AppLayoutClient>
+            </UserProvider>
+            <Toaster
+              position="top-right"
+              expand={true}
+              richColors
+              closeButton
+              duration={4000}
+              toastOptions={{
+                style: {
+                  background: "white",
+                  color: "#1e293b",
+                  border: "1px solid #e2e8f0",
+                },
+                className: "toast-custom",
+              }}
+            />
+          </ReactQueryProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
 }
+
+// Prefer Node runtime and auto region selection globally
+export const runtime = "nodejs";
+export const preferredRegion = "auto";
+export const dynamic = 'force-dynamic';

@@ -1,5 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+// Mock Next.js cookies
+vi.mock('next/headers', () => ({
+  cookies: vi.fn(() => ({
+    get: vi.fn(),
+    set: vi.fn(),
+  })),
+}))
+
 // Mock Firebase Admin BEFORE importing the route to avoid env checks
 vi.mock('@/lib/firebaseAdmin', () => ({
   adminAuth: { verifyIdToken: vi.fn() },

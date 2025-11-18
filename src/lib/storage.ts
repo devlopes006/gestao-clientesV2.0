@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger'
+import { logger, type LogContext } from '@/lib/logger'
 import {
   DeleteObjectCommand,
   GetObjectCommand,
@@ -105,7 +105,10 @@ export async function uploadFile(
             .toBuffer()
           finalBuffer = rotated
         } catch (err) {
-          logger.debug('Falha ao rotacionar imagem, usando original', err)
+          logger.debug(
+            'Falha ao rotacionar imagem, usando original',
+            err as LogContext
+          )
         }
       }
     }

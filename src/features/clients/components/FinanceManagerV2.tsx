@@ -20,6 +20,7 @@ import {
   Calendar,
   DollarSign,
   Edit,
+  FileText,
   Filter,
   Plus,
   Trash2,
@@ -519,165 +520,165 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => { setIsModalOpen(false); resetForm(); }}>
-          <Card className="w-full max-w-lg bg-card border-2 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <CardHeader className="border-b-2 border-slate-200 dark:border-slate-700 bg-linear-to-r from-emerald-500 to-teal-500 pb-5">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-white font-bold flex items-center gap-2">
-                  <DollarSign className="h-6 w-6" />
-                  {editingItem ? "Editar Transação" : "Nova Transação"}
-                </CardTitle>
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  onClick={() => {
-                    setIsModalOpen(false);
-                    resetForm();
-                  }}
-                  className="h-10 w-10 p-0 text-white hover:bg-white/20 rounded-full"
-                >
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-5 pt-6">
-                <div className="space-y-2">
-                  <Label htmlFor="type" className="font-semibold text-slate-900 dark:text-white">Tipo</Label>
-                  <Select
-                    value={formData.type}
-                    onValueChange={(value) =>
-                      setFormData({
-                        ...formData,
-                        type: value as "income" | "expense",
-                        category: "",
-                      })
-                    }
-                    disabled={submitting}
-                  >
-                    <SelectTrigger className="border-2 h-11 font-medium">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="income">Receita</SelectItem>
-                      <SelectItem value="expense">Despesa</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="amount">
-                    <span className="font-semibold text-slate-900 dark:text-white">
-                      Valor <span className="text-red-500">*</span>
-                    </span>
-                  </Label>
-                  <Input
-                    id="amount"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    required
-                    value={formData.amount}
-                    onChange={(e) =>
-                      setFormData({ ...formData, amount: e.target.value })
-                    }
-                    placeholder="0.00"
-                    className="border-2 h-11 font-medium"
-                    disabled={submitting}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="category" className="font-semibold text-slate-900 dark:text-white">Categoria</Label>
-                  <Select
-                    value={formData.category}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, category: value })
-                    }
-                    disabled={submitting}
-                  >
-                    <SelectTrigger className="border-2 h-11 font-medium">
-                      <SelectValue placeholder="Selecione..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CATEGORIES[formData.type].map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description" className="font-semibold text-slate-900 dark:text-white">Descrição</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                    placeholder="Detalhes da transação"
-                    rows={3}
-                    className="border-2 resize-none font-medium"
-                    disabled={submitting}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="date" className="font-semibold text-slate-900 dark:text-white">Data</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    required
-                    value={formData.date}
-                    onChange={(e) =>
-                      setFormData({ ...formData, date: e.target.value })
-                                        className="border-2 h-11 font-medium"
-                    }
-                  disabled={submitting}
-                  />
-                </div>
-
-                <div className="flex gap-3 pt-6 border-t-2 border-slate-200 dark:border-slate-700">
-                  <Button
-                    type="submit"
-                    disabled={submitting}
-                    size="lg"
-                    className="flex-1 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 font-semibold"
-                  >
-                    {submitting && (
-                      <Spinner size="sm" />
-                    )}
-                    {editingItem ? "Salvar" : "Criar"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    className="border-2 font-semibold"
-                    onClick={() => {
-                      setIsModalOpen(false);
-                      resetForm();
-                    }}
-                    disabled={submitting}
-                  >
-                    Cancelar
-                  </Button>
-                </div>
-              </form>
+              )}
             </CardContent>
           </Card>
+
+          {/* Modal */}
+          {isModalOpen && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => { setIsModalOpen(false); resetForm(); }}>
+              <Card className="w-full max-w-lg bg-card border-2 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                <CardHeader className="border-b-2 border-slate-200 dark:border-slate-700 bg-linear-to-r from-emerald-500 to-teal-500 pb-5">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-white font-bold flex items-center gap-2">
+                      <DollarSign className="h-6 w-6" />
+                      {editingItem ? "Editar Transação" : "Nova Transação"}
+                    </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      onClick={() => {
+                        setIsModalOpen(false);
+                        resetForm();
+                      }}
+                      className="h-10 w-10 p-0 text-white hover:bg-white/20 rounded-full"
+                    >
+                      <X className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSubmit} className="space-y-5 pt-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="type" className="font-semibold text-slate-900 dark:text-white">Tipo</Label>
+                      <Select
+                        value={formData.type}
+                        onValueChange={(value) =>
+                          setFormData({
+                            ...formData,
+                            type: value as "income" | "expense",
+                            category: "",
+                          })
+                        }
+                        disabled={submitting}
+                      >
+                        <SelectTrigger className="border-2 h-11 font-medium">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="income">Receita</SelectItem>
+                          <SelectItem value="expense">Despesa</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="amount">
+                        <span className="font-semibold text-slate-900 dark:text-white">
+                          Valor <span className="text-red-500">*</span>
+                        </span>
+                      </Label>
+                      <Input
+                        id="amount"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        required
+                        value={formData.amount}
+                        onChange={(e) =>
+                          setFormData({ ...formData, amount: e.target.value })
+                        }
+                        placeholder="0.00"
+                        className="border-2 h-11 font-medium"
+                        disabled={submitting}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="category" className="font-semibold text-slate-900 dark:text-white">Categoria</Label>
+                      <Select
+                        value={formData.category}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, category: value })
+                        }
+                        disabled={submitting}
+                      >
+                        <SelectTrigger className="border-2 h-11 font-medium">
+                          <SelectValue placeholder="Selecione..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CATEGORIES[formData.type].map((cat) => (
+                            <SelectItem key={cat} value={cat}>
+                              {cat}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="description" className="font-semibold text-slate-900 dark:text-white">Descrição</Label>
+                      <Textarea
+                        id="description"
+                        value={formData.description}
+                        onChange={(e) =>
+                          setFormData({ ...formData, description: e.target.value })
+                        }
+                        placeholder="Detalhes da transação"
+                        rows={3}
+                        className="border-2 resize-none font-medium"
+                        disabled={submitting}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="date" className="font-semibold text-slate-900 dark:text-white">Data</Label>
+                      <Input
+                        id="date"
+                        type="date"
+                        required
+                        value={formData.date}
+                        onChange={(e) =>
+                          setFormData({ ...formData, date: e.target.value })
+                        }
+                        className="border-2 h-11 font-medium"
+                        disabled={submitting}
+                      />
+                    </div>
+
+                    <div className="flex gap-3 pt-6 border-t-2 border-slate-200 dark:border-slate-700">
+                      <Button
+                        type="submit"
+                        disabled={submitting}
+                        size="lg"
+                        className="flex-1 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 font-semibold"
+                      >
+                        {submitting && (
+                          <Spinner size="sm" />
+                        )}
+                        {editingItem ? "Salvar" : "Criar"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="lg"
+                        className="border-2 font-semibold"
+                        onClick={() => {
+                          setIsModalOpen(false);
+                          resetForm();
+                        }}
+                        disabled={submitting}
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </>
   );
 }

@@ -40,7 +40,7 @@ const config: Config = {
         'slide-up': 'slideUp 300ms ease-out',
         'slide-down': 'slideDown 300ms ease-out',
         'scale-in': 'scaleIn 200ms ease-out',
-        'blob': 'blob 7s infinite',
+        blob: 'blob 7s infinite',
       },
       transitionDuration: designSystem.animations.duration,
       transitionTimingFunction: designSystem.animations.easing,
@@ -48,37 +48,52 @@ const config: Config = {
   },
   plugins: [
     // Plugin customizado para utilitários do design system
-    function({ addUtilities }: any) {
+    function ({
+      addUtilities,
+    }: {
+      addUtilities: (
+        utilities: Record<
+          string,
+          Record<string, string | Record<string, string>>
+        >
+      ) => void
+    }) {
       addUtilities({
         '.text-gradient-primary': {
-          'background': 'linear-gradient(to right, rgb(15 23 42), rgb(30 64 175), rgb(109 40 217))',
+          background:
+            'linear-gradient(to right, rgb(15 23 42), rgb(30 64 175), rgb(109 40 217))',
           '-webkit-background-clip': 'text',
           'background-clip': 'text',
-          'color': 'transparent',
+          color: 'transparent',
           '.dark &': {
-            'background': 'linear-gradient(to right, rgb(255 255 255), rgb(191 219 254), rgb(221 214 254))',
-          }
+            background:
+              'linear-gradient(to right, rgb(255 255 255), rgb(191 219 254), rgb(221 214 254))',
+          },
         },
         '.text-gradient-brand': {
-          'background': 'linear-gradient(to right, rgb(37 99 235), rgb(124 58 237))',
+          background:
+            'linear-gradient(to right, rgb(37 99 235), rgb(124 58 237))',
           '-webkit-background-clip': 'text',
           'background-clip': 'text',
-          'color': 'transparent',
+          color: 'transparent',
         },
         '.text-gradient-emerald': {
-          'background': 'linear-gradient(to right, rgb(16 185 129), rgb(5 150 105))',
+          background:
+            'linear-gradient(to right, rgb(16 185 129), rgb(5 150 105))',
           '-webkit-background-clip': 'text',
           'background-clip': 'text',
-          'color': 'transparent',
+          color: 'transparent',
         },
         '.page-background': {
           'min-height': '100vh',
-          'background': 'linear-gradient(to bottom right, rgb(248 250 252), rgba(239 246 255 / 0.3), rgba(250 245 255 / 0.2))',
+          background:
+            'linear-gradient(to bottom right, rgb(248 250 252), rgba(239 246 255 / 0.3), rgba(250 245 255 / 0.2))',
           '.dark &': {
-            'background': 'linear-gradient(to bottom right, rgb(2 6 23), rgb(15 23 42), rgb(2 6 23))',
-          }
+            background:
+              'linear-gradient(to bottom right, rgb(2 6 23), rgb(15 23 42), rgb(2 6 23))',
+          },
         },
-      });
+      })
     },
   ],
 }

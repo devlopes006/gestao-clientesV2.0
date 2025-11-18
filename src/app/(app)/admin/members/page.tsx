@@ -39,7 +39,7 @@ import {
   Users,
   XCircle
 } from "lucide-react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { toast } from "sonner";
 
 // 🔹 Mapas de papéis
@@ -95,7 +95,10 @@ interface ApiList<T> {
 
 // 🔹 Utilitário de data (usar util compartilhado via import)
 
-export default function MembersAdminPage() {
+// Disable static generation for this admin page
+export const dynamic = 'force-dynamic';
+
+function MembersAdminPage() {
   const queryClient = useQueryClient();
   const {
     data: membersData,
@@ -821,5 +824,13 @@ export default function MembersAdminPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function MembersPageWithSuspense() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-pulse text-slate-600 dark:text-slate-400">Carregando membros...</div></div>}>
+      <MembersAdminPage />
+    </Suspense>
   );
 }

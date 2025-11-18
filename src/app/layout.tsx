@@ -127,3 +127,4 @@ export default function RootLayout({
 // Prefer Node runtime and auto region selection globally
 export const runtime = "nodejs";
 export const preferredRegion = "auto";
+export const dynamic = 'force-dynamic';

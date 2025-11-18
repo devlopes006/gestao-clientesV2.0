@@ -22,12 +22,15 @@ export function initPostHog() {
   initialized = true
 }
 
-export function trackEvent(event: string, properties?: Record<string, any>) {
+export function trackEvent(
+  event: string,
+  properties?: Record<string, unknown>
+) {
   if (!initialized) return
   posthog.capture(event, properties)
 }
 
-export function identifyUser(id: string, properties?: Record<string, any>) {
+export function identifyUser(id: string, properties?: Record<string, unknown>) {
   if (!initialized) return
   posthog.identify(id, properties)
 }

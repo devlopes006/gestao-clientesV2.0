@@ -80,13 +80,13 @@ export function StrategyManager({
     content: "",
   });
 
-  const parseStrategy = (s: any): Strategy => ({
-    id: s.id,
-    title: s.title,
-    description: s.description ?? undefined,
-    type: s.type,
-    content: s.content,
-    createdAt: new Date(s.createdAt),
+  const parseStrategy = (s: Record<string, unknown>): Strategy => ({
+    id: s.id as string,
+    title: s.title as string,
+    description: s.description as string | undefined,
+    type: s.type as Strategy["type"],
+    content: s.content as string,
+    createdAt: new Date(s.createdAt as string),
   });
 
   const loadStrategies = async () => {

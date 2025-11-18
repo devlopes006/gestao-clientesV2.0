@@ -205,6 +205,10 @@ describe('createClient', () => {
         paymentDay: 10,
         contractStart: expect.any(Date),
         contractEnd: expect.any(Date),
+        isInstallment: false,
+        installmentCount: undefined,
+        installmentValue: undefined,
+        installmentPaymentDays: [],
       },
     })
     expect(result).toMatchObject({

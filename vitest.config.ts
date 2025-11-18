@@ -11,6 +11,7 @@ export default defineConfig({
     ],
     watch: false,
     globals: true,
+    setupFiles: ['./tests/setup.ts'],
   },
   resolve: {
     alias: {

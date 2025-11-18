@@ -1,6 +1,6 @@
 "use client";
 import { auth, provider } from "@/lib/firebase";
-import { logger } from '@/lib/logger';
+import { logger, type LogContext } from '@/lib/logger';
 import { usePresence } from "@/lib/usePresence";
 import { getRedirectResult, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut, User } from "firebase/auth";
 import { useRouter } from 'next/navigation';
@@ -49,7 +49,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         };
       }
     } catch (err) {
-      if (DEBUG_AUTH) logger.debug('Failed to fetch user profile', err);
+      if (DEBUG_AUTH) logger.debug('Failed to fetch user profile', err as LogContext);
     }
     return {
       ...firebaseUser,

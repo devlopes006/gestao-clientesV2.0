@@ -19,6 +19,11 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
       },
+      // Cloudflare R2 public assets (signed URLs)
+      {
+        protocol: 'https',
+        hostname: '*.r2.cloudflarestorage.com',
+      },
       ...(s3Domain
         ? [
             {

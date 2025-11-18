@@ -28,6 +28,7 @@ import {
   User as UserIcon,
   Users,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -387,11 +388,24 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
               >
                 <div
                   className={cn(
-                    "rounded-full bg-linear-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center shadow-sm text-xs font-semibold select-none",
+                    "rounded-full flex items-center justify-center shadow-sm text-xs font-semibold select-none overflow-hidden",
                     collapsed ? "w-10 h-10" : "w-9 h-9",
                   )}
                 >
-                  {userInitials || <UserIcon className="w-4 h-4 text-white" />}
+                  {user?.image ? (
+                    <Image
+                      src={user.image}
+                      alt={user.displayName || user.email || "Avatar"}
+                      width={collapsed ? 40 : 36}
+                      height={collapsed ? 40 : 36}
+                      className="object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-linear-to-br from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center text-white">
+                      {userInitials || <UserIcon className="w-4 h-4" />}
+                    </div>
+                  )}
                 </div>
                 {!collapsed && (
                   <div className="flex-1 min-w-0">

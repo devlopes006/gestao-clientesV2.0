@@ -1,4 +1,5 @@
 import AppShell from "@/components/layout/AppShell";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { Card } from "@/components/ui/card";
 import { getSessionProfile } from "@/services/auth/session";
 import { redirect } from "next/navigation";
@@ -31,7 +32,9 @@ export default async function AdminPage() {
 
   return (
     <AppShell>
-      <MembersAdminPage />
+      <PageLayout centered={false} maxWidth="7xl">
+        <MembersAdminPage />
+      </PageLayout>
     </AppShell>
   );
 }

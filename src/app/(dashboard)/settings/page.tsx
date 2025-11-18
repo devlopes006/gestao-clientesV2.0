@@ -25,7 +25,7 @@ export default async function SettingsPage() {
         <div className="space-y-8">
           <Card className="p-8 md:p-10 rounded-xl shadow-lg">
             <h2 className="text-lg font-semibold mb-4 text-slate-900 dark:text-white">Perfil do Usuário</h2>
-            <ProfileForm initialName={user.name} initialImage={null} />
+            <ProfileForm initialName={user.name} initialImage={user.image} />
           </Card>
 
           {role === "OWNER" && (

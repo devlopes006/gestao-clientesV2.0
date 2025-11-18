@@ -15,8 +15,13 @@ const isMobileDevice = () => {
 // Enable verbose auth debug logs only if explicitly requested
 const DEBUG_AUTH = typeof process !== "undefined" && process.env.NEXT_PUBLIC_DEBUG_AUTH === "true";
 
+// Extend Firebase User with custom properties from DB
+interface ExtendedUser extends User {
+  image?: string | null;
+}
+
 interface UserContextType {
-  user: User | null;
+  user: ExtendedUser | null;
   loading: boolean;
   loginWithGoogle: (inviteToken?: string | null) => Promise<void>;
   logout: () => Promise<void>;
@@ -26,16 +31,37 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<ExtendedUser | null>(null);
   // Atualiza presença em tempo real no Firebase Realtime Database
   usePresence(user?.uid);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  // Fetch user profile from DB and merge with Firebase user
+  const enrichUserWithProfile = useCallback(async (firebaseUser: User): Promise<ExtendedUser> => {
+    try {
+      const res = await fetch("/api/profile");
+      if (res.ok) {
+        const profile = await res.json();
+        return {
+          ...firebaseUser,
+          image: profile.image || firebaseUser.photoURL || null,
+        };
+      }
+    } catch (err) {
+      if (DEBUG_AUTH) logger.debug('Failed to fetch user profile', err);
+    }
+    return {
+      ...firebaseUser,
+      image: firebaseUser.photoURL || null,
+    };
+  }, []);
+
   // Shared logic for handling authentication result (from popup or redirect)
   const handleAuthResult = useCallback(async (firebaseUser: User, inviteToken?: string | null) => {
     if (DEBUG_AUTH) logger.debug('UserContext: setUser', { uid: firebaseUser.uid });
-    setUser(firebaseUser);
+    const enrichedUser = await enrichUserWithProfile(firebaseUser);
+    setUser(enrichedUser);
     // Não é possível checar cookie httpOnly via JS, confiar no backend
     const idToken = await firebaseUser.getIdToken(true);
     if (!idToken) throw new Error("Falha ao obter ID token");
@@ -182,12 +208,13 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         }
       }
 
-      setUser(firebaseUser);
+      const enrichedUser = firebaseUser ? await enrichUserWithProfile(firebaseUser) : null;
+      setUser(enrichedUser);
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [handleAuthResult]);
+  }, [handleAuthResult, enrichUserWithProfile]);
 
   const loginWithGoogle = async (inviteToken?: string | null) => {
     if (!auth || !provider) {
@@ -282,13 +309,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       } catch {
 
       }
-      setUser(auth.currentUser);
+      const enrichedUser = await enrichUserWithProfile(auth.currentUser);
+      setUser(enrichedUser);
       // Também força um refresh do router para SSR consumir novos dados
       try {
         router.refresh();
       } catch { }
     }
-  }, [router]);
+  }, [router, enrichUserWithProfile]);
 
   return (
     <UserContext.Provider

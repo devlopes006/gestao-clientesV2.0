@@ -80,6 +80,7 @@ export async function uploadFile(
       if (sizeMB > 2) {
         try {
           const compressed = await sharp(buffer)
+            .rotate() // Auto-rotate baseado em EXIF
             .resize({ width: 2048, withoutEnlargement: true })
             .jpeg({ quality: 85, progressive: true })
             .toBuffer()
@@ -95,6 +96,16 @@ export async function uploadFile(
           }
         } catch (err) {
           logger.error('Falha na compressão de imagem, usando original', err)
+        }
+      } else {
+        // Mesmo sem compressão, corrigir orientação EXIF
+        try {
+          const rotated = await sharp(buffer)
+            .rotate() // Auto-rotate baseado em EXIF
+            .toBuffer()
+          finalBuffer = rotated
+        } catch (err) {
+          logger.debug('Falha ao rotacionar imagem, usando original', err)
         }
       }
     }
@@ -123,6 +134,7 @@ export async function uploadFile(
       if (mimeType.startsWith('image/')) {
         try {
           const thumbBuf = await sharp(finalBuffer)
+            .rotate() // Auto-rotate baseado em EXIF
             .resize({ width: 640, withoutEnlargement: true })
             .webp({ quality: 75 })
             .toBuffer()
@@ -160,6 +172,7 @@ export async function uploadFile(
       if (mimeType.startsWith('image/')) {
         try {
           const thumbBuf = await sharp(finalBuffer)
+            .rotate() // Auto-rotate baseado em EXIF
             .resize({ width: 640, withoutEnlargement: true })
             .webp({ quality: 75 })
             .toBuffer()

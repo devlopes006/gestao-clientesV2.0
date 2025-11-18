@@ -119,6 +119,13 @@ export function sanitizeObject<T extends Record<string, unknown>>(
       continue
     }
 
+    // Preserve Date instances and other non-plain objects that shouldn't be sanitized recursively
+    if (value instanceof Date) {
+      // keep as-is
+      sanitized[key] = value as T[Extract<keyof T, string>]
+      continue
+    }
+
     if (typeof value === 'string') {
       if (htmlFields.includes(key)) {
         sanitized[key] = sanitizeHtml(value) as T[Extract<keyof T, string>]
@@ -132,10 +139,17 @@ export function sanitizeObject<T extends Record<string, unknown>>(
         typeof item === 'string' ? sanitizeText(item) : item
       ) as T[Extract<keyof T, string>]
     } else if (typeof value === 'object') {
-      sanitized[key] = sanitizeObject(
-        value as Record<string, unknown>,
-        options
-      ) as T[Extract<keyof T, string>]
+      // Only deeply sanitize plain objects; leave other instances as-is
+      const isPlainObject =
+        Object.prototype.toString.call(value) === '[object Object]'
+      if (isPlainObject) {
+        sanitized[key] = sanitizeObject(
+          value as Record<string, unknown>,
+          options
+        ) as T[Extract<keyof T, string>]
+      } else {
+        sanitized[key] = value as T[Extract<keyof T, string>]
+      }
     }
   }
 

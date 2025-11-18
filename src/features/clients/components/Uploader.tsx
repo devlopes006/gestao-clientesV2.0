@@ -28,6 +28,7 @@ interface MediaUploadResult {
 interface UploaderProps {
   clientId: string;
   onUploaded?: (res: MediaUploadResult) => void;
+  onColorsExtracted?: (colors: string[]) => void;
 }
 
 const isVideo = (file: File) => file.type.startsWith("video/") || !!file.name.match(/\.(mp4|mov|avi|webm|mkv|flv|mpeg)$/i);
@@ -105,7 +106,7 @@ async function extractColorsFromImage(src: string): Promise<string[]> {
   });
 }
 
-export default function Uploader({ clientId, onUploaded }: UploaderProps) {
+export default function Uploader({ clientId, onUploaded, onColorsExtracted }: UploaderProps) {
   const [queue, setQueue] = useState<UploadItem[]>([]);
 
   useEffect(() => {
@@ -146,6 +147,11 @@ export default function Uploader({ clientId, onUploaded }: UploaderProps) {
       } catch {
         preview = URL.createObjectURL(f);
       }
+      if (colors && colors.length) {
+        try {
+          onColorsExtracted?.(colors);
+        } catch { }
+      }
       const it: UploadItem = {
         id: `i-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         file: f,
@@ -176,7 +182,8 @@ export default function Uploader({ clientId, onUploaded }: UploaderProps) {
         if (xhr.status >= 200 && xhr.status < 300) {
           const media: MediaUploadResult = xhr.response;
           setQueue((q) => q.map(x => x.id === it.id ? { ...x, status: 'done', progress: 100, previewUrl: media.thumbUrl ?? x.previewUrl } : x));
-          onUploaded?.(xhr.response);
+          // Propaga as cores extraídas no cliente junto com a resposta do servidor
+          onUploaded?.({ ...(xhr.response || {}), colors: it.colors });
         } else {
           setQueue((q) => q.map(x => x.id === it.id ? { ...x, status: 'error', error: 'Upload failed' } : x));
         }

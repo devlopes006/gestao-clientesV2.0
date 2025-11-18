@@ -103,30 +103,30 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
     <ProtectedRoute>
       <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-          {/* Header do Dashboard */}
+          {/* Header do Dashboard
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold bg-linear-to-r from-slate-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent mb-2">
+            <h1 className="text-3xl font-bold bg-linear-to-r from-slate-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent mb-2">
                 {client.name}
-              </h1>
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge
+              </h1> 
+          <div className="flex flex-wrap items-center gap-2">
+            {/* <Badge
                   variant={client.status === "active" ? "default" : "secondary"}
                   className="capitalize"
                 >
                   {client.status}
-                </Badge>
-                {client.plan && (
+                </Badge> */}
+          {/* {client.plan && (
                   <Badge variant="outline" className="capitalize">
                     {client.plan}
                   </Badge>
-                )}
-                {daysActive > 0 && (
-                  <span className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    Cliente há {daysActive} dias
-                  </span>
-                )}
+                )} */}
+          {/* {daysActive > 0 && (
+                  // <span className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                  //   <Clock className="h-3 w-3" />
+                  //   Cliente há {daysActive} dias
+                  // </span>
+                )} 
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -147,7 +147,7 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
                 </Link>
               )}
             </div>
-          </div>
+          </div> /*/}
 
           {/* Grid Principal */}
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">

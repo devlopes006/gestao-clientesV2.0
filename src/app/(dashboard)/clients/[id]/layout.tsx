@@ -53,7 +53,6 @@ export default async function ClientLayout({
     { href: `/clients/${id}/branding`, label: "Branding", icon: "briefcase", roles: ["OWNER", "STAFF"] },
     { href: `/clients/${id}/meetings`, label: "Reuniões", icon: "calendar", roles: ["OWNER", "STAFF", "CLIENT"] },
     { href: `/clients/${id}/billing`, label: "Cobrança", icon: "briefcase", roles: ["OWNER"] },
-    { href: `/clients/${id}/invite`, label: "Convidar", icon: "userPlus", roles: ["OWNER"] },
     {
       href: `/clients/${id}/delete`,
       label: "Excluir",

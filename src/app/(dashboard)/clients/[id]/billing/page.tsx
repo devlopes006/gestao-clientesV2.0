@@ -12,13 +12,11 @@ import { getSessionProfile } from "@/services/auth/session";
 import { BillingService, type InvoiceStatusFilter } from "@/services/billing/BillingService";
 import { getClientById } from "@/services/repositories/clients";
 import {
-  ArrowLeft,
   Calendar,
   CreditCard,
   DollarSign,
   FileText,
   Filter,
-  Receipt,
   Search,
   TrendingUp
 } from "lucide-react";
@@ -132,15 +130,16 @@ export default async function BillingPage({ params, searchParams }: BillingPageP
 
   return (
     <ProtectedRoute>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Header com navegação */}
+      <div className="page-background">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+          {/* Header com navegação
         <header className="space-y-4">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <Button
-              variant="ghost"
-              size="sm"
+              variant="outline"
+              size="lg"
               asChild
-              className="h-9 w-9 p-0"
+              className="h-10 w-10 p-0 rounded-full border-2 hover:scale-105 transition-transform"
             >
               <Link href={`/clients/${client.id}`}>
                 <ArrowLeft className="h-4 w-4" />
@@ -148,301 +147,306 @@ export default async function BillingPage({ params, searchParams }: BillingPageP
               </Link>
             </Button>
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-1">
-                <Receipt className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-linear-to-br from-blue-500 to-purple-500 rounded-xl shadow-lg">
+                  <Receipt className="h-6 w-6 text-white" />
+                </div>
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                   Faturamento
                 </h1>
               </div>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-base text-slate-600 dark:text-slate-400 font-medium">
                 Gestão financeira de <span className="font-semibold text-slate-900 dark:text-white">{client.name}</span>
               </p>
             </div>
           </div>
-        </header>
+        </header> */}
 
-        {/* Resumo do Cliente - Cards em Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
-          {/* Status do Mês */}
-          <Card className="border-2 shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                  <DollarSign className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <CardTitle className="text-base truncate">Status do Mês</CardTitle>
-                  <CardDescription className="text-xs">Situação de pagamento atual</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="px-4 pb-4">
-              <Suspense fallback={<div className="animate-pulse h-32 bg-slate-100 dark:bg-slate-800 rounded" />}>
-                <PaymentStatusCard
-                  clientId={client.id}
-                  clientName={client.name}
-                  canEdit={canCreateFinance}
-                />
-              </Suspense>
-            </CardContent>
-          </Card>
-
-          {/* Parcelas - só mostrar se cliente for parcelado */}
-          {client.is_installment && (
-            <Card className="border-2 shadow-sm hover:shadow-md transition-shadow">
+          {/* Resumo do Cliente - Cards em Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+            {/* Status do Mês */}
+            <Card className="border-2 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-white/50 backdrop-blur-sm">
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                    <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  <div className="p-2.5 bg-linear-to-br from-blue-500 to-cyan-500 rounded-xl shadow-md">
+                    <DollarSign className="h-5 w-5 text-white" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <CardTitle className="text-base truncate">Parcelas</CardTitle>
-                    <CardDescription className="text-xs">Controle de pagamentos parcelados</CardDescription>
+                    <CardTitle className="text-base font-bold truncate">Status do Mês</CardTitle>
+                    <CardDescription className="text-xs font-medium">Situação de pagamento atual</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="px-4 pb-4">
                 <Suspense fallback={<div className="animate-pulse h-32 bg-slate-100 dark:bg-slate-800 rounded" />}>
-                  <InstallmentManager
+                  <PaymentStatusCard
                     clientId={client.id}
+                    clientName={client.name}
                     canEdit={canCreateFinance}
                   />
                 </Suspense>
               </CardContent>
             </Card>
-          )}
 
-          {/* Contrato */}
-          <Card className="border-2 shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-pink-100 dark:bg-pink-900/30 rounded-lg">
-                  <TrendingUp className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+            {/* Parcelas - só mostrar se cliente for parcelado */}
+            {client.is_installment && (
+              <Card className="border-2 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-white/50 backdrop-blur-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2.5 bg-linear-to-br from-purple-500 to-pink-500 rounded-xl shadow-md">
+                      <Calendar className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <CardTitle className="text-base font-bold truncate">Parcelas</CardTitle>
+                      <CardDescription className="text-xs font-medium">Controle de pagamentos parcelados</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-4 pb-4">
+                  <Suspense fallback={<div className="animate-pulse h-32 bg-slate-100 dark:bg-slate-800 rounded" />}>
+                    <InstallmentManager
+                      clientId={client.id}
+                      canEdit={canCreateFinance}
+                    />
+                  </Suspense>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Contrato */}
+            <Card className="border-2 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-white/50 backdrop-blur-sm">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-2.5 bg-linear-to-br from-emerald-500 to-teal-500 rounded-xl shadow-md">
+                    <TrendingUp className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="text-base font-bold truncate">Contrato</CardTitle>
+                    <CardDescription className="text-xs font-medium">Informações contratuais</CardDescription>
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <CardTitle className="text-base truncate">Contrato</CardTitle>
-                  <CardDescription className="text-xs">Informações contratuais</CardDescription>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <Suspense fallback={<div className="animate-pulse h-32 bg-slate-100 dark:bg-slate-800 rounded" />}>
+                  <ContractManager
+                    clientId={client.id}
+                    clientName={client.name}
+                    contractStart={client.contract_start}
+                    contractEnd={client.contract_end}
+                    paymentDay={client.payment_day}
+                    paymentDays={client.installment_payment_days}
+                    contractValue={client.contract_value}
+                  />
+                </Suspense>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Faturas */}
+          <Card className="border-2 shadow-lg bg-white/50 backdrop-blur-sm">
+            <CardHeader>
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-linear-to-br from-slate-600 to-slate-700 rounded-xl shadow-md">
+                    <FileText className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-bold">Faturas</CardTitle>
+                    <CardDescription className="font-medium">
+                      {total > 0 ? `${total} ${total === 1 ? 'fatura encontrada' : 'faturas encontradas'}` : 'Nenhuma fatura'}
+                    </CardDescription>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  {/* Filtros */}
+                  <form method="get" className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                    <div className="relative">
+                      <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <select
+                        aria-label="Status da fatura"
+                        name="status"
+                        defaultValue={status || ''}
+                        className="h-10 pl-9 pr-3 text-sm font-medium border-2 border-slate-200 dark:border-slate-700 rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all w-full sm:w-auto hover:border-blue-300"
+                      >
+                        <option value="">Todas</option>
+                        <option value="OPEN">Em aberto</option>
+                        <option value="OVERDUE">Vencidas</option>
+                        <option value="PAID">Pagas</option>
+                        <option value="DRAFT">Rascunho</option>
+                        <option value="VOID">Canceladas</option>
+                      </select>
+                    </div>
+
+                    <div className="relative">
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                      <Input
+                        name="q"
+                        defaultValue={q || ''}
+                        placeholder="Buscar por número..."
+                        className="h-10 pl-9 text-sm font-medium border-2 w-full sm:w-52"
+                      />
+                    </div>
+
+                    <Button type="submit" size="lg" className="h-10 font-semibold">
+                      Filtrar
+                    </Button>
+                  </form>
+
+                  {canCreateFinance && (
+                    <ConfirmInvoiceModalWrapper client={client} />
+                  )}
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="px-4 pb-4">
-              <Suspense fallback={<div className="animate-pulse h-32 bg-slate-100 dark:bg-slate-800 rounded" />}>
-                <ContractManager
-                  clientId={client.id}
-                  clientName={client.name}
-                  contractStart={client.contract_start}
-                  contractEnd={client.contract_end}
-                  paymentDay={client.payment_day}
-                  paymentDays={client.installment_payment_days}
-                  contractValue={client.contract_value}
-                />
+
+            <CardContent>
+              <Suspense fallback={<InvoicesSkeleton />}>
+                {invoices.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="p-5 bg-linear-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-full mb-4 shadow-inner">
+                      <FileText className="h-10 w-10 text-slate-500" />
+                    </div>
+                    <p className="text-base font-bold text-slate-900 dark:text-white mb-1">
+                      Nenhuma fatura encontrada
+                    </p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      {q || status
+                        ? "Tente ajustar os filtros de busca"
+                        : canCreateFinance
+                          ? "Crie a primeira fatura para este cliente"
+                          : "Ainda não há faturas cadastradas"}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-slate-200 dark:divide-slate-700">
+                    {invoices.map((inv) => {
+                      const issueDate = new Date(inv.issueDate);
+                      const dueDate = new Date(inv.dueDate);
+                      const isOverdue = inv.status === 'OVERDUE';
+
+                      return (
+                        <div
+                          key={inv.id}
+                          className="py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-all px-3 -mx-3 rounded-xl border-l-4 border-transparent hover:border-blue-400"
+                        >
+                          <div className="flex-1 min-w-0 space-y-2">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-base font-bold text-slate-900 dark:text-white">
+                                {inv.number}
+                              </span>
+                              <Badge
+                                variant="outline"
+                                className={`text-xs font-bold border-2 rounded-full px-3 py-1 ${getInvoiceStatusBadge(inv.status)}`}
+                              >
+                                {getInvoiceStatusLabel(inv.status)}
+                              </Badge>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-600 dark:text-slate-400 font-medium">
+                              <div className="flex items-center gap-1.5">
+                                <Calendar className="h-4 w-4 text-slate-500" />
+                                <span>Emissão: {issueDate.toLocaleDateString("pt-BR")}</span>
+                              </div>
+                              <div className={`flex items-center gap-1.5 ${isOverdue ? 'text-red-600 dark:text-red-400 font-bold' : ''}`}>
+                                <CreditCard className="h-4 w-4" />
+                                <span>Vence: {dueDate.toLocaleDateString("pt-BR")}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-white">
+                                <DollarSign className="h-4 w-4 text-emerald-600" />
+                                <span>
+                                  {new Intl.NumberFormat("pt-BR", {
+                                    style: "currency",
+                                    currency: inv.currency || "BRL"
+                                  }).format(inv.total)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="lg"
+                              asChild
+                              className="h-10 font-semibold border-2 hover:scale-105 transition-transform"
+                            >
+                              <Link href={`/clients/${client.id}/billing/invoices/${inv.id}`}>
+                                Ver detalhes
+                              </Link>
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </Suspense>
+
+              {/* Paginação */}
+              {total > pageSize && (
+                <div className="pt-6 mt-6 border-t-2 border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+                    Mostrando <span className="font-medium text-slate-900 dark:text-white">{((page - 1) * pageSize) + 1}</span> a{" "}
+                    <span className="font-medium text-slate-900 dark:text-white">{Math.min(page * pageSize, total)}</span> de{" "}
+                    <span className="font-medium text-slate-900 dark:text-white">{total}</span> faturas
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="border-2 font-semibold"
+                      disabled={page <= 1}
+                      asChild={page > 1}
+                    >
+                      {page > 1 ? (
+                        <Link
+                          href={`/clients/${client.id}/billing?${new URLSearchParams({
+                            ...(status ? { status } : {}),
+                            ...(q ? { q } : {}),
+                            page: String(page - 1)
+                          }).toString()}`}
+                        >
+                          Anterior
+                        </Link>
+                      ) : (
+                        <span>Anterior</span>
+                      )}
+                    </Button>
+
+                    <span className="text-sm text-slate-600 dark:text-slate-400 font-medium px-2">
+                      Página <span className="font-medium text-slate-900 dark:text-white">{page}</span> de{" "}
+                      <span className="font-medium text-slate-900 dark:text-white">{totalPages}</span>
+                    </span>
+
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="border-2 font-semibold"
+                      disabled={page >= totalPages}
+                      asChild={page < totalPages}
+                    >
+                      {page < totalPages ? (
+                        <Link
+                          href={`/clients/${client.id}/billing?${new URLSearchParams({
+                            ...(status ? { status } : {}),
+                            ...(q ? { q } : {}),
+                            page: String(page + 1)
+                          }).toString()}`}
+                        >
+                          Próxima
+                        </Link>
+                      ) : (
+                        <span>Próxima</span>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
-
-        {/* Faturas */}
-        <Card className="border-2 shadow-sm">
-          <CardHeader>
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                  <FileText className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg">Faturas</CardTitle>
-                  <CardDescription>
-                    {total > 0 ? `${total} ${total === 1 ? 'fatura encontrada' : 'faturas encontradas'}` : 'Nenhuma fatura'}
-                  </CardDescription>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                {/* Filtros */}
-                <form method="get" className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                  <div className="relative">
-                    <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <select
-                      aria-label="Status da fatura"
-                      name="status"
-                      defaultValue={status || ''}
-                      className="h-9 pl-9 pr-3 text-sm border border-slate-200 dark:border-slate-700 rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-shadow w-full sm:w-auto"
-                    >
-                      <option value="">Todas</option>
-                      <option value="OPEN">Em aberto</option>
-                      <option value="OVERDUE">Vencidas</option>
-                      <option value="PAID">Pagas</option>
-                      <option value="DRAFT">Rascunho</option>
-                      <option value="VOID">Canceladas</option>
-                    </select>
-                  </div>
-
-                  <div className="relative">
-                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <Input
-                      name="q"
-                      defaultValue={q || ''}
-                      placeholder="Buscar por número..."
-                      className="h-9 pl-9 text-sm w-full sm:w-48"
-                    />
-                  </div>
-
-                  <Button type="submit" size="sm" className="h-9">
-                    Filtrar
-                  </Button>
-                </form>
-
-                {canCreateFinance && (
-                  <ConfirmInvoiceModalWrapper client={client} />
-                )}
-              </div>
-            </div>
-          </CardHeader>
-
-          <CardContent>
-            <Suspense fallback={<InvoicesSkeleton />}>
-              {invoices.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full mb-4">
-                    <FileText className="h-8 w-8 text-slate-400" />
-                  </div>
-                  <p className="text-sm font-medium text-slate-900 dark:text-white mb-1">
-                    Nenhuma fatura encontrada
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {q || status
-                      ? "Tente ajustar os filtros de busca"
-                      : canCreateFinance
-                        ? "Crie a primeira fatura para este cliente"
-                        : "Ainda não há faturas cadastradas"}
-                  </p>
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-200 dark:divide-slate-700">
-                  {invoices.map((inv) => {
-                    const issueDate = new Date(inv.issueDate);
-                    const dueDate = new Date(inv.dueDate);
-                    const isOverdue = inv.status === 'OVERDUE';
-
-                    return (
-                      <div
-                        key={inv.id}
-                        className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors px-2 -mx-2 rounded-lg"
-                      >
-                        <div className="flex-1 min-w-0 space-y-2">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm font-semibold text-slate-900 dark:text-white">
-                              {inv.number}
-                            </span>
-                            <Badge
-                              variant="outline"
-                              className={`text-[10px] font-semibold border ${getInvoiceStatusBadge(inv.status)}`}
-                            >
-                              {getInvoiceStatusLabel(inv.status)}
-                            </Badge>
-                          </div>
-
-                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
-                            <div className="flex items-center gap-1.5">
-                              <Calendar className="h-3.5 w-3.5" />
-                              <span>Emissão: {issueDate.toLocaleDateString("pt-BR")}</span>
-                            </div>
-                            <div className={`flex items-center gap-1.5 ${isOverdue ? 'text-red-600 dark:text-red-400 font-medium' : ''}`}>
-                              <CreditCard className="h-3.5 w-3.5" />
-                              <span>Vence: {dueDate.toLocaleDateString("pt-BR")}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 font-semibold text-slate-900 dark:text-white">
-                              <DollarSign className="h-3.5 w-3.5" />
-                              <span>
-                                {new Intl.NumberFormat("pt-BR", {
-                                  style: "currency",
-                                  currency: inv.currency || "BRL"
-                                }).format(inv.total)}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            asChild
-                            className="h-8 text-xs"
-                          >
-                            <Link href={`/clients/${client.id}/billing/invoices/${inv.id}`}>
-                              Ver detalhes
-                            </Link>
-                          </Button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </Suspense>
-
-            {/* Paginação */}
-            {total > pageSize && (
-              <div className="pt-6 mt-6 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="text-sm text-slate-600 dark:text-slate-400">
-                  Mostrando <span className="font-medium text-slate-900 dark:text-white">{((page - 1) * pageSize) + 1}</span> a{" "}
-                  <span className="font-medium text-slate-900 dark:text-white">{Math.min(page * pageSize, total)}</span> de{" "}
-                  <span className="font-medium text-slate-900 dark:text-white">{total}</span> faturas
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={page <= 1}
-                    asChild={page > 1}
-                  >
-                    {page > 1 ? (
-                      <Link
-                        href={`/clients/${client.id}/billing?${new URLSearchParams({
-                          ...(status ? { status } : {}),
-                          ...(q ? { q } : {}),
-                          page: String(page - 1)
-                        }).toString()}`}
-                      >
-                        Anterior
-                      </Link>
-                    ) : (
-                      <span>Anterior</span>
-                    )}
-                  </Button>
-
-                  <span className="text-sm text-slate-600 dark:text-slate-400 px-2">
-                    Página <span className="font-medium text-slate-900 dark:text-white">{page}</span> de{" "}
-                    <span className="font-medium text-slate-900 dark:text-white">{totalPages}</span>
-                  </span>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={page >= totalPages}
-                    asChild={page < totalPages}
-                  >
-                    {page < totalPages ? (
-                      <Link
-                        href={`/clients/${client.id}/billing?${new URLSearchParams({
-                          ...(status ? { status } : {}),
-                          ...(q ? { q } : {}),
-                          page: String(page + 1)
-                        }).toString()}`}
-                      >
-                        Próxima
-                      </Link>
-                    ) : (
-                      <span>Próxima</span>
-                    )}
-                  </Button>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
     </ProtectedRoute>
   );

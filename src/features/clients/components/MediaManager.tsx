@@ -582,19 +582,12 @@ export function MediaManager({ clientId }: MediaManagerProps) {
   return (
     <>
       <div
-        className="relative bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-100 dark:from-slate-950 dark:via-blue-950/20 dark:to-slate-900"
+        className="page-background"
         onDragEnter={handleDragEnter}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        {/* Animated background blobs */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 -left-4 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob" />
-          <div className="absolute top-0 -right-4 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000" />
-          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000" />
-        </div>
-
         {/* Drag overlay */}
         {dragOver && canCreate && (
           <div className="absolute inset-0 z-40 bg-blue-500/20 backdrop-blur-sm border-4 border-dashed border-blue-500 rounded-lg flex items-center justify-center pointer-events-none">
@@ -607,9 +600,9 @@ export function MediaManager({ clientId }: MediaManagerProps) {
           </div>
         )}
 
-        <div className="relative space-y-6 p-6">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               {folderHistory.length > 1 && (
                 <Button
@@ -623,15 +616,15 @@ export function MediaManager({ clientId }: MediaManagerProps) {
                 </Button>
               )}
               <div>
-                <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
+                <h1 className="text-3xl font-bold text-gradient-primary mb-2">
                   Mídias
-                </h2>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                </h1>
+                <p className="text-slate-600 dark:text-slate-400">
                   Upload e organização de arquivos do cliente
                 </p>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {canCreate && (
                 <>
                   <Button
@@ -645,7 +638,8 @@ export function MediaManager({ clientId }: MediaManagerProps) {
                     <FolderPlus className="h-4 w-4" /> Nova Pasta
                   </Button>
                   <Button
-                    className="gap-2 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
+                    size="lg"
+                    className="gap-2"
                     onClick={() => {
                       resetUploadForm();
                       setIsUploadModalOpen(true);
@@ -871,7 +865,9 @@ export function MediaManager({ clientId }: MediaManagerProps) {
                               <Image
                                 src={item.thumbUrl || item.url || ""}
                                 alt={item.title}
-                                className="w-full h-full object-cover"
+                                fill
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
+                                className="object-cover"
                               />
                               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                                 <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -1347,15 +1343,18 @@ export function MediaManager({ clientId }: MediaManagerProps) {
                   onClick={(e) => e.stopPropagation()}
                 >
                   {previewItem.type === "image" && previewItem.url && (
-                    <Image
-                      src={previewItem.url}
-                      alt={previewItem.title}
-                      className="max-w-full max-h-full object-contain rounded-lg shadow-2xl cursor-zoom-in"
-                      onClick={() => {
-                        // Abre em nova aba para zoom total
-                        window.open(previewItem.url!, '_blank');
-                      }}
-                    />
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={previewItem.url}
+                        alt={previewItem.title}
+                        fill
+                        sizes="100vw"
+                        className="object-contain rounded-lg shadow-2xl cursor-zoom-in"
+                        onClick={() => {
+                          window.open(previewItem.url!, '_blank');
+                        }}
+                      />
+                    </div>
                   )}
 
                   {previewItem.type === "video" && previewItem.url && (

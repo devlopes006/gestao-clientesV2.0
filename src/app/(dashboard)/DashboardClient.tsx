@@ -54,20 +54,20 @@ export function DashboardClient({ initialData, initialMonthKey }: DashboardClien
 
   return (
     <div className="page-background">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
 
         {/* Header */}
         <motion.div
-          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
           <div>
-            <h1 className="text-3xl font-bold text-gradient-primary mb-2">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gradient-primary mb-1 sm:mb-2">
               Painel de Gestão
             </h1>
-            <p className="text-slate-600 dark:text-slate-400">
+            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
               Olá, {data.user.name || 'Usuário'}! Aqui está um resumo do seu negócio
             </p>
           </div>
@@ -75,11 +75,12 @@ export function DashboardClient({ initialData, initialMonthKey }: DashboardClien
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.3 }}
+            className="w-full sm:w-auto"
           >
-            <div className="px-6 py-3 rounded-xl bg-linear-to-br from-white/80 to-white/60 dark:from-slate-800/80 dark:to-slate-900/60 backdrop-blur-md border-2 border-slate-200 dark:border-slate-700 shadow-lg">
+            <div className="px-4 sm:px-6 py-2 sm:py-3 rounded-xl bg-linear-to-br from-white to-white/90 dark:from-slate-800 dark:to-slate-900 backdrop-blur-md border-2 border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl transition-all duration-200">
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400" />
+                <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200">
                   {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
                 </p>
               </div>
@@ -131,24 +132,24 @@ export function DashboardClient({ initialData, initialMonthKey }: DashboardClien
 
         {/* Grid Principal */}
         <motion.div
-          className="grid grid-cols-1 xl:grid-cols-3 gap-6"
+          className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
 
           {/* Coluna Principal (2/3) */}
-          <div className="xl:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
 
             {/* Calendário Mensal */}
             {data.activities && (
-              <Card variant="default" hover>
+              <Card variant="default" hover className="border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all duration-200 hover:shadow-2xl">
                 <CardHeader>
                   <div className="flex items-center gap-2">
-                    <div className="p-2 bg-linear-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg">
-                      <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    <div className="p-2 bg-linear-to-br from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50 rounded-lg shadow-lg hover:scale-110 transition-transform duration-200">
+                      <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <CardTitle>Calendário de Atividades</CardTitle>
+                    <CardTitle className="text-base sm:text-lg">Calendário de Atividades</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -181,70 +182,70 @@ export function DashboardClient({ initialData, initialMonthKey }: DashboardClien
 
             {/* Métricas Detalhadas */}
             {metrics && (
-              <Card variant="default" hover>
+              <Card variant="default" hover className="border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all duration-200 hover:shadow-2xl">
                 <CardHeader>
                   <div className="flex items-center gap-2">
-                    <div className="p-2 bg-linear-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-lg">
-                      <TrendingUp className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    <div className="p-2 bg-linear-to-br from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 rounded-lg shadow-lg hover:scale-110 transition-transform duration-200">
+                      <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 dark:text-purple-400" />
                     </div>
-                    <CardTitle>Métricas do Negócio</CardTitle>
+                    <CardTitle className="text-base sm:text-lg">Métricas do Negócio</CardTitle>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3 sm:space-y-4">
                   {metrics.mostPendingClient && (
-                    <div className="p-4 rounded-xl bg-linear-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-2 border-amber-200 dark:border-amber-800">
+                    <div className="p-3 sm:p-4 rounded-xl bg-linear-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-2 border-amber-200 dark:border-amber-800 hover:scale-105 transition-all duration-200">
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <h4 className="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wider mb-1">
                             Mais Tarefas Pendentes
                           </h4>
-                          <p className="text-lg font-bold text-slate-900 dark:text-white">
+                          <p className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                             {metrics.mostPendingClient.name}
                           </p>
-                          <p className="text-sm text-slate-600 dark:text-slate-400">
+                          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                             {metrics.mostPendingClient.pending} tarefas aguardando
                           </p>
                         </div>
-                        <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
-                          <ListTodo className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                        <div className="p-2 bg-linear-to-br from-amber-100 to-orange-100 dark:from-amber-900/50 dark:to-orange-900/50 rounded-lg shadow-lg hover:scale-110 transition-transform duration-200">
+                          <ListTodo className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 dark:text-amber-400" />
                         </div>
                       </div>
                     </div>
                   )}
 
                   {metrics.mostUrgentClient && (
-                    <div className="p-4 rounded-xl bg-linear-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30 border-2 border-red-200 dark:border-red-800">
+                    <div className="p-3 sm:p-4 rounded-xl bg-linear-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30 border-2 border-red-200 dark:border-red-800 hover:scale-105 transition-all duration-200">
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <h4 className="text-xs font-semibold text-red-700 dark:text-red-300 uppercase tracking-wider mb-1">
                             Mais Tarefas Urgentes
                           </h4>
-                          <p className="text-lg font-bold text-slate-900 dark:text-white">
+                          <p className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                             {metrics.mostUrgentClient.name}
                           </p>
-                          <p className="text-sm text-slate-600 dark:text-slate-400">
+                          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                             {metrics.mostUrgentClient.urgent} tarefas urgentes
                           </p>
                         </div>
-                        <div className="p-2 bg-red-100 dark:bg-red-900/50 rounded-lg">
-                          <Clock className="h-5 w-5 text-red-600 dark:text-red-400" />
+                        <div className="p-2 bg-linear-to-br from-red-100 to-rose-100 dark:from-red-900/50 dark:to-rose-900/50 rounded-lg shadow-lg hover:scale-110 transition-transform duration-200">
+                          <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 dark:text-red-400" />
                         </div>
                       </div>
                     </div>
                   )}
 
-                  <div className="pt-4 border-t-2 border-slate-200 dark:border-slate-700">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center p-4 rounded-xl bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800">
-                        <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                  <div className="pt-3 sm:pt-4 border-t-2 border-slate-200 dark:border-slate-700">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                      <div className="text-center p-3 sm:p-4 rounded-xl bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-2 border-blue-200 dark:border-blue-800 transition-all duration-200 hover:scale-105 hover:shadow-lg">
+                        <p className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400">
                           {metrics.totals.clients}
                         </p>
                         <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mt-1 uppercase tracking-wider">
                           Clientes
                         </p>
                       </div>
-                      <div className="text-center p-4 rounded-xl bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border border-purple-200 dark:border-purple-800">
-                        <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                      <div className="text-center p-3 sm:p-4 rounded-xl bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border-2 border-purple-200 dark:border-purple-800 transition-all duration-200 hover:scale-105 hover:shadow-lg">
+                        <p className="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400">
                           {metrics.totals.tasks}
                         </p>
                         <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mt-1 uppercase tracking-wider">
@@ -259,17 +260,17 @@ export function DashboardClient({ initialData, initialMonthKey }: DashboardClien
           </div>
 
           {/* Sidebar (1/3) */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
 
             {/* Tarefas Mais Urgentes */}
             {metrics && metrics.urgentTasks.length > 0 && (
-              <Card variant="default" hover className="border-red-200 dark:border-red-800">
+              <Card variant="default" hover className="border-2 border-red-200 dark:border-red-800 bg-white dark:bg-slate-900 transition-all duration-200 hover:shadow-2xl">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2">
-                    <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
-                      <Clock className="h-5 w-5 text-red-600 dark:text-red-400" />
+                    <div className="p-2 bg-linear-to-br from-red-100 to-rose-100 dark:from-red-900/50 dark:to-rose-900/50 rounded-lg shadow-lg hover:scale-110 transition-transform duration-200">
+                      <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 dark:text-red-400" />
                     </div>
-                    <CardTitle className="text-base">Tarefas Mais Urgentes</CardTitle>
+                    <CardTitle className="text-sm sm:text-base">Tarefas Mais Urgentes</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -278,7 +279,7 @@ export function DashboardClient({ initialData, initialMonthKey }: DashboardClien
                       <Link
                         key={t.id}
                         href={`/clients/${t.client.id}/tasks`}
-                        className="block p-3 rounded-lg border-2 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-900/40 transition-all group"
+                        className="block p-2 sm:p-3 rounded-lg border-2 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-900/40 transition-all duration-200 hover:scale-105 group"
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
@@ -320,13 +321,13 @@ export function DashboardClient({ initialData, initialMonthKey }: DashboardClien
 
             {/* Tarefas Prioritárias */}
             {priorities.length > 0 && (
-              <Card variant="default" hover className="border-amber-200 dark:border-amber-800">
+              <Card variant="default" hover className="border-2 border-amber-200 dark:border-amber-800 bg-white dark:bg-slate-900 transition-all duration-200 hover:shadow-2xl">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2">
-                    <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
-                      <ListTodo className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                    <div className="p-2 bg-linear-to-br from-amber-100 to-orange-100 dark:from-amber-900/50 dark:to-orange-900/50 rounded-lg shadow-lg hover:scale-110 transition-transform duration-200">
+                      <ListTodo className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 dark:text-amber-400" />
                     </div>
-                    <CardTitle className="text-base">Tarefas Prioritárias</CardTitle>
+                    <CardTitle className="text-sm sm:text-base">Tarefas Prioritárias</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -335,7 +336,7 @@ export function DashboardClient({ initialData, initialMonthKey }: DashboardClien
                       <Link
                         key={task.id}
                         href={`/clients/${task.client.id}/tasks`}
-                        className="block p-3 rounded-lg border-2 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all group"
+                        className="block p-2 sm:p-3 rounded-lg border-2 border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all duration-200 hover:scale-105 group"
                       >
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <h4 className="font-semibold text-sm truncate text-slate-900 dark:text-white">

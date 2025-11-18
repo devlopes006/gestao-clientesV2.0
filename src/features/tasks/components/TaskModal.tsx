@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { X } from 'lucide-react';
+import { Sparkles, X } from 'lucide-react';
 import { Task, TaskPriority, TaskStatus } from '../types';
 
 interface TaskModalProps {
@@ -21,37 +21,71 @@ interface TaskModalProps {
 export function TaskModal({ open, onClose, editing, form, setForm, onSubmit }: TaskModalProps) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
-      <div className="relative bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-auto m-4" onClick={(e) => e.stopPropagation()}>
-        <div className="relative p-6 bg-linear-to-r from-blue-600 to-purple-600">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-white">{editing ? 'Editar Tarefa' : 'Nova Tarefa'}</h2>
-              <p className="text-sm text-blue-100 mt-1">Defina título, prioridade, prazo e descrição.</p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
+      <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-auto border-2 border-slate-200 dark:border-slate-700" onClick={(e) => e.stopPropagation()}>
+        {/* Header com gradiente */}
+        <div className="relative p-6 bg-linear-to-r from-blue-600 to-purple-600 rounded-t-2xl">
+          <div className="absolute inset-0 bg-linear-to-r from-blue-600 to-purple-600 opacity-90 rounded-t-2xl" />
+          <div className="relative flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg">
+                <Sparkles className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white">{editing ? 'Editar Tarefa' : 'Nova Tarefa'}</h2>
+                <p className="text-sm text-blue-100 mt-1">Defina título, prioridade, prazo e descrição</p>
+              </div>
             </div>
-            <Button variant="ghost" size="sm" className="text-white hover:bg-white/20" onClick={onClose}>
-              <X className="h-4 w-4" />
+            <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 shrink-0" onClick={onClose}>
+              <X className="h-5 w-5" />
             </Button>
           </div>
         </div>
-        <form onSubmit={onSubmit} className="p-6 space-y-4">
+
+        {/* Form */}
+        <form onSubmit={onSubmit} className="p-6 space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="title" className="text-slate-700 dark:text-slate-300">Título</Label>
-            <Input id="title" required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Ex: Criar landing page" className="bg-white/50 dark:bg-slate-800/50" />
+            <Label htmlFor="title" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Título da Tarefa *</Label>
+            <Input
+              id="title"
+              required
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              placeholder="Ex: Criar landing page"
+              className="border-2 border-slate-200 dark:border-slate-700"
+            />
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-slate-700 dark:text-slate-300">Descrição (opcional)</Label>
-            <Textarea id="description" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="bg-white/50 dark:bg-slate-800/50" />
+            <Label htmlFor="description" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Descrição</Label>
+            <Textarea
+              id="description"
+              rows={4}
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              placeholder="Detalhes sobre a tarefa..."
+              className="border-2 border-slate-200 dark:border-slate-700 resize-none"
+            />
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="assignee" className="text-slate-700 dark:text-slate-300">Responsável (opcional)</Label>
-            <Input id="assignee" value={form.assignee} onChange={(e) => setForm({ ...form, assignee: e.target.value })} placeholder="Nome do responsável" className="bg-white/50 dark:bg-slate-800/50" />
+            <Label htmlFor="assignee" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Responsável</Label>
+            <Input
+              id="assignee"
+              value={form.assignee}
+              onChange={(e) => setForm({ ...form, assignee: e.target.value })}
+              placeholder="Nome do responsável"
+              className="border-2 border-slate-200 dark:border-slate-700"
+            />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="status" className="text-slate-700 dark:text-slate-300">Status</Label>
+              <Label htmlFor="status" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Status *</Label>
               <Select value={form.status} onValueChange={(value) => setForm({ ...form, status: value as TaskStatus })}>
-                <SelectTrigger className="bg-white/50 dark:bg-slate-800/50"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="border-2 border-slate-200 dark:border-slate-700">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todo">A Fazer</SelectItem>
                   <SelectItem value="in-progress">Em Progresso</SelectItem>
@@ -59,10 +93,13 @@ export function TaskModal({ open, onClose, editing, form, setForm, onSubmit }: T
                 </SelectContent>
               </Select>
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="priority" className="text-slate-700 dark:text-slate-300">Prioridade</Label>
+              <Label htmlFor="priority" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Prioridade *</Label>
               <Select value={form.priority} onValueChange={(value) => setForm({ ...form, priority: value as TaskPriority })}>
-                <SelectTrigger className="bg-white/50 dark:bg-slate-800/50"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="border-2 border-slate-200 dark:border-slate-700">
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="low">Baixa</SelectItem>
                   <SelectItem value="medium">Média</SelectItem>
@@ -70,14 +107,26 @@ export function TaskModal({ open, onClose, editing, form, setForm, onSubmit }: T
                 </SelectContent>
               </Select>
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="dueDate" className="text-slate-700 dark:text-slate-300">Prazo</Label>
-              <Input id="dueDate" type="date" value={form.dueDate} onChange={(e) => setForm({ ...form, dueDate: e.target.value })} className="bg-white/50 dark:bg-slate-800/50" />
+              <Label htmlFor="dueDate" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Prazo</Label>
+              <Input
+                id="dueDate"
+                type="date"
+                value={form.dueDate}
+                onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
+                className="border-2 border-slate-200 dark:border-slate-700"
+              />
             </div>
           </div>
-          <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-            <Button type="submit" className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0">{editing ? 'Atualizar' : 'Salvar'}</Button>
+
+          <div className="flex justify-end gap-3 pt-4 border-t-2 border-slate-200 dark:border-slate-700">
+            <Button type="button" variant="outline" onClick={onClose} size="lg">
+              Cancelar
+            </Button>
+            <Button type="submit" size="lg">
+              {editing ? 'Atualizar Tarefa' : 'Criar Tarefa'}
+            </Button>
           </div>
         </form>
       </div>

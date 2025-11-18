@@ -5,7 +5,12 @@ import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
 
 export interface SessionProfile {
-  user: { id: string; email: string; name: string | null } | null
+  user: {
+    id: string
+    email: string
+    name: string | null
+    image: string | null
+  } | null
   orgId: string | null
   role: AppRole | null
 }
@@ -38,7 +43,12 @@ export async function getSessionProfile(): Promise<SessionProfile> {
     const role = membership.role as AppRole
 
     const profile = {
-      user: { id: user.id, email: user.email, name: user.name },
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        image: user.image,
+      },
       orgId: membership.orgId,
       role,
     }

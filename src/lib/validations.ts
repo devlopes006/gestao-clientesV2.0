@@ -56,6 +56,17 @@ export const createTaskSchema = z.object({
 
 export const updateTaskSchema = createTaskSchema.partial()
 
+// Strategy schemas
+export const createStrategySchema = z.object({
+  title: z.string().min(1, 'Título é obrigatório').max(200),
+  description: z.string().max(2000).optional(),
+  type: z.enum(['objective', 'action-plan', 'target-audience', 'kpi']),
+  content: z.string().min(1, 'Conteúdo é obrigatório').max(10000),
+  clientId: z.string().cuid(),
+})
+
+export const updateStrategySchema = createStrategySchema.partial()
+
 /**
  * Client schemas
  */

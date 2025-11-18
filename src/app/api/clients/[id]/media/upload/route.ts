@@ -57,11 +57,16 @@ export async function POST(
     let folderId = (formData.get('folderId') as string) || null
     const tagsRaw = (formData.get('tags') as string) || null
     const isLogo = (formData.get('isLogo') as string) === 'true'
+    const colorsRaw = (formData.get('colors') as string) || null
     let tags: string[] = []
+    let colors: string[] | null = null
     try {
       if (tagsRaw) tags = JSON.parse(tagsRaw) as string[]
+      if (colorsRaw) colors = JSON.parse(colorsRaw) as string[]
     } catch {
+      // ignore parse errors
       tags = []
+      colors = null
     }
 
     // Se for logo, criar/buscar pasta "Logos" automaticamente
@@ -161,7 +166,8 @@ export async function POST(
       },
     })
 
-    return NextResponse.json(media)
+    // Inclui cores extraídas no payload de resposta (não persiste em DB aqui)
+    return NextResponse.json({ ...media, colors: colors || undefined })
   } catch (e) {
     console.error('Upload error:', e)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })

@@ -84,6 +84,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         { status: 404 }
       )
 
+    // Normalize dueDate to a valid Date or null
+    const normalizedDueDate =
+      sanitized.dueDate instanceof Date && !isNaN(sanitized.dueDate.getTime())
+        ? sanitized.dueDate
+        : null
+
     const task = await prisma.task.create({
       data: {
         clientId,
@@ -93,7 +99,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         status: sanitized.status ?? 'todo',
         priority: sanitized.priority ?? 'medium',
         assignee: sanitized.assignee ?? null,
-        dueDate: sanitized.dueDate ?? null,
+        dueDate: normalizedDueDate,
       },
     })
 
@@ -140,6 +146,13 @@ export async function PATCH(request: NextRequest) {
         { status: 404 }
       )
 
+    const normalizedUpdateDueDate =
+      sanitized.dueDate instanceof Date && !isNaN(sanitized.dueDate.getTime())
+        ? sanitized.dueDate
+        : sanitized.dueDate === null
+          ? null
+          : undefined
+
     const updated = await prisma.task.update({
       where: { id: taskId },
       data: {
@@ -148,7 +161,10 @@ export async function PATCH(request: NextRequest) {
         status: sanitized.status,
         priority: sanitized.priority,
         assignee: sanitized.assignee,
-        dueDate: sanitized.dueDate,
+        // Only update dueDate if provided; set to null if explicitly null
+        ...(normalizedUpdateDueDate !== undefined && {
+          dueDate: normalizedUpdateDueDate,
+        }),
       },
     })
 

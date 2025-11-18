@@ -10,12 +10,15 @@ import {
   getMediaTypeFromMime,
   isAllowedMimeType,
   uploadFile,
+  uploadFileStream,
 } from '@/lib/storage'
 import { getSessionProfile } from '@/services/auth/session'
 import { fileTypeFromBuffer } from 'file-type'
 import { NextResponse } from 'next/server'
 
 const MAX_FILE_SIZE = 1.5 * 1024 * 1024 * 1024 // 1.5GB
+
+export const runtime = 'nodejs'
 
 // POST /api/clients/[id]/media/upload
 export async function POST(
@@ -121,23 +124,36 @@ export async function POST(
       }
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer())
+    const fileKey = generateFileKey(clientId, file.name)
 
-    // Validar magic bytes para garantir que o tipo do arquivo é real
-    const detectedType = await fileTypeFromBuffer(buffer)
-    if (detectedType && !isAllowedMimeType(detectedType.mime)) {
-      return NextResponse.json(
-        {
-          error: `Tipo de arquivo não permitido. Detectado: ${detectedType.mime}`,
-          detectedMime: detectedType.mime,
-          claimedMime: file.type,
-        },
-        { status: 400 }
-      )
+    // Para arquivos maiores, usa streaming direto para o storage (sem buffers grandes)
+    const LARGE_FILE_THRESHOLD = 15 * 1024 * 1024 // 15MB
+    let uploadResult: {
+      success: boolean
+      url?: string
+      thumbUrl?: string
+      error?: string
     }
 
-    const fileKey = generateFileKey(clientId, file.name)
-    const uploadResult = await uploadFile(fileKey, buffer, file.type)
+    if (file.size > LARGE_FILE_THRESHOLD || !file.type.startsWith('image/')) {
+      // Upload por streaming: sem validação de magic bytes nem thumbnail
+      uploadResult = await uploadFileStream(fileKey, file.stream(), file.type)
+    } else {
+      // Arquivos pequenos (imagens): mantém validação + thumb/compressão
+      const buffer = Buffer.from(await file.arrayBuffer())
+      const detectedType = await fileTypeFromBuffer(buffer)
+      if (detectedType && !isAllowedMimeType(detectedType.mime)) {
+        return NextResponse.json(
+          {
+            error: `Tipo de arquivo não permitido. Detectado: ${detectedType.mime}`,
+            detectedMime: detectedType.mime,
+            claimedMime: file.type,
+          },
+          { status: 400 }
+        )
+      }
+      uploadResult = await uploadFile(fileKey, buffer, file.type)
+    }
 
     if (!uploadResult.success) {
       return NextResponse.json(

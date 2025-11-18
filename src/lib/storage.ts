@@ -7,9 +7,11 @@ import {
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import crypto from 'crypto'
+import fsSync from 'fs'
 import fs from 'fs/promises'
 import path from 'path'
 import sharp from 'sharp'
+import { Readable } from 'stream'
 
 // Configuração S3 ou local
 const USE_S3 = process.env.USE_S3 === 'true'
@@ -193,6 +195,58 @@ export async function uploadFile(
     }
   } catch (err) {
     console.error('Upload error:', err)
+    return { success: false, error: String(err) }
+  }
+}
+
+/**
+ * Upload por streaming para S3/local, evitando carregar tudo em memória.
+ * Não faz compressão nem thumbnail. Ideal para arquivos grandes.
+ */
+export async function uploadFileStream(
+  fileKey: string,
+  body: Readable | ReadableStream,
+  mimeType: string
+): Promise<{ success: boolean; url?: string; error?: string }> {
+  try {
+    // Converte Web ReadableStream para Node Readable, se necessário
+    const nodeStream = (body as any).pipe
+      ? (body as Readable)
+      : (Readable as any).fromWeb(body as any)
+
+    if (USE_S3 && s3Client) {
+      await s3Client.send(
+        new PutObjectCommand({
+          Bucket: S3_BUCKET,
+          Key: fileKey,
+          Body: nodeStream as any,
+          ContentType: mimeType,
+        })
+      )
+
+      let url: string
+      if (process.env.AWS_ENDPOINT_URL) {
+        url = await getFileUrl(fileKey, 604800)
+      } else {
+        url = `https://${S3_BUCKET}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${fileKey}`
+      }
+      return { success: true, url }
+    }
+
+    // Local fallback com stream
+    const fullPath = path.join(LOCAL_UPLOAD_DIR, fileKey)
+    await fs.mkdir(path.dirname(fullPath), { recursive: true })
+    await new Promise<void>((resolve, reject) => {
+      const write = fsSync.createWriteStream(fullPath)
+      nodeStream
+        .pipe(write)
+        .on('finish', () => resolve())
+        .on('error', (e: any) => reject(e))
+    })
+    const url = `/uploads/${fileKey}`
+    return { success: true, url }
+  } catch (err) {
+    console.error('Upload stream error:', err)
     return { success: false, error: String(err) }
   }
 }

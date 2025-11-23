@@ -8,6 +8,8 @@ const s3Domain = process.env.S3_BUCKET
 
 const nextConfig = {
   typedRoutes: false,
+  // Desabilitar output file tracing para Netlify (causa erro com middleware)
+  outputFileTracing: false,
   // output: 'standalone' é para Docker, não Netlify
   // Remover ou usar condicionalmente
   ...(process.env.DOCKER_BUILD === 'true' && { output: 'standalone' }),

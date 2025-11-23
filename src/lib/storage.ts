@@ -12,16 +12,21 @@ import path from 'path'
 import sharp from 'sharp'
 
 // Configuração S3 ou local
-const USE_S3 = process.env.USE_S3 === 'true'
+const USE_S3 = process.env.USE_S3 === 'true' || process.env.USE_S3 === '1'
 const LOCAL_UPLOAD_DIR = process.env.LOCAL_UPLOAD_DIR || './uploads'
 
-const S3_BUCKET = process.env.AWS_S3_BUCKET || ''
+// Support both AWS_* env names and STORAGE_* (Cloudflare R2) for backwards compatibility
+const S3_BUCKET = process.env.AWS_S3_BUCKET || process.env.STORAGE_BUCKET || ''
 let s3Client: S3Client | null = null
 if (USE_S3) {
-  const accessKeyId = process.env.AWS_ACCESS_KEY_ID || ''
-  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY || ''
-  const endpoint = process.env.AWS_ENDPOINT_URL
-  const regionEnv = process.env.AWS_REGION
+  const accessKeyId =
+    process.env.AWS_ACCESS_KEY_ID || process.env.STORAGE_ACCESS_KEY_ID || ''
+  const secretAccessKey =
+    process.env.AWS_SECRET_ACCESS_KEY ||
+    process.env.STORAGE_SECRET_ACCESS_KEY ||
+    ''
+  const endpoint = process.env.AWS_ENDPOINT_URL || process.env.STORAGE_ENDPOINT
+  const regionEnv = process.env.AWS_REGION || process.env.STORAGE_REGION
   const region = endpoint ? regionEnv || 'auto' : regionEnv || 'us-east-1'
 
   const canUseS3 = !!(accessKeyId && secretAccessKey && S3_BUCKET)
@@ -243,6 +248,24 @@ export async function getFileUrl(
   } else {
     return `/uploads/${fileKey}`
   }
+}
+
+/**
+ * Gera uma URL presignada para upload (PUT) para S3/R2.
+ * Retorna null se S3 não estiver configurado.
+ */
+export async function createPresignedPutUrl(
+  fileKey: string,
+  mimeType: string,
+  expiresIn = 900
+): Promise<string | null> {
+  if (!USE_S3 || !s3Client) return null
+  const cmd = new PutObjectCommand({
+    Bucket: S3_BUCKET,
+    Key: fileKey,
+    ContentType: mimeType,
+  })
+  return await getSignedUrl(s3Client, cmd, { expiresIn })
 }
 
 /**

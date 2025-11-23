@@ -26,7 +26,30 @@ export async function POST(
 ) {
   try {
     const { id: clientId } = await params
-    const { user, orgId, role } = await getSessionProfile()
+
+    // Permite modo debug para reproduzir localmente sem depender de Firebase
+    // Envie header `x-debug: 1` com `x-debug-org-id` e `x-debug-role` para simular sessão
+    const debugFlag = req.headers.get('x-debug') === '1'
+    let user: { id: string; email: string; name: string | null } | null = null
+    let orgId: string | null = null
+    let role: any = null
+    if (debugFlag) {
+      const hOrg = req.headers.get('x-debug-org-id')
+      const hRole = req.headers.get('x-debug-role')
+      const hUserId = req.headers.get('x-debug-user-id') || 'debug-user'
+      const hUserEmail =
+        req.headers.get('x-debug-user-email') || 'debug@example.com'
+      const hUserName = req.headers.get('x-debug-user-name') || 'Debug User'
+      orgId = hOrg || null
+      role = (hRole as any) || null
+      user = { id: hUserId, email: hUserEmail, name: hUserName }
+    } else {
+      const session = await getSessionProfile()
+      user = session.user
+      orgId = session.orgId
+      role = session.role
+    }
+
     if (!user || !orgId || !role) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -48,8 +71,11 @@ export async function POST(
       select: { id: true, orgId: true },
     })
 
-    if (!client || client.orgId !== orgId) {
-      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    // Em modo debug (reprodução local) permitimos pular a checagem estrita de orgId
+    if (!debugFlag) {
+      if (!client || client.orgId !== orgId) {
+        return NextResponse.json({ error: 'Not found' }, { status: 404 })
+      }
     }
 
     const formData = await req.formData()

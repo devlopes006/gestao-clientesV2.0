@@ -326,6 +326,82 @@ export function MediaManager({ clientId }: MediaManagerProps) {
 
     try {
       const uploadPromises = uploadForm.files.map(async (file) => {
+        // Try presigned flow first
+        const tryPresigned = async (): Promise<MediaItem | null> => {
+          try {
+            const req = await fetch(`/api/clients/${clientId}/media/upload-url`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name: file.name, mime: file.type }),
+            });
+            if (!req.ok) {
+              // If server doesn't support presigned or returns error, fallback
+              return null;
+            }
+            const body = await req.json();
+            const presignedUrl: string | undefined = body?.url;
+            const fileKey: string | undefined = body?.fileKey;
+            if (!presignedUrl || !fileKey) return null;
+
+            // Upload via PUT to presigned URL with progress tracking
+            const putResult = await new Promise<boolean>((resolve, reject) => {
+              const xhr = new XMLHttpRequest();
+              xhr.upload.addEventListener("progress", (e) => {
+                if (e.lengthComputable) {
+                  setUploadProgress((prev) => {
+                    const updated = [...prev];
+                    const existing = updated.findIndex((p) => p.fileName === file.name);
+                    if (existing >= 0) {
+                      updated[existing] = { fileName: file.name, progress: e.loaded, total: e.total };
+                    } else {
+                      updated.push({ fileName: file.name, progress: e.loaded, total: e.total });
+                    }
+                    return updated;
+                  });
+                }
+              });
+              xhr.addEventListener("load", () => {
+                if (xhr.status >= 200 && xhr.status < 300) resolve(true);
+                else reject(new Error(`Upload falhou (status ${xhr.status})`));
+              });
+              xhr.addEventListener("error", () => reject(new Error("Erro de rede durante PUT")));
+              xhr.open("PUT", presignedUrl);
+              if (file.type) xhr.setRequestHeader("Content-Type", file.type);
+              xhr.send(file);
+            });
+
+            if (!putResult) return null;
+
+            // Register the uploaded file in our DB
+            const reg = await fetch(`/api/clients/${clientId}/media/register`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                fileKey,
+                title: uploadForm.files.length === 1 ? uploadForm.title || file.name : file.name,
+                description: uploadForm.description,
+                folderId: currentFolderId,
+                tags: uploadForm.tags,
+                fileSize: file.size,
+                mimeType: file.type,
+              }),
+            });
+            if (!reg.ok) {
+              const err = await reg.json().catch(() => ({}));
+              throw new Error(err?.error || err?.details || "Falha ao registrar arquivo");
+            }
+            const saved = await reg.json();
+            return saved as MediaItem;
+          } catch (err) {
+            // swallow and signal fallback to server upload
+            return null;
+          }
+        };
+
+        const presignedResult = await tryPresigned();
+        if (presignedResult) return presignedResult;
+
+        // Fallback to existing server upload if presigned not available
         const formData = new FormData();
         formData.append("file", file);
         formData.append(

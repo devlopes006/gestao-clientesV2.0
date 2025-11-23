@@ -75,7 +75,7 @@ export async function POST(req: Request) {
 
     // Em produção (HTTPS), secure deve ser true; em dev (HTTP), false
     const isProduction = process.env.NODE_ENV === 'production'
-    
+
     cookieStore.set('auth', idToken, {
       httpOnly: true,
       secure: isProduction, // true em produção HTTPS, false em dev HTTP

@@ -8,6 +8,9 @@
   PNPM_VERSION = "9"
   # Netlify Secrets Scanning: allow known-safe public keys (e.g., Firebase API key starting with AIza)
   SECRETS_SCAN_SMART_DETECTION_ENABLED = "true"
+  # Omit specific env values from secret scanning (resolved at build time)
+  # This prevents false positives when Next.js inlines public envs into bundles
+  SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "NEXT_PUBLIC_FIREBASE_API_KEY"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"

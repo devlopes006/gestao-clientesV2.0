@@ -248,25 +248,17 @@ export async function getFileUrl(
 /**
  * Valida MIME type (whitelist)
  */
-const ALLOWED_MIME_TYPES = [
-  // Imagens
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-  'image/svg+xml',
-  'image/bmp',
-  'image/tiff',
-  // Vídeos
-  'video/mp4',
-  'video/mpeg',
-  'video/quicktime',
-  'video/x-msvideo',
-  'video/x-flv',
-  'video/webm',
-  'video/x-matroska',
-  // Documentos
+// Aceitação ampla de mídia (imagens, vídeos, áudio, documentos comuns)
+// Mantém pequena lista de tipos potencialmente perigosos para bloquear.
+const BLOCKED_MIME_PREFIXES = [
+  'application/x-msdownload', // executáveis Windows
+  'application/x-sh',
+  'application/x-csh',
+  'application/x-executable',
+  'application/x-dosexec',
+]
+
+const EXTRA_DOCUMENT_TYPES = [
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -274,17 +266,21 @@ const ALLOWED_MIME_TYPES = [
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   'application/vnd.ms-powerpoint',
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-  'text/plain',
-  'text/csv',
-  // Audio
-  'audio/mpeg',
-  'audio/wav',
-  'audio/ogg',
-  'audio/mp4',
+  'application/json',
 ]
 
 export function isAllowedMimeType(mimeType: string): boolean {
-  return ALLOWED_MIME_TYPES.includes(mimeType)
+  if (!mimeType) return false
+  if (BLOCKED_MIME_PREFIXES.some((p) => mimeType.startsWith(p))) return false
+  if (mimeType.startsWith('image/')) return true // inclui heic, heif, avif, etc.
+  if (mimeType.startsWith('video/')) return true
+  if (mimeType.startsWith('audio/')) return true
+  if (mimeType.startsWith('text/')) return true
+  if (EXTRA_DOCUMENT_TYPES.includes(mimeType)) return true
+  // Permitir binário genérico para alguns formatos não detectados
+  if (mimeType === 'application/octet-stream') return true
+  // Outros application/* são bloqueados por segurança
+  return false
 }
 
 export function getMediaTypeFromMime(

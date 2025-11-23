@@ -373,9 +373,21 @@ export function MediaManager({ clientId }: MediaManagerProps) {
             if (xhr.status >= 200 && xhr.status < 300) {
               resolve(json);
             } else {
-              const serverMsg = json?.error || json?.details || `Upload falhou (status ${xhr.status})`;
-              const mimeInfo = json?.detectedMime ? ` | detected=${json.detectedMime} claimed=${json.claimedMime}` : '';
-              reject(new Error(serverMsg + mimeInfo));
+              const rawError = json?.error || json?.details || `Upload falhou (status ${xhr.status})`;
+              const claimed = json?.claimedMime;
+              const detected = json?.detectedMime;
+              let userMessage = rawError;
+              if (rawError.includes('File type blocked for security')) {
+                userMessage = 'Tipo de arquivo bloqueado por segurança. Evite enviar executáveis ou scripts.';
+              } else if (rawError.includes('Unsupported media type')) {
+                userMessage = 'Tipo de mídia não suportado. Envie imagens, vídeos, áudio ou documentos (PDF, Word, Excel, PowerPoint, TXT, CSV).';
+              } else if (rawError.includes('magic bytes')) {
+                userMessage = 'Assinatura interna do arquivo não corresponde ao tipo declarado. O arquivo pode estar corrompido ou renomeado.';
+              }
+              if (claimed || detected) {
+                userMessage += ` (claimed=${claimed || 'desconhecido'}${detected ? `; detected=${detected}` : ''})`;
+              }
+              reject(new Error(userMessage));
             }
           });
 

@@ -262,8 +262,12 @@ export async function POST(
     }
 
     // Persistir metadados no banco
+    // IMPORTANTE: Para R2/S3, NÃO salvamos URLs presigned (expiram)
+    // Apenas fileKey é salvo, URLs são geradas dinamicamente no GET
     let media
     try {
+      const isLocalStorage =
+        !process.env.USE_S3 || process.env.USE_S3 === 'false'
       media = await prisma.media.create({
         data: {
           title: title || file.name,
@@ -271,8 +275,9 @@ export async function POST(
           fileKey,
           mimeType: file.type,
           fileSize: file.size,
-          url: uploadResult.url || null,
-          thumbUrl: uploadResult.thumbUrl || null,
+          // Apenas salva URL/thumbUrl para storage local (não expira)
+          url: isLocalStorage ? uploadResult.url || null : null,
+          thumbUrl: isLocalStorage ? uploadResult.thumbUrl || null : null,
           type: getMediaTypeFromMime(file.type),
           folderId: folderId || null,
           tags: tags,
@@ -306,8 +311,23 @@ export async function POST(
       size: file.size,
       durationMs: finishedAt - startedAt,
     })
+
+    // Regenerate fresh URLs for response (7 days expiry)
+    let freshUrl = media.url
+    let freshThumbUrl = media.thumbUrl
+    if (!isLocalStorage && media.fileKey) {
+      freshUrl = await getFileUrl(media.fileKey, 604800) // 7 days
+      if (media.thumbUrl) {
+        const ext = media.fileKey.substring(media.fileKey.lastIndexOf('.'))
+        const thumbKey = media.fileKey.replace(ext, '_thumb.webp')
+        freshThumbUrl = await getFileUrl(thumbKey, 604800).catch(() => null)
+      }
+    }
+
     return NextResponse.json({
       ...media,
+      url: freshUrl,
+      thumbUrl: freshThumbUrl,
       colors: colors || undefined,
       correlationId,
       debugStorage: debugStorage ? storageSnapshot() : undefined,

@@ -46,7 +46,40 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
         folder: { select: { id: true, name: true } },
       },
     })
-    return NextResponse.json(media)
+
+    // Regenera URLs presigned se houver fileKey (para R2/S3 com URLs expiradas)
+    const mediaWithFreshUrls = await Promise.all(
+      media.map(async (m) => {
+        if (m.fileKey) {
+          try {
+            // Gera nova URL presigned (7 dias de validade)
+            const freshUrl = await getFileUrl(m.fileKey, 604800)
+            let freshThumbUrl: string | null = null
+
+            // Se tem thumbnail, gera URL também
+            if (m.thumbUrl && m.fileKey) {
+              const ext = m.fileKey.substring(m.fileKey.lastIndexOf('.'))
+              const thumbKey = m.fileKey.replace(ext, '_thumb.webp')
+              freshThumbUrl = await getFileUrl(thumbKey, 604800).catch(
+                () => null
+              )
+            }
+
+            return {
+              ...m,
+              url: freshUrl,
+              thumbUrl: freshThumbUrl || m.thumbUrl,
+            }
+          } catch (err) {
+            console.error('[media:url-regen-error]', { mediaId: m.id, err })
+            return m
+          }
+        }
+        return m
+      })
+    )
+
+    return NextResponse.json(mediaWithFreshUrls)
   } catch (e) {
     console.error('Erro GET media', e)
     return NextResponse.json(

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
 import { isAllowedMimeType, mimeRejectionReason } from '@/lib/storage'
+import { describe, expect, it } from 'vitest'
 
 describe('mime type validation', () => {
   it('allows common image types', () => {

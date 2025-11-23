@@ -283,6 +283,16 @@ export function isAllowedMimeType(mimeType: string): boolean {
   return false
 }
 
+export function mimeRejectionReason(
+  mimeType: string
+): 'blocked' | 'unsupported' | null {
+  if (!mimeType) return 'unsupported'
+  if (isAllowedMimeType(mimeType)) return null
+  if (BLOCKED_MIME_PREFIXES.some((p) => mimeType.startsWith(p)))
+    return 'blocked'
+  return 'unsupported'
+}
+
 export function getMediaTypeFromMime(
   mimeType: string
 ): 'image' | 'video' | 'document' {

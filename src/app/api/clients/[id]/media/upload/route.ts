@@ -9,6 +9,7 @@ import {
   generateFileKey,
   getMediaTypeFromMime,
   isAllowedMimeType,
+  mimeRejectionReason,
   uploadFile,
 } from '@/lib/storage'
 import { getSessionProfile } from '@/services/auth/session'
@@ -108,8 +109,15 @@ export async function POST(
     }
 
     if (!isAllowedMimeType(file.type)) {
+      const reason = mimeRejectionReason(file.type)
       return NextResponse.json(
-        { error: 'File type not allowed', claimedMime: file.type },
+        {
+          error:
+            reason === 'blocked'
+              ? 'File type blocked for security'
+              : 'Unsupported media type',
+          claimedMime: file.type,
+        },
         { status: 400 }
       )
     }
@@ -129,9 +137,13 @@ export async function POST(
     // Validar magic bytes para garantir que o tipo do arquivo é real
     const detectedType = await fileTypeFromBuffer(buffer)
     if (detectedType && !isAllowedMimeType(detectedType.mime)) {
+      const reason = mimeRejectionReason(detectedType.mime)
       return NextResponse.json(
         {
-          error: 'File type not allowed (magic bytes)',
+          error:
+            reason === 'blocked'
+              ? 'File type blocked for security (magic bytes)'
+              : 'Unsupported media type (magic bytes)',
           detectedMime: detectedType.mime,
           claimedMime: file.type,
         },

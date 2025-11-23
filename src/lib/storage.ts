@@ -166,7 +166,9 @@ export async function uploadFile(
 
       // Generate public URL (R2, S3, etc.)
       let url: string
-      if (process.env.AWS_ENDPOINT_URL) {
+      const endpoint =
+        process.env.STORAGE_ENDPOINT || process.env.AWS_ENDPOINT_URL
+      if (endpoint) {
         // Cloudflare R2 or custom endpoint: use signed URL helper
         url = await getFileUrl(fileKey, 604800)
       } else {
@@ -197,7 +199,7 @@ export async function uploadFile(
           } catch (err) {
             console.error('[storage:thumb:error]', { fileKey, error: err })
           }
-          if (process.env.AWS_ENDPOINT_URL) {
+          if (endpoint) {
             thumbUrl = await getFileUrl(thumbKey, 604800)
           } else {
             thumbUrl = `https://${S3_BUCKET}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${thumbKey}`

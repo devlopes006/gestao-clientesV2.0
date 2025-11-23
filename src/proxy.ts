@@ -1,14 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-// Lightweight role hints encoded in cookie (optional future @todo: JWT with role claim)
-function parseRole(req: NextRequest): string | null {
-  const role = req.cookies.get('role')?.value
-  if (!role) return null
-  if (['OWNER', 'STAFF', 'CLIENT'].includes(role)) return role
-  return null
-}
-
 export async function proxy(req: NextRequest) {
   const token = req.cookies.get('auth')?.value
 
@@ -83,17 +75,9 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL('/', req.url))
   }
 
-  // Role-based redirects (simple gate before hitting page server logic)
-  const role = parseRole(req)
-  if (pathname.startsWith('/dashboard') && role === 'CLIENT') {
-    // Clients não acessam dashboard geral
-    return NextResponse.redirect(new URL('/clients', req.url))
-  }
-
-  // Exemplo: bloquear rotas admin para non-OWNER
-  if (pathname.startsWith('/admin') && role && role !== 'OWNER') {
-    return NextResponse.redirect(new URL('/', req.url))
-  }
+  // Nota: Validação de roles removida do middleware para permitir navegação client-side.
+  // As páginas individuais fazem validação server-side via getSessionProfile().
+  // Isso evita problemas de sincronização de cookies e permite SPA navigation funcionar corretamente.
 
   return response
 }

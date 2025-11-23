@@ -18,6 +18,7 @@ O arquivo `public/_headers` precisa incluir TODOS os domínios necessários:
 **Domínios essenciais para Google OAuth:**
 
 - `https://accounts.google.com` - Popup/redirect de login
+- `https://apis.google.com` - **CRUCIAL** - APIs do Google (gapi.js)
 - `https://www.gstatic.com` - Scripts do Google
 - `https://fonts.gstatic.com` - Fontes do Google
 - `https://identitytoolkit.googleapis.com` - API Firebase Auth
@@ -27,18 +28,22 @@ O arquivo `public/_headers` precisa incluir TODOS os domínios necessários:
 **Domínios para Sentry:**
 
 - `https://*.ingest.us.sentry.io` - Envio de erros
+- `https://*.ingest.sentry.io` - Envio de erros (fallback)
 
 **Diretivas CSP necessárias:**
 
 ```
-script-src: 'self' 'unsafe-eval' 'unsafe-inline' https://accounts.google.com https://www.gstatic.com
+script-src: 'self' 'unsafe-eval' 'unsafe-inline' https://accounts.google.com https://apis.google.com https://www.gstatic.com
 worker-src: 'self' blob:
-connect-src: 'self' https://*.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.ingest.us.sentry.io
+connect-src: 'self' https://*.googleapis.com https://apis.google.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.ingest.us.sentry.io https://*.ingest.sentry.io
 style-src: 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com
 font-src: 'self' data: https://fonts.gstatic.com
 frame-src: 'self' https://accounts.google.com https://*.firebaseapp.com
 form-action: 'self' https://accounts.google.com
+frame-ancestors: 'self'
 ```
+
+**IMPORTANTE:** Remover headers do `netlify.toml` para evitar conflito!
 
 ### 2. Variáveis de Ambiente Ausentes no Netlify
 

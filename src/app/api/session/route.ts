@@ -73,9 +73,12 @@ export async function POST(req: Request) {
     // exp expira em segundos; converte para Date
     const expires = new Date(decoded.exp * 1000)
 
+    // Em produção (HTTPS), secure deve ser true; em dev (HTTP), false
+    const isProduction = process.env.NODE_ENV === 'production'
+    
     cookieStore.set('auth', idToken, {
       httpOnly: true,
-      secure: false, // Força false em dev/local para aceitar cookie em HTTP
+      secure: isProduction, // true em produção HTTPS, false em dev HTTP
       sameSite: 'lax',
       path: '/',
       expires,

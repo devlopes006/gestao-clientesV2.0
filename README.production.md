@@ -36,7 +36,7 @@ Sistema completo de gestão de clientes com recursos avançados de mídia, pagam
 
 ### 🖼️ Mídia
 
-- ✅ Upload de imagens/vídeos (até 1.5GB)
+- ✅ Upload de imagens/vídeos (limite configurável)
 - ✅ Storage em S3/Cloudflare R2
 - ✅ Galeria de mídia
 - ✅ Otimização automática de imagens
@@ -182,6 +182,9 @@ SENTRY_DSN="..."
 
 # Cron
 CRON_SECRET="..."
+
+# Upload
+UPLOAD_MAX_SIZE_MB="1536" # Limite máximo em MB (default 1536 = 1.5GB)
 ```
 
 ### Cron Jobs (Netlify)

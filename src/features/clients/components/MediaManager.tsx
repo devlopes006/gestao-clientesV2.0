@@ -1382,20 +1382,43 @@ export function MediaManager({ clientId }: MediaManagerProps) {
                   )}
 
                   {previewItem.type === "document" && previewItem.url && (
-                    <div className="bg-slate-900 rounded-lg p-8 text-center max-w-md">
-                      <FileText className="h-20 w-20 mx-auto mb-4 text-slate-400" />
-                      <p className="text-white mb-4">Preview não disponível para este tipo de arquivo</p>
-                      <a
-                        href={previewItem.url}
-                        download
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
-                      >
-                        <Download className="h-4 w-4" />
-                        Baixar Arquivo
-                      </a>
-                    </div>
+                    previewItem.mimeType === 'application/pdf' ? (
+                      <div className="w-full h-full flex flex-col">
+                        <iframe
+                          src={previewItem.url}
+                          title={previewItem.title}
+                          className="flex-1 w-full h-full rounded-lg bg-white"
+                          sandbox="allow-scripts allow-same-origin allow-downloads"
+                        />
+                        <div className="mt-2 flex justify-end">
+                          <a
+                            href={previewItem.url}
+                            download
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+                          >
+                            <Download className="h-4 w-4" />
+                            Baixar PDF
+                          </a>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-slate-900 rounded-lg p-8 text-center max-w-md">
+                        <FileText className="h-20 w-20 mx-auto mb-4 text-slate-400" />
+                        <p className="text-white mb-4">Preview não disponível para este tipo de arquivo</p>
+                        <a
+                          href={previewItem.url}
+                          download
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+                        >
+                          <Download className="h-4 w-4" />
+                          Baixar Arquivo
+                        </a>
+                      </div>
+                    )
                   )}
                 </div>
               </div>

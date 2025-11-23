@@ -12,11 +12,12 @@ import {
   mimeRejectionReason,
   uploadFile,
 } from '@/lib/storage'
+import { getMaxUploadSizeBytes, getMaxUploadSizeMB } from '@/lib/upload-config'
 import { getSessionProfile } from '@/services/auth/session'
 import { fileTypeFromBuffer } from 'file-type'
 import { NextResponse } from 'next/server'
 
-const MAX_FILE_SIZE = 1.5 * 1024 * 1024 * 1024 // 1.5GB
+const MAX_FILE_SIZE = getMaxUploadSizeBytes()
 
 // POST /api/clients/[id]/media/upload
 export async function POST(
@@ -103,7 +104,7 @@ export async function POST(
 
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: `Arquivo muito grande (máx 1.5GB)` },
+        { error: `Arquivo muito grande (máx ${getMaxUploadSizeMB()}MB)` },
         { status: 400 }
       )
     }

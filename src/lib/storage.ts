@@ -15,18 +15,18 @@ import sharp from 'sharp'
 const USE_S3 = process.env.USE_S3 === 'true' || process.env.USE_S3 === '1'
 const LOCAL_UPLOAD_DIR = process.env.LOCAL_UPLOAD_DIR || './uploads'
 
-// Support both AWS_* env names and STORAGE_* (Cloudflare R2) for backwards compatibility
-const S3_BUCKET = process.env.AWS_S3_BUCKET || process.env.STORAGE_BUCKET || ''
+// Prioriza STORAGE_* (Cloudflare R2) sobre AWS_* para evitar conflitos
+const S3_BUCKET = process.env.STORAGE_BUCKET || process.env.AWS_S3_BUCKET || ''
 let s3Client: S3Client | null = null
 if (USE_S3) {
   const accessKeyId =
-    process.env.AWS_ACCESS_KEY_ID || process.env.STORAGE_ACCESS_KEY_ID || ''
+    process.env.STORAGE_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID || ''
   const secretAccessKey =
-    process.env.AWS_SECRET_ACCESS_KEY ||
     process.env.STORAGE_SECRET_ACCESS_KEY ||
+    process.env.AWS_SECRET_ACCESS_KEY ||
     ''
-  const endpoint = process.env.AWS_ENDPOINT_URL || process.env.STORAGE_ENDPOINT
-  const regionEnv = process.env.AWS_REGION || process.env.STORAGE_REGION
+  const endpoint = process.env.STORAGE_ENDPOINT || process.env.AWS_ENDPOINT_URL
+  const regionEnv = process.env.STORAGE_REGION || process.env.AWS_REGION
   const region = endpoint ? regionEnv || 'auto' : regionEnv || 'us-east-1'
 
   const canUseS3 = !!(accessKeyId && secretAccessKey && S3_BUCKET)
@@ -35,6 +35,15 @@ if (USE_S3) {
       '[storage] USE_S3=true mas credenciais/bucket ausentes. Fallback para armazenamento local.'
     )
   } else {
+    // Log para debug de credenciais (sem expor valores sensíveis)
+    console.log('[storage] Inicializando S3 Client:', {
+      bucket: S3_BUCKET,
+      endpoint: endpoint || 'default',
+      region,
+      accessKeyIdLength: accessKeyId.length,
+      hasSecretKey: !!secretAccessKey,
+    })
+
     const config: {
       region: string
       credentials: { accessKeyId: string; secretAccessKey: string }

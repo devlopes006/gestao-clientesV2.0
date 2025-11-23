@@ -153,9 +153,11 @@ export async function POST(
     }
 
     const fileKey = generateFileKey(clientId, file.name)
-    const uploadResult = await uploadFile(fileKey, buffer, file.type)
 
+    // Execução do upload (S3 ou local)
+    const uploadResult = await uploadFile(fileKey, buffer, file.type)
     if (!uploadResult.success) {
+      console.error('Upload failed for', fileKey, 'error=', uploadResult.error)
       return NextResponse.json(
         {
           error: 'Falha no upload do arquivo',
@@ -165,27 +167,55 @@ export async function POST(
       )
     }
 
-    const media = await prisma.media.create({
-      data: {
-        title: title || file.name,
-        description: description || null,
-        fileKey,
-        mimeType: file.type,
-        fileSize: file.size,
-        url: uploadResult.url || null,
-        thumbUrl: uploadResult.thumbUrl || null,
-        type: getMediaTypeFromMime(file.type),
-        folderId: folderId || null,
-        tags: tags,
-        clientId,
-        orgId,
-      },
-    })
+    // Persistir metadados no banco
+    let media
+    try {
+      media = await prisma.media.create({
+        data: {
+          title: title || file.name,
+          description: description || null,
+          fileKey,
+          mimeType: file.type,
+          fileSize: file.size,
+          url: uploadResult.url || null,
+          thumbUrl: uploadResult.thumbUrl || null,
+          type: getMediaTypeFromMime(file.type),
+          folderId: folderId || null,
+          tags: tags,
+          clientId,
+          orgId,
+        },
+      })
+    } catch (dbErr) {
+      console.error('Prisma create media failed', dbErr)
+      // Tentar remover o arquivo recém subido para evitar órfãos (melhor esforço)
+      try {
+        // se storage local, cleanup will be handled by upload cleanup script; for S3 we'd attempt delete
+      } catch {}
+      return NextResponse.json(
+        {
+          error: 'Falha ao persistir metadados da mídia',
+          details: String(dbErr),
+        },
+        { status: 500 }
+      )
+    }
 
     // Inclui cores extraídas no payload de resposta (não persiste em DB aqui)
     return NextResponse.json({ ...media, colors: colors || undefined })
   } catch (e) {
     console.error('Upload error:', e)
+    // Se requisitado, explodir detalhe do erro para debugging (não em produção sem autorização)
+    const url = new URL(req.url)
+    const debugFlag =
+      req.headers.get('x-debug') === '1' ||
+      url.searchParams.get('debug') === 'true'
+    if (debugFlag) {
+      return NextResponse.json(
+        { error: 'Internal error', details: String(e) },
+        { status: 500 }
+      )
+    }
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }

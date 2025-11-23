@@ -6,28 +6,16 @@
   NODE_VERSION = "20"
   NEXT_PRIVATE_SKIP_VALIDATION = "1"
   PNPM_VERSION = "9"
-  # Netlify Secrets Scanning: allow known-safe public keys (e.g., Firebase API key starting with AIza)
-  SECRETS_SCAN_SMART_DETECTION_ENABLED = "true"
-  # Omit specific env values from secret scanning (resolved at build time)
-  # This prevents false positives when Next.js inlines public envs into bundles
-  SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "NEXT_PUBLIC_FIREBASE_API_KEY"
-  # As a fallback, disable secrets scanning to prevent false-positive build failures
-  # Firebase API keys are public by design; see Firebase docs
   SECRETS_SCAN_ENABLED = "false"
+  # Disable Next.js plugin CSP
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
-
-# Headers de segurança
+# Headers de segurança básicos (SEM CSP)
 [[headers]]
   for = "/*"
   [headers.values]
-    X-Frame-Options = "DENY"
+    X-Frame-Options = "SAMEORIGIN"
     X-Content-Type-Options = "nosniff"
-    X-XSS-Protection = "1; mode=block"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
 
 # Cache para assets estáticos
 [[headers]]

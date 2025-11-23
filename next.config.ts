@@ -50,7 +50,6 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '1.5gb',
     },
-    instrumentationHook: true,
   },
 }
 
@@ -61,6 +60,9 @@ export default withSentryConfig(nextConfig, {
   org: 'devlops',
 
   project: 'javascript-nextjs',
+
+  // Desabilitar upload se não houver token (Netlify)
+  authToken: process.env.SENTRY_AUTH_TOKEN,
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,

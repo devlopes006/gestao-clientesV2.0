@@ -1,12 +1,10 @@
 [build]
   command = "pnpm install --frozen-lockfile && pnpm run prisma:generate && pnpm run build"
   publish = ".next"
-  base = "."
 
 [build.environment]
   NODE_VERSION = "20"
   NEXT_PRIVATE_SKIP_VALIDATION = "1"
-  NPM_FLAGS = "--legacy-peer-deps"
   PNPM_VERSION = "9"
 
 [[plugins]]

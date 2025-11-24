@@ -397,7 +397,6 @@ function MembersAdminPage() {
                 placeholder="pessoa@empresa.com"
                 autoComplete="email"
                 inputMode="email"
-                pattern="[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}"
                 className="h-11 border-border bg-background focus:ring-2 focus:ring-indigo-500"
                 isInvalid={!!emailError}
                 error={emailError ?? undefined}

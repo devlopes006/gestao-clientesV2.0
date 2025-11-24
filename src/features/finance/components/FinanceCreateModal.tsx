@@ -46,10 +46,37 @@ export function FinanceCreateModal() {
     e.preventDefault()
     const form = e.currentTarget
     const fd = new FormData(form)
+
+    // Extract and validate amount
+    const amountStr = fd.get('amount') as string
+    const amount = parseFloat(amountStr)
+
+    if (!amountStr || isNaN(amount) || amount === 0 || amountStr.trim() === '' || amountStr === '-') {
+      toast.error('Valor deve ser um número válido diferente de zero')
+      return
+    }
+
+    // Build JSON payload
+    const payload = {
+      type: fd.get('type'),
+      amount,
+      description: fd.get('description') || '',
+      category: fd.get('category'),
+      date: fd.get('date'),
+      clientId: fd.get('clientId') || null,
+    }
+
     try {
       setLoading(true)
-      const res = await fetch('/api/billing/finance', { method: 'POST', body: fd })
-      if (!res.ok) throw new Error('Falha ao criar lançamento')
+      const res = await fetch('/api/billing/finance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.error || 'Falha ao criar lançamento')
+      }
       toast.success('Lançamento adicionado')
       setOpen(false)
       // refresh page
@@ -123,6 +150,7 @@ export function FinanceCreateModal() {
                 name="amount"
                 type="number"
                 step="0.01"
+                min="0.01"
                 required
                 placeholder="0,00"
                 className="text-lg font-semibold"

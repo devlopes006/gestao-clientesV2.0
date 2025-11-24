@@ -27,17 +27,24 @@ type FinanceRow = {
 
 export function FinanceEditModal({ row }: { row: FinanceRow }) {
   const [open, setOpen] = useState(false)
-  const [amount, setAmount] = useState(row.amount)
+  const [amount, setAmount] = useState(String(row.amount))
   const [description, setDescription] = useState(row.description || '')
   const [loading, setLoading] = useState(false)
 
   const onSave = async () => {
+    // Validate amount
+    const numAmount = parseFloat(amount)
+    if (isNaN(numAmount) || numAmount === 0 || amount.trim() === '' || amount === '-') {
+      toast.error('Valor deve ser um número válido diferente de zero')
+      return
+    }
+
     try {
       setLoading(true)
       const res = await fetch(`/api/billing/finance/${row.id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount, description }),
+        body: JSON.stringify({ amount: numAmount, description }),
       })
       if (!res.ok) throw new Error('Falha ao salvar')
       toast.success('Lançamento atualizado')
@@ -85,9 +92,11 @@ export function FinanceEditModal({ row }: { row: FinanceRow }) {
             <Input
               id="amount"
               value={amount}
-              onChange={(e) => setAmount(Number(e.target.value))}
+              onChange={(e) => setAmount(e.target.value)}
               type="number"
               step="0.01"
+              min="0.01"
+              required
             />
           </div>
           <div className="space-y-2">

@@ -93,22 +93,55 @@ export async function POST(req: NextRequest) {
     if (!can(role as AppRole, 'create', 'finance'))
       return NextResponse.json({ error: 'Sem permissão' }, { status: 403 })
 
-    const body = await req.json()
-    console.log('[finance:post] Body:', body)
-
-    const { type, amount, description, category, date, clientId } = body || {}
-    if (!type || !amount || isNaN(Number(amount)))
+    let body
+    try {
+      const rawBody = await req.text()
+      console.log('[finance:post] Raw body:', rawBody)
+      body = JSON.parse(rawBody)
+    } catch (parseError) {
+      console.error('[finance:post] JSON parse error:', parseError)
       return NextResponse.json(
-        { error: 'Campos obrigatórios ausentes' },
+        { error: 'Invalid JSON format', details: String(parseError) },
         { status: 400 }
       )
+    }
+
+    console.log('[finance:post] Parsed body:', body)
+
+    const { type, amount, description, category, date, clientId } = body || {}
+
+    // Validate required fields
+    if (!type) {
+      return NextResponse.json(
+        { error: 'Campo "type" é obrigatório' },
+        { status: 400 }
+      )
+    }
+
+    if (!amount || amount === '' || amount === '-') {
+      return NextResponse.json(
+        { error: 'Campo "amount" é obrigatório e deve ser um número válido' },
+        { status: 400 }
+      )
+    }
+
+    const numAmount = Number(amount)
+    if (isNaN(numAmount) || numAmount === 0) {
+      return NextResponse.json(
+        {
+          error: 'Amount deve ser um número válido diferente de zero',
+          receivedAmount: amount,
+        },
+        { status: 400 }
+      )
+    }
 
     const created = await prisma.finance.create({
       data: {
         orgId,
         clientId: clientId || null,
         type,
-        amount: Number(amount),
+        amount: numAmount,
         description: description || null,
         category: category || null,
         date: date ? new Date(date) : new Date(),

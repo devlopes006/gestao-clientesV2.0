@@ -100,7 +100,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           const invite = Array.isArray(data?.data) ? data.data[0] : undefined;
           if (invite) {
             if (DEBUG_AUTH) logger.debug('UserContext: convite pendente, redirecionando para aceitar');
-            const r = await fetch("/api/invites/accept", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: invite.token }) });
+            const r = await fetch("/api/invites/accept", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: invite.token }), credentials: 'include' });
             if (r.ok) { const j = await r.json(); nextPath = j.nextPath || null; }
           }
         }

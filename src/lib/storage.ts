@@ -94,10 +94,17 @@ export async function uploadFile(
     let finalBuffer = buffer
     let finalMimeType = mimeType
 
+    const sizeMB = buffer.length / (1024 * 1024)
+    console.log('[storage:upload:file-info]', {
+      fileKey,
+      mimeType,
+      sizeMB: sizeMB.toFixed(2),
+      isVideo: mimeType.startsWith('video/') || mimeType.startsWith('audio/'),
+      isImage: mimeType.startsWith('image/'),
+    })
+
     // Compressão automática para imagens grandes
     if (mimeType.startsWith('image/') && !mimeType.includes('svg')) {
-      const sizeMB = buffer.length / (1024 * 1024)
-
       // Se imagem maior que 2MB, comprimir
       if (sizeMB > 2) {
         try {

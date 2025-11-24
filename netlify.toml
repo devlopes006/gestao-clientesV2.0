@@ -36,3 +36,5 @@
 # Estas configurações sobrescrevem defaults para rotas que contêm "upload"
 [functions."**/*upload*"]
   node_bundler = "esbuild"
+  timeout = 300
+  memory_size = 3008

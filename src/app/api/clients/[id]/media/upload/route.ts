@@ -7,6 +7,7 @@ import {
 } from '@/lib/ratelimit'
 import {
   generateFileKey,
+  getFileUrl,
   getMediaTypeFromMime,
   isAllowedMimeType,
   mimeRejectionReason,
@@ -313,6 +314,7 @@ export async function POST(
     })
 
     // Regenerate fresh URLs for response (7 days expiry)
+    const isLocalStorage = !process.env.USE_S3 || process.env.USE_S3 === 'false'
     let freshUrl = media.url
     let freshThumbUrl = media.thumbUrl
     if (!isLocalStorage && media.fileKey) {

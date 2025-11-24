@@ -40,7 +40,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   // Fetch user profile from DB and merge with Firebase user
   const enrichUserWithProfile = useCallback(async (firebaseUser: User): Promise<ExtendedUser> => {
     try {
-      const res = await fetch("/api/profile");
+      const res = await fetch("/api/profile", { credentials: 'include' });
       if (res.ok) {
         const profile = await res.json();
         return {
@@ -60,8 +60,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   // Shared logic for handling authentication result (from popup or redirect)
   const handleAuthResult = useCallback(async (firebaseUser: User, inviteToken?: string | null) => {
     if (DEBUG_AUTH) logger.debug('UserContext: setUser', { uid: firebaseUser.uid });
-    const enrichedUser = await enrichUserWithProfile(firebaseUser);
-    setUser(enrichedUser);
     // Não é possível checar cookie httpOnly via JS, confiar no backend
     const idToken = await firebaseUser.getIdToken(true);
     if (!idToken) throw new Error("Falha ao obter ID token");
@@ -92,9 +90,17 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       }
       if (DEBUG_AUTH) logger.debug('UserContext: sessão OK');
 
+      // Session cookie should be set now; fetch profile using server session
+      try {
+        const enrichedUser = await enrichUserWithProfile(firebaseUser);
+        setUser(enrichedUser);
+      } catch (err) {
+        if (DEBUG_AUTH) logger.debug('UserContext: falha ao obter profile após criar sessão', err as LogContext);
+      }
+
       let nextPath: string | null = null;
       try {
-        const inv = await fetch("/api/invites/for-me");
+        const inv = await fetch("/api/invites/for-me", { credentials: 'include' });
         if (inv.ok) {
           const data = await inv.json();
           const invite = Array.isArray(data?.data) ? data.data[0] : undefined;
@@ -108,7 +114,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
       if (!nextPath) {
         try {
-          const s = await fetch("/api/session");
+          const s = await fetch("/api/session", { credentials: 'include' });
           if (s.ok) {
             const j = await s.json();
             nextPath = j.orgId ? "/" : "/onboarding";
@@ -187,7 +193,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
         // Verifica se tem sessão ativa
         try {
-          const sessionCheck = await fetch("/api/session", { method: "GET" });
+          const sessionCheck = await fetch("/api/session", { method: "GET", credentials: 'include' });
           const hasSession = sessionCheck.ok;
 
 
@@ -286,7 +292,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       // Remove cookie do servidor PRIMEIRO
-      await fetch("/api/logout", { method: "POST" });
+      await fetch("/api/logout", { method: "POST", credentials: 'include' });
 
       // Faz logout do Firebase
       await signOut(auth);

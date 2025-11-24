@@ -700,14 +700,8 @@ function MembersAdminPage() {
               </div>
             )}
           </Card>
-        </div>
 
-        {/* Coluna direita: form + invites (desktop only) */}
-        <div className="hidden lg:block lg:col-span-1 space-y-3">
-          {/* 📨 CONVITE - Card Reutilizável (desktop only) */}
-          <InviteCard responsiveClass="" idSuffix="lg" />
-
-          {/* ✉️ CONVITES ENVIADOS - Grid Melhorado */}
+          {/* ✉️ CONVITES ENVIADOS - Grid Melhorado (moved below members list) */}
           <Card className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
             <Button
               type="button"
@@ -861,6 +855,14 @@ function MembersAdminPage() {
                 </div>
               ))}
           </Card>
+        </div>
+
+        {/* Coluna direita: form + invites (desktop only) */}
+        <div className="hidden lg:block lg:col-span-1 space-y-3">
+          {/* 📨 CONVITE - Card Reutilizável (desktop only) */}
+          <InviteCard responsiveClass="" idSuffix="lg" />
+
+
         </div>
       </div>
     </div>

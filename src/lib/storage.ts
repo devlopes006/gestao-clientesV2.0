@@ -333,13 +333,14 @@ const VIDEO_APPLICATION_TYPES = [
   'application/x-m4v',
   'application/x-matroska', // .mkv
   'application/mxf', // Media Exchange Format
+  'application/vnd.apple.mpegurl', // HLS
 ]
 
 export function isAllowedMimeType(mimeType: string): boolean {
   if (!mimeType) return false
   if (BLOCKED_MIME_PREFIXES.some((p) => mimeType.startsWith(p))) return false
   if (mimeType.startsWith('image/')) return true // inclui heic, heif, avif, etc.
-  if (mimeType.startsWith('video/')) return true
+  if (mimeType.startsWith('video/')) return true // inclui video/quicktime (.mov)
   if (mimeType.startsWith('audio/')) return true
   if (mimeType.startsWith('text/')) return true
   if (EXTRA_DOCUMENT_TYPES.includes(mimeType)) return true
@@ -365,5 +366,7 @@ export function getMediaTypeFromMime(
 ): 'image' | 'video' | 'document' {
   if (mimeType.startsWith('image/')) return 'image'
   if (mimeType.startsWith('video/')) return 'video'
+  if (mimeType.startsWith('audio/')) return 'video' // Áudio vai para galeria de vídeo
+  if (VIDEO_APPLICATION_TYPES.includes(mimeType)) return 'video'
   return 'document'
 }

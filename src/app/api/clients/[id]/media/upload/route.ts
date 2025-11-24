@@ -220,8 +220,23 @@ export async function POST(
 
     // Validar magic bytes para garantir que o tipo do arquivo é real
     const detectedType = await fileTypeFromBuffer(buffer)
+    console.log('[upload:mime-detection]', {
+      correlationId,
+      fileName: file.name,
+      claimedMime: file.type,
+      detectedMime: detectedType?.mime || 'none',
+      detectedExt: detectedType?.ext || 'none',
+    })
+
     if (detectedType && !isAllowedMimeType(detectedType.mime)) {
       const reason = mimeRejectionReason(detectedType.mime)
+      console.log('[upload:magic-bytes-rejected]', {
+        correlationId,
+        detectedMime: detectedType.mime,
+        claimedMime: file.type,
+        fileName: file.name,
+        reason,
+      })
       return NextResponse.json(
         {
           error:
@@ -230,6 +245,7 @@ export async function POST(
               : 'Unsupported media type (magic bytes)',
           detectedMime: detectedType.mime,
           claimedMime: file.type,
+          correlationId,
         },
         { status: 400 }
       )

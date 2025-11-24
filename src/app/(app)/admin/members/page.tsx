@@ -381,6 +381,9 @@ function MembersAdminPage() {
 
         <form action={handleInvite} className="p-5" onSubmit={onInviteSubmit}>
           <input type="hidden" name="allow_resend_existing" value="true" />
+          {/* persist selected role and client in form data for server action */}
+          <input type="hidden" name="role" value={selectedRole} />
+          <input type="hidden" name="client_id" value={selectedClient ?? ""} />
           <div className="space-y-4">
             <div className="space-y-2">
               <Label

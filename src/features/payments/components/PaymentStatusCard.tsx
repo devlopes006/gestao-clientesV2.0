@@ -56,6 +56,7 @@ export function PaymentStatusCard({
   const [showAllInstallments, setShowAllInstallments] = useState(false);
 
   const [authError, setAuthError] = useState<string | null>(null);
+
   const loadData = useCallback(async () => {
     try {
       setLoading(true);

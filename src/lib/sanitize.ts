@@ -11,7 +11,7 @@ async function ensurePurify(): Promise<PurifyInstance> {
   if (purifyInitializing) return purifyInitializing
   purifyInitializing = (async () => {
     const jsdom = await import('jsdom')
-    const { JSDOM } = jsdom as any
+    const { JSDOM } = jsdom as typeof import('jsdom')
     const window = new JSDOM('').window
     purify = DOMPurify(window)
     return purify as PurifyInstance
@@ -55,7 +55,7 @@ export async function sanitizeHtml(html: string): Promise<string> {
       ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
       ALLOW_DATA_ATTR: false,
     })
-  } catch (err) {
+  } catch {
     // If DOMPurify/jsdom cannot be initialized (e.g. ESM/CJS conflict), fall
     // back to a conservative HTML-stripping sanitizer to avoid crashing the
     // server. This keeps the app available while preventing script injection.
@@ -156,7 +156,6 @@ export async function sanitizeObject<T extends Record<string, unknown>>(
     if (typeof value === 'string') {
       if (htmlFields.includes(key)) {
         // sanitizeHtml is async
-        // eslint-disable-next-line no-await-in-loop
         sanitized[key] = (await sanitizeHtml(value)) as T[Extract<
           keyof T,
           string
@@ -176,7 +175,6 @@ export async function sanitizeObject<T extends Record<string, unknown>>(
         Object.prototype.toString.call(value) === '[object Object]'
       if (isPlainObject) {
         // recursive sanitizeObject is async
-        // eslint-disable-next-line no-await-in-loop
         sanitized[key] = (await sanitizeObject(
           value as Record<string, unknown>,
           options

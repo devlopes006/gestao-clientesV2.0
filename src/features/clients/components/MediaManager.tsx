@@ -504,14 +504,14 @@ export function MediaManager({ clientId }: MediaManagerProps) {
           });
 
           xhr.addEventListener("load", () => {
-            let json: any = null;
+            let json: Record<string, unknown> | null = null;
             try { json = JSON.parse(xhr.responseText || '{}'); } catch { }
             if (xhr.status >= 200 && xhr.status < 300) {
-              resolve(json);
+              resolve(json as unknown as MediaItem);
             } else {
-              const rawError = json?.error || json?.details || `Upload falhou (status ${xhr.status})`;
-              const claimed = json?.claimedMime;
-              const detected = json?.detectedMime;
+              const rawError = (json?.error as string) || (json?.details as string) || `Upload falhou (status ${xhr.status})`;
+              const claimed = json?.claimedMime as string | undefined;
+              const detected = json?.detectedMime as string | undefined;
               let userMessage = rawError;
               if (rawError.includes('File type blocked for security')) {
                 userMessage = 'Tipo de arquivo bloqueado por segurança. Evite enviar executáveis ou scripts.';

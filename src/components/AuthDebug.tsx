@@ -27,6 +27,7 @@ export function AuthDebug() {
     const params = new URLSearchParams(window.location.search);
     const debugParam = params.get("debug") === "true";
     const isDev = process.env.NODE_ENV === "development";
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setShowDebug(debugParam || isDev);
 
     const mountedTimeout = setTimeout(() => setMounted(true), 0);

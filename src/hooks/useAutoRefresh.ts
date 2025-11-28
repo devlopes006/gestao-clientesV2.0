@@ -2,11 +2,12 @@
 
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef } from 'react'
+import { toast } from 'sonner'
 
 interface UseAutoRefreshOptions {
   /**
    * Intervalo de atualização em milissegundos
-   * @default 30000 (30 segundos)
+   * @default 5000 (5 segundos)
    */
   interval?: number
   /**
@@ -28,6 +29,19 @@ interface UseAutoRefreshOptions {
    * @default true
    */
   enabled?: boolean
+  /**
+   * Se deve mostrar toast de feedback visual
+   * @default true
+   */
+  showToast?: boolean
+  /**
+   * Callback chamado antes do refresh
+   */
+  onRefreshStart?: () => void
+  /**
+   * Callback chamado após o refresh
+   */
+  onRefreshEnd?: () => void
 }
 
 /**
@@ -38,25 +52,52 @@ interface UseAutoRefreshOptions {
  */
 export function useAutoRefresh(options: UseAutoRefreshOptions = {}) {
   const {
-    interval = 30000, // 30 segundos
+    interval = 5000, // 5 segundos
     refreshOnFocus = true,
     refreshOnReconnect = true,
     enabled = true,
+    showToast = true,
+    onRefreshStart,
+    onRefreshEnd,
   } = options
 
   const router = useRouter()
   const lastRefreshRef = useRef<number>(0)
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null)
+  const toastIdRef = useRef<string | number | null>(null)
 
   const refresh = useCallback(() => {
     const now = Date.now()
-    // Evita refreshes muito próximos (menos de 5 segundos)
-    if (now - lastRefreshRef.current < 5000) {
+    // Evita refreshes muito próximos (menos de 2 segundos)
+    if (now - lastRefreshRef.current < 2000) {
       return
     }
     lastRefreshRef.current = now
+
+    // Callback antes do refresh
+    onRefreshStart?.()
+
+    // Mostra toast de atualização
+    if (showToast) {
+      toastIdRef.current = toast.loading('Atualizando conteúdo...', {
+        duration: Infinity,
+      })
+    }
+
+    // Executa refresh
     router.refresh()
-  }, [router])
+
+    // Aguarda um momento para dar feedback visual
+    setTimeout(() => {
+      if (showToast && toastIdRef.current !== null) {
+        toast.dismiss(toastIdRef.current)
+        toast.success('Conteúdo atualizado!', {
+          duration: 2000,
+        })
+      }
+      onRefreshEnd?.()
+    }, 800)
+  }, [router, showToast, onRefreshStart, onRefreshEnd])
 
   useEffect(() => {
     if (!enabled) return

@@ -14,7 +14,7 @@ interface RefreshIndicatorProps {
  * Componente visual que indica quando os dados foram atualizados pela última vez
  * e quando será a próxima atualização
  */
-export function RefreshIndicator({ interval = 30000 }: RefreshIndicatorProps) {
+export function RefreshIndicator({ interval = 5000 }: RefreshIndicatorProps) {
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [timeAgo, setTimeAgo] = useState<string>("agora");
 

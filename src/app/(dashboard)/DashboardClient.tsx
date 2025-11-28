@@ -1,10 +1,8 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { KpiCard, KpiGrid } from '@/components/ui/kpi-card';
-import { RefreshIndicator } from '@/components/ui/refresh-indicator';
 import { DashboardNotes } from '@/features/dashboard/components/DashboardNotes';
 import { MonthlyCalendar } from '@/features/dashboard/components/MonthlyCalendar';
-import { useAutoRefresh } from '@/hooks/useAutoRefresh';
 import { AppRole } from '@/lib/permissions';
 import { DashboardData } from '@/modules/dashboard/domain/schema';
 import { motion } from 'framer-motion';
@@ -20,13 +18,10 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
   const [monthKey, setMonthKey] = useState(initialMonthKey)
   const [loadingMonth, setLoadingMonth] = useState(false);
 
-  // Auto-refresh: atualiza dados a cada 30 segundos e quando a aba volta ao foco
-  useAutoRefresh({
-    interval: 30000, // 30 segundos
-    refreshOnFocus: true,
-    refreshOnReconnect: true,
-    enabled: true,
-  });
+  // Sync state when server data changes (after router.refresh())
+  useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
 
   useEffect(() => {
     const m = searchParams?.get('month')
@@ -82,9 +77,6 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
               Olá, {data.user.name || 'Usuário'}! Aqui está um resumo do seu negócio
             </p>
-            <div className="mt-2">
-              <RefreshIndicator interval={30000} />
-            </div>
           </div>
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}

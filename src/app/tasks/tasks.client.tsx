@@ -21,7 +21,7 @@ import {
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Calendar, Filter, GripVertical, ListTodo, Plus, Search, User } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface Task {
   id: string
@@ -126,6 +126,11 @@ export default function TasksClient({ initialTasks, updateTaskStatusAction }: { 
   const [activeId, setActiveId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [priorityFilter, setPriorityFilter] = useState('')
+
+  // Sync with server data when it updates
+  useEffect(() => {
+    setTasks(initialTasks);
+  }, [initialTasks]);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
 

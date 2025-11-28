@@ -41,6 +41,7 @@ export function InstallmentManager({
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
   const [formData, setFormData] = useState({
     installmentCount: "",
     startDate: "",

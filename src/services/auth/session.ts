@@ -23,10 +23,10 @@ export async function getSessionProfile(): Promise<SessionProfile> {
     // Lazy-load Firebase Admin to avoid throwing at module load time
     // (some deployments may not have Firebase envs configured and that would cause
     // a top-level throw preventing the route from executing and returning a generic 500).
-    let adminAuth: any = null
+    let adminAuth: typeof import('@/lib/firebaseAdmin').adminAuth | null = null
     try {
       const mod = await import('@/lib/firebaseAdmin')
-      adminAuth = (mod as any).adminAuth
+      adminAuth = mod.adminAuth
     } catch (e) {
       logger.error('Firebase Admin não disponível ao verificar token', e)
       // Fail-safe: return null session so routes can respond with 401 instead of crashing

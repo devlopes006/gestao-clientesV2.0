@@ -60,7 +60,14 @@ export async function GET(req: Request) {
     const orgId = user.memberships[0].orgId
 
     // Tasks otimizadas com select apenas dos campos necessários
-    const [clients, tasks, meetings, finances] = await Promise.all([
+    const [
+      clients,
+      tasks,
+      meetings,
+      finances,
+      dashboardEvents,
+      dashboardNotes,
+    ] = await Promise.all([
       prisma.client.findMany({
         where: { orgId },
         orderBy: { createdAt: 'desc' },
@@ -100,6 +107,30 @@ export async function GET(req: Request) {
           clientId: true,
           type: true,
           amount: true,
+        },
+      }),
+      prisma.dashboardEvent.findMany({
+        where: { orgId },
+        orderBy: { date: 'asc' },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          date: true,
+          color: true,
+        },
+      }),
+      prisma.dashboardNote.findMany({
+        where: { orgId },
+        orderBy: { position: 'asc' },
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          color: true,
+          position: true,
+          createdAt: true,
+          updatedAt: true,
         },
       }),
     ])
@@ -273,7 +304,7 @@ export async function GET(req: Request) {
       )
     }
 
-    // Preparar atividades para o calendário (reuniões + tarefas com prazo), filtradas pelo mês
+    // Preparar atividades para o calendário (reuniões + tarefas com prazo + eventos), filtradas pelo mês
     const activitiesAll = [
       ...meetings.map((m) => ({
         id: m.id,
@@ -294,6 +325,14 @@ export async function GET(req: Request) {
           clientName: t.client.name,
           status: t.status,
         })),
+      ...dashboardEvents.map((e) => ({
+        id: e.id,
+        title: e.title,
+        type: 'event' as const,
+        date: e.date,
+        description: e.description,
+        color: e.color,
+      })),
     ]
 
     const activities = activitiesAll
@@ -389,6 +428,8 @@ export async function GET(req: Request) {
       clientsHealth,
       activities,
       financialData,
+      notes: dashboardNotes,
+      events: dashboardEvents,
       user: { id: user.id, name: user.name, email: user.email },
     })
   } catch (error) {

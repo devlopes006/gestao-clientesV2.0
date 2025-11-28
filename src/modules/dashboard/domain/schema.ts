@@ -33,11 +33,13 @@ export const TaskSchema = z.object({
 export const ActivitySchema = z.object({
   id: z.string(),
   title: z.string(),
-  type: z.enum(['meeting', 'task']),
+  type: z.enum(['meeting', 'task', 'event']),
   date: z.coerce.date(),
-  clientId: z.string(),
-  clientName: z.string(),
+  clientId: z.string().optional(),
+  clientName: z.string().optional(),
   status: TaskStatusEnum.optional(),
+  description: z.string().nullable().optional(),
+  color: z.string().optional(),
 })
 
 export const UrgentTaskSchema = TaskSchema.extend({
@@ -85,6 +87,22 @@ export const MetricsSchema = z.object({
   ),
 })
 
+export const NoteSchema = z.object({
+  id: z.string(),
+  content: z.string(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date().optional(),
+})
+
+export const EventSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string().nullable(),
+  date: z.coerce.date(),
+  color: z.string().optional(),
+  createdAt: z.coerce.date().optional(),
+})
+
 export const DashboardDataSchema = z.object({
   clients: z.array(ClientSummarySchema),
   tasks: z.array(TaskSchema),
@@ -97,6 +115,8 @@ export const DashboardDataSchema = z.object({
     name: z.string().nullable(),
     email: z.string(),
   }),
+  notes: z.array(NoteSchema).optional(),
+  events: z.array(EventSchema).optional(),
 })
 
 export type DashboardData = z.infer<typeof DashboardDataSchema>

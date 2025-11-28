@@ -1,7 +1,10 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { KpiCard, KpiGrid } from '@/components/ui/kpi-card';
+import { RefreshIndicator } from '@/components/ui/refresh-indicator';
+import { DashboardNotes } from '@/features/dashboard/components/DashboardNotes';
 import { MonthlyCalendar } from '@/features/dashboard/components/MonthlyCalendar';
+import { useAutoRefresh } from '@/hooks/useAutoRefresh';
 import { AppRole } from '@/lib/permissions';
 import { DashboardData } from '@/modules/dashboard/domain/schema';
 import { motion } from 'framer-motion';
@@ -11,11 +14,19 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 interface DashboardClientProps { initialData: DashboardData; initialMonthKey: string; role: AppRole | null }
 
-export function DashboardClient({ initialData, initialMonthKey }: DashboardClientProps) {
+export function DashboardClient({ initialData, initialMonthKey, role }: DashboardClientProps) {
   const searchParams = useSearchParams()
   const [data, setData] = useState<DashboardData | null>(initialData)
   const [monthKey, setMonthKey] = useState(initialMonthKey)
-  const [loadingMonth, setLoadingMonth] = useState(false)
+  const [loadingMonth, setLoadingMonth] = useState(false);
+
+  // Auto-refresh: atualiza dados a cada 30 segundos e quando a aba volta ao foco
+  useAutoRefresh({
+    interval: 30000, // 30 segundos
+    refreshOnFocus: true,
+    refreshOnReconnect: true,
+    enabled: true,
+  });
 
   useEffect(() => {
     const m = searchParams?.get('month')
@@ -35,7 +46,8 @@ export function DashboardClient({ initialData, initialMonthKey }: DashboardClien
       .then(j => setData(j))
       .catch(() => {/* ignore */ })
       .finally(() => setLoadingMonth(false))
-  }, [monthKey, data])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [monthKey])
 
   if (!data) {
     return <div className="p-8">Falha ao carregar</div>
@@ -70,6 +82,9 @@ export function DashboardClient({ initialData, initialMonthKey }: DashboardClien
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
               Olá, {data.user.name || 'Usuário'}! Aqui está um resumo do seu negócio
             </p>
+            <div className="mt-2">
+              <RefreshIndicator interval={30000} />
+            </div>
           </div>
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -130,20 +145,17 @@ export function DashboardClient({ initialData, initialMonthKey }: DashboardClien
 
 
 
-        {/* Grid Principal */}
+        {/* Grid: Calendário + Notas */}
         <motion.div
           className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-
-          {/* Coluna Principal (2/3) */}
-          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
-
-            {/* Calendário Mensal */}
+          {/* Calendário (2/3) */}
+          <div className="lg:col-span-2">
             {data.activities && (
-              <Card variant="default" hover className="border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all duration-200 hover:shadow-2xl">
+              <Card variant="default" hover className="border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all duration-200 hover:shadow-2xl h-full">
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <div className="p-2 bg-linear-to-br from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50 rounded-lg shadow-lg hover:scale-110 transition-transform duration-200">
@@ -155,7 +167,10 @@ export function DashboardClient({ initialData, initialMonthKey }: DashboardClien
                 <CardContent>
                   <MonthlyCalendar
                     key={monthKey}
-                    activities={data.activities}
+                    activities={data.activities.map(a => ({
+                      ...a,
+                      description: a.description === null ? undefined : a.description,
+                    })) as typeof data.activities}
                     initialMonth={(() => {
                       const [y, m] = monthKey.split('-').map(Number);
                       return new Date(y, (m || 1) - 1, 1)
@@ -170,6 +185,7 @@ export function DashboardClient({ initialData, initialMonthKey }: DashboardClien
                         window.history.replaceState(null, '', url.toString());
                       } catch { }
                     }}
+                    userRole={role}
                   />
                   {loadingMonth && (
                     <p className="text-xs mt-2 text-slate-600 dark:text-slate-400 animate-pulse">
@@ -179,6 +195,36 @@ export function DashboardClient({ initialData, initialMonthKey }: DashboardClien
                 </CardContent>
               </Card>
             )}
+          </div>
+
+          {/* Notas Rápidas (1/3) */}
+          <div className="lg:col-span-1">
+            <DashboardNotes
+              initialNotes={(data.notes || []).map((note) => {
+                const n = note as unknown as { title?: string; color?: string; position?: number }
+                return {
+                  id: note.id,
+                  title: n.title ?? "",
+                  content: note.content,
+                  color: n.color ?? "yellow",
+                  position: n.position ?? 0,
+                  createdAt: note.createdAt,
+                  updatedAt: note.updatedAt || note.createdAt,
+                }
+              })}
+            />
+          </div>
+        </motion.div>
+
+        {/* Grid: Métricas + Tarefas */}
+        <motion.div
+          className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          {/* Métricas (2/3) */}
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
 
             {/* Métricas Detalhadas */}
             {metrics && (

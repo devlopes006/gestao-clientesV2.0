@@ -22,32 +22,34 @@ model User {
 }
 
 model Org {
-  id            String         @id @default(cuid())
-  name          String
-  createdAt     DateTime       @default(now())
-  description   String?
-  ownerId       String
-  updatedAt     DateTime       @updatedAt
-  addressLine1  String?
-  addressLine2  String?
-  city          String?
-  cnpj          String?
-  country       String?
-  phone         String?
-  postalCode    String?
-  state         String?
-  website       String?
-  clients       Client[]
-  finances      Finance[]
-  invites       Invite[]
-  invoices      Invoice[]
-  media         Media[]
-  members       Member[]
-  notifications Notification[]
-  owner         User           @relation("OrgOwner", fields: [ownerId], references: [id])
-  payments      Payment[]
-  subscriptions Subscription[]
-  tasks         Task[]
+  id              String           @id @default(cuid())
+  name            String
+  createdAt       DateTime         @default(now())
+  description     String?
+  ownerId         String
+  updatedAt       DateTime         @updatedAt
+  addressLine1    String?
+  addressLine2    String?
+  city            String?
+  cnpj            String?
+  country         String?
+  phone           String?
+  postalCode      String?
+  state           String?
+  website         String?
+  clients         Client[]
+  finances        Finance[]
+  invites         Invite[]
+  invoices        Invoice[]
+  media           Media[]
+  members         Member[]
+  notifications   Notification[]
+  owner           User             @relation("OrgOwner", fields: [ownerId], references: [id])
+  payments        Payment[]
+  subscriptions   Subscription[]
+  tasks           Task[]
+  dashboardEvents DashboardEvent[]
+  dashboardNotes  DashboardNote[]
 }
 
 model Member {
@@ -426,4 +428,32 @@ enum SubscriptionStatus {
 enum BillingInterval {
   MONTH
   YEAR
+}
+
+model DashboardEvent {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  color       String?  @default("blue")
+  orgId       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  org         Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, date])
+}
+
+model DashboardNote {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  color     String?  @default("yellow")
+  position  Int      @default(0)
+  orgId     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  org       Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, position])
 }

@@ -326,23 +326,38 @@ export function MediaManager({ clientId }: MediaManagerProps) {
 
     try {
       const uploadPromises = uploadForm.files.map(async (file) => {
+        // Log file info for debugging
+        console.log('[MediaManager] Iniciando upload:', {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          sizeKB: (file.size / 1024).toFixed(2),
+          sizeMB: (file.size / (1024 * 1024)).toFixed(2),
+        });
+
         // Try presigned flow first
         const tryPresigned = async (): Promise<MediaItem | null> => {
           try {
+            console.log('[MediaManager] Tentando fluxo presigned para:', file.name);
             const req = await fetch(`/api/clients/${clientId}/media/upload-url`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ name: file.name, mime: file.type }),
             });
             if (!req.ok) {
+              console.log('[MediaManager] Presigned não disponível, usando fallback');
               // If server doesn't support presigned or returns error, fallback
               return null;
             }
             const body = await req.json();
             const presignedUrl: string | undefined = body?.url;
             const fileKey: string | undefined = body?.fileKey;
-            if (!presignedUrl || !fileKey) return null;
+            if (!presignedUrl || !fileKey) {
+              console.log('[MediaManager] Presigned retornou dados inválidos, usando fallback');
+              return null;
+            }
 
+            console.log('[MediaManager] Iniciando upload via PUT para presigned URL...');
             // Upload via PUT to presigned URL with progress tracking
             const putResult = await new Promise<boolean>((resolve, reject) => {
               const xhr = new XMLHttpRequest();
@@ -361,46 +376,91 @@ export function MediaManager({ clientId }: MediaManagerProps) {
                 }
               });
               xhr.addEventListener("load", () => {
-                if (xhr.status >= 200 && xhr.status < 300) resolve(true);
-                else reject(new Error(`Upload falhou (status ${xhr.status})`));
+                if (xhr.status >= 200 && xhr.status < 300) {
+                  console.log('[MediaManager] PUT completo com sucesso');
+                  resolve(true);
+                } else {
+                  console.error('[MediaManager] PUT falhou com status:', xhr.status);
+                  reject(new Error(`Upload falhou (status ${xhr.status})`));
+                }
               });
-              xhr.addEventListener("error", () => reject(new Error("Erro de rede durante PUT")));
+              xhr.addEventListener("error", () => {
+                console.error('[MediaManager] Erro de rede durante PUT');
+                reject(new Error("Erro de rede durante PUT"));
+              });
               xhr.open("PUT", presignedUrl);
               if (file.type) xhr.setRequestHeader("Content-Type", file.type);
               xhr.send(file);
             });
 
-            if (!putResult) return null;
+            if (!putResult) {
+              console.log('[MediaManager] PUT não retornou true, usando fallback');
+              return null;
+            }
 
-            // Register the uploaded file in our DB
-            const reg = await fetch(`/api/clients/${clientId}/media/register`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                fileKey,
-                title: uploadForm.files.length === 1 ? uploadForm.title || file.name : file.name,
-                description: uploadForm.description,
-                folderId: currentFolderId,
-                tags: uploadForm.tags,
-                fileSize: file.size,
-                mimeType: file.type,
-              }),
+            console.log('[MediaManager] Upload para presigned URL completo, registrando no banco...', {
+              fileKey,
+              fileName: file.name,
             });
+
+            // Register the uploaded file in our DB com timeout e retry
+            const registerWithTimeout = async (retryCount = 0): Promise<Response> => {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+              try {
+                const reg = await fetch(`/api/clients/${clientId}/media/register`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    fileKey,
+                    title: uploadForm.files.length === 1 ? uploadForm.title || file.name : file.name,
+                    description: uploadForm.description,
+                    folderId: currentFolderId,
+                    tags: uploadForm.tags,
+                    fileSize: file.size,
+                    mimeType: file.type,
+                  }),
+                  signal: controller.signal,
+                });
+                clearTimeout(timeoutId);
+                return reg;
+              } catch (err) {
+                clearTimeout(timeoutId);
+                // Retry logic: até 2 tentativas com delay exponencial
+                if (retryCount < 2 && (err instanceof Error && err.name === 'AbortError' || !navigator.onLine)) {
+                  const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s
+                  console.log(`[MediaManager] Tentando novamente após ${delay}ms (tentativa ${retryCount + 1}/2)...`);
+                  await new Promise(resolve => setTimeout(resolve, delay));
+                  return registerWithTimeout(retryCount + 1);
+                }
+                throw err;
+              }
+            };
+
+            const reg = await registerWithTimeout();
             if (!reg.ok) {
               const err = await reg.json().catch(() => ({}));
+              console.error('[MediaManager] Erro ao registrar:', err);
               throw new Error(err?.error || err?.details || "Falha ao registrar arquivo");
             }
             const saved = await reg.json();
+            console.log('[MediaManager] Arquivo registrado com sucesso:', saved.id);
             return saved as MediaItem;
           } catch (err) {
-            // swallow and signal fallback to server upload
+            // Log error and signal fallback to server upload
+            console.log('[MediaManager] Erro no fluxo presigned, usando fallback:', err);
             return null;
           }
         };
 
         const presignedResult = await tryPresigned();
-        if (presignedResult) return presignedResult;
+        if (presignedResult) {
+          console.log('[MediaManager] Upload via presigned concluído com sucesso');
+          return presignedResult;
+        }
 
+        console.log('[MediaManager] Usando upload direto ao servidor (fallback)');
         // Fallback to existing server upload if presigned not available
         const formData = new FormData();
         formData.append("file", file);
@@ -483,9 +543,15 @@ export function MediaManager({ clientId }: MediaManagerProps) {
       resetUploadForm();
     } catch (err: unknown) {
       const error = err as Error;
+      console.error('[MediaManager] Erro no upload:', {
+        message: error.message,
+        stack: error.stack,
+        error: err,
+      });
       toast.error(error.message || "Erro no upload");
     } finally {
       setUploading(false);
+      setUploadProgress([]);
     }
   };
 

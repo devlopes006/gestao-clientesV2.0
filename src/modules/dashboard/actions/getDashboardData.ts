@@ -16,8 +16,38 @@ export const getDashboardData = cache(
     }
     const orgId = session.orgId
 
+    // Month range parsing (moved before queries for event filtering)
+    let rangeStart: Date
+    let rangeEnd: Date
+    if (monthKey) {
+      const [y, m] = monthKey.split('-').map(Number)
+      const year = Number.isFinite(y) ? y : new Date().getFullYear()
+      const monthIdx = Number.isFinite(m) ? m - 1 : new Date().getMonth()
+      rangeStart = new Date(year, monthIdx, 1, 0, 0, 0, 0)
+      rangeEnd = new Date(year, monthIdx + 1, 0, 23, 59, 59, 999)
+    } else {
+      const now = new Date()
+      rangeStart = new Date(now.getFullYear(), now.getMonth(), 1)
+      rangeEnd = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+        999
+      )
+    }
+
     // Base queries
-    const [clients, tasks, meetings, finances] = await Promise.all([
+    const [
+      clients,
+      tasks,
+      meetings,
+      finances,
+      dashboardEvents,
+      dashboardNotes,
+    ] = await Promise.all([
       prisma.client.findMany({
         where: { orgId },
         orderBy: { createdAt: 'desc' },
@@ -54,6 +84,38 @@ export const getDashboardData = cache(
       prisma.finance.findMany({
         where: { client: { orgId } },
         select: { clientId: true, type: true, amount: true },
+      }),
+      prisma.dashboardEvent.findMany({
+        where: {
+          orgId,
+          ...(monthKey && {
+            date: {
+              gte: rangeStart,
+              lte: rangeEnd,
+            },
+          }),
+        },
+        orderBy: { date: 'asc' },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          date: true,
+          color: true,
+        },
+      }),
+      prisma.dashboardNote.findMany({
+        where: { orgId },
+        orderBy: { position: 'asc' },
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          color: true,
+          position: true,
+          createdAt: true,
+          updatedAt: true,
+        },
       }),
     ])
 
@@ -176,29 +238,6 @@ export const getDashboardData = cache(
       }
     })
 
-    // Month range parsing
-    let rangeStart: Date
-    let rangeEnd: Date
-    if (monthKey) {
-      const [y, m] = monthKey.split('-').map(Number)
-      const year = Number.isFinite(y) ? y : new Date().getFullYear()
-      const monthIdx = Number.isFinite(m) ? m - 1 : new Date().getMonth()
-      rangeStart = new Date(year, monthIdx, 1, 0, 0, 0, 0)
-      rangeEnd = new Date(year, monthIdx + 1, 0, 23, 59, 59, 999)
-    } else {
-      const now = new Date()
-      rangeStart = new Date(now.getFullYear(), now.getMonth(), 1)
-      rangeEnd = new Date(
-        now.getFullYear(),
-        now.getMonth() + 1,
-        0,
-        23,
-        59,
-        59,
-        999
-      )
-    }
-
     const activitiesAll = [
       ...meetings.map((m) => ({
         id: m.id,
@@ -219,6 +258,14 @@ export const getDashboardData = cache(
           clientName: t.client.name,
           status: t.status,
         })),
+      ...dashboardEvents.map((e) => ({
+        id: e.id,
+        title: e.title,
+        type: 'event' as const,
+        date: e.date,
+        description: e.description,
+        color: e.color,
+      })),
     ]
     const activities = activitiesAll
       .filter((a) => a.date >= rangeStart && a.date <= rangeEnd)
@@ -289,6 +336,8 @@ export const getDashboardData = cache(
       clientsHealth,
       activities,
       financialData,
+      notes: dashboardNotes,
+      events: dashboardEvents,
       user: {
         id: session.user.id,
         name: session.user.name,

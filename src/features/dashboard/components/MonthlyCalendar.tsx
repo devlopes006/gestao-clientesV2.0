@@ -14,29 +14,40 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
-  X,
+  Edit2,
+  Plus,
+  Sparkles,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { CreateEventDialog } from "./CreateEventDialog";
+import { EditEventDialog } from "./EditEventDialog";
 
 export type CalendarActivity = {
   id: string;
   title: string;
-  type: "meeting" | "task";
+  type: "meeting" | "task" | "event";
   date: string | Date;
-  clientId: string;
-  clientName: string;
+  clientId?: string;
+  clientName?: string;
   status?: string;
+  color?: string;
+  description?: string | null;
 };
 
 export function MonthlyCalendar({
   activities,
   onMonthChange,
   initialMonth,
+  onEventCreated,
+  userRole,
 }: {
   activities: CalendarActivity[];
   onMonthChange?: (month: Date) => void;
   initialMonth?: Date;
+  onEventCreated?: () => void;
+  userRole?: string | null;
 }) {
   const [cursor, setCursor] = useState(() => {
     const d = initialMonth ? new Date(initialMonth) : new Date();
@@ -45,8 +56,14 @@ export function MonthlyCalendar({
     return d;
   });
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [filter, setFilter] = useState<"all" | "meeting" | "task">("all");
+  const [filter, setFilter] = useState<"all" | "meeting" | "task" | "event">("all");
+  const [createEventDialogOpen, setCreateEventDialogOpen] = useState(false);
+  const [eventDialogDate, setEventDialogDate] = useState<Date | undefined>();
+  const [editEventDialogOpen, setEditEventDialogOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<CalendarActivity | null>(null);
   // view toggle removed (not currently used)
+
+  const isOwner = userRole === 'OWNER';
 
   const monthInfo = useMemo(() => {
     const year = cursor.getFullYear();
@@ -149,12 +166,24 @@ export function MonthlyCalendar({
     const tasks = currentMonthActivities.filter(
       (a) => a.type === "task",
     ).length;
+    const events = currentMonthActivities.filter(
+      (a) => a.type === "event",
+    ).length;
     const completed = currentMonthActivities.filter(
       (a) => a.status === "done" || a.status === "completed",
     ).length;
 
-    return { total: currentMonthActivities.length, meetings, tasks, completed };
+    return { total: currentMonthActivities.length, meetings, tasks, events, completed };
   }, [normalized, cursor]);
+
+  const handleOpenCreateEvent = (date?: Date) => {
+    setEventDialogDate(date);
+    setCreateEventDialogOpen(true);
+  };
+
+  const handleEventCreated = () => {
+    onEventCreated?.();
+  };
 
   return (
     <div className="space-y-4">
@@ -167,11 +196,20 @@ export function MonthlyCalendar({
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               {monthStats.total} eventos • {monthStats.meetings} reuniões •{" "}
-              {monthStats.tasks} tarefas
+              {monthStats.tasks} tarefas • {monthStats.events} avulsos
             </p>
           </div>
 
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleOpenCreateEvent()}
+              className="h-8 gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">Evento</span>
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -204,7 +242,7 @@ export function MonthlyCalendar({
           <Select
             value={filter}
             onValueChange={(value) =>
-              setFilter(value as "all" | "meeting" | "task")
+              setFilter(value as "all" | "meeting" | "task" | "event")
             }
           >
             <SelectTrigger className="h-8 w-[130px]">
@@ -229,6 +267,12 @@ export function MonthlyCalendar({
                   Tarefas ({monthStats.tasks})
                 </div>
               </SelectItem>
+              <SelectItem value="event">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500" />
+                  Avulsos ({monthStats.events})
+                </div>
+              </SelectItem>
             </SelectContent>
           </Select>
 
@@ -244,6 +288,12 @@ export function MonthlyCalendar({
               <div className="w-3 h-3 rounded bg-purple-500" />
               <span className="text-slate-600 dark:text-slate-400">
                 Tarefas
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded bg-green-500" />
+              <span className="text-slate-600 dark:text-slate-400">
+                Avulsos
               </span>
             </div>
           </div>
@@ -311,21 +361,35 @@ export function MonthlyCalendar({
               {/* Indicadores de atividades */}
               {dayActs.length > 0 && (
                 <div className="space-y-0.5">
-                  {dayActs.slice(0, 2).map((a) => (
-                    <div
-                      key={a.id}
-                      className={`
-                        text-[10px] px-1.5 py-0.5 rounded truncate
-                        ${a.type === "meeting"
-                          ? "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300"
-                          : "bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300"
-                        }
-                      `}
-                      title={`${a.title} - ${a.clientName}`}
-                    >
-                      {a.title}
-                    </div>
-                  ))}
+                  {dayActs.slice(0, 2).map((a) => {
+                    let bgColor: string;
+                    if (a.type === "meeting") {
+                      bgColor = "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300";
+                    } else if (a.type === "task") {
+                      bgColor = "bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300";
+                    } else {
+                      // Evento avulso - usa a cor customizada (mapeamento estático)
+                      const colorMap: Record<string, string> = {
+                        blue: "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300",
+                        purple: "bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300",
+                        green: "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-300",
+                        red: "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300",
+                        orange: "bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300",
+                        pink: "bg-pink-100 text-pink-700 dark:bg-pink-950/50 dark:text-pink-300",
+                      };
+                      bgColor = colorMap[a.color || "green"] || colorMap.green;
+                    }
+
+                    return (
+                      <div
+                        key={a.id}
+                        className={`text-[10px] px-1.5 py-0.5 rounded truncate ${bgColor}`}
+                        title={`${a.title}${a.clientName ? ` - ${a.clientName}` : ""}`}
+                      >
+                        {a.title}
+                      </div>
+                    );
+                  })}
                   {dayActs.length > 2 && (
                     <div className="text-[10px] text-center text-slate-500 dark:text-slate-400 font-medium">
                       +{dayActs.length - 2} mais
@@ -370,70 +434,127 @@ export function MonthlyCalendar({
                 // Define o link de acordo com o tipo
                 const href = activity.type === "meeting"
                   ? `/clients/${activity.clientId}/meetings`
-                  : `/clients/${activity.clientId}/tasks`;
-                return (
-                  <Link
-                    key={activity.id}
-                    href={href}
-                    className="block"
-                  >
-                    <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-white dark:hover:bg-slate-800 border 
-                    border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all group">
-                      <div
-                        className={`
-                        h-10 w-10 rounded-lg flex items-center justify-center shrink-0
-                        ${activity.type === "meeting"
-                            ? "bg-blue-100 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400"
-                            : "bg-purple-100 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400"
-                          }
-                      `}
-                      >
-                        {activity.type === "meeting" ? (
-                          <Clock className="h-5 w-5" />
-                        ) : (
-                          <CheckCircle2 className="h-5 w-5" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                          {activity.title}
-                        </p>
+                  : activity.type === "task"
+                    ? `/clients/${activity.clientId}/tasks`
+                    : undefined;
+
+                const content = (
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-white dark:hover:bg-slate-800 border 
+                  border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all group">
+                    <div
+                      className={`
+                      h-10 w-10 rounded-lg flex items-center justify-center shrink-0
+                      ${activity.type === "meeting"
+                          ? "bg-blue-100 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400"
+                          : activity.type === "task"
+                            ? "bg-purple-100 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400"
+                            : (() => {
+                              const colorMap: Record<string, string> = {
+                                blue: "bg-blue-100 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400",
+                                purple: "bg-purple-100 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400",
+                                green: "bg-green-100 text-green-600 dark:bg-green-950/50 dark:text-green-400",
+                                red: "bg-red-100 text-red-600 dark:bg-red-950/50 dark:text-red-400",
+                                orange: "bg-orange-100 text-orange-600 dark:bg-orange-950/50 dark:text-orange-400",
+                                pink: "bg-pink-100 text-pink-600 dark:bg-pink-950/50 dark:text-pink-400",
+                              };
+                              return colorMap[activity.color || "green"] || colorMap.green;
+                            })()
+                        }
+                    `}
+                    >
+                      {activity.type === "meeting" ? (
+                        <Clock className="h-5 w-5" />
+                      ) : activity.type === "task" ? (
+                        <CheckCircle2 className="h-5 w-5" />
+                      ) : (
+                        <Sparkles className="h-5 w-5" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        {activity.title}
+                      </p>
+                      {activity.clientName && (
                         <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                           {activity.clientName}
                         </p>
-                        <div className="flex items-center gap-2 mt-1">
+                      )}
+                      {activity.description && (
+                        <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                          {activity.description}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 mt-1">
+                        <span
+                          className={`
+                          text-[10px] px-2 py-0.5 rounded-full font-medium
+                          ${activity.type === "meeting"
+                              ? "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300"
+                              : activity.type === "task"
+                                ? "bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300"
+                                : (() => {
+                                  const colorMap: Record<string, string> = {
+                                    blue: "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300",
+                                    purple: "bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300",
+                                    green: "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-300",
+                                    red: "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300",
+                                    orange: "bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300",
+                                    pink: "bg-pink-100 text-pink-700 dark:bg-pink-950/50 dark:text-pink-300",
+                                  };
+                                  return colorMap[activity.color || "green"] || colorMap.green;
+                                })()
+                            }
+                        `}
+                        >
+                          {activity.type === "meeting" ? "Reunião" : activity.type === "task" ? "Tarefa" : "Evento Avulso"}
+                        </span>
+                        {activity.status && (
                           <span
                             className={`
                             text-[10px] px-2 py-0.5 rounded-full font-medium
-                            ${activity.type === "meeting"
-                                ? "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300"
-                                : "bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300"
+                            ${activity.status === "done" ||
+                                activity.status === "completed"
+                                ? "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-300"
+                                : "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300"
                               }
                           `}
                           >
-                            {activity.type === "meeting" ? "Reunião" : "Tarefa"}
+                            {activity.status === "done" ||
+                              activity.status === "completed"
+                              ? "Concluída"
+                              : "Pendente"}
                           </span>
-                          {activity.status && (
-                            <span
-                              className={`
-                              text-[10px] px-2 py-0.5 rounded-full font-medium
-                              ${activity.status === "done" ||
-                                  activity.status === "completed"
-                                  ? "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-300"
-                                  : "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300"
-                                }
-                            `}
-                            >
-                              {activity.status === "done" ||
-                                activity.status === "completed"
-                                ? "Concluída"
-                                : "Pendente"}
-                            </span>
-                          )}
-                        </div>
+                        )}
                       </div>
                     </div>
+                    {/* Botão de editar para eventos avulsos (só OWNER) */}
+                    {activity.type === "event" && isOwner && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setEditingEvent(activity);
+                          setEditEventDialogOpen(true);
+                        }}
+                        aria-label="Editar evento"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                );
+
+                return href ? (
+                  <Link key={activity.id} href={href} className="block">
+                    {content}
                   </Link>
+                ) : (
+                  <div key={activity.id}>
+                    {content}
+                  </div>
                 );
               })}
             </div>
@@ -452,6 +573,29 @@ export function MonthlyCalendar({
             Adicione reuniões e tarefas aos seus clientes
           </p>
         </div>
+      )}
+
+      <CreateEventDialog
+        open={createEventDialogOpen}
+        onOpenChange={setCreateEventDialogOpen}
+        selectedDate={eventDialogDate}
+        onSuccess={handleEventCreated}
+      />
+
+      {editingEvent && (
+        <EditEventDialog
+          open={editEventDialogOpen}
+          onOpenChange={setEditEventDialogOpen}
+          event={{
+            id: editingEvent.id,
+            title: editingEvent.title,
+            description: editingEvent.description || null,
+            date: editingEvent.date,
+            color: editingEvent.color || "blue",
+          }}
+          canDelete={isOwner}
+          onSuccess={handleEventCreated}
+        />
       )}
     </div>
   );

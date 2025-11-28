@@ -1,5 +1,5 @@
-  @import 'tailwindcss';
-  @import 'tw-animate-css';
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -227,5 +227,10 @@ body {
     to {
       transform: rotate(360deg);
     }
+  }
+
+  /* Animação de rotação lenta para o indicador de refresh */
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
   }
 }

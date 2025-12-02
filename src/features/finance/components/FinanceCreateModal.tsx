@@ -62,7 +62,7 @@ export function FinanceCreateModal() {
       amount,
       description: fd.get('description') || '',
       category: fd.get('category'),
-      date: fd.get('date'),
+      date: fd.get('date') || new Date().toISOString().split('T')[0], // Default: hoje
       clientId: fd.get('clientId') || null,
     }
 
@@ -200,6 +200,7 @@ export function FinanceCreateModal() {
                 id="date"
                 name="date"
                 type="date"
+                defaultValue={new Date().toISOString().split('T')[0]}
                 className="w-full"
               />
             </div>

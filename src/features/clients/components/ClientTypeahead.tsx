@@ -51,6 +51,11 @@ export function ClientTypeahead({
   useEffect(() => {
     if (!open) return;
     const q = query.trim();
+    // Só faz busca se tiver pelo menos 1 caractere
+    if (!q) {
+      setItems([]);
+      return;
+    }
     const t = setTimeout(() => {
       search(q);
     }, 300);
@@ -59,8 +64,14 @@ export function ClientTypeahead({
 
   return (
     <div style={{ position: "relative" }}>
+      {/* Hidden input que envia o ID */}
       <input
+        type="hidden"
         name={name}
+        value={selected?.id || ""}
+      />
+      {/* Input visível para busca */}
+      <input
         placeholder={placeholder}
         value={selected ? selected.name : query}
         onChange={e => {
@@ -69,19 +80,22 @@ export function ClientTypeahead({
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
+        onBlur={() => setTimeout(() => setOpen(false), 200)}
         autoComplete="off"
+        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
       />
       {open && (
-        <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#fff", border: "1px solid #ccc", zIndex: 10 }}>
+        <div className="absolute top-full left-0 right-0 mt-1 max-h-60 overflow-auto rounded-md border bg-popover shadow-lg z-50">
           {loading ? (
-            <div>Carregando...</div>
+            <div className="p-2 text-sm text-muted-foreground">Carregando...</div>
           ) : items.length === 0 ? (
-            <div>Nenhum cliente encontrado</div>
+            <div className="p-2 text-sm text-muted-foreground">{query.trim() ? "Nenhum cliente encontrado" : "Digite para buscar..."}</div>
           ) : (
             items.map(item => (
               <div
                 key={item.id}
-                style={{ padding: "8px", cursor: "pointer", background: selected?.id === item.id ? "#eee" : "#fff" }}
+                className="px-3 py-2 text-sm cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                style={{ background: selected?.id === item.id ? "var(--accent)" : "transparent" }}
                 onMouseDown={() => {
                   setSelected(item);
                   setQuery(item.name);

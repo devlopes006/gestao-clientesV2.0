@@ -54,9 +54,15 @@ export default async function BillingHomePage({ searchParams }: PageProps) {
   const startMonth = new Date(now.getFullYear(), now.getMonth(), 1)
   const endMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
   const financeRows = await prisma.finance.findMany({ where: { orgId, date: { gte: startMonth, lte: endMonth } } })
-  const income = financeRows.filter(f => f.type === 'income').reduce((s, r) => s + r.amount, 0)
-  const expense = financeRows.filter(f => f.type === 'expense').reduce((s, r) => s + r.amount, 0)
-  const net = income - expense
+  const incomeMonth = financeRows.filter(f => f.type === 'income').reduce((s, r) => s + r.amount, 0)
+  const expenseMonth = financeRows.filter(f => f.type === 'expense').reduce((s, r) => s + r.amount, 0)
+  const netMonth = incomeMonth - expenseMonth
+
+  // Saldo total histórico (tudo que já entrou e saiu desde o início)
+  const allFinance = await prisma.finance.findMany({ where: { orgId }, select: { type: true, amount: true } })
+  const totalIncome = allFinance.filter(f => f.type === 'income').reduce((s, r) => s + r.amount, 0)
+  const totalExpense = allFinance.filter(f => f.type === 'expense').reduce((s, r) => s + r.amount, 0)
+  const totalNet = totalIncome - totalExpense
 
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
@@ -93,7 +99,7 @@ export default async function BillingHomePage({ searchParams }: PageProps) {
       </header>
 
       {/* KPIs FINANCEIROS */}
-      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-6">
         <Card className="relative overflow-hidden border-2 hover:shadow-lg transition-all">
           <div className="absolute top-0 right-0 w-24 h-24 bg-linear-to-br from-red-500/10 to-pink-500/10 rounded-full blur-2xl" />
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
@@ -137,19 +143,19 @@ export default async function BillingHomePage({ searchParams }: PageProps) {
         </Card>
 
         <Card className="relative overflow-hidden border-2 hover:shadow-lg transition-all">
-          <div className={`absolute top-0 right-0 w-24 h-24 bg-linear-to-br ${net >= 0 ? 'from-emerald-500/10 to-teal-500/10' : 'from-red-500/10 to-orange-500/10'} rounded-full blur-2xl`} />
+          <div className={`absolute top-0 right-0 w-24 h-24 bg-linear-to-br ${netMonth >= 0 ? 'from-emerald-500/10 to-teal-500/10' : 'from-red-500/10 to-orange-500/10'} rounded-full blur-2xl`} />
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">Saldo do mês</CardTitle>
-            <div className={`h-8 w-8 rounded-lg bg-linear-to-br ${net >= 0 ? 'from-emerald-500 to-teal-500' : 'from-red-500 to-orange-500'} flex items-center justify-center`}>
+            <div className={`h-8 w-8 rounded-lg bg-linear-to-br ${netMonth >= 0 ? 'from-emerald-500 to-teal-500' : 'from-red-500 to-orange-500'} flex items-center justify-center`}>
               <Wallet className="h-4 w-4 text-white" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${net >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-              {formatBRL(net)}
+            <div className={`text-2xl font-bold ${netMonth >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+              {formatBRL(netMonth)}
             </div>
             <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-              {net >= 0 ? (
+              {netMonth >= 0 ? (
                 <><TrendingUp className="h-3 w-3" /> Resultado positivo</>
               ) : (
                 <><ArrowUpRight className="h-3 w-3 rotate-90" /> Resultado negativo</>
@@ -157,7 +163,113 @@ export default async function BillingHomePage({ searchParams }: PageProps) {
             </p>
           </CardContent>
         </Card>
+
+        <Card className="relative overflow-hidden border-2 hover:shadow-lg transition-all lg:col-span-2">
+          <div className={`absolute top-0 right-0 w-32 h-32 bg-linear-to-br ${totalNet >= 0 ? 'from-violet-500/10 to-purple-500/10' : 'from-orange-500/10 to-red-500/10'} rounded-full blur-3xl`} />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Saldo Total Histórico</CardTitle>
+            <div className={`h-8 w-8 rounded-lg bg-linear-to-br ${totalNet >= 0 ? 'from-violet-500 to-purple-500' : 'from-orange-500 to-red-500'} flex items-center justify-center`}>
+              <BadgeDollarSign className="h-4 w-4 text-white" />
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className={`text-3xl font-bold ${totalNet >= 0 ? 'text-violet-600' : 'text-orange-600'}`}>
+              {formatBRL(totalNet)}
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="space-y-1">
+                <p className="text-muted-foreground flex items-center gap-1">
+                  <TrendingUp className="h-3 w-3 text-emerald-600" /> Total Recebido
+                </p>
+                <p className="font-semibold text-emerald-600">{formatBRL(totalIncome)}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-muted-foreground flex items-center gap-1">
+                  <ArrowUpRight className="h-3 w-3 rotate-90 text-red-600" /> Total Despesas
+                </p>
+                <p className="font-semibold text-red-600">{formatBRL(totalExpense)}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* DETALHAMENTO FINANCEIRO DO MÊS */}
+      <Card className="border-2 shadow-lg">
+        <CardHeader className="bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950">
+          <CardTitle className="text-lg font-semibold flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-linear-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+              <TrendingUp className="h-4 w-4 text-white" />
+            </div>
+            Resumo Financeiro do Mês
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="grid gap-6 sm:grid-cols-3">
+            {/* Receitas */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="h-10 w-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/20 flex items-center justify-center">
+                  <TrendingUp className="h-5 w-5 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Receitas do Mês</p>
+                  <p className="text-xl font-bold text-emerald-600">{formatBRL(incomeMonth)}</p>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">Total recebido em {new Date().toLocaleDateString('pt-BR', { month: 'long' })}</p>
+            </div>
+
+            {/* Despesas */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="h-10 w-10 rounded-lg bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
+                  <ArrowUpRight className="h-5 w-5 rotate-90 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Despesas do Mês</p>
+                  <p className="text-xl font-bold text-red-600">{formatBRL(expenseMonth)}</p>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">Total gasto em {new Date().toLocaleDateString('pt-BR', { month: 'long' })}</p>
+            </div>
+
+            {/* Saldo Líquido */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className={`h-10 w-10 rounded-lg ${netMonth >= 0 ? 'bg-violet-100 dark:bg-violet-900/20' : 'bg-orange-100 dark:bg-orange-900/20'} flex items-center justify-center`}>
+                  <Wallet className={`h-5 w-5 ${netMonth >= 0 ? 'text-violet-600' : 'text-orange-600'}`} />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Resultado Líquido</p>
+                  <p className={`text-xl font-bold ${netMonth >= 0 ? 'text-violet-600' : 'text-orange-600'}`}>{formatBRL(netMonth)}</p>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                {netMonth >= 0 ? (
+                  <><CheckCircle2 className="h-3 w-3 text-emerald-600" /> Mês lucrativo</>
+                ) : (
+                  <><AlertCircle className="h-3 w-3 text-orange-600" /> Mês no prejuízo</>
+                )}
+              </p>
+            </div>
+          </div>
+
+          {/* Barra de progresso visual */}
+          <div className="mt-6 space-y-2">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>Margem de lucro</span>
+              <span className="font-semibold">{incomeMonth > 0 ? ((netMonth / incomeMonth) * 100).toFixed(1) : '0'}%</span>
+            </div>
+            <div className="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+              <div
+                className={`h-full transition-all ${netMonth >= 0 ? 'bg-linear-to-r from-emerald-500 to-teal-500' : 'bg-linear-to-r from-red-500 to-orange-500'}`}
+                style={{ width: incomeMonth > 0 ? `${Math.min(Math.max((netMonth / incomeMonth) * 100, 0), 100)}%` : '0%' }}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow">
         <CardHeader className="bg-linear-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">

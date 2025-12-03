@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && npm run copy:headers",
+    "build": "next build && npm run copy:headers && npm run netlify:workaround",
     "copy:headers": "node -e \"require('fs').cpSync('public/_headers', '.next/_headers', {force: true})\"",
+    "netlify:workaround": "node scripts/netlify-middleware-workaround.mjs",
     "start": "next start",
     "lint": "eslint",
     "prisma:generate": "node scripts/prisma-generate.mjs",

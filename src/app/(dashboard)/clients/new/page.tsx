@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CLIENT_PLANS, CLIENT_PLAN_LABELS, SOCIAL_CHANNELS, SOCIAL_CHANNEL_LABELS } from "@/lib/prisma-enums";
 import { parseDateInput } from "@/lib/utils";
 import { createClientSchema } from "@/lib/validations";
 import { BadgeCheck, Calendar, CreditCard, DollarSign, Hash, Layers, Mail, Phone, Save, Share2, UserPlus } from "lucide-react";

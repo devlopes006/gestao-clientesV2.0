@@ -12,7 +12,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
+import { CLIENT_PLAN_LABELS, SOCIAL_CHANNEL_LABELS } from "@/lib/prisma-enums";
 import { AppClient } from "@/types/tables";
+import type { ClientPlan, SocialChannel } from "@prisma/client";
 import { Edit, Save, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -366,14 +368,14 @@ export function ClientInfoEditor({ client, canEdit }: ClientInfoEditorProps) {
               <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Plano
               </p>
-              <p className="text-base text-slate-700">{client.plan ? CLIENT_PLAN_LABELS[client.plan] : "—"}</p>
+              <p className="text-base text-slate-700">{client.plan ? CLIENT_PLAN_LABELS[client.plan as ClientPlan] : "—"}</p>
             </div>
             <div className="space-y-1">
               <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Canal Principal
               </p>
               <p className="text-base text-slate-700">
-                {client.main_channel ? SOCIAL_CHANNEL_LABELS[client.main_channel] : "—"}
+                {client.main_channel ? SOCIAL_CHANNEL_LABELS[client.main_channel as SocialChannel] : "—"}
               </p>
             </div>
             <div className="space-y-1">

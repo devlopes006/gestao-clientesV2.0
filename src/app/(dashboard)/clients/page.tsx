@@ -14,6 +14,7 @@ import { getSessionProfile } from "@/services/auth/session";
 import { listClientsByOrg } from "@/services/repositories/clients";
 import { CLIENT_STATUS_LABELS } from "@/types/enums";
 import type { AppClient } from "@/types/tables";
+import type { ClientPlan, SocialChannel } from "@prisma/client";
 import { CheckCircle2, PauseCircle, Plus, Users, XCircle } from "lucide-react";
 import Link from "next/link";
 
@@ -302,7 +303,7 @@ export default async function ClientsPage({ searchParams }: PageProps) {
                           </Badge>
                         </div>
                         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
-                          {client.plan ? CLIENT_PLAN_LABELS[client.plan] : "—"} • {client.main_channel ? SOCIAL_CHANNEL_LABELS[client.main_channel] : "—"}
+                          {client.plan ? CLIENT_PLAN_LABELS[client.plan as ClientPlan] : "—"} • {client.main_channel ? SOCIAL_CHANNEL_LABELS[client.main_channel as SocialChannel] : "—"}
                         </p>
                         <p className="text-xs text-slate-500 dark:text-slate-500">
                           Criado em{" "}

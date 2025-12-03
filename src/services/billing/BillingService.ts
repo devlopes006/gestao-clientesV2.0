@@ -150,7 +150,7 @@ export class BillingService {
         .slice(2, 8)
         .toUpperCase()}`
 
-      const subtotal = client.contractValue
+      const subtotal = client.contractValue ?? 0
       const discount = 0
       const tax = 0
       const total = subtotal - discount + tax
@@ -368,7 +368,7 @@ export class BillingService {
         orgId,
         invoices: { some: { status: 'OVERDUE' } },
       },
-      data: { paymentStatus: 'OVERDUE' },
+      data: { paymentStatus: 'LATE' },
     })
     // Notificações: vencendo em 3 dias e vencidas
     const soon = new Date(now)

@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import type { Prisma } from '@prisma/client'
 
 /**
  * Executa operações dentro de uma transação vinculada a um escopo de organização
@@ -7,7 +8,7 @@ import { prisma } from '@/lib/prisma'
  */
 export async function withOrgScope<T>(
   orgId: string,
-  fn: (tx: typeof prisma) => Promise<T>
+  fn: (tx: Prisma.TransactionClient) => Promise<T>
 ) {
   return prisma.$transaction(async (tx) => {
     await tx.$executeRawUnsafe(

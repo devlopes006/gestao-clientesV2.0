@@ -20,6 +20,8 @@ import {
 import { CLIENT_PLAN_LABELS, CLIENT_PLANS, SOCIAL_CHANNEL_LABELS, SOCIAL_CHANNELS } from "@/lib/prisma-enums";
 import { formatDateInput, parseDateInput, toLocalISOString } from "@/lib/utils";
 import { ClientStatus } from "@/types/enums";
+import type { AppClient } from "@/types/tables";
+import type { ClientPlan, SocialChannel } from "@prisma/client";
 import {
   BadgeCheck,
   Calendar,
@@ -37,6 +39,8 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+
+type ClientInfoDisplayProps = { client: AppClient; canEdit: boolean }
 
 export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -627,7 +631,7 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                                       onClick={() => {
                                         const current = formData.installmentPaymentDays;
                                         const updated = isSelected
-                                          ? current.filter((d) => d !== day)
+                                          ? current.filter((d: number) => d !== day)
                                           : [...current, day].sort((a, b) => a - b);
                                         setFormData({
                                           ...formData,
@@ -691,11 +695,11 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
               </div>
               <div className="flex flex-col gap-1">
                 <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Plano</p>
-                <p className="text-sm text-slate-900 dark:text-white">{client.plan ? CLIENT_PLAN_LABELS[client.plan] : "Não definido"}</p>
+                <p className="text-sm text-slate-900 dark:text-white">{client.plan ? CLIENT_PLAN_LABELS[client.plan as ClientPlan] : "Não definido"}</p>
               </div>
               <div className="flex flex-col gap-1">
                 <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Canal Principal</p>
-                <p className="text-sm text-slate-900 dark:text-white">{client.main_channel ? SOCIAL_CHANNEL_LABELS[client.main_channel] : "Não definido"}</p>
+                <p className="text-sm text-slate-900 dark:text-white">{client.main_channel ? SOCIAL_CHANNEL_LABELS[client.main_channel as SocialChannel] : "Não definido"}</p>
               </div>
             </div>
           </div>
@@ -724,7 +728,7 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                     <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Dias de Pagamento</p>
                     <p className="text-sm text-slate-900 dark:text-white">
                       {client.installment_payment_days && client.installment_payment_days.length > 0
-                        ? client.installment_payment_days.map(d => `Dia ${d}`).join(", ")
+                        ? client.installment_payment_days.map((d: number) => `Dia ${d}`).join(", ")
                         : client.payment_day ? `Dia ${client.payment_day}` : "Não definido"}
                     </p>
                   </div>

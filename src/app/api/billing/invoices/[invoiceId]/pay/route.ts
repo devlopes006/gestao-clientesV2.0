@@ -40,6 +40,12 @@ export async function POST(
       method,
       amount
     )
+    if (!invoice) {
+      return NextResponse.json(
+        { error: 'Fatura não encontrada' },
+        { status: 404 }
+      )
+    }
 
     // Se foi chamado por form (não tem Accept: application/json), redireciona
     const acceptHeader = req.headers.get('accept')

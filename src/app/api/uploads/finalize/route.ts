@@ -40,10 +40,16 @@ async function getObjectBuffer(key: string): Promise<Buffer> {
   const res = await s3.send(
     new GetObjectCommand({ Bucket: S3_BUCKET, Key: key })
   )
-  // @ts-expect-error - Body é um stream
-  const stream = res.Body
+  const stream: any = (res as any).Body
+  if (!stream) throw new Error('Falha ao obter stream do objeto S3')
   const chunks: Buffer[] = []
-  for await (const chunk of stream) chunks.push(Buffer.from(chunk))
+  await new Promise<void>((resolve, reject) => {
+    stream.on('data', (chunk: Buffer | Uint8Array) => {
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
+    })
+    stream.once('end', () => resolve())
+    stream.once('error', (err: unknown) => reject(err))
+  })
   return Buffer.concat(chunks)
 }
 

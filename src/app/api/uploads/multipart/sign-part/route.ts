@@ -39,7 +39,6 @@ export async function POST(req: NextRequest) {
       Key: originalKey,
       UploadId: uploadId,
       PartNumber: Number(partNumber),
-      ContentType: mimeType,
     })
     const url = await getSignedUrl(s3, cmd, { expiresIn: 900 })
     return NextResponse.json({ url })

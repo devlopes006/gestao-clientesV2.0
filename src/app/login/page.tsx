@@ -64,6 +64,22 @@ function LoginPageInner() {
         clearTimeout(cleanupTimeout);
       };
     }
+
+    // Diagnostic: detect any script tags incorrectly pointing to this route
+    try {
+      const currentUrl = window.location.origin + window.location.pathname
+      const badScripts = Array.from(document.scripts).filter((s) => s.src && (s.src === currentUrl))
+      if (badScripts.length) {
+        console.error('[LoginPage] Detected script tag pointing to route HTML:', {
+          currentUrl,
+          scripts: badScripts.map((s) => s.outerHTML).slice(0, 3),
+        })
+        // Remove to prevent MIME type execution errors
+        badScripts.forEach((s) => s.parentElement?.removeChild(s))
+      }
+    } catch (e) {
+      // ignore
+    }
   }, []);
 
   useEffect(() => {

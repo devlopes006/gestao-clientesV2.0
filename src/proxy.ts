@@ -17,6 +17,24 @@ export async function proxy(req: NextRequest) {
   const isAuthCallback = pathname.startsWith('/auth/callback')
   const isInviteValidation =
     pathname.startsWith('/api/invites/accept') && req.method === 'GET'
+  // Allow creating a session without an existing auth cookie (POST /api/session)
+  const isSessionCreate = pathname === '/api/session' && req.method === 'POST'
+
+  // Bypass known static/asset paths immediately so middleware never intercepts
+  // requests for Next static assets, service worker, or common static files.
+  if (
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/static/') ||
+    pathname === '/favicon.ico' ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml' ||
+    pathname.startsWith('/assets/')
+  ) {
+    return NextResponse.next()
+  }
+
+  // Allow session creation (login) to pass through without redirect
+  if (isSessionCreate) return NextResponse.next()
 
   // Gera um nonce único para esta requisição (CSP)
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
@@ -84,6 +102,9 @@ export async function proxy(req: NextRequest) {
   if (!token) {
     // Permite validar convite sem autenticação (GET /api/invites/accept)
     if (isInviteValidation) return response
+
+    // Allow creating a session (POST /api/session) without an auth cookie
+    if (isSessionCreate) return response
 
     if (isLoginRoute) return response
 
@@ -173,11 +194,12 @@ export function guardAccess(req: NextRequest) {
   const isAuthCallback = pathname.startsWith('/auth/callback')
   const isInviteValidation =
     pathname.startsWith('/api/invites/accept') && req.method === 'GET'
+  const isSessionCreate = pathname === '/api/session' && req.method === 'POST'
 
   if (isAuthCallback) return null
 
   if (!token) {
-    if (isInviteValidation || isLoginRoute) return null
+    if (isInviteValidation || isLoginRoute || isSessionCreate) return null
     return NextResponse.redirect(new URL('/login', req.url))
   }
 

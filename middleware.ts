@@ -12,7 +12,9 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/',
+    // Removed generic root matcher ('/') to avoid intercepting static assets
+    // like '/_next/*' which previously caused asset requests to be redirected
+    // to `/login` when unauthenticated. Only explicitly protect app routes.
     '/clients/:path*',
     '/client/:path*',
     '/admin/:path*',

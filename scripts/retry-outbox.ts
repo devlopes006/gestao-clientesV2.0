@@ -1,6 +1,16 @@
-import { prisma } from '@/lib/prisma'
+import type { Prisma } from '@prisma/client'
 import { getApp } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
+import { prisma } from '../src/lib/prisma'
+
+type OutboxPayload = {
+  attempts?: number
+  entity?: 'invoice' | 'task'
+  op?: 'create'
+  orgId: string
+  clientId: string
+  data: { id: string; [k: string]: unknown }
+}
 
 const MAX_ATTEMPTS = Number(process.env.OUTBOX_MAX_ATTEMPTS || '5')
 
@@ -20,7 +30,7 @@ async function main() {
   const firestore = getFirestore(getApp())
 
   for (const evt of events) {
-    const payload = evt.payload as any
+    const payload = evt.payload as unknown as OutboxPayload
     const attempts = Number(payload?.attempts ?? 0)
     if (attempts >= MAX_ATTEMPTS) {
       console.error('[outbox] descartando após tentativas máximas', evt.id)
@@ -58,7 +68,12 @@ async function main() {
       console.error('[outbox] falha, re-enfileirando', evt.id, err)
       await prisma.webhookEvent.update({
         where: { id: evt.id },
-        data: { payload: { ...payload, attempts: attempts + 1 } },
+        data: {
+          payload: {
+            ...payload,
+            attempts: attempts + 1,
+          } as Prisma.InputJsonValue,
+        },
       })
     }
   }

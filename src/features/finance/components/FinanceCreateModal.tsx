@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { Icon } from '@/components/ui/icon'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -73,7 +74,7 @@ export function FinanceCreateModal() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" variant="default" className="gap-2">
-          <Plus className="size-4" />
+          <Icon as={Plus} size="sm" className="" decorative={true} />
           Novo lançamento
         </Button>
       </DialogTrigger>
@@ -81,7 +82,7 @@ export function FinanceCreateModal() {
         <DialogHeader className="space-y-3">
           <div className="flex items-center gap-3">
             <div className={`p-2.5 rounded-lg ${financeType === 'income' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}`}>
-              {financeType === 'income' ? <TrendingUp className="size-5" /> : <TrendingDown className="size-5" />}
+              {financeType === 'income' ? <Icon as={TrendingUp} size="md" decorative={false} ariaLabel={financeType === 'income' ? 'Receita' : 'Despesa'} /> : <Icon as={TrendingDown} size="md" decorative={false} ariaLabel={financeType === 'income' ? 'Receita' : 'Despesa'} />}
             </div>
             <div>
               <DialogTitle className="text-xl">Novo lançamento financeiro</DialogTitle>
@@ -96,7 +97,7 @@ export function FinanceCreateModal() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="type" className="flex items-center gap-2 text-sm font-medium">
-                {financeType === 'income' ? <TrendingUp className="size-4 text-emerald-600" /> : <TrendingDown className="size-4 text-red-600" />}
+                {financeType === 'income' ? <Icon as={TrendingUp} size="sm" className="text-emerald-600" decorative={true} /> : <Icon as={TrendingDown} size="sm" className="text-red-600" decorative={true} />}
                 Tipo
               </Label>
               <Select value={financeType} onValueChange={(v) => setFinanceType(v as 'income' | 'expense')}>
@@ -106,13 +107,13 @@ export function FinanceCreateModal() {
                 <SelectContent>
                   <SelectItem value="income">
                     <span className="flex items-center gap-2">
-                      <TrendingUp className="size-4 text-emerald-600" />
+                      <Icon as={TrendingUp} size="sm" className="text-emerald-600" decorative={true} />
                       Receita
                     </span>
                   </SelectItem>
                   <SelectItem value="expense">
                     <span className="flex items-center gap-2">
-                      <TrendingDown className="size-4 text-red-600" />
+                      <Icon as={TrendingDown} size="sm" className="text-red-600" decorative={true} />
                       Despesa
                     </span>
                   </SelectItem>
@@ -123,7 +124,7 @@ export function FinanceCreateModal() {
 
             <div className="space-y-2">
               <Label htmlFor="amount" className="flex items-center gap-2 text-sm font-medium">
-                <DollarSign className="size-4 text-blue-600" />
+                <Icon as={DollarSign} size="sm" className="text-blue-600" decorative={true} />
                 Valor
               </Label>
               <Input
@@ -142,7 +143,7 @@ export function FinanceCreateModal() {
           {/* Descrição */}
           <div className="space-y-2">
             <Label htmlFor="description" className="flex items-center gap-2 text-sm font-medium">
-              <FileText className="size-4 text-purple-600" />
+              <Icon as={FileText} size="sm" className="text-purple-600" decorative={true} />
               Descrição
             </Label>
             <Input
@@ -157,7 +158,7 @@ export function FinanceCreateModal() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="category" className="flex items-center gap-2 text-sm font-medium">
-                <Tag className="size-4 text-orange-600" />
+                <Icon as={Tag} size="sm" className="text-orange-600" decorative={true} />
                 Categoria
               </Label>
               <Select name="category" required>
@@ -174,7 +175,7 @@ export function FinanceCreateModal() {
 
             <div className="space-y-2">
               <Label htmlFor="date" className="flex items-center gap-2 text-sm font-medium">
-                <Calendar className="size-4 text-cyan-600" />
+                <Icon as={Calendar} size="sm" className="text-cyan-600" decorative={true} />
                 Data
               </Label>
               <Input
@@ -190,7 +191,7 @@ export function FinanceCreateModal() {
           {/* Cliente */}
           <div className="space-y-2">
             <Label className="flex items-center gap-2 text-sm font-medium">
-              <User className="size-4 text-indigo-600" />
+              <Icon as={User} size="sm" className="text-indigo-600" decorative={true} />
               Cliente <span className="text-xs text-muted-foreground font-normal">(opcional)</span>
             </Label>
             <ClientTypeahead name="clientId" placeholder="Buscar cliente..." />

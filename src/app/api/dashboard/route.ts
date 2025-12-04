@@ -36,7 +36,7 @@ function computeUrgency(t: {
   return score
 }
 
-export async function GET(req: NextRequest | Request) {
+export async function GET(req: NextRequest) {
   try {
     const r = req
     const guard = guardAccess(r)

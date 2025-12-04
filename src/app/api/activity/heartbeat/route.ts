@@ -3,7 +3,7 @@ import { applySecurityHeaders, guardAccess } from '@/proxy'
 import { getSessionProfile } from '@/services/auth/session'
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function POST(req: NextRequest | Request) {
+export async function POST(req: NextRequest) {
   try {
     const guard = guardAccess(req)
     if (guard) return guard

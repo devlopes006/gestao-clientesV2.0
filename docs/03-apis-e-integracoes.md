@@ -200,6 +200,145 @@ Este documento lista exaustivamente as rotas em `src/app/api/**`, com método, p
 
 Atualizarei esta lista conforme a leitura restante dos arquivos.
 
+### Outros endpoints e integrações
+
+#### Sidebar Stats
+
+- `GET /api/sidebar-stats`
+- Retorna: `{ orgName: string|null, role: AppRole|null, alertsCount: number }`
+- Auth: sessão válida; aplica `guardAccess` e security headers.
+- Lógica: busca `org.name` e conta faturas `OVERDUE` para `alertsCount`.
+
+#### Activity Heartbeat
+
+- `POST /api/activity/heartbeat`
+- Body: none.
+- Retorna: `{ ok: true }` ou `{ error: 'Unauthorized' }`
+- Efeito: atualiza `user.lastActiveAt = now`.
+
+#### Instagram OAuth
+
+- `GET /api/instagram/connect?clientId`
+- Resposta: `{ authUrl }` com URL de autorização.
+- Modo: `INSTAGRAM_OAUTH_MODE` = `basic` (Instagram Basic Display) ou `graph` (Facebook Login + IG Graph API).
+- Vars: usa `FACEBOOK_APP_ID/REDIRECT_URI` (ou `INSTAGRAM_*` legados). Valida App ID numérico.
+
+- `GET /api/instagram/callback?code&state=clientId`
+- Troca `code` por token (short/long-lived), descobre `instagramUserId` e opcional `username`, salva em `Client`:
+  - Campos: `instagramAccessToken`, `instagramUserId`, `instagramTokenExpiresAt`, `instagramUsername`.
+- Redireciona para `/clients/{clientId}/info?instagram_success=true` ou `instagram_error`.
+
+- `GET /api/instagram/feed?clientId&limit=12`
+- Requer cliente com `instagramAccessToken` e `instagramUserId` válidos (não expirados).
+- Retorna: `{ items: Array<media> }` vindo de Graph API (fields: id, caption, media_type, media_url, thumbnail_url, permalink, timestamp) ou Basic Display (fields reduzidos).
+
+#### Perfil do Usuário
+
+- `GET /api/profile`
+- Retorna: `{ id, email, name, image }` do usuário logado.
+
+- `PATCH /api/profile`
+- Body: `{ name?: string, image?: string }`
+- Atualiza no banco e tenta sincronizar `displayName/photoURL` no Firebase Auth.
+
+#### Avatar Upload
+
+- `POST /api/profile/avatar`
+- Multipart/form-data: `file` imagem (máx 5MB; tipos permitidos).
+- Valida MIME e magic bytes; faz upload via storage (`uploadFile`) em `avatars/{userId}/{timestamp}.ext`.
+- Retorna: `{ url, thumbUrl }`.
+
+#### Logout
+
+- `POST /api/logout`
+- Efeito: remove cookies `auth` e `role` (expira imediatamente) com mesmas opções de criação.
+- Retorna: `{ ok: true }`.
+
+#### Diagnostics Finance
+
+- `GET /api/diagnostics/financial`
+- Apenas `OWNER`.
+- Retorna: `{ success, counts, installmentClients: { count, samples }, recentInvoices, recentTransactions, timestamp }`.
+
+#### Cron: Monthly Payments
+
+- `GET|POST /api/cron/process-monthly-payments`
+- Auth: `Authorization: Bearer ${CRON_SECRET}`.
+- Para cada organização, cria `transaction` de receita mensal ou parcela vencida do mês quando não existir.
+- Retorna: `{ success, message, results: { processed, created, errors, details: [{ client, amount, type }] }, timestamp }`.
+
+#### Maintenance
+
+- `POST /api/maintenance/auto-materialize-costs`
+- Stub: migrado para `POST /api/cost-subscriptions/materialize`; retorna `{ status: 'migrated', newEndpoint }`.
+
+- `POST /api/maintenance/reset-finance-range`
+- Body: `{ start: ISO, end: ISO, scope?: 'all'|'finance'|'payments'|'invoices', dryRun?: boolean }`
+- Conta e opcionalmente deleta registros dentro do intervalo conforme `scope`.
+- Retorna: `{ scope, start, end, dryRun?, summary|deleted }`.
+
+- `POST /api/maintenance/update-finance-records`
+- Body: `Array<{ id, date?: ISO, amount?: number, type?: 'INCOME'|'EXPENSE', invoiceId?: string|null }>`
+- Atualiza campos dos `transactions`; retorna `{ updated: Array<{ id, ok, error? }> }`.
+
+- `POST /api/maintenance/delete-finances`
+- Stub: oper. movida; retorna `{ success: true, deletedCount: 0, skippedCount: 0 }`.
+
+- `GET /api/maintenance/analyze-september`
+- Stub: redirecionada para `/api/reports/monthly`.
+
+- `POST /api/maintenance/normalize-finance-types`
+- Apenas `OWNER`.
+- Normaliza `Finance.type` para `INCOME`/`EXPENSE` maiúsculo via SQL; retorna `{ updatedIncome, updatedExpense, distribution }`.
+
+- `POST /api/maintenance/materialize-internal-costs`
+- Body: `Array<{ clientId, amount, month: 'YYYY-MM', description? }>`
+- Cria `transaction` EXPENSE `INTERNAL_COST` por mês; retorna `{ created: Array<{ clientId, ok, error?, financeId? }> }`.
+
+#### Test Email
+
+- `POST /api/test-email`
+- Body: `{ to: string, subject?: string, html?: string }`
+- Usa Resend para envio; retorna `{ ok: true, skipped }`.
+
+#### Sentry Example
+
+- `GET /api/sentry-example-api`
+- Lança erro intencional para validar monitoramento do Sentry.
+
+#### Branding: Extract Colors
+
+- `POST /api/branding/extract-colors`
+- Body: `{ imageUrl: string }`
+- Busca imagem, quantiza cores com `sharp`, retorna `{ colors: string[] }` (top 6).
+
+#### Reports: Audit e Análises
+
+- `GET /api/reports/audit?year&months=10,11`
+- OWNER ou token admin `Bearer ${ADMIN_API_TOKEN}` + `orgId` por header/query.
+- Retorna auditoria financeira multi-mês gerada por `ReportingService.auditFinancial`.
+
+- `GET /api/reports/client-analysis/{clientId}?year`
+- OWNER; janela anual; `ReportingService.getClientAnalysis`.
+
+- `GET /api/reports/client-margin/{clientId}?year&month`
+- OWNER; calcula margem do cliente via `CostTrackingService.calculateClientMargin` no mês.
+
+#### Webhooks: Nubank Pix
+
+- `POST /api/webhooks/nubank/pix`
+- Verifica assinatura `x-nubank-signature` via HMAC SHA256 com `NUBANK_WEBHOOK_SECRET`.
+- Fluxo: tenta identificar cliente por CPF/CNPJ; se há fatura aberta com valor ~ Pix, registra via `PaymentOrchestrator.recordInvoicePayment`; senão cria `transaction` de receita genérica.
+- Retorna: `{ success: true }`.
+
+#### WhatsApp Integrations
+
+- `POST /api/whatsapp/fake-gateway`
+- Simula envio (logs) para testes locais; retorna `{ ok: true, messageId }`.
+
+- `POST /api/whatsapp/twilio-proxy`
+- Converte `{ to, body }` para Twilio API usando `TWILIO_*`; retorna `{ ok, messageSid, data }`.
+
 ## Clients
 
 `src/app/api/clients/route.ts`

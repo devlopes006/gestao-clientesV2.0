@@ -16,7 +16,7 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailPagePro
   if (!orgId || !role) return null;
   if (!can(role, "read", "finance")) return null;
 
-  const invoice = await prisma.invoice.findUnique({ where: { id: invoiceId }, include: { items: true, payments: true, client: true } });
+  const invoice = await prisma.invoice.findUnique({ where: { id: invoiceId }, include: { items: true, client: true } });
   if (!invoice || invoice.orgId !== orgId || invoice.clientId !== id) return null;
 
   return <ClientInvoiceDetail invoice={invoice} role={role} />;

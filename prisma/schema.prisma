@@ -22,35 +22,35 @@ model User {
 }
 
 model Org {
-  id              String           @id @default(cuid())
-  name            String
-  createdAt       DateTime         @default(now())
-  description     String?
-  ownerId         String
-  updatedAt       DateTime         @updatedAt
-  addressLine1    String?
-  addressLine2    String?
-  city            String?
-  cnpj            String?
-  country         String?
-  phone           String?
-  postalCode      String?
-  state           String?
-  website         String?
-  clients         Client[]
-  finances        Finance[]
-  invites         Invite[]
-  invoices        Invoice[]
-  media           Media[]
-  members         Member[]
-  notifications   Notification[]
-  owner           User             @relation("OrgOwner", fields: [ownerId], references: [id])
-  payments        Payment[]
-  subscriptions   Subscription[]
-  tasks           Task[]
-  dashboardEvents DashboardEvent[]
-  dashboardNotes  DashboardNote[]
-  fixedExpenses   FixedExpense[]
+  id                      String                   @id @default(cuid())
+  name                    String
+  createdAt               DateTime                 @default(now())
+  description             String?
+  ownerId                 String
+  updatedAt               DateTime                 @updatedAt
+  addressLine1            String?
+  addressLine2            String?
+  city                    String?
+  cnpj                    String?
+  country                 String?
+  phone                   String?
+  postalCode              String?
+  state                   String?
+  website                 String?
+  clients                 Client[]
+  clientCostSubscriptions ClientCostSubscription[]
+  costItems               CostItem[]
+  dashboardEvents         DashboardEvent[]
+  dashboardNotes          DashboardNote[]
+  invites                 Invite[]
+  invoices                Invoice[]
+  media                   Media[]
+  members                 Member[]
+  notifications           Notification[]
+  owner                   User                     @relation("OrgOwner", fields: [ownerId], references: [id])
+  recurringExpenses       RecurringExpense[]
+  tasks                   Task[]
+  transactions            Transaction[]
 }
 
 model Member {
@@ -67,53 +67,51 @@ model Member {
 }
 
 model Client {
-  id                      String         @id @default(cuid())
+  id                      String                   @id @default(cuid())
   name                    String
   email                   String?
   orgId                   String
-  createdAt               DateTime       @default(now())
+  createdAt               DateTime                 @default(now())
   phone                   String?
-  updatedAt               DateTime       @updatedAt
-  status                  String         @default("new")
-  clientUserId            String?        @unique
+  updatedAt               DateTime                 @updatedAt
+  status                  String                   @default("new")
+  clientUserId            String?                  @unique
   contractEnd             DateTime?
   contractStart           DateTime?
   contractValue           Float?
   paymentDay              Int?
-  paymentStatus           PaymentStatus  @default(PENDING)
+  paymentStatus           PaymentStatus            @default(PENDING)
   mainChannel             SocialChannel?
   plan                    ClientPlan?
   installmentCount        Int?
   installmentValue        Float?
-  isInstallment           Boolean        @default(false)
-  installmentPaymentDays  Int[]          @default([])
+  isInstallment           Boolean                  @default(false)
   instagramUserId         String?
   instagramUsername       String?
   instagramAccessToken    String?
   instagramTokenExpiresAt DateTime?
-  cpf                     String?        @unique
-  cnpj                    String?        @unique
+  installmentPaymentDays  Int[]                    @default([])
+  cnpj                    String?                  @unique
+  cpf                     String?                  @unique
   brandings               Branding[]
-  clientUser              User?          @relation(fields: [clientUserId], references: [id])
-  org                     Org            @relation(fields: [orgId], references: [id])
-  finances                Finance[]
+  clientUser              User?                    @relation(fields: [clientUserId], references: [id])
+  org                     Org                      @relation(fields: [orgId], references: [id])
+  clientCostSubscriptions ClientCostSubscription[]
   installments            Installment[]
   invites                 Invite[]
   invoices                Invoice[]
   media                   Media[]
   mediaFolders            MediaFolder[]
   meetings                Meeting[]
-  payments                Payment[]
   strategies              Strategy[]
-  subscriptions           Subscription[]
   tasks                   Task[]
+  transactions            Transaction[]
 
   @@index([orgId, status])
   @@index([orgId, createdAt])
   @@index([email])
   @@index([cpf])
   @@index([cnpj])
-  // Novos índices para filtros frequentes
   @@index([orgId, plan])
   @@index([orgId, mainChannel])
   @@index([orgId, paymentStatus])
@@ -136,7 +134,6 @@ model Task {
 
   @@index([clientId, status])
   @@index([orgId, dueDate])
-  // Índices adicionais para dashboards e filtros
   @@index([orgId, status, dueDate])
   @@index([assignee, status])
 }
@@ -210,30 +207,6 @@ model Strategy {
   client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
 
-// Ciclo de despesas fixas
-enum ExpenseCycle {
-  MONTHLY
-  ANNUAL
-}
-
-model FixedExpense {
-  id         String       @id @default(cuid())
-  orgId      String
-  name       String
-  amount     Float
-  category   String?
-  cycle      ExpenseCycle @default(MONTHLY)
-  dayOfMonth Int?
-  active     Boolean      @default(true)
-  notes      String?
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  org        Org          @relation(fields: [orgId], references: [id])
-
-  @@index([orgId, active])
-  @@index([orgId, cycle])
-}
-
 model Branding {
   id          String   @id @default(cuid())
   title       String
@@ -249,29 +222,46 @@ model Branding {
   client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
 
-model Finance {
-  id          String   @id @default(cuid())
-  type        String
-  amount      Float
-  description String?
-  category    String?
-  date        DateTime @default(now())
-  clientId    String?
-  invoiceId   String?
-  metadata    Json?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  orgId       String
-  client      Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  invoice     Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
-  org         Org      @relation(fields: [orgId], references: [id])
+model CostItem {
+  id            String                   @id @default(cuid())
+  name          String
+  description   String?
+  amount        Float
+  category      String?
+  active        Boolean                  @default(true)
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+  orgId         String
+  subscriptions ClientCostSubscription[]
+  org           Org                      @relation(fields: [orgId], references: [id])
+  transactions  Transaction[]
 
-  @@index([orgId, date])
-  @@index([clientId, date])
-  @@index([invoiceId])
-  @@index([orgId, type, date])
-  // Índice adicional para relatórios por categoria
-  @@index([orgId, category])
+  @@index([orgId, active])
+}
+
+model ClientCostSubscription {
+  id         String    @id @default(cuid())
+  clientId   String
+  costItemId String
+  startDate  DateTime
+  endDate    DateTime?
+  active     Boolean   @default(true)
+  notes      String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  orgId      String
+  createdBy  String?
+  deletedAt  DateTime?
+  deletedBy  String?
+  updatedBy  String?
+  client     Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  costItem   CostItem  @relation(fields: [costItemId], references: [id])
+  org        Org       @relation(fields: [orgId], references: [id])
+
+  @@unique([clientId, costItemId, startDate])
+  @@index([orgId, active])
+  @@index([clientId, active])
+  @@index([deletedAt])
 }
 
 model Meeting {
@@ -301,101 +291,114 @@ model Installment {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
   client    Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  invoice   Invoice?      @relation("InvoiceInstallment")
+  invoices  Invoice?
 
   @@index([clientId, dueDate])
 }
 
-model Subscription {
-  id                 String             @id @default(cuid())
-  orgId              String
-  clientId           String
-  status             SubscriptionStatus @default(ACTIVE)
-  planName           String
-  unitAmount         Float
-  currency           String             @default("BRL")
-  interval           BillingInterval    @default(MONTH)
-  trialEndsAt        DateTime?
-  currentPeriodStart DateTime
-  currentPeriodEnd   DateTime
-  cancelAtPeriodEnd  Boolean            @default(false)
-  canceledAt         DateTime?
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  invoices           Invoice[]
-  client             Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  org                Org                @relation(fields: [orgId], references: [id])
+model Transaction {
+  id          String             @id @default(cuid())
+  type        TransactionType
+  subtype     TransactionSubtype
+  amount      Float
+  description String?
+  category    String?
+  date        DateTime           @default(now())
+  status      TransactionStatus  @default(CONFIRMED)
+  invoiceId   String?
+  clientId    String?
+  costItemId  String?
+  metadata    Json?
+  createdAt   DateTime           @default(now())
+  createdBy   String?
+  updatedAt   DateTime           @updatedAt
+  updatedBy   String?
+  deletedAt   DateTime?
+  deletedBy   String?
+  orgId       String
+  client      Client?            @relation(fields: [clientId], references: [id])
+  costItem    CostItem?          @relation(fields: [costItemId], references: [id])
+  invoice     Invoice?           @relation(fields: [invoiceId], references: [id])
+  org         Org                @relation(fields: [orgId], references: [id])
 
-  @@index([orgId, clientId])
+  @@index([orgId, date])
+  @@index([orgId, type, date])
+  @@index([clientId, date])
+  @@index([invoiceId])
+  @@index([orgId, status])
+  @@index([deletedAt])
 }
 
 model Invoice {
-  id             String        @id @default(cuid())
-  orgId          String
-  clientId       String
-  subscriptionId String?
-  number         String        @unique
-  status         InvoiceStatus @default(DRAFT)
-  issueDate      DateTime      @default(now())
-  dueDate        DateTime
-  subtotal       Float         @default(0)
-  discount       Float         @default(0)
-  tax            Float         @default(0)
-  total          Float         @default(0)
-  currency       String        @default("BRL")
-  notes          String?
-  externalId     String?
-  installmentId  String?       @unique
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  client         Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  org            Org           @relation(fields: [orgId], references: [id])
-  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
-  installment    Installment?  @relation("InvoiceInstallment", fields: [installmentId], references: [id])
-  items          InvoiceItem[]
-  payments       Payment[]
-  finances       Finance[]
+  id            String        @id @default(cuid())
+  orgId         String
+  clientId      String
+  number        String        @unique
+  status        InvoiceStatus @default(OPEN)
+  issueDate     DateTime      @default(now())
+  dueDate       DateTime
+  subtotal      Float
+  discount      Float         @default(0)
+  tax           Float         @default(0)
+  total         Float
+  currency      String        @default("BRL")
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  installmentId String?       @unique
+  cancelledAt   DateTime?
+  createdBy     String?
+  deletedAt     DateTime?
+  deletedBy     String?
+  internalNotes String?
+  paidAt        DateTime?
+  updatedBy     String?
+  client        Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  installment   Installment?  @relation(fields: [installmentId], references: [id])
+  org           Org           @relation(fields: [orgId], references: [id])
+  items         InvoiceItem[]
+  transactions  Transaction[]
 
   @@index([orgId, clientId, status])
   @@index([orgId, dueDate])
   @@index([clientId, status])
-  @@index([subscriptionId])
-  @@index([orgId, status, updatedAt])
-  // Histórico do cliente por vencimento
-  @@index([clientId, dueDate])
+  @@index([deletedAt])
 }
 
 model InvoiceItem {
-  id          String  @id @default(cuid())
+  id          String   @id @default(cuid())
   invoiceId   String
   description String
-  quantity    Int     @default(1)
+  quantity    Int      @default(1)
   unitAmount  Float
   total       Float
-  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
 }
 
-model Payment {
-  id                String    @id @default(cuid())
-  orgId             String
-  clientId          String
-  invoiceId         String
-  amount            Float
-  method            String
-  status            String    @default("PAID")
-  paidAt            DateTime?
-  provider          String?
-  providerPaymentId String?
-  description       String?
-  metadata          Json?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  client            Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  invoice           Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  org               Org       @relation(fields: [orgId], references: [id])
+model RecurringExpense {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  amount      Float
+  category    String?
+  cycle       ExpenseCycle @default(MONTHLY)
+  dayOfMonth  Int?
+  active      Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  createdBy   String?
+  updatedAt   DateTime     @updatedAt
+  updatedBy   String?
+  deletedAt   DateTime?
+  deletedBy   String?
+  orgId       String
+  org         Org          @relation(fields: [orgId], references: [id])
 
-  @@index([orgId, paidAt])
-  @@index([clientId, paidAt])
+  @@index([orgId, active])
+  @@index([deletedAt])
 }
 
 model WebhookEvent {
@@ -423,6 +426,66 @@ model Notification {
   user      User?    @relation(fields: [userId], references: [id])
 
   @@index([userId, orgId])
+}
+
+model DashboardEvent {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  color       String?  @default("blue")
+  orgId       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  org         Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, date])
+}
+
+model DashboardNote {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  color     String?  @default("yellow")
+  position  Int      @default(0)
+  orgId     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  org       Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@index([orgId, position])
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionSubtype {
+  INVOICE_PAYMENT
+  OTHER_INCOME
+  INTERNAL_COST
+  FIXED_EXPENSE
+  OTHER_EXPENSE
+}
+
+enum TransactionStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  OPEN
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum ExpenseCycle {
+  MONTHLY
+  ANNUAL
 }
 
 enum Role {
@@ -461,54 +524,4 @@ enum PaymentStatus {
   PENDING
   CONFIRMED
   LATE
-}
-
-enum InvoiceStatus {
-  DRAFT
-  OPEN
-  PAID
-  VOID
-  OVERDUE
-  CANCELED
-}
-
-enum SubscriptionStatus {
-  ACTIVE
-  TRIALING
-  PAST_DUE
-  CANCELED
-  INACTIVE
-}
-
-enum BillingInterval {
-  MONTH
-  YEAR
-}
-
-model DashboardEvent {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  date        DateTime
-  color       String?  @default("blue")
-  orgId       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  org         Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
-
-  @@index([orgId, date])
-}
-
-model DashboardNote {
-  id        String   @id @default(cuid())
-  title     String
-  content   String
-  color     String?  @default("yellow")
-  position  Int      @default(0)
-  orgId     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  org       Org      @relation(fields: [orgId], references: [id], onDelete: Cascade)
-
-  @@index([orgId, position])
 }

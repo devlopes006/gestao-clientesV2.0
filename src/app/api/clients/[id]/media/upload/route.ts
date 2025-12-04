@@ -17,7 +17,7 @@ import { getMaxUploadSizeBytes, getMaxUploadSizeMB } from '@/lib/upload-config'
 import { getSessionProfile } from '@/services/auth/session'
 import crypto from 'crypto'
 import { fileTypeFromBuffer } from 'file-type'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 const MAX_FILE_SIZE = getMaxUploadSizeBytes()
 
@@ -44,7 +44,7 @@ function storageSnapshot() {
 
 // POST /api/clients/[id]/media/upload
 export async function POST(
-  req: Request,
+  _request: NextRequest | Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -64,7 +64,7 @@ export async function POST(
     const debugFlag = req.headers.get('x-debug') === '1'
     let user: { id: string; email: string; name: string | null } | null = null
     let orgId: string | null = null
-    let role: any = null
+    let role: string | null = null
     if (debugFlag) {
       const hOrg = req.headers.get('x-debug-org-id')
       const hRole = req.headers.get('x-debug-role')
@@ -73,7 +73,7 @@ export async function POST(
         req.headers.get('x-debug-user-email') || 'debug@example.com'
       const hUserName = req.headers.get('x-debug-user-name') || 'Debug User'
       orgId = hOrg || null
-      role = (hRole as any) || null
+      role = hRole || null
       user = { id: hUserId, email: hUserEmail, name: hUserName }
     } else {
       const session = await getSessionProfile()
@@ -94,7 +94,7 @@ export async function POST(
       return rateLimitExceeded(rateLimitResult.reset)
     }
 
-    if (!can(role, 'create', 'media')) {
+    if (!role || !can(role, 'create', 'media')) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -121,8 +121,8 @@ export async function POST(
       )
     }
     // Logging básico para diagnóstico (não inclui conteúdo do arquivo)
-    const claimedMime = (formData.get('file') as File | null)?.type || 'unknown'
-    const claimedSize = (formData.get('file') as File | null)?.size || 0
+    const fileField = formData.get('file') as File | null
+    const claimedSize = fileField?.size
     const file = formData.get('file') as File | null
     const title = (formData.get('title') as string) || ''
     const description = (formData.get('description') as string) || ''
@@ -181,6 +181,7 @@ export async function POST(
       console.log('[upload:mime-rejected]', {
         correlationId,
         claimedMime: file.type,
+        claimedSize,
         fileName: file.name,
         reason,
       })

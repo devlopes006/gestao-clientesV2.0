@@ -4,9 +4,9 @@ import { getSessionProfile } from '@/services/auth/session'
 import { NextRequest, NextResponse } from 'next/server'
 
 // GET /api/installments - List installments due this month for the organization
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const guard = guardAccess(req as any)
+    const guard = guardAccess(req)
     if (guard) return guard
     const { orgId, role } = await getSessionProfile()
     if (!orgId || !role) {
@@ -47,11 +47,11 @@ export async function GET(req: Request) {
       client: r.client,
     }))
 
-    return applySecurityHeaders(req as any, NextResponse.json({ data }))
+    return applySecurityHeaders(req, NextResponse.json({ data }))
   } catch (error) {
     console.error('Error fetching installments:', error)
     return applySecurityHeaders(
-      req as any,
+      req,
       NextResponse.json({ error: 'Erro ao buscar parcelas' }, { status: 500 })
     )
   }
@@ -98,11 +98,12 @@ export async function PATCH(req: NextRequest) {
         data: { status: 'CONFIRMED', paidAt: new Date() },
       })
 
-      await tx.finance.create({
+      await tx.transaction.create({
         data: {
           orgId,
           clientId: inst.clientId,
-          type: 'income',
+          type: 'INCOME',
+          subtype: 'OTHER_INCOME',
           amount: inst.amount,
           description: `Parcela ${inst.number} - ${inst.client.name}`,
           category: 'Parcelas',

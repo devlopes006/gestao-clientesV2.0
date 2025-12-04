@@ -56,10 +56,11 @@ async function processPixReceived(webhook: NubankPixWebhook) {
       `[Nubank Webhook] Cliente não encontrado para taxId: ${payerTaxId}`
     )
     // Registrar como receita genérica
-    await prisma.finance.create({
+    await prisma.transaction.create({
       data: {
         orgId: process.env.DEFAULT_ORG_ID!, // Você pode configurar uma org padrão
-        type: 'income',
+        type: 'INCOME',
+        subtype: 'OTHER_INCOME',
         amount: amountInReais,
         description: `Pix recebido de ${webhook.data.payer.name} - ${webhook.data.description || 'Sem descrição'}`,
         category: 'Pix - Pagamento não identificado',
@@ -101,7 +102,7 @@ async function processPixReceived(webhook: NubankPixWebhook) {
     })
 
     // Atualizar metadata do finance criado
-    const financeRecord = await prisma.finance.findFirst({
+    const financeRecord = await prisma.transaction.findFirst({
       where: {
         orgId: client.orgId,
         clientId: client.id,
@@ -111,7 +112,7 @@ async function processPixReceived(webhook: NubankPixWebhook) {
     })
 
     if (financeRecord) {
-      await prisma.finance.update({
+      await prisma.transaction.update({
         where: { id: financeRecord.id },
         data: {
           metadata: {
@@ -128,11 +129,12 @@ async function processPixReceived(webhook: NubankPixWebhook) {
     )
   } else {
     // Registrar apenas finance (Payment requer invoiceId obrigatório)
-    await prisma.finance.create({
+    await prisma.transaction.create({
       data: {
         orgId: client.orgId,
         clientId: client.id,
-        type: 'income',
+        type: 'INCOME',
+        subtype: 'OTHER_INCOME',
         amount: amountInReais,
         description: `Pix recebido - ${webhook.data.payer.name}`,
         category: 'Pix',

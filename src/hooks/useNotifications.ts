@@ -1,5 +1,5 @@
 import { logger } from '@/lib/logger'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useCallback, useRef, useState } from 'react'
 
 interface Notification {
@@ -82,11 +82,10 @@ export function useNotifications(options?: UseNotificationsOptions): {
   params.set('limit', limit.toString())
   if (type) params.set('type', type)
 
-  const queryClient = useQueryClient()
   const queryKey = ['notifications', { unreadOnly, limit, type }]
   const { data, error, isLoading, refetch } = useQuery<NotificationsResponse>({
     queryKey,
-    queryFn: ({ signal }) => {
+    queryFn: () => {
       // cancela anterior manualmente se quiser manter ref
       if (abortControllerRef.current) {
         abortControllerRef.current.abort()

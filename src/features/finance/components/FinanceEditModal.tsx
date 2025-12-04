@@ -44,6 +44,8 @@ export function FinanceEditModal({ row }: { row: FinanceRow }) {
   const [clientId, setClientId] = useState(row.clientId || '')
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(false)
+  const isIncome = type === 'income'
+  const ariaLabel = isIncome ? 'Receita' : 'Despesa'
 
   useEffect(() => {
     if (open) {
@@ -124,13 +126,17 @@ export function FinanceEditModal({ row }: { row: FinanceRow }) {
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader className="space-y-3">
           <div className="flex items-center gap-3">
-            <div className={`p-2.5 rounded-lg ${type === 'income' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}`}>
-              {type === 'income' ? <Icon as={TrendingUp} size="md" decorative={false} className="" ariaLabel={type === 'income' ? 'Receita' : 'Despesa'} /> : <Icon as={TrendingDown} size="md" decorative={false} className="" ariaLabel={type === 'income' ? 'Receita' : 'Despesa'} />}
+            <div className={`p-2.5 rounded-lg ${isIncome ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}`}>
+              {isIncome ? (
+                <Icon as={TrendingUp} size="md" decorative={false} className="" ariaLabel={ariaLabel} />
+              ) : (
+                <Icon as={TrendingDown} size="md" decorative={false} className="" ariaLabel={ariaLabel} />
+              )}
             </div>
             <div>
               <DialogTitle className="text-xl">Editar lançamento financeiro</DialogTitle>
               <DialogDescription className="text-sm">
-                Edite os detalhes da {type === 'income' ? 'receita' : 'despesa'}
+                Edite os detalhes da {isIncome ? 'receita' : 'despesa'}
               </DialogDescription>
             </div>
           </div>
@@ -141,11 +147,11 @@ export function FinanceEditModal({ row }: { row: FinanceRow }) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="type" className="flex items-center gap-2 text-sm font-medium">
-                {type === 'income' ? <Icon as={TrendingUp} size="sm" className="text-emerald-600" decorative={true} /> : <Icon as={TrendingDown} size="sm" className="text-red-600" decorative={true} />}
+                {isIncome ? <Icon as={TrendingUp} size="sm" className="text-emerald-600" decorative={true} /> : <Icon as={TrendingDown} size="sm" className="text-red-600" decorative={true} />}
                 Tipo
               </Label>
               <Select value={type} onValueChange={(v) => setType(v as 'income' | 'expense')}>
-                <SelectTrigger className={`w-full ${type === 'income' ? 'border-emerald-200 focus:border-emerald-400' : 'border-red-200 focus:border-red-400'}`}>
+                <SelectTrigger className={`w-full ${isIncome ? 'border-emerald-200 focus:border-emerald-400' : 'border-red-200 focus:border-red-400'}`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

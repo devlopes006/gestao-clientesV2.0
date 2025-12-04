@@ -1,2 +1,0 @@
-# Ignore corrupted/archived branding workspace while we replace it
-src/features/clients/components/BrandingWorkspace.tsx

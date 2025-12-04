@@ -6,7 +6,6 @@ import {
   DollarSign,
   TrendingUp
 } from "lucide-react";
-import { useState } from "react";
 
 interface ContractManagerProps {
   clientId: string;
@@ -20,16 +19,13 @@ interface ContractManagerProps {
 }
 
 export default function ContractManager({
-  clientId,
-  clientName,
   contractStart,
   contractEnd,
   paymentDay,
   paymentDays,
   contractValue,
-  paymentStatus = "PENDING",
 }: ContractManagerProps) {
-  const [currentStatus, setCurrentStatus] = useState(paymentStatus);
+  // Status local não utilizado; removido para satisfazer lint
 
   const formatDate = (dateString?: string | null) => {
     if (!dateString) return "Não definido";

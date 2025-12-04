@@ -37,7 +37,7 @@ describe('Mobile login redirect flow', () => {
     localStorage.clear()
     sessionStorage.clear()
     // Mock global fetch for expected endpoints
-    global.fetch = vi.fn((input, init) => {
+    global.fetch = vi.fn((input, _init) => {
       if (typeof input === 'string' && input.includes('/api/session')) {
         return Promise.resolve({
           ok: true,

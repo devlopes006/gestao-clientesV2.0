@@ -91,14 +91,17 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       if (DEBUG_AUTH) logger.debug('UserContext: sessão OK');
 
       // Parse session response body (server may have accepted invite and returned nextPath/inviteStatus)
-      let sessionJson: any = null
+      let sessionJson: unknown = null
       try {
         sessionJson = await response.clone().json().catch(() => null)
       } catch { }
 
       // If server indicated an invite mismatch, surface as explicit error so UI can handle it
       try {
-        const inviteStatus = sessionJson?.inviteStatus
+        const inviteStatus =
+          sessionJson && typeof sessionJson === 'object' && 'inviteStatus' in sessionJson
+            ? (sessionJson as { inviteStatus?: { status?: string; email?: string } }).inviteStatus
+            : undefined
         if (inviteStatus && inviteStatus.status === 'mismatch') {
           // Provide the invited email in the error message so UI can show it
           throw new Error(`INVITE_MISMATCH:${inviteStatus.email || ''}`)
@@ -116,7 +119,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         if (DEBUG_AUTH) logger.debug('UserContext: falha ao obter profile após criar sessão', err as LogContext);
       }
 
-      let nextPath: string | null = sessionJson?.nextPath || null;
+      let nextPath: string | null =
+        sessionJson && typeof sessionJson === 'object' && 'nextPath' in sessionJson
+          ? (sessionJson as { nextPath?: string | null }).nextPath || null
+          : null;
 
       // If server didn't accept invite during session creation, fallback to client-side check
       if (!nextPath) {
@@ -153,7 +159,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       console.error('Error in handleAuthResult:', error);
       throw error;
     }
-  }, [router]);
+  }, [router, enrichUserWithProfile]);
 
   useEffect(() => {
     if (!auth) {

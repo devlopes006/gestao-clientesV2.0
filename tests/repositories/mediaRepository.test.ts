@@ -34,7 +34,7 @@ import { createMedia } from '@/lib/repositories/mediaRepository'
 describe('mediaRepository.createMedia', () => {
   beforeEach(() => {
     // Evita dual-write no teste por padrão
-    // @ts-ignore
+    // @ts-expect-error env var typed as string | undefined
     process.env.DUAL_WRITE = 'false'
   })
 

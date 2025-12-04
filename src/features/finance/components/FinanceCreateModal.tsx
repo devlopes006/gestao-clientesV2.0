@@ -23,6 +23,8 @@ export function FinanceCreateModal() {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [financeType, setFinanceType] = useState<'income' | 'expense'>('income')
+  const isIncome = financeType === 'income'
+  const ariaLabel = isIncome ? 'Receita' : 'Despesa'
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault()
@@ -81,13 +83,13 @@ export function FinanceCreateModal() {
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader className="space-y-3">
           <div className="flex items-center gap-3">
-            <div className={`p-2.5 rounded-lg ${financeType === 'income' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}`}>
-              {financeType === 'income' ? <Icon as={TrendingUp} size="md" decorative={false} ariaLabel={financeType === 'income' ? 'Receita' : 'Despesa'} /> : <Icon as={TrendingDown} size="md" decorative={false} ariaLabel={financeType === 'income' ? 'Receita' : 'Despesa'} />}
+            <div className={`p-2.5 rounded-lg ${isIncome ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-red-500/10 text-red-600 dark:text-red-400'}`}>
+              {isIncome ? <Icon as={TrendingUp} size="md" decorative={false} ariaLabel={ariaLabel} /> : <Icon as={TrendingDown} size="md" decorative={false} ariaLabel={ariaLabel} />}
             </div>
             <div>
               <DialogTitle className="text-xl">Novo lançamento financeiro</DialogTitle>
               <DialogDescription className="text-sm">
-                Registre uma nova {financeType === 'income' ? 'receita' : 'despesa'} para controle financeiro
+                Registre uma nova {isIncome ? 'receita' : 'despesa'} para controle financeiro
               </DialogDescription>
             </div>
           </div>
@@ -97,11 +99,11 @@ export function FinanceCreateModal() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="type" className="flex items-center gap-2 text-sm font-medium">
-                {financeType === 'income' ? <Icon as={TrendingUp} size="sm" className="text-emerald-600" decorative={true} /> : <Icon as={TrendingDown} size="sm" className="text-red-600" decorative={true} />}
+                {isIncome ? <Icon as={TrendingUp} size="sm" className="text-emerald-600" decorative={true} /> : <Icon as={TrendingDown} size="sm" className="text-red-600" decorative={true} />}
                 Tipo
               </Label>
               <Select value={financeType} onValueChange={(v) => setFinanceType(v as 'income' | 'expense')}>
-                <SelectTrigger className={`w-full ${financeType === 'income' ? 'border-emerald-200 focus:border-emerald-400' : 'border-red-200 focus:border-red-400'}`}>
+                <SelectTrigger className={`w-full ${isIncome ? 'border-emerald-200 focus:border-emerald-400' : 'border-red-200 focus:border-red-400'}`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

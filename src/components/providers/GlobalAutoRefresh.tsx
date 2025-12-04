@@ -2,7 +2,7 @@
 
 import { useAutoRefresh } from '@/hooks/useAutoRefresh'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 /**
  * Componente global que fornece auto-refresh automático para toda a aplicação
@@ -13,20 +13,20 @@ export function GlobalAutoRefresh() {
   const [enabled, setEnabled] = useState(true)
 
   // Lista de páginas onde o auto-refresh deve ser desabilitado
-  const disabledPaths = [
+  const disabledPaths = useMemo(() => [
     '/login',
     '/signup',
     '/forgot-password',
     '/reset-password',
     '/onboarding',
-  ]
+  ], [])
 
   useEffect(() => {
     // Verifica se a página atual está na lista de desabilitados
     const shouldDisable = disabledPaths.some(path => pathname?.startsWith(path))
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setEnabled(!shouldDisable)
-  }, [pathname])
+  }, [pathname, disabledPaths])
 
   useAutoRefresh({
     interval: 5000, // 5 segundos

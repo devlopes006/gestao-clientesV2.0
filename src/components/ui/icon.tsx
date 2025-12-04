@@ -21,9 +21,13 @@ const sizeMap: Record<SizeKey, string> = {
 
 export function Icon({ as: As, size = 'md', className, decorative = false, ariaLabel, ...props }: IconProps) {
   const sizeClasses = typeof size === 'number' ? `w-[${size}px] h-[${size}px]` : sizeMap[size as SizeKey] ?? sizeMap.md
-  const a11y = decorative ? { 'aria-hidden': true } : ariaLabel ? { role: 'img', 'aria-label': ariaLabel } : {}
+  const a11y: React.AriaAttributes & { role?: React.AriaRole } = decorative
+    ? { 'aria-hidden': true }
+    : ariaLabel
+      ? { role: 'img', 'aria-label': ariaLabel }
+      : {}
 
-  return <As className={cn(sizeClasses, className)} {...(a11y as any)} {...props} />
+  return <As className={cn(sizeClasses, className)} {...a11y} {...props} />
 }
 
 export default Icon

@@ -8,7 +8,7 @@ type PresignResponse = {
 
 type FinalizeResponse = {
   success: boolean
-  media: any
+  media: unknown
   downloadUrl: string
   optimizedUrl?: string | null
   thumbUrl?: string | null
@@ -92,8 +92,9 @@ export function useDirectUpload() {
         if (!finRes.ok) throw new Error(await finRes.text())
         const payload = (await finRes.json()) as FinalizeResponse
         return payload
-      } catch (e: any) {
-        setError(e?.message || String(e))
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e)
+        setError(msg)
         throw e
       } finally {
         setIsUploading(false)

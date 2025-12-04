@@ -2,21 +2,22 @@ import { adminAuth } from '@/lib/firebaseAdmin'
 import { prisma } from '@/lib/prisma'
 import { applySecurityHeaders, guardAccess } from '@/proxy'
 import { getSessionProfile } from '@/services/auth/session'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(req: Request) {
-  const guard = guardAccess(req as any)
+export async function GET(req: NextRequest | Request) {
+  const r = (req as NextRequest) ?? (req as Request)
+  const guard = guardAccess(r)
   if (guard) return guard
   const { user } = await getSessionProfile()
   if (!user)
     return applySecurityHeaders(
-      req as any,
+      r,
       NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     )
   const dbUser = await prisma.user.findUnique({ where: { id: user.id } })
   if (!dbUser)
     return applySecurityHeaders(
-      req as any,
+      r,
       NextResponse.json({ error: 'Not found' }, { status: 404 })
     )
   const res = NextResponse.json({
@@ -25,16 +26,17 @@ export async function GET(req: Request) {
     name: dbUser.name,
     image: dbUser.image,
   })
-  return applySecurityHeaders(req as any, res)
+  return applySecurityHeaders(r, res)
 }
 
-export async function PATCH(req: Request) {
-  const guard = guardAccess(req as any)
+export async function PATCH(req: NextRequest | Request) {
+  const r = (req as NextRequest) ?? (req as Request)
+  const guard = guardAccess(r)
   if (guard) return guard
   const { user } = await getSessionProfile()
   if (!user)
     return applySecurityHeaders(
-      req as any,
+      r,
       NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     )
   const body = (await req.json().catch(() => ({}))) as {
@@ -46,7 +48,7 @@ export async function PATCH(req: Request) {
   if (typeof body.image === 'string') data.image = body.image.trim() || null
   if (Object.keys(data).length === 0)
     return applySecurityHeaders(
-      req as any,
+      r,
       NextResponse.json({ error: 'No changes' }, { status: 400 })
     )
   // Atualiza no banco primeiro
@@ -74,5 +76,5 @@ export async function PATCH(req: Request) {
     name: updated.name,
     image: updated.image,
   })
-  return applySecurityHeaders(req as any, res)
+  return applySecurityHeaders(r, res)
 }

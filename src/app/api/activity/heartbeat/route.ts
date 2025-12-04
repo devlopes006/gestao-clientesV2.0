@@ -1,27 +1,27 @@
 import { prisma } from '@/lib/prisma'
 import { applySecurityHeaders, guardAccess } from '@/proxy'
 import { getSessionProfile } from '@/services/auth/session'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest | Request) {
   try {
-    const guard = guardAccess(req as any)
+    const guard = guardAccess(req)
     if (guard) return guard
     const { user } = await getSessionProfile()
     if (!user)
       return applySecurityHeaders(
-        req as any,
+        req,
         NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       )
     await prisma.user.update({
       where: { id: user.id },
       data: { lastActiveAt: new Date() },
     })
-    return applySecurityHeaders(req as any, NextResponse.json({ ok: true }))
+    return applySecurityHeaders(req, NextResponse.json({ ok: true }))
   } catch (e) {
     console.error('[activity/heartbeat] failed', e)
     return applySecurityHeaders(
-      req as any,
+      req,
       NextResponse.json({ error: 'Failed' }, { status: 500 })
     )
   }

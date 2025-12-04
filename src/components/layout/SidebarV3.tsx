@@ -15,7 +15,6 @@ import { BibleVerseWidget } from "@/features/verses/BibleVerseWidget";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  AlertCircle,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -26,7 +25,7 @@ import {
   Settings,
   Sparkles,
   User as UserIcon,
-  Users,
+  Users
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -54,16 +53,10 @@ const groups: NavItemGroup[] = [
         roles: ["OWNER", "STAFF"], // Acessível para OWNER e STAFF
       },
       {
-        href: "/billing",
-        label: "Cobrança",
+        href: "/financeiro",
+        label: "Financeiro",
         icon: <DollarSign className="w-4 h-4" />,
         roles: ["OWNER"], // Apenas OWNER
-      },
-      {
-        href: "/billing/overdue",
-        label: "Inadimplência",
-        icon: <AlertCircle className="w-4 h-4" />,
-        roles: ["OWNER"],
       },
     ],
   },
@@ -278,10 +271,7 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
                   </div>
                 )}
                 {group.items.map((item) => {
-                  // Ajuste: evitar dupla seleção. '/billing/overdue' não deve ativar '/billing'.
-                  const active = item.href === '/billing'
-                    ? pathname === '/billing' // somente raiz exata
-                    : pathname?.startsWith(item.href);
+                  const active = pathname?.startsWith(item.href);
                   return (
                     <Link
                       key={item.href}
@@ -300,7 +290,7 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
                       {!collapsed && (
                         <span className="truncate flex-1 flex items-center gap-2">
                           {item.label}
-                          {item.href === '/billing' && alertsCount > 0 && (
+                          {item.href === '/financeiro' && alertsCount > 0 && (
                             <span className="ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-semibold">
                               {alertsCount}
                             </span>

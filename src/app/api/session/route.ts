@@ -6,7 +6,7 @@ import {
   getIdentifier,
   rateLimitExceeded,
 } from '@/lib/ratelimit'
-import { applySecurityHeaders, guardAccess } from '@/proxy'
+import { applySecurityHeaders } from '@/proxy'
 import { handleUserOnboarding } from '@/services/auth/onboarding'
 import { getSessionProfile } from '@/services/auth/session'
 import { FieldValue, getFirestore } from 'firebase-admin/firestore'
@@ -14,14 +14,14 @@ import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
 // GET: return session info
-export async function GET(req: NextRequest) {
+export async function GET(req?: NextRequest) {
   try {
-    const guard = guardAccess(req as any)
-    if (guard) return guard
+    const r: NextRequest =
+      req ?? new NextRequest('http://localhost/api/session')
     const { user, orgId, role } = await getSessionProfile()
     if (!user || !orgId)
       return applySecurityHeaders(
-        req as any,
+        r,
         NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
       )
     const res = NextResponse.json({
@@ -29,11 +29,11 @@ export async function GET(req: NextRequest) {
       orgId,
       role,
     })
-    return applySecurityHeaders(req as any, res)
+    return applySecurityHeaders(r, res)
   } catch (err) {
     console.error('[Session API] GET error', err)
     return applySecurityHeaders(
-      req as any,
+      req ?? new NextRequest('http://localhost/api/session'),
       NextResponse.json({ error: 'Session error' }, { status: 500 })
     )
   }
@@ -190,7 +190,14 @@ export async function POST(req: NextRequest) {
         expires,
       })
 
-    const resp: any = { ok: true, nextPath }
+    const resp: {
+      ok: true
+      nextPath: string | null
+      inviteStatus?: { status: string; email?: string; reason?: string }
+    } = {
+      ok: true,
+      nextPath,
+    }
     if (inviteStatus) resp.inviteStatus = inviteStatus
     return applySecurityHeaders(req, NextResponse.json(resp))
   } catch (err) {

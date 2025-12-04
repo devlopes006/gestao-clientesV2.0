@@ -1,10 +1,10 @@
 import { prisma } from '@/lib/prisma'
 import { createPresignedPutUrl, generateFileKey } from '@/lib/storage'
 import { getSessionProfile } from '@/services/auth/session'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(
-  req: Request,
+  req: NextRequest | Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -24,7 +24,10 @@ export async function POST(
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
 
-    const body = await req.json().catch(() => ({}) as any)
+    const body = (await req.json().catch(() => ({}))) as {
+      name?: string
+      mime?: string
+    }
     const name = body.name as string | undefined
     const mime = body.mime as string | undefined
 

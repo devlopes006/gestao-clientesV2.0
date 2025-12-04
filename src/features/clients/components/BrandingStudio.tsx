@@ -47,9 +47,7 @@ export default function BrandingStudio({ clientId }: BrandingStudioProps) {
     staleTime: 30_000,
   });
   const items = data ?? [];
-  const updateBranding = (updater: (prev: BrandingItem[]) => BrandingItem[]) => {
-    queryClient.setQueryData<BrandingItem[]>(brandingQueryKey, (prev = []) => updater(prev));
-  };
+  // Removed unused local updater to satisfy lint
   const invalidateBranding = () => queryClient.invalidateQueries({ queryKey: brandingQueryKey });
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [query, setQuery] = useState("");

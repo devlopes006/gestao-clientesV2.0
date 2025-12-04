@@ -25,7 +25,12 @@ const secretAccessKey =
 
 let s3: S3Client | null = null
 if (USE_S3 && S3_BUCKET && accessKeyId && secretAccessKey) {
-  const cfg: any = {
+  const cfg: {
+    region: string
+    credentials: { accessKeyId: string; secretAccessKey: string }
+    endpoint?: string
+    forcePathStyle?: boolean
+  } = {
     region,
     credentials: { accessKeyId, secretAccessKey },
   }
@@ -41,7 +46,8 @@ async function getObjectBuffer(key: string): Promise<Buffer> {
   const res = await s3.send(
     new GetObjectCommand({ Bucket: S3_BUCKET, Key: key })
   )
-  const stream: any = (res as any).Body
+  const body: unknown = (res as unknown as { Body?: unknown }).Body
+  const stream = (body as NodeJS.ReadableStream | undefined) ?? undefined
   if (!stream) throw new Error('Falha ao obter stream do objeto S3')
   const chunks: Buffer[] = []
   await new Promise<void>((resolve, reject) => {

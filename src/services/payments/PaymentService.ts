@@ -9,7 +9,6 @@
  */
 
 import { prisma } from '@/lib/prisma'
-import { BillingService } from '@/services/billing/BillingService'
 import { PaymentOrchestrator } from '@/services/payments/PaymentOrchestrator'
 import { Client, Installment, PaymentStatus } from '@prisma/client'
 
@@ -191,10 +190,10 @@ export class PaymentService {
     const dueDate = new Date(now.getFullYear(), now.getMonth(), paymentDay)
 
     // Verificar pagamentos do mês
-    const monthFinances = await prisma.finance.findMany({
+    const monthFinances = await prisma.transaction.findMany({
       where: {
         clientId: client.id,
-        type: 'income',
+        type: 'INCOME',
         date: { gte: startOfMonth, lte: endOfMonth },
       },
     })
@@ -243,18 +242,72 @@ export class PaymentService {
       throw new Error('Cliente não possui valor de contrato definido')
 
     // Gera (ou reaproveita) fatura mensal
-    const invoice = await BillingService.generateMonthlyInvoice(clientId, orgId)
+    const now = new Date()
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const endOfMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+      23,
+      59,
+      59
+    )
+
+    // Use paidAmount if provided; otherwise fallback to client's contract value
+    const amountToUse = paidAmount ?? client.contractValue
+
+    let invoice = await prisma.invoice.findFirst({
+      where: {
+        orgId,
+        clientId: clientId,
+        dueDate: { gte: startOfMonth, lte: endOfMonth },
+      },
+    })
+
+    if (!invoice) {
+      const number = `INV-${clientId}-${now.getFullYear()}${String(
+        now.getMonth() + 1
+      ).padStart(2, '0')}`
+      invoice = await prisma.invoice.create({
+        data: {
+          orgId,
+          clientId,
+          number,
+          status: 'OPEN',
+          issueDate: new Date(),
+          dueDate: new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            Math.min(client.paymentDay || 5, 28)
+          ),
+          subtotal: amountToUse || 0,
+          discount: 0,
+          tax: 0,
+          total: amountToUse || 0,
+          currency: 'BRL',
+          items: {
+            create: [
+              {
+                description: 'Mensalidade',
+                quantity: 1,
+                unitAmount: amountToUse || 0,
+                total: amountToUse || 0,
+              },
+            ],
+          },
+        },
+      })
+    }
+
     if (invoice.status === 'PAID') {
       throw new Error('Fatura mensal já está paga')
     }
 
-    // Marca fatura como paga e cria payment + finance (BillingService.markInvoicePaid já faz isso)
-    await BillingService.markInvoicePaid(
-      invoice.id,
-      orgId,
-      'manual',
-      paidAmount || client.contractValue
-    )
+    // Marca fatura como paga
+    await prisma.invoice.update({
+      where: { id: invoice.id },
+      data: { status: 'PAID' },
+    })
   }
 
   /**
@@ -290,7 +343,7 @@ export class PaymentService {
       where: {
         orgId,
         clientId: updated.clientId,
-        externalId: installment.id,
+        installmentId: installment.id,
       },
     })
 
@@ -314,7 +367,6 @@ export class PaymentService {
           tax: 0,
           total: updated.amount,
           currency: 'BRL',
-          externalId: installment.id,
           notes: `Parcela ${updated.number}/${installment.client.installmentCount || 0}`,
           installmentId: updated.id,
           items: {

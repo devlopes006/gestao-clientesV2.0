@@ -6,7 +6,7 @@ type Props = {
   orgId: string
   clientId: string
   onDone?: (result: {
-    media: any
+    media: unknown
     downloadUrl: string
     optimizedUrl?: string | null
     thumbUrl?: string | null
@@ -18,8 +18,8 @@ export function DirectUploader({ orgId, clientId, onDone }: Props) {
   const [file, setFile] = useState<File | null>(null)
   const [retryTick, setRetryTick] = useState(0)
 
-  const onSelect: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
-    const f = e.target.files?.[0]
+  const onSelect: React.ChangeEventHandler<HTMLInputElement> = async (event) => {
+    const f = event.target.files?.[0]
     if (!f) return
     setFile(f)
   }
@@ -30,7 +30,7 @@ export function DirectUploader({ orgId, clientId, onDone }: Props) {
       const res = await upload({ orgId, clientId, file })
       onDone?.(res)
       setFile(null)
-    } catch (e) {
+    } catch {
       // erro fica no hook
     }
   }

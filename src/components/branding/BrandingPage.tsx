@@ -335,34 +335,7 @@ export default function BrandingPage({ clientId, clientName, initialBranding }: 
     }
   }
 
-  const handleManualExtract = useCallback(() => {
-    if (!logoUrl) { toast.error('Adicione uma logo antes'); return; }
-    setExtractingColors(true);
-    logger.debug('Extraindo cores da logo', { logoUrl });
-    extractColorsFromLogo(logoUrl, 6)
-      .then(colors => {
-        logger.debug('Cores extraídas da logo', { colors });
-        if (colors.length) {
-          setPalette(prev => {
-            const merged = [...prev];
-            colors.forEach(c => { if (!merged.includes(c)) merged.push(c); });
-            return merged.slice(0, 12);
-          });
-          toast.success(`${colors.length} cores extraídas da logo`);
-          // Persist immediately após extração manual
-          handleSave().catch((e) => console.error('Falha ao salvar após extração manual', e));
-        } else {
-          toast.warning('Nenhuma cor identificada na logo');
-        }
-      })
-      .catch((err) => {
-        console.error('Erro ao extrair cores:', err);
-        toast.error('Falha ao extrair cores: ' + (err.message || 'Erro desconhecido'));
-      })
-      .finally(() => setExtractingColors(false));
-  }, [logoUrl]);
-
-  async function handleSave() {
+  const handleSave = useCallback(async () => {
     try {
       setSaving(true);
       const fileUrl: string | null = logoUrl ?? null;
@@ -406,7 +379,35 @@ export default function BrandingPage({ clientId, clientName, initialBranding }: 
     } finally {
       setSaving(false);
     }
-  }
+  }, [clientId, initialBranding?.id, sampleText, palette, fonts, logoUrl])
+
+  const handleManualExtract = useCallback(() => {
+    if (!logoUrl) { toast.error('Adicione uma logo antes'); return; }
+    setExtractingColors(true);
+    logger.debug('Extraindo cores da logo', { logoUrl });
+    extractColorsFromLogo(logoUrl, 6)
+      .then(colors => {
+        logger.debug('Cores extraídas da logo', { colors });
+        if (colors.length) {
+          setPalette(prev => {
+            const merged = [...prev];
+            colors.forEach(c => { if (!merged.includes(c)) merged.push(c); });
+            return merged.slice(0, 12);
+          });
+          toast.success(`${colors.length} cores extraídas da logo`);
+          // Persist immediately após extração manual
+          handleSave().catch((e) => console.error('Falha ao salvar após extração manual', e));
+        } else {
+          toast.warning('Nenhuma cor identificada na logo');
+        }
+      })
+      .catch((err) => {
+        console.error('Erro ao extrair cores:', err);
+        toast.error('Falha ao extrair cores: ' + (err.message || 'Erro desconhecido'));
+      })
+      .finally(() => setExtractingColors(false));
+  }, [logoUrl, handleSave]);
+
 
   function sanitizeName(n: string) {
     return n.replace(/[^a-z0-9]+/gi, "-").toLowerCase();

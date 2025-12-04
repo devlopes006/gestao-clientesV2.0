@@ -169,9 +169,10 @@ async function fetchTimeBasedData(clientId: string, now: Date) {
         status: true,
       },
     }),
-    prisma.finance.findMany({
+    prisma.transaction.findMany({
       where: { clientId },
       select: { id: true, type: true, amount: true, date: true },
+      orderBy: { date: 'desc' },
     }),
   ])
 

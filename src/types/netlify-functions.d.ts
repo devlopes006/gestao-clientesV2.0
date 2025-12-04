@@ -1,3 +1,3 @@
 declare module '@netlify/functions' {
-  export type Handler = (event: any, context: any) => Promise<any>
+  export type Handler = (event: unknown, context: unknown) => Promise<unknown>
 }

@@ -3,7 +3,6 @@ import { getFileUrl } from '@/lib/storage'
 import { applySecurityHeaders, guardAccess } from '@/proxy'
 import { CompleteMultipartUploadCommand, S3Client } from '@aws-sdk/client-s3'
 import { NextRequest, NextResponse } from 'next/server'
-import path from 'node:path'
 
 const USE_S3 = process.env.USE_S3 === 'true' || process.env.USE_S3 === '1'
 const S3_BUCKET = process.env.STORAGE_BUCKET || process.env.AWS_S3_BUCKET || ''
@@ -19,7 +18,12 @@ const secretAccessKey =
 
 let s3: S3Client | null = null
 if (USE_S3 && S3_BUCKET && accessKeyId && secretAccessKey) {
-  const cfg: any = { region, credentials: { accessKeyId, secretAccessKey } }
+  const cfg: {
+    region: string
+    credentials: { accessKeyId: string; secretAccessKey: string }
+    endpoint?: string
+    forcePathStyle?: boolean
+  } = { region, credentials: { accessKeyId, secretAccessKey } }
   if (endpoint) {
     cfg.endpoint = endpoint
     cfg.forcePathStyle = true
@@ -62,10 +66,12 @@ export async function POST(req: NextRequest) {
       Key: originalKey,
       UploadId: uploadId,
       MultipartUpload: {
-        Parts: parts.map((p: any) => ({
-          ETag: p.ETag,
-          PartNumber: Number(p.partNumber),
-        })),
+        Parts: parts.map(
+          (p: { ETag: string; partNumber: number | string }) => ({
+            ETag: p.ETag,
+            PartNumber: Number(p.partNumber),
+          })
+        ),
       },
     })
     await s3.send(cmd)
@@ -73,8 +79,7 @@ export async function POST(req: NextRequest) {
     // gerar URLs
     const originalDownloadUrl = await getFileUrl(originalKey, 7 * 24 * 3600)
 
-    const ext = path.extname(originalKey)
-    const base = originalKey.slice(0, -ext.length)
+    // Note: ext previously computed but unused; removed to satisfy lint
     // Para simplificar, nesta primeira versão de multipart não geramos otimizada/thumbnail aqui.
     // O cliente pode chamar /api/uploads/finalize para imagens se desejar derivativos.
 

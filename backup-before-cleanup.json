@@ -1,0 +1,180 @@
+{
+  "clients": {
+    "ariane": {
+      "id": "cmihybsby000009i7v48zfqg8",
+      "name": "Ariane",
+      "email": null,
+      "phone": null,
+      "contractStart": "2025-11-25T03:00:00.000Z",
+      "paymentDay": 25,
+      "plan": "FREELANCER",
+      "contractValue": 0
+    },
+    "dra. alexandra": {
+      "id": "cmi3syz6o0001cmok4cu1byba",
+      "name": "Dra. Alexandra",
+      "email": null,
+      "phone": null,
+      "contractStart": "2025-10-01T03:00:00.000Z",
+      "paymentDay": null,
+      "plan": "GESTAO",
+      "contractValue": 1200
+    },
+    "fabiane": {
+      "id": "cmier7k2u000009l7gr33eq5b",
+      "name": "Fabiane ",
+      "email": "",
+      "phone": "",
+      "contractStart": "2025-11-11T06:00:00.000Z",
+      "paymentDay": 11,
+      "plan": "GESTAO",
+      "contractValue": 1200
+    },
+    "infinix": {
+      "id": "cmiera83e000009k4wv6adr9k",
+      "name": "Infinix",
+      "email": "",
+      "phone": "",
+      "contractStart": "2025-09-10T06:00:00.000Z",
+      "paymentDay": 10,
+      "plan": "GESTAO",
+      "contractValue": 1200
+    },
+    "k´delícia": {
+      "id": "cmier93zl000009l8bg2h470k",
+      "name": "K´Delícia ",
+      "email": null,
+      "phone": null,
+      "contractStart": "2025-09-05T03:00:00.000Z",
+      "paymentDay": 5,
+      "plan": "GESTAO",
+      "contractValue": 1200
+    },
+    "manu nails desinger": {
+      "id": "cmierg69g000209k4miawspvv",
+      "name": "Manu Nails Desinger",
+      "email": null,
+      "phone": null,
+      "contractStart": "2025-09-10T03:00:00.000Z",
+      "paymentDay": 11,
+      "plan": "ESTRUTURA",
+      "contractValue": 600
+    },
+    "mané mineira": {
+      "id": "cmierf04o000109k43d4ny3co",
+      "name": "Mané Mineira",
+      "email": "",
+      "phone": "",
+      "contractStart": "2025-10-25T06:00:00.000Z",
+      "paymentDay": 25,
+      "plan": "GESTAO",
+      "contractValue": 750
+    },
+    "unimarcas": {
+      "id": "cmihygbnf000409l7ukb3ckmj",
+      "name": "UNIMARCAS",
+      "email": null,
+      "phone": null,
+      "contractStart": "2025-10-06T03:00:00.000Z",
+      "paymentDay": 10,
+      "plan": "FREELANCER",
+      "contractValue": null
+    },
+    "zl sushi": {
+      "id": "cmierdf0o000109l88m6rr6g8",
+      "name": "ZL SUSHI",
+      "email": "",
+      "phone": "",
+      "contractStart": "2025-09-08T06:00:00.000Z",
+      "paymentDay": 8,
+      "plan": "GESTAO",
+      "contractValue": 700
+    }
+  },
+  "invoices": {
+    "Dra. Alexandra": [
+      {
+        "id": "cmi3vjou90005cmok0cc533u6",
+        "number": "INV-PAR-1-ZE4T2K",
+        "issueDate": "2025-11-18T04:07:57.435Z",
+        "dueDate": "2025-11-01T06:00:00.000Z",
+        "amount": 600,
+        "status": "PAID"
+      },
+      {
+        "id": "cmi3vyiff000ccmokel8mtdew",
+        "number": "INV-PAR-2-TYU1DT",
+        "issueDate": "2025-11-18T04:19:28.959Z",
+        "dueDate": "2025-11-15T18:00:00.000Z",
+        "amount": 600,
+        "status": "PAID"
+      },
+      {
+        "id": "cmiohp2o6000209jumojbkwme",
+        "number": "INV-PAR-1-E5AZFA",
+        "issueDate": "2025-12-02T14:23:23.584Z",
+        "dueDate": "2025-12-01T15:00:00.000Z",
+        "amount": 600,
+        "status": "PAID"
+      }
+    ],
+    "Ariane": [
+      {
+        "id": "cmihyckcs000009l7smr90i02",
+        "number": "INV-202511-FRYL8X",
+        "issueDate": "2025-11-28T00:35:10.080Z",
+        "dueDate": "2025-11-25T03:00:00.000Z",
+        "amount": 800,
+        "status": "PAID"
+      }
+    ],
+    "Mané Mineira": [
+      {
+        "id": "cmiqd2bw40000nwcm5fr3jte3",
+        "number": "INV-202512-DJFPCP",
+        "issueDate": "2025-12-03T21:49:16.405Z",
+        "dueDate": "2025-12-25T06:00:00.000Z",
+        "amount": 750,
+        "status": "PAID"
+      }
+    ]
+  },
+  "payments": [
+    {
+      "id": "cmi3vjoua0008cmok0tk0uvzt",
+      "amount": 600,
+      "paidAt": "2025-11-18T04:07:57.435Z",
+      "invoice_number": "INV-PAR-1-ZE4T2K",
+      "client_name": "Dra. Alexandra"
+    },
+    {
+      "id": "cmi3vyiff000fcmokr0v249wc",
+      "amount": 600,
+      "paidAt": "2025-11-18T04:19:28.959Z",
+      "invoice_number": "INV-PAR-2-TYU1DT",
+      "client_name": "Dra. Alexandra"
+    },
+    {
+      "id": "cmihycl5f000209l7c4202q3d",
+      "amount": 800,
+      "paidAt": "2025-11-28T00:35:11.117Z",
+      "invoice_number": "INV-202511-FRYL8X",
+      "client_name": "Ariane"
+    },
+    {
+      "id": "cmiohp2vb000409jueu0fl3h1",
+      "amount": 600,
+      "paidAt": "2025-12-02T14:23:23.584Z",
+      "invoice_number": "INV-PAR-1-E5AZFA",
+      "client_name": "Dra. Alexandra"
+    },
+    {
+      "id": "cmiqd2c1f0002nwcmmh0m1p5y",
+      "amount": 750,
+      "paidAt": "2025-12-03T21:49:16.588Z",
+      "invoice_number": "INV-202512-DJFPCP",
+      "client_name": "Mané Mineira"
+    }
+  ],
+  "timestamp": "2025-12-04T00:41:37.469Z"
+}

@@ -47,12 +47,6 @@ export function CSVImportButton() {
 
       const result: ImportResult = await response.json();
 
-      const totalIncomes =
-        result.incomes.reconciled +
-        result.incomes.imported +
-        result.incomes.skipped;
-      const totalExpenses = result.expenses.imported + result.expenses.skipped;
-
       if (result.errors.length > 0) {
         toast.warning(`Importação concluída com ${result.errors.length} erros`, {
           description: `${result.incomes.reconciled} conciliados, ${result.incomes.imported} receitas, ${result.expenses.imported} despesas`,

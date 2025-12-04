@@ -1,0 +1,14 @@
+{
+  "id": "cmiqd2c1z0003nwcm0mjzfgex",
+  "type": "income",
+  "amount": 750,
+  "description": "Pagamento fatura INV-202512-DJFPCP",
+  "category": "Mensalidade",
+  "date": "2025-12-03T18:49:16.588Z",
+  "clientId": "cmierf04o000109k43d4ny3co",
+  "invoiceId": "cmiqd2bw40000nwcm5fr3jte3",
+  "metadata": null,
+  "createdAt": "2025-12-03T18:49:16.679Z",
+  "updatedAt": "2025-12-03T18:49:16.679Z",
+  "orgId": "cmi3s1whv0002cmpwzddysc4j"
+}

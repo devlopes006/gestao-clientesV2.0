@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { InvoiceStatus } from '@prisma/client'
 import { getApp } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
 
@@ -16,7 +17,6 @@ export type InvoiceCreateInput = {
   total?: number
   currency?: string
   notes?: string | null
-  externalId?: string | null
 }
 
 export async function createInvoice(input: InvoiceCreateInput) {
@@ -26,14 +26,13 @@ export async function createInvoice(input: InvoiceCreateInput) {
       clientId: input.clientId,
       number: input.number,
       dueDate: input.dueDate,
-      status: (input.status as any) ?? undefined,
-      subtotal: input.subtotal ?? undefined,
+      status: (input.status as InvoiceStatus) ?? undefined,
+      subtotal: input.subtotal as number,
       discount: input.discount ?? undefined,
       tax: input.tax ?? undefined,
-      total: input.total ?? undefined,
+      total: input.total as number,
       currency: input.currency ?? undefined,
       notes: input.notes ?? undefined,
-      externalId: input.externalId ?? undefined,
     },
   })
 

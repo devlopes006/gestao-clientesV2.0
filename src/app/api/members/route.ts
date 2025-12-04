@@ -1,11 +1,12 @@
 import { prisma } from '@/lib/prisma'
 import { applySecurityHeaders, guardAccess } from '@/proxy'
 import { getSessionProfile } from '@/services/auth/session'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest | Request) {
   try {
-    const guard = guardAccess(req as any)
+    const r = (req as NextRequest) ?? (req as Request)
+    const guard = guardAccess(r)
     if (guard) return guard
     const { user, orgId, role } = await getSessionProfile()
 
@@ -58,13 +59,13 @@ export async function GET(req: Request) {
     }))
 
     const res = NextResponse.json({ data: formattedMembers })
-    return applySecurityHeaders(req as any, res)
+    return applySecurityHeaders(r, res)
   } catch (error) {
     console.error('Erro ao buscar membros:', error)
     const res = NextResponse.json(
       { error: 'Erro ao buscar membros' },
       { status: 500 }
     )
-    return applySecurityHeaders(req as any, res)
+    return applySecurityHeaders((req as NextRequest) ?? (req as Request), res)
   }
 }

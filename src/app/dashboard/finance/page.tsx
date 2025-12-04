@@ -18,7 +18,7 @@ export default async function FinanceDashboardPage() {
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.APP_URL || process.env.SITE_URL || 'http://localhost:3000'
   const [fixedExpenses, summary, projection] = await Promise.all([
-    prisma.fixedExpense.findMany({ where: { orgId, active: true }, orderBy: { name: 'asc' } }),
+    prisma.recurringExpense.findMany({ where: { orgId, active: true }, orderBy: { name: 'asc' } }),
     fetch(`${baseUrl}/api/finance/summary?month=${month}`, { cache: 'no-store' }).then((r) => r.json()),
     fetch(`${baseUrl}/api/finance/projection?month=${month}`, { cache: 'no-store' }).then((r) => r.json()),
   ])

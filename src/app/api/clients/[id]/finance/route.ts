@@ -39,11 +39,12 @@ export async function GET(
       )
     }
 
-    const finances = await prisma.finance.findMany({
+    const finances = await prisma.transaction.findMany({
       where: { clientId: client.id },
       select: {
         id: true,
         type: true,
+        subtype: true,
         amount: true,
         description: true,
         category: true,
@@ -100,11 +101,12 @@ export async function POST(
       )
     }
 
-    const finance = await prisma.finance.create({
+    const finance = await prisma.transaction.create({
       data: {
         orgId,
         clientId: client.id,
         type,
+        subtype: type === 'INCOME' ? 'OTHER_INCOME' : 'OTHER_EXPENSE',
         amount: parseFloat(String(amount)),
         description,
         category,
@@ -158,7 +160,7 @@ export async function PATCH(
     }
 
     // Verify finance belongs to this client and org
-    const existing = await prisma.finance.findUnique({
+    const existing = await prisma.transaction.findUnique({
       where: { id: financeId },
       select: { id: true, clientId: true, orgId: true },
     })
@@ -177,7 +179,7 @@ export async function PATCH(
     const body = await req.json()
     const { type, amount, description, category, date } = body
 
-    const updated = await prisma.finance.update({
+    const updated = await prisma.transaction.update({
       where: { id: financeId },
       data: {
         ...(type !== undefined && { type }),
@@ -234,7 +236,7 @@ export async function DELETE(
     }
 
     // Verify finance belongs to this client and org
-    const existing = await prisma.finance.findUnique({
+    const existing = await prisma.transaction.findUnique({
       where: { id: financeId },
       select: { id: true, clientId: true, orgId: true },
     })
@@ -250,7 +252,7 @@ export async function DELETE(
       )
     }
 
-    await prisma.finance.delete({ where: { id: financeId } })
+    await prisma.transaction.delete({ where: { id: financeId } })
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error deleting client finance:', error)

@@ -1,5 +1,5 @@
 import fs from 'fs/promises'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import path from 'path'
 
 const LOCAL_UPLOAD_DIR = process.env.LOCAL_UPLOAD_DIR || './uploads'
@@ -34,7 +34,7 @@ function getContentType(filePath: string): string {
 }
 
 export async function GET(
-  req: Request,
+  req: NextRequest | Request,
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
@@ -64,7 +64,7 @@ export async function GET(
         'Cache-Control': 'public, max-age=60',
       },
     })
-  } catch (e) {
+  } catch {
     return new NextResponse('Not Found', { status: 404 })
   }
 }

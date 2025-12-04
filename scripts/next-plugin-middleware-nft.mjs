@@ -1,4 +1,4 @@
-/* eslint-disable */
+ 
 // Archived: Turbopack is active, this webpack plugin is unused.
 // Kept for reference; not included in build.
 /**

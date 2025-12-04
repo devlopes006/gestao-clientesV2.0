@@ -1,17 +1,17 @@
 import { prisma } from '@/lib/prisma'
 import { applySecurityHeaders, guardAccess } from '@/proxy'
 import { getSessionProfile } from '@/services/auth/session'
-import { BillingService } from '@/services/billing/BillingService'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest | Request) {
   try {
-    const guard = guardAccess(req as any)
+    const r = (req as NextRequest) ?? (req as Request)
+    const guard = guardAccess(r)
     if (guard) return guard
     const { orgId, role } = await getSessionProfile()
     if (!orgId || !role)
       return applySecurityHeaders(
-        req as any,
+        r,
         NextResponse.json({ orgName: null, role: null, alertsCount: 0 })
       )
 
@@ -21,7 +21,15 @@ export async function GET(req: Request) {
     })
     let alertsCount = 0
     try {
-      alertsCount = await BillingService.countFinancialAlerts(orgId)
+      // Contar faturas vencidas como alertas financeiros
+      const overdueInvoices = await prisma.invoice.count({
+        where: {
+          orgId,
+          status: 'OVERDUE',
+          deletedAt: null,
+        },
+      })
+      alertsCount = overdueInvoices
     } catch {
       alertsCount = 0
     }
@@ -31,10 +39,10 @@ export async function GET(req: Request) {
       role,
       alertsCount,
     })
-    return applySecurityHeaders(req as any, res)
+    return applySecurityHeaders(r, res)
   } catch {
     return applySecurityHeaders(
-      req as any,
+      (req as NextRequest) ?? (req as Request),
       NextResponse.json({ orgName: null, role: null, alertsCount: 0 })
     )
   }

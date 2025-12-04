@@ -81,8 +81,8 @@ export const getDashboardData = cache(
           client: { select: { id: true, name: true } },
         },
       }),
-      prisma.finance.findMany({
-        where: { client: { orgId } },
+      prisma.transaction.findMany({
+        where: { orgId },
         select: { clientId: true, type: true, amount: true },
       }),
       prisma.dashboardEvent.findMany({
@@ -219,7 +219,7 @@ export const getDashboardData = cache(
       const balance = finances
         .filter((f) => f.clientId === c.id)
         .reduce(
-          (acc, f) => acc + (f.type === 'income' ? f.amount : -f.amount),
+          (acc, f) => acc + (f.type === 'INCOME' ? f.amount : -f.amount),
           0
         )
       const daysActive = Math.floor(
@@ -294,24 +294,23 @@ export const getDashboardData = cache(
         59,
         59
       )
-      const payments = await prisma.payment.findMany({
+      // Fetch transactions from the new financial system
+      const monthTransactions = await prisma.transaction.findMany({
         where: {
-          client: { orgId },
-          status: { in: ['CONFIRMED', 'VERIFIED'] },
-          paidAt: { gte: monthStart, lte: monthEnd },
-        },
-        select: { amount: true },
-      })
-      const monthExpenses = await prisma.finance.findMany({
-        where: {
-          client: { orgId },
-          type: 'expense',
+          orgId,
           date: { gte: monthStart, lte: monthEnd },
         },
-        select: { amount: true },
+        select: { type: true, amount: true },
       })
-      const receitas = payments.reduce((s, p) => s + p.amount, 0)
-      const despesas = monthExpenses.reduce((s, e) => s + e.amount, 0)
+
+      const receitas = monthTransactions
+        .filter((t) => t.type === 'INCOME')
+        .reduce((s, t) => s + t.amount, 0)
+
+      const despesas = monthTransactions
+        .filter((t) => t.type === 'EXPENSE')
+        .reduce((s, t) => s + t.amount, 0)
+
       financialData.push({
         month: targetMonth.toLocaleDateString('pt-BR', {
           month: 'short',

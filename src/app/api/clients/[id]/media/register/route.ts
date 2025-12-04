@@ -1,10 +1,10 @@
 import { prisma } from '@/lib/prisma'
 import { getFileUrl, getMediaTypeFromMime } from '@/lib/storage'
 import { getSessionProfile } from '@/services/auth/session'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(
-  req: Request,
+  req: NextRequest | Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -20,7 +20,15 @@ export async function POST(
     if (!client || client.orgId !== orgId)
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-    const body = await req.json().catch(() => ({}) as any)
+    const body = (await req.json().catch(() => ({}))) as {
+      fileKey?: string
+      mimeType?: string
+      title?: string
+      description?: string | null
+      tags?: string[]
+      folderId?: string | null
+      fileSize?: number | null
+    }
     const { fileKey, mimeType, title, description, tags, folderId, fileSize } =
       body
     if (!fileKey || !mimeType)

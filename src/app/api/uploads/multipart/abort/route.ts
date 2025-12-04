@@ -15,7 +15,12 @@ const secretAccessKey =
 
 let s3: S3Client | null = null
 if (USE_S3 && S3_BUCKET && accessKeyId && secretAccessKey) {
-  const cfg: any = { region, credentials: { accessKeyId, secretAccessKey } }
+  const cfg: {
+    region: string
+    credentials: { accessKeyId: string; secretAccessKey: string }
+    endpoint?: string
+    forcePathStyle?: boolean
+  } = { region, credentials: { accessKeyId, secretAccessKey } }
   if (endpoint) {
     cfg.endpoint = endpoint
     cfg.forcePathStyle = true

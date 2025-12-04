@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { applySecurityHeaders, guardAccess } from '@/proxy'
 import { getSessionProfile } from '@/services/auth/session'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 type OrgProfile = {
   id: string
@@ -18,19 +18,20 @@ type OrgProfile = {
   country: string | null
 }
 
-export async function GET(req: Request) {
-  const guard = guardAccess(req as any)
+export async function GET(req: NextRequest | Request) {
+  const r = (req as NextRequest) ?? (req as Request)
+  const guard = guardAccess(r)
   if (guard) return guard
   const { orgId } = await getSessionProfile()
   if (!orgId)
     return applySecurityHeaders(
-      req as any,
+      r,
       NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     )
   const org = await prisma.org.findUnique({ where: { id: orgId } })
   if (!org)
     return applySecurityHeaders(
-      req as any,
+      r,
       NextResponse.json({ error: 'Not found' }, { status: 404 })
     )
   const o = org as unknown as OrgProfile
@@ -48,21 +49,22 @@ export async function GET(req: Request) {
     postalCode: o.postalCode,
     country: o.country,
   })
-  return applySecurityHeaders(req as any, res)
+  return applySecurityHeaders(r, res)
 }
 
-export async function PATCH(req: Request) {
-  const guard = guardAccess(req as any)
+export async function PATCH(req: NextRequest | Request) {
+  const r = (req as NextRequest) ?? (req as Request)
+  const guard = guardAccess(r)
   if (guard) return guard
   const { orgId, role } = await getSessionProfile()
   if (!orgId)
     return applySecurityHeaders(
-      req as any,
+      r,
       NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     )
   if (role !== 'OWNER')
     return applySecurityHeaders(
-      req as any,
+      r,
       NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     )
 
@@ -109,26 +111,26 @@ export async function PATCH(req: Request) {
   const cnpjDigits = onlyDigits(data.cnpj as string)
   if (cnpjDigits && cnpjDigits.length !== 14) {
     return applySecurityHeaders(
-      req as any,
+      r,
       NextResponse.json({ error: 'CNPJ inválido' }, { status: 400 })
     )
   }
   const cepDigits = onlyDigits(data.postalCode as string)
   if (cepDigits && cepDigits.length !== 8) {
     return applySecurityHeaders(
-      req as any,
+      r,
       NextResponse.json({ error: 'CEP inválido' }, { status: 400 })
     )
   }
 
   if (Object.keys(data).length === 0) {
     return applySecurityHeaders(
-      req as any,
+      r,
       NextResponse.json({ error: 'No changes' }, { status: 400 })
     )
   }
 
   const updated = await prisma.org.update({ where: { id: orgId }, data })
   const res = NextResponse.json({ id: updated.id })
-  return applySecurityHeaders(req as any, res)
+  return applySecurityHeaders(r, res)
 }

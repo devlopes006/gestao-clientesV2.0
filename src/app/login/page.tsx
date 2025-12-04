@@ -77,7 +77,7 @@ function LoginPageInner() {
         // Remove to prevent MIME type execution errors
         badScripts.forEach((s) => s.parentElement?.removeChild(s))
       }
-    } catch (e) {
+    } catch {
       // ignore
     }
   }, []);
@@ -129,8 +129,8 @@ function LoginPageInner() {
     setIsLogging(true);
     try {
       await logout();
-    } catch (e) {
-      console.error('Erro ao deslogar para trocar de conta', e);
+    } catch {
+      console.error('Erro ao deslogar para trocar de conta');
     } finally {
       setIsLogging(false);
     }

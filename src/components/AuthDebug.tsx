@@ -60,7 +60,9 @@ export function AuthDebug() {
         width: window.innerWidth,
         height: window.innerHeight,
         firebaseConfig: hasFirebaseConfig,
-        authInitialized: typeof window !== "undefined" && !!(window as any).firebase,
+        authInitialized:
+          typeof window !== "undefined" &&
+          !!(window as unknown as { firebase?: unknown }).firebase,
         cspViolations: violations,
       });
     };

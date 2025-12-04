@@ -20,22 +20,19 @@ export class PaymentOrchestrator {
       clientId,
       invoiceId,
       amount,
-      method,
+      // method currently unused; kept in params for future extensions
       category = 'Mensalidade',
       description = `Pagamento fatura`,
       paidAt = new Date(),
     } = params
 
-    // Guard de duplicidade rápida: evita dois pagamentos iguais em < 2min
-    const existingRecentPayment = await prisma.payment.findFirst({
-      where: {
-        invoiceId,
-        amount,
-        status: 'PAID',
-        paidAt: { gte: new Date(Date.now() - 2 * 60 * 1000) },
-      },
+    // Idempotency check: evita criação duplicada se já existir
+    // Verifica tanto pagamentos quanto lançamentos financeiros vinculados
+    // Idempotency: check for an existing income transaction for this invoice
+    const existingTransaction = await prisma.transaction.findFirst({
+      where: { invoiceId, amount, type: 'INCOME' },
     })
-    if (existingRecentPayment) {
+    if (existingTransaction) {
       return prisma.invoice.findUnique({ where: { id: invoiceId } })
     }
 
@@ -44,28 +41,17 @@ export class PaymentOrchestrator {
         where: { id: invoiceId },
         data: { status: 'PAID' },
       }),
-      prisma.payment.create({
+      prisma.transaction.create({
         data: {
           orgId,
           clientId,
           invoiceId,
-          amount,
-          method,
-          status: 'PAID',
-          paidAt,
-          provider: 'manual',
-        },
-      }),
-      prisma.finance.create({
-        data: {
-          orgId,
-          clientId,
-          type: 'income',
+          type: 'INCOME',
+          subtype: 'INVOICE_PAYMENT',
           amount,
           description,
           category,
           date: paidAt,
-          invoiceId,
         },
       }),
     ])

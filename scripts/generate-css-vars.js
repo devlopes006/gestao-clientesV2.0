@@ -52,7 +52,7 @@ function toHslString(hex) {
     const { r, g, b } = hexToRgb(hex)
     const [h, s, l] = rgbToHsl(r, g, b)
     return `${h} ${s}% ${l}%`
-  } catch (e) {
+  } catch {
     return null
   }
 }
@@ -67,7 +67,7 @@ const designSystemPath = path.join(
 let designSystemContent = ''
 try {
   designSystemContent = fs.readFileSync(designSystemPath, 'utf8')
-} catch (e) {
+} catch {
   // ignore if file not present
 }
 
@@ -77,10 +77,10 @@ out.push('/* Generated variables — DO NOT EDIT BY HAND */')
 out.push(':root {')
 
 // Brand palette
+let primaryHsl = null
 const brandMatch = content.match(/brand:\s*\{([\s\S]*?)\}/m)
 if (brandMatch) {
   const block = brandMatch[1]
-  let primaryHsl = null
   const itemRe =
     /([0-9]{1,3}|DEFAULT)\s*:\s*'(#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}))'/g
   let m

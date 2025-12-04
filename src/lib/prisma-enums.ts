@@ -4,14 +4,12 @@
  */
 
 import {
-  BillingInterval,
   ClientPlan,
   InviteStatus,
   InvoiceStatus,
   PaymentStatus,
   Role,
   SocialChannel,
-  SubscriptionStatus,
 } from '@prisma/client'
 
 // ==================== CLIENT PLANS ====================
@@ -55,9 +53,8 @@ export const INVOICE_STATUS_LABELS: Record<InvoiceStatus, string> = {
   DRAFT: 'Rascunho',
   OPEN: 'Em Aberto',
   PAID: 'Pago',
-  VOID: 'Cancelado',
   OVERDUE: 'Vencido',
-  CANCELED: 'Cancelado',
+  CANCELLED: 'Cancelado',
 }
 
 // ==================== ROLES ====================
@@ -77,25 +74,6 @@ export const INVITE_STATUS_LABELS: Record<InviteStatus, string> = {
   ACCEPTED: 'Aceito',
   CANCELED: 'Cancelado',
   EXPIRED: 'Expirado',
-}
-
-// ==================== SUBSCRIPTION STATUS ====================
-export const SUBSCRIPTION_STATUSES = Object.values(SubscriptionStatus)
-
-export const SUBSCRIPTION_STATUS_LABELS: Record<SubscriptionStatus, string> = {
-  ACTIVE: 'Ativo',
-  TRIALING: 'Em Teste',
-  PAST_DUE: 'Vencido',
-  CANCELED: 'Cancelado',
-  INACTIVE: 'Inativo',
-}
-
-// ==================== BILLING INTERVAL ====================
-export const BILLING_INTERVALS = Object.values(BillingInterval)
-
-export const BILLING_INTERVAL_LABELS: Record<BillingInterval, string> = {
-  MONTH: 'Mensal',
-  YEAR: 'Anual',
 }
 
 // ==================== CLIENT STATUS (não é enum no schema, mas vamos padronizar) ====================

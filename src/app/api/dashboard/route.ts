@@ -2,7 +2,7 @@ import { adminAuth } from '@/lib/firebaseAdmin'
 import { prisma } from '@/lib/prisma'
 import { applySecurityHeaders, guardAccess } from '@/proxy'
 import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 // Helper para mapear status/urgência
 function isPending(status: string) {
@@ -36,15 +36,17 @@ function computeUrgency(t: {
   return score
 }
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest | Request) {
   try {
-    const guard = guardAccess(req as any)
+    const r = req
+    const guard = guardAccess(r)
     if (guard) return guard
     const cookieStore = await cookies()
     const token = cookieStore.get('auth')?.value
 
     if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      const res = NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return applySecurityHeaders(r, res)
     }
 
     const decoded = await adminAuth.verifyIdToken(token)
@@ -57,7 +59,11 @@ export async function GET(req: Request) {
     })
 
     if (!user || user.memberships.length === 0) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      const res = NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      )
+      return applySecurityHeaders(r, res)
     }
 
     const orgId = user.memberships[0].orgId
@@ -104,7 +110,7 @@ export async function GET(req: Request) {
           client: { select: { id: true, name: true } },
         },
       }),
-      prisma.finance.findMany({
+      prisma.transaction.findMany({
         where: { orgId },
         select: {
           clientId: true,
@@ -236,7 +242,10 @@ export async function GET(req: Request) {
     const clientsHealth = clients.map((client) => {
       const clientTasks = tasks.filter((t) => t.clientId === client.id)
       const total = clientTasks.length
-      const completed = clientTasks.filter((t) => isDone(t.status)).length
+      return applySecurityHeaders(
+        (req as NextRequest) ?? (req as Request),
+        NextResponse.json({ error: 'Dashboard error' }, { status: 500 })
+      )
       const pending = clientTasks.filter((t) => isPending(t.status)).length
       const overdue = clientTasks.filter(
         (t) =>
@@ -249,7 +258,7 @@ export async function GET(req: Request) {
       // Calcular saldo financeiro
       const clientFinances = finances.filter((f) => f.clientId === client.id)
       const balance = clientFinances.reduce((acc, f) => {
-        return acc + (f.type === 'income' ? f.amount : -f.amount)
+        return acc + (f.type === 'INCOME' ? f.amount : -f.amount)
       }, 0)
 
       // Calcular dias ativos
@@ -370,26 +379,37 @@ export async function GET(req: Request) {
         59
       )
 
-      // Buscar pagamentos confirmados no mês
-      const payments = await prisma.payment.findMany({
+      // Buscar pagamentos confirmados no mês (transactions com subtype INVOICE_PAYMENT)
+      // Aplicamos deduplicação por `invoiceId`, preferindo transação quando presente.
+      const payments = await prisma.transaction.findMany({
         where: {
-          client: { orgId },
-          status: { in: ['CONFIRMED', 'VERIFIED'] },
-          paidAt: {
+          orgId,
+          subtype: 'INVOICE_PAYMENT',
+          date: { gte: monthStart, lte: monthEnd },
+        },
+        select: { id: true, amount: true, invoiceId: true },
+      })
+
+      const monthFinancesIncome = await prisma.transaction.findMany({
+        where: {
+          orgId,
+          type: 'INCOME',
+          date: {
             gte: monthStart,
             lte: monthEnd,
           },
         },
         select: {
+          id: true,
           amount: true,
         },
       })
 
-      // Buscar despesas no mês (finance type = expense)
-      const monthExpenses = await prisma.finance.findMany({
+      // Buscar despesas no mês (transaction type = EXPENSE)
+      const monthExpenses = await prisma.transaction.findMany({
         where: {
-          client: { orgId },
-          type: 'expense',
+          orgId,
+          type: 'EXPENSE',
           date: {
             gte: monthStart,
             lte: monthEnd,
@@ -400,7 +420,22 @@ export async function GET(req: Request) {
         },
       })
 
-      const receitas = payments.reduce((sum, p) => sum + p.amount, 0)
+      const revenueMap = new Map<string, number>()
+      // Somar receitas (transactions)
+      for (const f of monthFinancesIncome) {
+        const key = `txn:${f.id}`
+        revenueMap.set(key, (revenueMap.get(key) || 0) + f.amount)
+      }
+      // Somar pagamentos confirmados
+      for (const p of payments) {
+        const key = p.invoiceId ? `inv:${p.invoiceId}` : `pay:${p.id}`
+        revenueMap.set(key, (revenueMap.get(key) || 0) + p.amount)
+      }
+
+      const receitas = Array.from(revenueMap.values()).reduce(
+        (sum, v) => sum + v,
+        0
+      )
       const despesas = monthExpenses.reduce((sum, e) => sum + e.amount, 0)
       const saldo = receitas - despesas
 
@@ -435,13 +470,13 @@ export async function GET(req: Request) {
       events: dashboardEvents,
       user: { id: user.id, name: user.name, email: user.email },
     })
-    return applySecurityHeaders(req as any, res)
+    return applySecurityHeaders(r, res)
   } catch (error) {
     console.error('Erro ao buscar dados do dashboard:', error)
     const res = NextResponse.json(
       { error: 'Failed to fetch dashboard data' },
       { status: 500 }
     )
-    return applySecurityHeaders(req as any, res)
+    return applySecurityHeaders(req, res)
   }
 }

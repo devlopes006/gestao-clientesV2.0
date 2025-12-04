@@ -69,13 +69,15 @@ export function useMultipartUpload() {
           if (!signRes.ok) throw new Error(await signRes.text())
           const { url } = (await signRes.json()) as SignPartResponse
 
-          const xhr = new XMLHttpRequest()
+          const xhr = new XMLHttpRequest() as XMLHttpRequest & {
+            _lastLoaded?: number
+          }
           const done = new Promise<string>((resolve, reject) => {
             xhr.upload.onprogress = (e) => {
               if (e.lengthComputable) {
                 // track incremental progress for this part
-                const delta = e.loaded - (xhr as any)._lastLoaded || 0
-                ;(xhr as any)._lastLoaded = e.loaded
+                const delta = e.loaded - (xhr._lastLoaded ?? 0)
+                xhr._lastLoaded = e.loaded
                 uploadedBytes += delta
                 setProgress(Math.round((uploadedBytes / file.size) * 100))
               }
@@ -131,8 +133,9 @@ export function useMultipartUpload() {
         })
         if (!completeRes.ok) throw new Error(await completeRes.text())
         return await completeRes.json()
-      } catch (e: any) {
-        setError(e?.message || String(e))
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e)
+        setError(msg)
         throw e
       } finally {
         setIsUploading(false)

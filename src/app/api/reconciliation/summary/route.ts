@@ -1,8 +1,8 @@
 import { prisma } from '@/lib/prisma'
 import { applySecurityHeaders, guardAccess } from '@/proxy'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest | Request) {
   // Basic reconciliation summary:
   // - count of PAID invoices without linked finance
   // - count of finance incomes without invoiceId
@@ -23,23 +23,22 @@ export async function GET(req: Request) {
       prisma.invoice.findMany({
         where: {
           status: 'PAID',
-          OR: [{ payments: { none: {} } }, { finances: { none: {} } }],
+          transactions: { none: {} },
         },
         select: { id: true },
       }),
-      prisma.finance.count({
-        where: { type: 'income', invoiceId: null },
-      }),
-      prisma.payment.aggregate({
+      prisma.transaction.count({ where: { type: 'INCOME', invoiceId: null } }),
+      prisma.transaction.aggregate({
         _sum: { amount: true },
         where: {
-          status: 'PAID',
-          paidAt: { gte: startOfMonth, lte: endOfMonth },
+          type: 'INCOME',
+          subtype: 'INVOICE_PAYMENT',
+          date: { gte: startOfMonth, lte: endOfMonth },
         },
       }),
-      prisma.finance.aggregate({
+      prisma.transaction.aggregate({
         _sum: { amount: true },
-        where: { type: 'income', date: { gte: startOfMonth, lte: endOfMonth } },
+        where: { type: 'INCOME', date: { gte: startOfMonth, lte: endOfMonth } },
       }),
     ])
 
@@ -54,8 +53,8 @@ export async function GET(req: Request) {
     },
   }
 
-  const guard = guardAccess(req as any)
+  const guard = guardAccess(req)
   if (guard) return guard
   const res = NextResponse.json(summary)
-  return applySecurityHeaders(req as any, res)
+  return applySecurityHeaders(req, res)
 }

@@ -17,7 +17,12 @@ const secretAccessKey =
 
 let s3: S3Client | null = null
 if (USE_S3 && S3_BUCKET && accessKeyId && secretAccessKey) {
-  const cfg: any = { region, credentials: { accessKeyId, secretAccessKey } }
+  const cfg: {
+    region: string
+    credentials: { accessKeyId: string; secretAccessKey: string }
+    endpoint?: string
+    forcePathStyle?: boolean
+  } = { region, credentials: { accessKeyId, secretAccessKey } }
   if (endpoint) {
     cfg.endpoint = endpoint
     cfg.forcePathStyle = true
@@ -31,7 +36,7 @@ export async function POST(req: NextRequest) {
     if (guard) return guard
     if (!s3)
       return NextResponse.json({ error: 'S3 não configurado' }, { status: 500 })
-    const { originalKey, uploadId, partNumber, mimeType } = await req.json()
+    const { originalKey, uploadId, partNumber } = await req.json()
     if (!originalKey || !uploadId || !partNumber)
       return NextResponse.json(
         { error: 'Parâmetros inválidos' },

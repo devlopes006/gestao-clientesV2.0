@@ -49,7 +49,7 @@ interface TasksPanelProps { clientId: string; initialTasks?: Task[] }
 
 export function TasksPanel({ clientId, initialTasks = [] }: TasksPanelProps) {
   // useTasks precisa ser chamado antes de usar 'filtered'
-  const { tasks, filtered, stats, isLoading, refetch, invalidate, search, setSearch, statusFilter, setStatusFilter, error } = useTasks({ clientId, initial: initialTasks })
+  const { tasks, filtered, stats, isLoading, invalidate, search, setSearch, statusFilter, setStatusFilter, error } = useTasks({ clientId, initial: initialTasks })
 
   // Kanban columns
   const columns = [

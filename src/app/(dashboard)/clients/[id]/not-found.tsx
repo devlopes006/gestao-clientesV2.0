@@ -20,12 +20,12 @@ export default function NotFound() {
             tem permissão para acessá-lo.
           </p>
           <div className="pt-2">
-            <Link href="/clients">
-              <Button variant="outline" className="gap-2 rounded-full">
+            <Button variant="outline" className="gap-2 rounded-full" asChild>
+              <Link href="/clients" className="flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 Voltar para clientes
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </CardContent>
       </Card>

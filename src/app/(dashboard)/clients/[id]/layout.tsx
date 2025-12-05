@@ -83,12 +83,12 @@ export default async function ClientLayout({
         {/* Header aligned with design system */}
         <div className="mb-6">
           <div className="mb-3">
-            <Link href="/clients">
-              <Button variant="outline" size="sm" className="gap-2 rounded-lg">
+            <Button variant="outline" size="sm" className="gap-2 rounded-lg" asChild>
+              <Link href="/clients" className="flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 Voltar
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
           <GradientPageHeader
             icon={Info}
@@ -105,12 +105,12 @@ export default async function ClientLayout({
                 )}
                 <div className="hidden sm:flex items-center gap-1 ml-2">
                   {prevClient ? (
-                    <Link href={`/clients/${prevClient.id}/info`}>
-                      <Button variant="ghost" size="sm" className="gap-1 rounded-lg" title={`Anterior: ${prevClient.name}`}>
+                    <Button variant="ghost" size="sm" className="gap-1 rounded-lg" title={`Anterior: ${prevClient.name}`} asChild>
+                      <Link href={`/clients/${prevClient.id}/info`} className="flex items-center gap-1">
                         <ChevronLeft className="h-4 w-4" />
                         <span className="hidden lg:inline">Anterior</span>
-                      </Button>
-                    </Link>
+                      </Link>
+                    </Button>
                   ) : (
                     <Button variant="ghost" size="sm" disabled className="gap-1 rounded-lg">
                       <ChevronLeft className="h-4 w-4" />
@@ -118,12 +118,12 @@ export default async function ClientLayout({
                     </Button>
                   )}
                   {nextClient ? (
-                    <Link href={`/clients/${nextClient.id}/info`}>
-                      <Button variant="ghost" size="sm" className="gap-1 rounded-lg" title={`Próximo: ${nextClient.name}`}>
+                    <Button variant="ghost" size="sm" className="gap-1 rounded-lg" title={`Próximo: ${nextClient.name}`} asChild>
+                      <Link href={`/clients/${nextClient.id}/info`} className="flex items-center gap-1">
                         <span className="hidden lg:inline">Próximo</span>
                         <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </Link>
+                      </Link>
+                    </Button>
                   ) : (
                     <Button variant="ghost" size="sm" disabled className="gap-1 rounded-lg">
                       <span className="hidden lg:inline">Próximo</span>

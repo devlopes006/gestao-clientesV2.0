@@ -43,6 +43,7 @@ export default async function ClientsPage({ searchParams }: PageProps) {
             <Button
               size="sm"
               className="rounded-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              asChild
             >
               <Link href="/login">Ir para login</Link>
             </Button>

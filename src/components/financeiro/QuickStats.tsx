@@ -35,15 +35,17 @@ export function QuickStats() {
       if (!response.ok) throw new Error('Erro ao carregar estatísticas')
 
       const result = await response.json()
+      // ApiResponseHandler retorna { data: { financial, invoices, projections } }
+      const dashboardData = result.data || result
       setData({
-        totalIncome: result.financial.totalIncome,
-        totalExpense: result.financial.totalExpense,
-        netProfit: result.financial.netProfit,
-        totalReceivable: result.invoices.totalReceivable,
-        pendingExpense: result.financial?.pendingExpense ?? 0,
-        projectedNetProfit: result.projections?.projectedNetProfit ?? undefined,
-        cashOnHand: result.projections?.cashOnHand ?? undefined,
-        cashOnHandMonthly: result.projections?.cashOnHandMonthly ?? undefined,
+        totalIncome: dashboardData.financial?.totalIncome || 0,
+        totalExpense: dashboardData.financial?.totalExpense || 0,
+        netProfit: dashboardData.financial?.netProfit || 0,
+        totalReceivable: dashboardData.invoices?.totalReceivable || 0,
+        pendingExpense: dashboardData.financial?.pendingExpense ?? 0,
+        projectedNetProfit: dashboardData.projections?.projectedNetProfit ?? undefined,
+        cashOnHand: dashboardData.projections?.cashOnHand ?? undefined,
+        cashOnHandMonthly: dashboardData.projections?.cashOnHandMonthly ?? undefined,
       })
     } catch (err) {
       console.error('Erro ao carregar quick stats:', err)

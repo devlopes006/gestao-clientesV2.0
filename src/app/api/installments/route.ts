@@ -1,18 +1,22 @@
+import { authenticateRequest } from '@/infra/http/auth-middleware'
+import { ApiResponseHandler } from '@/infra/http/response'
 import { prisma } from '@/lib/prisma'
-import { applySecurityHeaders, guardAccess } from '@/proxy'
-import { getSessionProfile } from '@/services/auth/session'
-import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
+import { NextRequest } from 'next/server'
 
 // GET /api/installments - List installments due this month for the organization
 export async function GET(req: NextRequest) {
   try {
-    const guard = guardAccess(req)
-    if (guard) return guard
-    const { orgId, role } = await getSessionProfile()
-    if (!orgId || !role) {
-      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+    const authResult = await authenticateRequest(req, {
+      rateLimit: true,
+      requireOrg: true,
+    })
+
+    if ('error' in authResult) {
+      return authResult.error
     }
 
+    const { orgId } = authResult.context
     const now = new Date()
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
     const endOfMonth = new Date(
@@ -47,49 +51,51 @@ export async function GET(req: NextRequest) {
       client: r.client,
     }))
 
-    return applySecurityHeaders(req, NextResponse.json({ data }))
+    return ApiResponseHandler.success(data, 'Parcelas do mês listadas')
   } catch (error) {
+    Sentry.captureException(error)
     console.error('Error fetching installments:', error)
-    return applySecurityHeaders(
-      req,
-      NextResponse.json({ error: 'Erro ao buscar parcelas' }, { status: 500 })
-    )
+    return ApiResponseHandler.error(error, 'Erro ao buscar parcelas')
   }
 }
 
 // PATCH /api/installments?id=<installmentId> - Confirm payment and create a finance income
 export async function PATCH(req: NextRequest) {
   try {
-    const guard = guardAccess(req)
-    if (guard) return guard
-    const { searchParams } = new URL(req.url)
-    const installmentId = searchParams.get('id')
-    if (!installmentId) {
-      return NextResponse.json(
-        { error: 'ID da parcela não fornecido' },
-        { status: 400 }
-      )
+    const authResult = await authenticateRequest(req, {
+      rateLimit: true,
+      requireOrg: true,
+    })
+
+    if ('error' in authResult) {
+      return authResult.error
     }
 
-    const { orgId, role } = await getSessionProfile()
-    if (!orgId || !role) {
-      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+    const { orgId } = authResult.context
+    const { searchParams } = new URL(req.url)
+    const installmentId = searchParams.get('id')
+
+    if (!installmentId) {
+      return ApiResponseHandler.badRequest('ID da parcela não fornecido', [
+        { field: 'id', message: 'Required' },
+      ])
     }
 
     const inst = await prisma.installment.findUnique({
       where: { id: installmentId },
       include: { client: true },
     })
+
     if (!inst || inst.client.orgId !== orgId) {
-      return NextResponse.json(
-        { error: 'Parcela não encontrada' },
-        { status: 404 }
+      return ApiResponseHandler.internalError(
+        new Error('Installment not found'),
+        'installments:patch'
       )
     }
 
     // Already confirmed
     if (inst.status === 'CONFIRMED') {
-      return applySecurityHeaders(req, NextResponse.json({ ok: true }))
+      return ApiResponseHandler.success({ ok: true })
     }
 
     const updated = await prisma.$transaction(async (tx) => {
@@ -114,12 +120,10 @@ export async function PATCH(req: NextRequest) {
       return u
     })
 
-    return applySecurityHeaders(req, NextResponse.json({ id: updated.id }))
+    return ApiResponseHandler.success({ id: updated.id }, 'Parcela confirmada')
   } catch (error) {
+    Sentry.captureException(error)
     console.error('Error confirming installment:', error)
-    return applySecurityHeaders(
-      req,
-      NextResponse.json({ error: 'Erro ao confirmar parcela' }, { status: 500 })
-    )
+    return ApiResponseHandler.error(error, 'Erro ao confirmar parcela')
   }
 }

@@ -1,15 +1,23 @@
+import { authenticateRequest } from '@/infra/http/auth-middleware'
+import { ApiResponseHandler } from '@/infra/http/response'
 import { cacheManager } from '@/lib/cache'
-import { getSessionProfile } from '@/services/auth/session'
 import { ReportingService } from '@/services/financial'
-import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
+import { NextRequest } from 'next/server'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const profile = await getSessionProfile()
-    if (!profile || profile.role !== 'OWNER' || !profile.orgId) {
-      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+    const authResult = await authenticateRequest(request, {
+      allowedRoles: ['OWNER'],
+      rateLimit: true,
+      requireOrg: true,
+    })
+
+    if ('error' in authResult) {
+      return authResult.error
     }
 
+    const { orgId } = authResult.context
     const { searchParams } = new URL(request.url)
     const year = parseInt(
       searchParams.get('year') || new Date().getFullYear().toString()
@@ -32,14 +40,14 @@ export async function GET(request: Request) {
     )
 
     // Try cache first (5 min TTL for dashboard)
-    const cacheKey = `dashboard:${profile.orgId}:${year}-${month}`
+    const cacheKey = `dashboard:${orgId}:${year}-${month}`
     const cached = cacheManager.get(cacheKey)
     if (cached) {
-      return NextResponse.json(cached)
+      return ApiResponseHandler.success(cached)
     }
 
     const dashboard = await ReportingService.getDashboard(
-      profile.orgId,
+      orgId,
       dateFrom,
       dateTo
     )
@@ -47,15 +55,10 @@ export async function GET(request: Request) {
     // Cache for 5 minutes
     cacheManager.set(cacheKey, dashboard, 300)
 
-    return NextResponse.json(dashboard)
+    return ApiResponseHandler.success(dashboard, 'Dashboard carregado')
   } catch (error) {
+    Sentry.captureException(error)
     console.error('Error getting dashboard:', error)
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : 'Erro ao buscar dashboard',
-      },
-      { status: 500 }
-    )
+    return ApiResponseHandler.error(error, 'Erro ao carregar dashboard')
   }
 }

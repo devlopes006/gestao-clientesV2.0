@@ -1,44 +1,31 @@
-import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/ratelimit'
-import { getSessionProfile } from '@/services/auth/session'
+import { authenticateRequest } from '@/infra/http/auth-middleware'
+import { ApiResponseHandler } from '@/infra/http/response'
 import { ReportingService } from '@/services/financial'
 import * as Sentry from '@sentry/nextjs'
-import { NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const idKey = getIdentifier(request)
-    const rl = await checkRateLimit(idKey, apiRatelimit)
-    if (!rl.success) {
-      return new Response(
-        JSON.stringify({
-          error: 'Too many requests',
-          resetAt: rl.reset.toISOString(),
-        }),
-        { status: 429, headers: { 'Content-Type': 'application/json' } }
-      )
-    }
-    const profile = await getSessionProfile()
-    if (!profile || profile.role !== 'OWNER' || !profile.orgId) {
-      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+    const authResult = await authenticateRequest(request, {
+      allowedRoles: ['OWNER'],
+      rateLimit: true,
+      requireOrg: true,
+    })
+
+    if ('error' in authResult) {
+      return authResult.error
     }
 
+    const { orgId } = authResult.context
     const { searchParams } = new URL(request.url)
     const yearParam = searchParams.get('year')
     const year = yearParam ? parseInt(yearParam) : undefined
 
-    const summary = await ReportingService.getGlobalSummary(profile.orgId, year)
-    return NextResponse.json(summary)
+    const summary = await ReportingService.getGlobalSummary(orgId, year)
+    return ApiResponseHandler.success(summary, 'Resumo geral carregado')
   } catch (error) {
-    Sentry.addBreadcrumb({
-      category: 'api',
-      message: 'reports:summary',
-      level: 'error',
-    })
     Sentry.captureException(error)
     console.error('Error getting global summary:', error)
-    return NextResponse.json(
-      { error: 'Erro ao buscar resumo geral' },
-      { status: 500 }
-    )
+    return ApiResponseHandler.error(error, 'Erro ao buscar resumo geral')
   }
 }

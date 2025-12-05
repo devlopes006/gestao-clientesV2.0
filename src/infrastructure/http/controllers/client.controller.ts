@@ -1,6 +1,6 @@
 import { CreateClientUseCase } from '@/core/use-cases/client/create-client.use-case'
 import { ListClientsUseCase } from '@/core/use-cases/client/list-clients.use-case'
-import { ApiResponseHandler } from '@/infra/http/response'
+import { ApiResponseHandler } from '@/infrastructure/http/response'
 import { PrismaClientRepository } from '@/infrastructure/database/repositories/prisma-client.repository'
 import { ClientBillingServiceAdapter } from '@/infrastructure/services/billing/client-billing.service'
 import {

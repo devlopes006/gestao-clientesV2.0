@@ -1,5 +1,5 @@
-import { authenticateRequest } from '@/infra/http/auth-middleware'
-import { ApiResponseHandler } from '@/infra/http/response'
+import { authenticateRequest } from '@/infrastructure/http/middlewares/auth.middleware'
+import { ApiResponseHandler } from '@/infrastructure/http/response'
 import { applySecurityHeaders } from '@/proxy'
 import {
   createClientController,

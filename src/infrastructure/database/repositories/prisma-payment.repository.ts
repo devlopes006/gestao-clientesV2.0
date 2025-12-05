@@ -1,7 +1,12 @@
 import { prisma } from '@/lib/prisma'
 import { Payment, PaymentStatus } from '@/core/domain/payment/entities/payment.entity'
 import { Money } from '@/core/domain/payment/value-objects/money.vo'
-import { TransactionStatus, TransactionSubtype, TransactionType } from '@prisma/client'
+import {
+  Transaction,
+  TransactionStatus,
+  TransactionSubtype,
+  TransactionType,
+} from '@prisma/client'
 
 export class PrismaPaymentRepository {
   async upsert(payment: Payment): Promise<void> {
@@ -33,15 +38,15 @@ export class PrismaPaymentRepository {
       status: this.mapStatus(props.status),
       type: TransactionType.INCOME,
       subtype: TransactionSubtype.INVOICE_PAYMENT,
-      invoiceId: null,
-      costItemId: null,
-      metadata: null,
+      invoiceId: undefined,
+      costItemId: undefined,
+      metadata: undefined,
       createdAt: props.createdAt,
-      createdBy: null,
+      createdBy: undefined,
       updatedAt: props.updatedAt,
-      updatedBy: null,
-      deletedAt: null,
-      deletedBy: null,
+      updatedBy: undefined,
+      deletedAt: undefined,
+      deletedBy: undefined,
       category: 'payment',
     }
   }
@@ -57,17 +62,7 @@ export class PrismaPaymentRepository {
     }
   }
 
-  private mapToDomain(transaction: {
-    id: string
-    orgId: string
-    clientId: string | null
-    amount: number
-    date: Date
-    status: TransactionStatus
-    description: string | null
-    createdAt: Date
-    updatedAt: Date
-  }): Payment {
+  private mapToDomain(transaction: Transaction): Payment {
     return new Payment({
       id: transaction.id,
       orgId: transaction.orgId,

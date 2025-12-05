@@ -7,6 +7,8 @@ export class ClientBillingServiceAdapter implements ClientBillingPort {
       ...params,
       installmentCount:
         params.installmentCount === null ? undefined : params.installmentCount,
+      contractValue: params.contractValue ?? undefined,
+      contractStart: params.contractStart ?? undefined,
     })
   }
 }

@@ -1,3 +1,7 @@
+import {
+  TaskPriority,
+  TaskStatus,
+} from '@/domain/task/value-objects/task-type.vo'
 import { TaskController } from '@/infrastructure/http/controllers/task.controller'
 import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
@@ -46,8 +50,8 @@ export async function GET(request: NextRequest) {
     const orgId = searchParams.get('orgId')
     const page = searchParams.get('page')
     const limit = searchParams.get('limit')
-    const status = searchParams.getAll('status')
-    const priority = searchParams.getAll('priority')
+    const statusParams = searchParams.getAll('status')
+    const priorityParams = searchParams.getAll('priority')
     const assignee = searchParams.get('assignee')
     const clientId = searchParams.get('clientId')
 
@@ -62,11 +66,23 @@ export async function GET(request: NextRequest) {
       orgId,
       page: page ? parseInt(page) : 1,
       limit: limit ? parseInt(limit) : 50,
-      status: status.length
-        ? (status as unknown as TaskStatus[])
+      status: statusParams.length
+        ? statusParams
+            .map((value) =>
+              Object.values(TaskStatus).includes(value as TaskStatus)
+                ? (value as TaskStatus)
+                : undefined
+            )
+            .filter((value): value is TaskStatus => Boolean(value))
         : undefined,
-      priority: priority.length
-        ? (priority as unknown as TaskPriority[])
+      priority: priorityParams.length
+        ? priorityParams
+            .map((value) =>
+              Object.values(TaskPriority).includes(value as TaskPriority)
+                ? (value as TaskPriority)
+                : undefined
+            )
+            .filter((value): value is TaskPriority => Boolean(value))
         : undefined,
       assignee: assignee || undefined,
       clientId: clientId || undefined,

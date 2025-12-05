@@ -27,7 +27,7 @@ export class InvoiceController {
     try {
       // 1. Autenticação
       const authResult = await authenticateRequest(request, {
-        allowedRoles: [Role.OWNER, Role.ADMIN],
+        allowedRoles: [Role.OWNER, Role.STAFF],
         requireOrg: true,
       })
 
@@ -148,7 +148,7 @@ export class InvoiceController {
     try {
       // 1. Autenticação
       const authResult = await authenticateRequest(request, {
-        allowedRoles: [Role.OWNER, Role.ADMIN],
+        allowedRoles: [Role.OWNER, Role.STAFF],
         requireOrg: true,
       })
 
@@ -198,7 +198,7 @@ export class InvoiceController {
     try {
       // 1. Autenticação
       const authResult = await authenticateRequest(request, {
-        allowedRoles: [Role.OWNER, Role.ADMIN],
+        allowedRoles: [Role.OWNER, Role.STAFF],
         requireOrg: true,
       })
 

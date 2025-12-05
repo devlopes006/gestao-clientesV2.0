@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { applySecurityHeaders, guardAccess } from '@/proxy'
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(req: NextRequest | Request) {
+export async function GET(req: NextRequest) {
   // Basic reconciliation summary:
   // - count of PAID invoices without linked finance
   // - count of finance incomes without invoiceId

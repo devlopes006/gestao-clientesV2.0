@@ -1,52 +1,83 @@
-import { getSessionProfile } from '@/services/auth/session'
-import { TransactionService } from '@/services/financial'
 import {
+  TransactionService as DomainTransactionService,
+  transactionInput,
+} from '@/domain/transactions/TransactionService'
+import { TransactionPrismaRepository } from '@/infrastructure/prisma/TransactionPrismaRepository'
+import { ApiResponseHandler } from '@/lib/api-response'
+import { cacheInvalidation } from '@/lib/cache'
+import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/ratelimit'
+import { transactionListQuerySchema } from '@/lib/validations'
+import { getSessionProfile } from '@/services/auth/session'
+import { TransactionService as FinancialTransactionService } from '@/services/financial'
+import {
+  PrismaClient,
   TransactionStatus,
   TransactionSubtype,
   TransactionType,
 } from '@prisma/client'
-import { NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
+import { z } from 'zod'
 
 export async function GET(request: Request) {
   try {
+    // Rate limit listagem de transações
+    const id = getIdentifier(request)
+    const rl = await checkRateLimit(id, apiRatelimit)
+    if (!rl.success) {
+      return ApiResponseHandler.rateLimitExceeded(rl.reset.toISOString())
+    }
     const profile = await getSessionProfile()
     if (!profile || profile.role !== 'OWNER' || !profile.orgId) {
-      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+      return ApiResponseHandler.unauthorized()
     }
 
     const { searchParams } = new URL(request.url)
+    const parsed = transactionListQuerySchema.safeParse({
+      type: searchParams.get('type') ?? undefined,
+      subtype: searchParams.get('subtype') ?? undefined,
+      status: searchParams.get('status') ?? undefined,
+      clientId: searchParams.get('clientId') ?? undefined,
+      invoiceId: searchParams.get('invoiceId') ?? undefined,
+      costItemId: searchParams.get('costItemId') ?? undefined,
+      category: searchParams.get('category') ?? undefined,
+      dateFrom: searchParams.get('dateFrom') ?? undefined,
+      dateTo: searchParams.get('dateTo') ?? undefined,
+      includeDeleted: searchParams.get('includeDeleted') ?? undefined,
+      page: searchParams.get('page') ?? undefined,
+      limit: searchParams.get('limit') ?? undefined,
+      orderBy: searchParams.get('orderBy') ?? undefined,
+      orderDirection: searchParams.get('orderDirection') ?? undefined,
+    })
+    if (!parsed.success) {
+      return ApiResponseHandler.validationError(
+        'Parâmetros inválidos',
+        parsed.error.format()
+      )
+    }
 
+    const q = parsed.data
     const filters = {
       orgId: profile.orgId,
-      type: searchParams.get('type') as TransactionType | undefined,
-      subtype: searchParams.get('subtype') as TransactionSubtype | undefined,
-      status: searchParams.get('status') as TransactionStatus | undefined,
-      clientId: searchParams.get('clientId') || undefined,
-      invoiceId: searchParams.get('invoiceId') || undefined,
-      costItemId: searchParams.get('costItemId') || undefined,
-      category: searchParams.get('category') || undefined,
-      dateFrom: searchParams.get('dateFrom')
-        ? new Date(searchParams.get('dateFrom')!)
-        : undefined,
-      dateTo: searchParams.get('dateTo')
-        ? new Date(searchParams.get('dateTo')!)
-        : undefined,
-      includeDeleted: searchParams.get('includeDeleted') === 'true',
+      type: q.type as TransactionType | undefined,
+      subtype: q.subtype as TransactionSubtype | undefined,
+      status: q.status as TransactionStatus | undefined,
+      clientId: q.clientId || undefined,
+      invoiceId: q.invoiceId || undefined,
+      costItemId: q.costItemId || undefined,
+      category: q.category || undefined,
+      dateFrom: q.dateFrom || undefined,
+      dateTo: q.dateTo || undefined,
+      includeDeleted: q.includeDeleted === 'true',
     }
 
     const pagination = {
-      page: parseInt(searchParams.get('page') || '1'),
-      limit: parseInt(searchParams.get('limit') || '50'),
-      orderBy: (searchParams.get('orderBy') || 'date') as
-        | 'date'
-        | 'amount'
-        | 'createdAt',
-      orderDirection: (searchParams.get('orderDirection') || 'desc') as
-        | 'asc'
-        | 'desc',
+      page: q.page ?? 1,
+      limit: q.limit ?? 50,
+      orderBy: (q.orderBy ?? 'date') as 'date' | 'amount' | 'createdAt',
+      orderDirection: (q.orderDirection ?? 'desc') as 'asc' | 'desc',
     }
 
-    const result = await TransactionService.list(filters, pagination)
+    const result = await FinancialTransactionService.list(filters, pagination)
 
     // Formatar resposta com clientName diretamente do include
     const transactionsWithClientNames = result.transactions.map(
@@ -56,26 +87,34 @@ export async function GET(request: Request) {
       })
     )
 
-    return NextResponse.json({
-      data: transactionsWithClientNames,
-      pagination: result.pagination,
-      totalPages: result.pagination.totalPages,
+    return ApiResponseHandler.paginatedList(transactionsWithClientNames, {
+      page: result.pagination.page,
+      limit: result.pagination.limit,
       total: result.pagination.total,
+      totalPages: result.pagination.totalPages,
     })
   } catch (error) {
+    Sentry.addBreadcrumb({
+      category: 'api',
+      message: 'transactions:list',
+      level: 'error',
+    })
+    Sentry.captureException(error)
     console.error('Error listing transactions:', error)
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : 'Erro ao listar transações',
-      },
-      { status: 500 }
+    return ApiResponseHandler.serverError(
+      error instanceof Error ? error.message : 'Erro ao listar transações'
     )
   }
 }
 
 export async function POST(request: Request) {
   try {
+    // Rate limit criação de transações
+    const id = getIdentifier(request)
+    const rl = await checkRateLimit(id, apiRatelimit)
+    if (!rl.success) {
+      return ApiResponseHandler.rateLimitExceeded(rl.reset.toISOString())
+    }
     const profile = await getSessionProfile()
     if (
       !profile ||
@@ -83,36 +122,42 @@ export async function POST(request: Request) {
       !profile.orgId ||
       !profile.user?.id
     ) {
-      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+      return ApiResponseHandler.unauthorized()
     }
 
-    const body = await request.json()
+    const body = await request.json().catch(() => ({}))
 
-    const transaction = await TransactionService.create({
-      type: body.type,
-      subtype: body.subtype,
-      amount: body.amount,
-      description: body.description,
-      category: body.category,
-      date: body.date ? new Date(body.date) : undefined,
-      status: body.status,
-      invoiceId: body.invoiceId,
-      clientId: body.clientId,
-      costItemId: body.costItemId,
-      metadata: body.metadata,
-      orgId: profile.orgId,
-      createdBy: profile.user.id,
-    })
+    const parsed = transactionInput
+      .extend({ orgId: z.string().min(1).default(profile.orgId!) })
+      .safeParse({ ...body, orgId: profile.orgId })
+    if (!parsed.success) {
+      return ApiResponseHandler.validationError(
+        'Parâmetros inválidos',
+        parsed.error.flatten()
+      )
+    }
 
-    return NextResponse.json(transaction, { status: 201 })
+    const prisma = new PrismaClient()
+    const svc = new DomainTransactionService(
+      new TransactionPrismaRepository(prisma)
+    )
+    const created = await svc.create(parsed.data)
+
+    // Invalidate cache after transaction creation
+    cacheInvalidation.transactions(profile.orgId)
+
+    return ApiResponseHandler.created(created)
   } catch (error) {
+    Sentry.addBreadcrumb({
+      category: 'api',
+      message: 'transactions:create',
+      level: 'error',
+    })
+    Sentry.captureException(error)
     console.error('Error creating transaction:', error)
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : 'Erro ao criar transação',
-      },
-      { status: 400 }
+    return ApiResponseHandler.error(
+      error instanceof Error ? error.message : 'Erro ao criar transação',
+      400
     )
   }
 }

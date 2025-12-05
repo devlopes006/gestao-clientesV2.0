@@ -1,15 +1,31 @@
 import { prisma } from '@/lib/prisma'
-import { createClientSchema, clientListQuerySchema } from '@/lib/validations'
+import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/ratelimit'
+import { clientListQuerySchema, createClientSchema } from '@/lib/validations'
 import { applySecurityHeaders, guardAccess } from '@/proxy'
 import { getSessionProfile } from '@/services/auth/session'
 import { createClient } from '@/services/repositories/clients'
 import { ClientStatus } from '@/types/enums'
 import type { ClientPlan, SocialChannel } from '@prisma/client'
+import * as Sentry from '@sentry/nextjs'
 import { NextRequest, NextResponse } from 'next/server'
 import { ZodError } from 'zod'
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting para criação de clientes
+    const id = getIdentifier(req as unknown as Request)
+    const rl = await checkRateLimit(id, apiRatelimit)
+    if (!rl.success) {
+      const res429 = NextResponse.json(
+        {
+          error: 'Too many requests',
+          message: 'Rate limit exceeded. Please try again later.',
+          resetAt: rl.reset.toISOString(),
+        },
+        { status: 429 }
+      )
+      return applySecurityHeaders(req, res429)
+    }
     const guard = guardAccess(req)
     if (guard) return guard
     const { user, orgId, role } = await getSessionProfile()
@@ -124,6 +140,12 @@ export async function POST(req: NextRequest) {
       )
       return applySecurityHeaders(req, res)
     }
+    Sentry.addBreadcrumb({
+      category: 'api',
+      message: 'clients:create',
+      level: 'error',
+    })
+    Sentry.captureException(error)
     console.error('Erro ao criar cliente:', error)
     const res = NextResponse.json(
       { error: 'Erro ao criar cliente' },
@@ -135,6 +157,20 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
+    // Rate limiting para listagem de clientes
+    const id = getIdentifier(req as unknown as Request)
+    const rl = await checkRateLimit(id, apiRatelimit)
+    if (!rl.success) {
+      const res429 = NextResponse.json(
+        {
+          error: 'Too many requests',
+          message: 'Rate limit exceeded. Please try again later.',
+          resetAt: rl.reset.toISOString(),
+        },
+        { status: 429 }
+      )
+      return applySecurityHeaders(req, res429)
+    }
     const guard = guardAccess(req)
     if (guard) return guard
     const { user, orgId, role } = await getSessionProfile()
@@ -194,7 +230,10 @@ export async function GET(req: NextRequest) {
         orderBy: { createdAt: 'desc' },
         take,
       })
-      const resLite = NextResponse.json({ data: clients, meta: { limit: take } })
+      const resLite = NextResponse.json({
+        data: clients,
+        meta: { limit: take },
+      })
       return applySecurityHeaders(req, resLite)
     }
 
@@ -218,10 +257,7 @@ export async function GET(req: NextRequest) {
         createdAt: true,
         updatedAt: true,
       },
-      orderBy: [
-        { createdAt: 'desc' },
-        { id: 'desc' },
-      ],
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take: take + 1,
       ...(cursor
         ? {
@@ -232,7 +268,7 @@ export async function GET(req: NextRequest) {
     })
     const hasNextPage = clients.length > take
     const data = clients.slice(0, take)
-    const nextCursor = hasNextPage ? data[data.length - 1]?.id ?? null : null
+    const nextCursor = hasNextPage ? (data[data.length - 1]?.id ?? null) : null
 
     const resAll = NextResponse.json({
       data,
@@ -244,6 +280,12 @@ export async function GET(req: NextRequest) {
     })
     return applySecurityHeaders(req, resAll)
   } catch (e) {
+    Sentry.addBreadcrumb({
+      category: 'api',
+      message: 'clients:list',
+      level: 'error',
+    })
+    Sentry.captureException(e)
     console.error('Erro ao listar clientes', e)
     const resErr = NextResponse.json({ error: 'Erro interno' }, { status: 500 })
     return applySecurityHeaders(req, resErr)

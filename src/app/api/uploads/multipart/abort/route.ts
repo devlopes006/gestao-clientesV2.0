@@ -1,5 +1,9 @@
+import { checkRateLimit, getIdentifier, uploadRatelimit } from '@/lib/ratelimit'
+import { applySecurityHeaders, guardAccess } from '@/proxy'
 import { AbortMultipartUploadCommand, S3Client } from '@aws-sdk/client-s3'
+import * as Sentry from '@sentry/nextjs'
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 
 const USE_S3 = process.env.USE_S3 === 'true' || process.env.USE_S3 === '1'
 const S3_BUCKET = process.env.STORAGE_BUCKET || process.env.AWS_S3_BUCKET || ''
@@ -30,14 +34,37 @@ if (USE_S3 && S3_BUCKET && accessKeyId && secretAccessKey) {
 
 export async function POST(req: NextRequest) {
   try {
+    const guard = guardAccess(req)
+    if (guard) return guard
+    // Rate limiting
+    const id = getIdentifier(req)
+    const rl = await checkRateLimit(id, uploadRatelimit)
+    if (!rl.success) {
+      const res = NextResponse.json(
+        { error: 'Too many requests', resetAt: rl.reset.toISOString() },
+        { status: 429 }
+      )
+      return applySecurityHeaders(req, res)
+    }
     if (!s3)
-      return NextResponse.json({ error: 'S3 não configurado' }, { status: 500 })
-    const { originalKey, uploadId } = await req.json()
-    if (!originalKey || !uploadId)
-      return NextResponse.json(
-        { error: 'Parâmetros inválidos' },
+      return applySecurityHeaders(
+        req,
+        NextResponse.json({ error: 'S3 não configurado' }, { status: 500 })
+      )
+    // Validation
+    const schema = z.object({
+      originalKey: z.string().min(1),
+      uploadId: z.string().min(1),
+    })
+    const parsed = schema.safeParse(await req.json())
+    if (!parsed.success) {
+      const res = NextResponse.json(
+        { error: 'Parâmetros inválidos', details: parsed.error.flatten() },
         { status: 400 }
       )
+      return applySecurityHeaders(req, res)
+    }
+    const { originalKey, uploadId } = parsed.data
     await s3.send(
       new AbortMultipartUploadCommand({
         Bucket: S3_BUCKET,
@@ -45,8 +72,17 @@ export async function POST(req: NextRequest) {
         UploadId: uploadId,
       })
     )
-    return NextResponse.json({ success: true })
+    return applySecurityHeaders(req, NextResponse.json({ success: true }))
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    Sentry.addBreadcrumb({
+      category: 'upload',
+      message: 'multipart abort failed',
+      level: 'error',
+    })
+    Sentry.captureException(err)
+    return applySecurityHeaders(
+      req,
+      NextResponse.json({ error: String(err) }, { status: 500 })
+    )
   }
 }

@@ -11,8 +11,8 @@ export async function POST(req: NextRequest | Request) {
     return NextResponse.json({ error: 'Proibido' }, { status: 403 })
 
   let body: {
-    start: string
-    end: string
+    start?: string
+    end?: string
     scope?: 'all' | 'finance' | 'payments' | 'invoices'
     dryRun?: boolean
   }

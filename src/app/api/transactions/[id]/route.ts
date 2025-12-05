@@ -1,3 +1,5 @@
+import { cacheInvalidation } from '@/lib/cache'
+import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/ratelimit'
 import { getSessionProfile } from '@/services/auth/session'
 import { TransactionService } from '@/services/financial'
 import { NextResponse } from 'next/server'
@@ -7,6 +9,19 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Rate limit consulta por id
+    const idKey = getIdentifier(request)
+    const rl = await checkRateLimit(idKey, apiRatelimit)
+    if (!rl.success) {
+      return NextResponse.json(
+        {
+          error: 'Too many requests',
+          message: 'Rate limit exceeded. Please try again later.',
+          resetAt: rl.reset.toISOString(),
+        },
+        { status: 429 }
+      )
+    }
     const profile = await getSessionProfile()
     if (!profile || profile.role !== 'OWNER' || !profile.orgId) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -40,6 +55,19 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Rate limit atualização de transação
+    const idKey = getIdentifier(request)
+    const rl = await checkRateLimit(idKey, apiRatelimit)
+    if (!rl.success) {
+      return NextResponse.json(
+        {
+          error: 'Too many requests',
+          message: 'Rate limit exceeded. Please try again later.',
+          resetAt: rl.reset.toISOString(),
+        },
+        { status: 429 }
+      )
+    }
     const profile = await getSessionProfile()
     if (
       !profile ||
@@ -65,6 +93,9 @@ export async function PATCH(
       updatedBy: profile.user.id,
     })
 
+    // Invalidate cache after update
+    cacheInvalidation.transactions(profile.orgId)
+
     return NextResponse.json(transaction)
   } catch (error) {
     console.error('Error updating transaction:', error)
@@ -85,6 +116,19 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Rate limit deleção de transação
+    const idKey = getIdentifier(request)
+    const rl = await checkRateLimit(idKey, apiRatelimit)
+    if (!rl.success) {
+      return NextResponse.json(
+        {
+          error: 'Too many requests',
+          message: 'Rate limit exceeded. Please try again later.',
+          resetAt: rl.reset.toISOString(),
+        },
+        { status: 429 }
+      )
+    }
     const profile = await getSessionProfile()
     if (
       !profile ||
@@ -101,6 +145,9 @@ export async function DELETE(
       profile.orgId,
       profile.user.id
     )
+
+    // Invalidate cache after deletion
+    cacheInvalidation.transactions(profile.orgId)
 
     return NextResponse.json(transaction)
   } catch (error) {

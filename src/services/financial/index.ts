@@ -27,4 +27,4 @@ export type {
   CreateSubscriptionInput,
   UpdateCostItemInput,
   UpdateSubscriptionInput,
-} from './CostTrackingService'
+} from '@/domain/costs/CostTrackingService'

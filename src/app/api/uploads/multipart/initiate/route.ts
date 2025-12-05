@@ -1,7 +1,10 @@
+import { checkRateLimit, getIdentifier, uploadRatelimit } from '@/lib/ratelimit'
 import { generateFileKey } from '@/lib/storage'
 import { applySecurityHeaders, guardAccess } from '@/proxy'
 import { CreateMultipartUploadCommand, S3Client } from '@aws-sdk/client-s3'
+import * as Sentry from '@sentry/nextjs'
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 
 const USE_S3 = process.env.USE_S3 === 'true' || process.env.USE_S3 === '1'
 const S3_BUCKET = process.env.STORAGE_BUCKET || process.env.AWS_S3_BUCKET || ''
@@ -34,14 +37,33 @@ export async function POST(req: NextRequest) {
   try {
     const guard = guardAccess(req)
     if (guard) return guard
+    // Rate limiting
+    const id = getIdentifier(req)
+    const rl = await checkRateLimit(id, uploadRatelimit)
+    if (!rl.success) {
+      const res = NextResponse.json(
+        { error: 'Too many requests', resetAt: rl.reset.toISOString() },
+        { status: 429 }
+      )
+      return applySecurityHeaders(req, res)
+    }
     if (!s3)
       return NextResponse.json({ error: 'S3 não configurado' }, { status: 500 })
-    const { clientId, filename, mimeType } = await req.json()
-    if (!clientId || !filename || !mimeType)
-      return NextResponse.json(
-        { error: 'Parâmetros inválidos' },
+    // Validation
+    const schema = z.object({
+      clientId: z.string().min(1),
+      filename: z.string().min(1),
+      mimeType: z.string().min(1),
+    })
+    const parsed = schema.safeParse(await req.json())
+    if (!parsed.success) {
+      const res = NextResponse.json(
+        { error: 'Parâmetros inválidos', details: parsed.error.flatten() },
         { status: 400 }
       )
+      return applySecurityHeaders(req, res)
+    }
+    const { clientId, filename, mimeType } = parsed.data
 
     const key = generateFileKey(clientId, filename).replace(
       /(\.[^./]+)$/i,
@@ -57,6 +79,12 @@ export async function POST(req: NextRequest) {
     const res = NextResponse.json({ uploadId: out.UploadId, originalKey: key })
     return applySecurityHeaders(req, res)
   } catch (err) {
+    Sentry.addBreadcrumb({
+      category: 'upload',
+      message: 'multipart initiate failed',
+      level: 'error',
+    })
+    Sentry.captureException(err)
     const res = NextResponse.json({ error: String(err) }, { status: 500 })
     return applySecurityHeaders(req, res)
   }

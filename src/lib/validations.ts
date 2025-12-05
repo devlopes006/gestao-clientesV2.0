@@ -56,6 +56,11 @@ export const createTaskSchema = z.object({
 
 export const updateTaskSchema = createTaskSchema.partial()
 
+export const taskListQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(200).optional(),
+  cursor: z.string().cuid().optional(),
+})
+
 // Strategy schemas
 export const createStrategySchema = z.object({
   title: z.string().min(1, 'Título é obrigatório').max(200),
@@ -116,6 +121,33 @@ export const clientListQuerySchema = z.object({
   lite: z.enum(['1']).optional(),
   limit: z.coerce.number().int().min(1).max(200).optional(),
   cursor: z.string().cuid().optional(),
+})
+
+export const transactionListQuerySchema = z.object({
+  type: z.enum(['INCOME', 'EXPENSE']).optional(),
+  subtype: z.string().optional(),
+  status: z.enum(['PENDING', 'PAID', 'CANCELLED', 'OVERDUE']).optional(),
+  clientId: z.string().cuid().optional(),
+  invoiceId: z.string().cuid().optional(),
+  costItemId: z.string().cuid().optional(),
+  category: z.string().optional(),
+  dateFrom: z.coerce.date().optional(),
+  dateTo: z.coerce.date().optional(),
+  includeDeleted: z.enum(['true']).optional(),
+  page: z.coerce.number().int().min(1).optional(),
+  limit: z.coerce.number().int().min(1).max(200).optional(),
+  orderBy: z.enum(['date', 'amount', 'createdAt']).optional(),
+  orderDirection: z.enum(['asc', 'desc']).optional(),
+})
+
+export const invoiceListQuerySchema = z.object({
+  clientId: z.string().cuid().optional(),
+  status: z.enum(['OPEN', 'PAID', 'OVERDUE', 'CANCELLED']).optional(),
+  dateFrom: z.coerce.date().optional(),
+  dateTo: z.coerce.date().optional(),
+  includeDeleted: z.enum(['true']).optional(),
+  page: z.coerce.number().int().min(1).optional(),
+  limit: z.coerce.number().int().min(1).max(200).optional(),
 })
 
 /**

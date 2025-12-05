@@ -327,6 +327,8 @@ model Transaction {
   @@index([invoiceId])
   @@index([orgId, status])
   @@index([deletedAt])
+  @@index([orgId, costItemId, date])
+  @@index([orgId, subtype, date])
 }
 
 model Invoice {
@@ -363,6 +365,7 @@ model Invoice {
   @@index([orgId, dueDate])
   @@index([clientId, status])
   @@index([deletedAt])
+  @@index([orgId, status, dueDate])
 }
 
 model InvoiceItem {
@@ -399,6 +402,7 @@ model RecurringExpense {
 
   @@index([orgId, active])
   @@index([deletedAt])
+  @@index([orgId, cycle, active])
 }
 
 model WebhookEvent {

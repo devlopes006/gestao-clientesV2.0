@@ -1,13 +1,24 @@
+import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/ratelimit'
 import {
   createPresignedPutUrl,
   generateFileKey,
   isAllowedMimeType,
 } from '@/lib/storage'
 import { applySecurityHeaders, guardAccess } from '@/proxy'
+import * as Sentry from '@sentry/nextjs'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limit para geração de URLs de upload
+    const idKey = getIdentifier(req)
+    const rl = await checkRateLimit(idKey, apiRatelimit)
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: 'Too many requests', resetAt: rl.reset.toISOString() },
+        { status: 429, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
     const guard = guardAccess(req)
     if (guard) return guard
     const { clientId, filename, mimeType, size } = await req.json()
@@ -53,6 +64,12 @@ export async function POST(req: NextRequest) {
     })
     return applySecurityHeaders(req, res)
   } catch (err) {
+    Sentry.addBreadcrumb({
+      category: 'api',
+      message: 'uploads:presign',
+      level: 'error',
+    })
+    Sentry.captureException(err)
     const res = NextResponse.json({ error: String(err) }, { status: 500 })
     return applySecurityHeaders(req, res)
   }

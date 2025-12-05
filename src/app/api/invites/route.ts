@@ -4,7 +4,7 @@ import { applySecurityHeaders, guardAccess } from '@/proxy'
 import { getSessionProfile } from '@/services/auth/session'
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(req: NextRequest | Request) {
+export async function GET(req: NextRequest) {
   const guard = guardAccess(req)
   if (guard) return guard
   const { user, orgId, role } = await getSessionProfile()

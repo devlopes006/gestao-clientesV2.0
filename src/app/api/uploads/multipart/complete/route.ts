@@ -1,8 +1,11 @@
+import { checkRateLimit, getIdentifier, uploadRatelimit } from '@/lib/ratelimit'
 import { createMedia } from '@/lib/repositories/mediaRepository'
 import { getFileUrl } from '@/lib/storage'
 import { applySecurityHeaders, guardAccess } from '@/proxy'
 import { CompleteMultipartUploadCommand, S3Client } from '@aws-sdk/client-s3'
+import * as Sentry from '@sentry/nextjs'
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 
 const USE_S3 = process.env.USE_S3 === 'true' || process.env.USE_S3 === '1'
 const S3_BUCKET = process.env.STORAGE_BUCKET || process.env.AWS_S3_BUCKET || ''
@@ -35,8 +38,43 @@ export async function POST(req: NextRequest) {
   try {
     const guard = guardAccess(req)
     if (guard) return guard
+    // Rate limiting
+    const id = getIdentifier(req)
+    const rl = await checkRateLimit(id, uploadRatelimit)
+    if (!rl.success) {
+      const res = NextResponse.json(
+        { error: 'Too many requests', resetAt: rl.reset.toISOString() },
+        { status: 429 }
+      )
+      return applySecurityHeaders(req, res)
+    }
     if (!s3)
       return NextResponse.json({ error: 'S3 não configurado' }, { status: 500 })
+    // Validation
+    const schema = z.object({
+      orgId: z.string().min(1),
+      clientId: z.string().min(1),
+      originalKey: z.string().min(1),
+      uploadId: z.string().min(1),
+      parts: z.array(
+        z.object({
+          ETag: z.string().min(1),
+          partNumber: z.union([z.number(), z.string()]),
+        })
+      ),
+      title: z.string().optional(),
+      description: z.string().nullable().optional(),
+      mimeType: z.string().optional(),
+      size: z.number().optional(),
+    })
+    const parsed = schema.safeParse(await req.json())
+    if (!parsed.success) {
+      const res = NextResponse.json(
+        { error: 'Parâmetros inválidos', details: parsed.error.flatten() },
+        { status: 400 }
+      )
+      return applySecurityHeaders(req, res)
+    }
     const {
       orgId,
       clientId,
@@ -47,19 +85,7 @@ export async function POST(req: NextRequest) {
       description,
       mimeType,
       size,
-    } = await req.json()
-    if (
-      !orgId ||
-      !clientId ||
-      !originalKey ||
-      !uploadId ||
-      !Array.isArray(parts)
-    ) {
-      return NextResponse.json(
-        { error: 'Parâmetros inválidos' },
-        { status: 400 }
-      )
-    }
+    } = parsed.data
 
     const cmd = new CompleteMultipartUploadCommand({
       Bucket: S3_BUCKET,
@@ -108,6 +134,12 @@ export async function POST(req: NextRequest) {
     })
     return applySecurityHeaders(req, res)
   } catch (err) {
+    Sentry.addBreadcrumb({
+      category: 'upload',
+      message: 'multipart complete failed',
+      level: 'error',
+    })
+    Sentry.captureException(err)
     const res = NextResponse.json({ error: String(err) }, { status: 500 })
     return applySecurityHeaders(req, res)
   }

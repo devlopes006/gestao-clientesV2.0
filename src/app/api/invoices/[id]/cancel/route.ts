@@ -1,3 +1,4 @@
+import { cacheInvalidation } from '@/lib/cache'
 import { getSessionProfile } from '@/services/auth/session'
 import { InvoiceService } from '@/services/financial'
 import { NextResponse } from 'next/server'
@@ -26,6 +27,9 @@ export async function POST(
       body.reason,
       profile.user.id
     )
+
+    // Invalidate cache after invoice cancellation
+    cacheInvalidation.invoices(profile.orgId)
 
     return NextResponse.json(invoice)
   } catch (error) {

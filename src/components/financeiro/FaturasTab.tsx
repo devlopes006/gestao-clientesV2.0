@@ -335,7 +335,19 @@ export function FaturasTab() {
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="flex-1">
                 <Button
                   variant="outline"
-                  onClick={() => exportInvoices(filteredInvoices)}
+                  onClick={() =>
+                    exportInvoices(
+                      filteredInvoices.map((inv) => ({
+                        number: inv.number,
+                        clientName: inv.client?.name || null,
+                        createdAt: inv.createdAt,
+                        dueDate: inv.dueDate,
+                        totalAmount: inv.total,
+                        status: inv.status,
+                        paidAt: inv.paidAt,
+                      }))
+                    )
+                  }
                   className="w-full gap-2 border-purple-200 hover:border-purple-500 dark:border-purple-800"
                 >
                   <Download className="h-4 w-4" />

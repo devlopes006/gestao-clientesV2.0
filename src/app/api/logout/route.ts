@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 /**
  * Remove o cookie de sessão ao fazer logout.
  */
-export async function POST(req: NextRequest | Request) {
+export async function POST(req: NextRequest) {
   try {
     const guard = guardAccess(req)
     if (guard) return guard

@@ -1,3 +1,4 @@
+import { withSentryConfig } from '@sentry/nextjs'
 import 'dotenv/config'
 
 /** @type {import('next').NextConfig} */
@@ -5,7 +6,7 @@ const s3Domain = process.env.S3_BUCKET
   ? `${process.env.S3_BUCKET}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com`
   : null
 
-const nextConfig = {
+const baseConfig = {
   typedRoutes: false,
   // output: 'standalone' é para Docker, não Netlify
   ...(process.env.DOCKER_BUILD === 'true' && { output: 'standalone' }),
@@ -77,5 +78,9 @@ const nextConfig = {
   },
 }
 
-// Sentry desabilitado - remova este bloco de comentário para reabilitar
-export default nextConfig
+// Habilita Sentry com configuração padrão; respeita arquivos sentry.*.config.ts
+const sentryOptions = {
+  silent: true,
+}
+
+export default withSentryConfig(baseConfig, sentryOptions)

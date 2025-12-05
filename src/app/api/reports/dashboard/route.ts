@@ -1,3 +1,4 @@
+import { cacheManager } from '@/lib/cache'
 import { getSessionProfile } from '@/services/auth/session'
 import { ReportingService } from '@/services/financial'
 import { NextResponse } from 'next/server'
@@ -30,11 +31,22 @@ export async function GET(request: Request) {
       999
     )
 
+    // Try cache first (5 min TTL for dashboard)
+    const cacheKey = `dashboard:${profile.orgId}:${year}-${month}`
+    const cached = cacheManager.get(cacheKey)
+    if (cached) {
+      return NextResponse.json(cached)
+    }
+
     const dashboard = await ReportingService.getDashboard(
       profile.orgId,
       dateFrom,
       dateTo
     )
+
+    // Cache for 5 minutes
+    cacheManager.set(cacheKey, dashboard, 300)
+
     return NextResponse.json(dashboard)
   } catch (error) {
     console.error('Error getting dashboard:', error)

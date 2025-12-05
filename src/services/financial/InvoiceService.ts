@@ -1,14 +1,13 @@
+import { InvoiceService as DomainInvoiceService } from '@/domain/invoices/InvoiceService'
+import { ClientPrismaRepository } from '@/infrastructure/prisma/ClientPrismaRepository'
+import { InvoicePrismaRepository } from '@/infrastructure/prisma/InvoicePrismaRepository'
 import { prisma } from '@/lib/prisma'
 import {
   InvoiceStatus,
-  TransactionStatus,
-  TransactionSubtype,
-  TransactionType,
   type Invoice,
   type InvoiceItem,
   type Prisma,
 } from '@prisma/client'
-import { TransactionService } from './TransactionService'
 
 export interface CreateInvoiceInput {
   clientId: string
@@ -147,105 +146,15 @@ export class InvoiceService {
    * Gera faturas mensais para clientes ativos
    */
   static async generateMonthlyInvoices(orgId: string, createdBy?: string) {
+    const domain = new DomainInvoiceService(
+      new ClientPrismaRepository(prisma),
+      new InvoicePrismaRepository(prisma)
+    )
+
+    // The domain method expects an input with month and dryRun flag.
     const now = new Date()
-    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-
-    // Busca clientes ativos com contratos vigentes
-    const clients = await prisma.client.findMany({
-      where: {
-        orgId,
-        status: 'active',
-        contractValue: { gt: 0 },
-        contractStart: { lte: now },
-        OR: [{ contractEnd: null }, { contractEnd: { gte: firstDayOfMonth } }],
-      },
-    })
-
-    const results = {
-      success: [] as Invoice[],
-      errors: [] as { clientId: string; clientName: string; error: string }[],
-      blocked: [] as { clientId: string; clientName: string; reason: string }[],
-    }
-
-    for (const client of clients) {
-      try {
-        // Verifica se cliente tem faturas em aberto
-        const openInvoices = await prisma.invoice.count({
-          where: {
-            clientId: client.id,
-            orgId,
-            status: {
-              in: [InvoiceStatus.OPEN, InvoiceStatus.OVERDUE],
-            },
-            deletedAt: null,
-          },
-        })
-
-        if (openInvoices > 0) {
-          results.blocked.push({
-            clientId: client.id,
-            clientName: client.name,
-            reason: `Cliente possui ${openInvoices} fatura(s) em aberto`,
-          })
-          continue
-        }
-
-        // Verifica se já gerou fatura neste mês
-        const existingInvoice = await prisma.invoice.findFirst({
-          where: {
-            clientId: client.id,
-            orgId,
-            issueDate: {
-              gte: firstDayOfMonth,
-              lte: lastDayOfMonth,
-            },
-            deletedAt: null,
-          },
-        })
-
-        if (existingInvoice) {
-          results.blocked.push({
-            clientId: client.id,
-            clientName: client.name,
-            reason: 'Fatura já gerada neste mês',
-          })
-          continue
-        }
-
-        // Calcula data de vencimento
-        const paymentDay = client.paymentDay || 10
-        const dueDate = new Date(now.getFullYear(), now.getMonth(), paymentDay)
-        if (dueDate < now) {
-          dueDate.setMonth(dueDate.getMonth() + 1)
-        }
-
-        // Gera fatura
-        const invoice = await this.create({
-          clientId: client.id,
-          orgId,
-          dueDate,
-          items: [
-            {
-              description: `Serviços de ${client.plan || 'gestão'} - ${now.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`,
-              quantity: 1,
-              unitAmount: client.contractValue!,
-            },
-          ],
-          createdBy,
-        })
-
-        results.success.push(invoice)
-      } catch (error) {
-        results.errors.push({
-          clientId: client.id,
-          clientName: client.name,
-          error: error instanceof Error ? error.message : 'Erro desconhecido',
-        })
-      }
-    }
-
-    return results
+    const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+    return domain.generateMonthlyInvoices({ orgId, month, dryRun: false })
   }
 
   /**
@@ -256,79 +165,29 @@ export class InvoiceService {
     orgId: string,
     input: ApprovePaymentInput
   ): Promise<Invoice> {
-    const invoice = await prisma.invoice.findFirst({
-      where: {
-        id: invoiceId,
-        orgId,
-        deletedAt: null,
-      },
-      include: {
-        client: true,
-      },
-    })
+    const domain = new DomainInvoiceService(
+      new ClientPrismaRepository(prisma),
+      new InvoicePrismaRepository(prisma)
+    )
 
-    if (!invoice) {
-      throw new Error('Fatura não encontrada')
-    }
+    // pass a transaction repository so domain can create the financial transaction
+    // lazily require to avoid circular imports at top-level
+    const { TransactionPrismaRepository } = await import(
+      '@/infrastructure/prisma/TransactionPrismaRepository'
+    )
+    const txRepo = new TransactionPrismaRepository(prisma)
+    // create a domain instance with transaction repository
+    const domainWithTx = new DomainInvoiceService(
+      new ClientPrismaRepository(prisma),
+      new InvoicePrismaRepository(prisma),
+      txRepo as any
+    )
 
-    if (invoice.status === InvoiceStatus.PAID) {
-      throw new Error('Fatura já está paga')
-    }
-
-    if (invoice.status === InvoiceStatus.CANCELLED) {
-      throw new Error('Fatura cancelada não pode ser paga')
-    }
-
-    // Usa data de vencimento como data de pagamento padrão, não hoje
-    const paidAt = input.paidAt || invoice.dueDate
-
-    // Atualiza status da fatura
-    const updatedInvoice = await prisma.invoice.update({
-      where: { id: invoiceId },
-      data: {
-        status: InvoiceStatus.PAID,
-        paidAt,
-        notes: input.notes || invoice.notes,
-      },
-      include: {
-        client: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        items: true,
-      },
-    })
-
-    // Cria lançamento financeiro (Transaction)
-    await TransactionService.create({
-      type: TransactionType.INCOME,
-      subtype: TransactionSubtype.INVOICE_PAYMENT,
-      amount: invoice.total,
-      description: `Pagamento da fatura ${invoice.number} - ${invoice.client.name}`,
-      category: 'RECEITA_CLIENTE',
-      date: paidAt,
-      status: TransactionStatus.CONFIRMED,
-      invoiceId: invoice.id,
-      clientId: invoice.clientId,
-      orgId,
+    return domainWithTx.approvePayment(invoiceId, orgId, {
+      paidAt: input.paidAt,
+      notes: input.notes,
       createdBy: input.createdBy,
-      metadata: {
-        invoiceNumber: invoice.number,
-        clientName: invoice.client.name,
-        daysLate: Math.max(
-          0,
-          Math.floor(
-            (paidAt.getTime() - invoice.dueDate.getTime()) /
-              (1000 * 60 * 60 * 24)
-          )
-        ),
-      },
-    })
-
-    return updatedInvoice
+    } as any)
   }
 
   /**
@@ -340,37 +199,12 @@ export class InvoiceService {
     reason?: string,
     cancelledBy?: string
   ): Promise<Invoice> {
-    const invoice = await prisma.invoice.findFirst({
-      where: {
-        id: invoiceId,
-        orgId,
-        deletedAt: null,
-      },
-    })
+    const domain = new DomainInvoiceService(
+      new ClientPrismaRepository(prisma),
+      new InvoicePrismaRepository(prisma)
+    )
 
-    if (!invoice) {
-      throw new Error('Fatura não encontrada')
-    }
-
-    if (invoice.status === InvoiceStatus.PAID) {
-      throw new Error('Fatura paga não pode ser cancelada')
-    }
-
-    if (invoice.status === InvoiceStatus.CANCELLED) {
-      throw new Error('Fatura já está cancelada')
-    }
-
-    return prisma.invoice.update({
-      where: { id: invoiceId },
-      data: {
-        status: InvoiceStatus.CANCELLED,
-        cancelledAt: new Date(),
-        internalNotes: reason
-          ? `${invoice.internalNotes || ''}\n\nCancelado: ${reason}`
-          : invoice.internalNotes,
-        updatedBy: cancelledBy,
-      },
-    })
+    return domain.cancel(invoiceId, orgId, reason, cancelledBy)
   }
 
   /**

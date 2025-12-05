@@ -1,7 +1,12 @@
 import { can } from '@/lib/permissions'
 import { prisma } from '@/lib/prisma'
+import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/ratelimit'
 import { sanitizeObject } from '@/lib/sanitize'
-import { createTaskSchema, updateTaskSchema } from '@/lib/validations'
+import {
+  createTaskSchema,
+  taskListQuerySchema,
+  updateTaskSchema,
+} from '@/lib/validations'
 import { getSessionProfile } from '@/services/auth/session'
 import { NextRequest, NextResponse } from 'next/server'
 import { ZodError } from 'zod'
@@ -12,6 +17,19 @@ interface RouteParams {
 
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
+    // Rate limit listagem de tarefas
+    const idKey = getIdentifier(_request as unknown as Request)
+    const rl = await checkRateLimit(idKey, apiRatelimit)
+    if (!rl.success) {
+      return NextResponse.json(
+        {
+          error: 'Too many requests',
+          message: 'Rate limit exceeded. Please try again later.',
+          resetAt: rl.reset.toISOString(),
+        },
+        { status: 429 }
+      )
+    }
     const { user, orgId, role } = await getSessionProfile()
     if (!user || !orgId)
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -30,6 +48,20 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
         { status: 404 }
       )
 
+    const sp = new URL(_request.url).searchParams
+    const query = taskListQuerySchema.safeParse({
+      limit: sp.get('limit') ?? undefined,
+      cursor: sp.get('cursor') ?? undefined,
+    })
+    if (!query.success) {
+      return NextResponse.json(
+        { error: 'Parâmetros inválidos', details: query.error.format() },
+        { status: 400 }
+      )
+    }
+    const { limit, cursor } = query.data
+    const take = Math.min(limit ?? 50, 200)
+
     const tasks = await prisma.task.findMany({
       where: { clientId, orgId },
       select: {
@@ -44,9 +76,22 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
         createdAt: true,
         updatedAt: true,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take: take + 1,
+      ...(cursor
+        ? {
+            cursor: { id: cursor },
+            skip: 1,
+          }
+        : {}),
     })
-    return NextResponse.json(tasks)
+    const hasNextPage = tasks.length > take
+    const data = tasks.slice(0, take)
+    const nextCursor = hasNextPage ? (data[data.length - 1]?.id ?? null) : null
+    return NextResponse.json({
+      data,
+      meta: { limit: take, nextCursor, hasNextPage },
+    })
   } catch (error) {
     console.error('Erro ao buscar tarefas:', error)
     // If debug requested, expose details to caller for faster debugging (only when explicitly asked)
@@ -71,6 +116,19 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
+    // Rate limit criação de tarefa
+    const idKey = getIdentifier(request as unknown as Request)
+    const rl = await checkRateLimit(idKey, apiRatelimit)
+    if (!rl.success) {
+      return NextResponse.json(
+        {
+          error: 'Too many requests',
+          message: 'Rate limit exceeded. Please try again later.',
+          resetAt: rl.reset.toISOString(),
+        },
+        { status: 429 }
+      )
+    }
     const { user, orgId, role } = await getSessionProfile()
     if (!user || !orgId)
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -131,6 +189,19 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    // Rate limit atualização de tarefa
+    const idKey = getIdentifier(request as unknown as Request)
+    const rl = await checkRateLimit(idKey, apiRatelimit)
+    if (!rl.success) {
+      return NextResponse.json(
+        {
+          error: 'Too many requests',
+          message: 'Rate limit exceeded. Please try again later.',
+          resetAt: rl.reset.toISOString(),
+        },
+        { status: 429 }
+      )
+    }
     const { user, orgId, role } = await getSessionProfile()
     if (!user || !orgId)
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -199,6 +270,19 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    // Rate limit deleção de tarefa
+    const idKey = getIdentifier(request as unknown as Request)
+    const rl = await checkRateLimit(idKey, apiRatelimit)
+    if (!rl.success) {
+      return NextResponse.json(
+        {
+          error: 'Too many requests',
+          message: 'Rate limit exceeded. Please try again later.',
+          resetAt: rl.reset.toISOString(),
+        },
+        { status: 429 }
+      )
+    }
     const { user, orgId, role } = await getSessionProfile()
     if (!user || !orgId)
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })

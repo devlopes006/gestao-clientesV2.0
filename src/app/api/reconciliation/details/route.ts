@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { applySecurityHeaders, guardAccess } from '@/proxy'
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(req: NextRequest | Request) {
+export async function GET(req: NextRequest) {
   // Detailed reconciliation listing for manual review
   // Expensive queries kept simple; consider pagination if dataset grows
   const invoicesPaidWithoutLinks = await prisma.invoice.findMany({

@@ -1,36 +1,41 @@
+import {
+  InvoiceService,
+  generateMonthlyInvoicesInput,
+} from '@/domain/invoices/InvoiceService'
+import { ClientPrismaRepository } from '@/infrastructure/prisma/ClientPrismaRepository'
+import { InvoicePrismaRepository } from '@/infrastructure/prisma/InvoicePrismaRepository'
 import { getSessionProfile } from '@/services/auth/session'
-import { FinancialAutomationService } from '@/services/financial/FinancialAutomationService'
+import { PrismaClient } from '@prisma/client'
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     const profile = await getSessionProfile()
     if (!profile || profile.role !== 'OWNER' || !profile.orgId) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
     }
-
-    const results =
-      await FinancialAutomationService.generateSmartMonthlyInvoices(
-        profile.orgId!,
-        profile.user!.id
+    const body = await request.json().catch(() => ({}))
+    const parsed = generateMonthlyInvoicesInput
+      .extend({
+        orgId: z.string().min(1).default(profile.orgId!),
+      })
+      .safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Parâmetros inválidos', details: parsed.error.flatten() },
+        { status: 400 }
       )
+    }
 
-    return NextResponse.json({
-      successCount: results.success.length,
-      blockedCount: results.blocked.length,
-      errorCount: results.errors.length,
-      summary: results.summary,
-      success: results.success.map((inv) => ({
-        id: inv.id,
-        number: inv.number,
-        clientName: inv.client?.name,
-        total: inv.total,
-        dueDate: inv.dueDate,
-        installmentInfo: inv.installmentInfo,
-      })),
-      blocked: results.blocked,
-      errors: results.errors,
-    })
+    const prisma = new PrismaClient()
+    const service = new InvoiceService(
+      new ClientPrismaRepository(prisma),
+      new InvoicePrismaRepository(prisma)
+    )
+    const results = await service.generateMonthlyInvoices(parsed.data)
+
+    return NextResponse.json(results)
   } catch (error) {
     console.error('Error generating monthly invoices:', error)
     return NextResponse.json(

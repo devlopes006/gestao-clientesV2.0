@@ -19,6 +19,10 @@ export const config = {
     '/client/:path*',
     '/admin/:path*',
     '/dashboard/:path*',
+    // Protege APIs sensíveis
+    '/api/clients/:path*',
+    '/api/transactions/:path*',
+    '/api/tasks/:path*',
     '/api/invites/:path*',
     '/onboarding/:path*',
     '/login/:path*',

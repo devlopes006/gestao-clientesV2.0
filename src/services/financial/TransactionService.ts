@@ -1,3 +1,5 @@
+import { TransactionService as DomainTransactionService } from '@/domain/transactions/TransactionService'
+import { TransactionPrismaRepository } from '@/infrastructure/prisma/TransactionPrismaRepository'
 import { prisma } from '@/lib/prisma'
 import {
   TransactionStatus,
@@ -70,46 +72,22 @@ export class TransactionService {
       throw new Error('A data da transação não pode ser no futuro')
     }
 
-    return prisma.transaction.create({
-      data: {
-        type: input.type,
-        subtype: input.subtype,
-        amount: input.amount,
-        description: input.description,
-        category: input.category,
-        date: input.date || new Date(),
-        status: input.status || TransactionStatus.CONFIRMED,
-        invoiceId: input.invoiceId,
-        clientId: input.clientId,
-        costItemId: input.costItemId,
-        metadata: input.metadata as Prisma.InputJsonValue,
-        orgId: input.orgId,
-        createdBy: input.createdBy,
-      },
-      include: {
-        client: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        invoice: {
-          select: {
-            id: true,
-            number: true,
-            status: true,
-          },
-        },
-        costItem: {
-          select: {
-            id: true,
-            name: true,
-            category: true,
-          },
-        },
-      },
-    })
+    // Delegate to domain TransactionService to keep business rules centralized
+    const repo = new TransactionPrismaRepository(prisma)
+    const svc = new DomainTransactionService(repo)
+    const payload = {
+      orgId: input.orgId,
+      type: input.type,
+      subtype: input.subtype,
+      amount: input.amount,
+      date: input.date
+        ? input.date.toISOString().slice(0, 10)
+        : new Date().toISOString().slice(0, 10),
+      description: input.description,
+      clientId: input.clientId,
+    }
+    const created = await svc.create(payload as any)
+    return created as Transaction
   }
 
   /**
@@ -345,6 +323,17 @@ export class TransactionService {
    * Calcula resumo financeiro
    */
   static async getSummary(orgId: string, dateFrom?: Date, dateTo?: Date) {
+    // Delegate core totals calculation to domain TransactionService
+    const startDate = dateFrom ? dateFrom.toISOString().slice(0, 10) : undefined
+    const endDate = dateTo ? dateTo.toISOString().slice(0, 10) : undefined
+    const txRepo = new TransactionPrismaRepository(prisma)
+    const domainSvc = new DomainTransactionService(txRepo)
+    const summaryPromise = domainSvc.summary({
+      orgId,
+      startDate: startDate ?? new Date(0).toISOString().slice(0, 10),
+      endDate: endDate ?? new Date().toISOString().slice(0, 10),
+    })
+
     const where: Prisma.TransactionWhereInput = {
       orgId,
       deletedAt: null,
@@ -359,66 +348,65 @@ export class TransactionService {
         : {}),
     }
 
-    const [incomes, expenses, byCategory, bySubtype, pendingInvoices] =
-      await Promise.all([
-        // Total de receitas
-        prisma.transaction.aggregate({
-          where: { ...where, type: TransactionType.INCOME },
-          _sum: { amount: true },
-          _count: true,
-        }),
+    const [
+      summary,
+      incomesCount,
+      expensesCount,
+      byCategory,
+      bySubtype,
+      pendingInvoices,
+    ] = await Promise.all([
+      summaryPromise,
+      prisma.transaction.count({
+        where: { ...where, type: TransactionType.INCOME },
+      }),
+      prisma.transaction.count({
+        where: { ...where, type: TransactionType.EXPENSE },
+      }),
+      // Agrupado por categoria
+      prisma.transaction.groupBy({
+        by: ['type', 'category'],
+        where,
+        _sum: { amount: true },
+        _count: true,
+        orderBy: {
+          _sum: { amount: 'desc' },
+        },
+      }),
 
-        // Total de despesas
-        prisma.transaction.aggregate({
-          where: { ...where, type: TransactionType.EXPENSE },
-          _sum: { amount: true },
-          _count: true,
-        }),
+      // Agrupado por subtipo
+      prisma.transaction.groupBy({
+        by: ['type', 'subtype'],
+        where,
+        _sum: { amount: true },
+        _count: true,
+        orderBy: {
+          _sum: { amount: 'desc' },
+        },
+      }),
 
-        // Agrupado por categoria
-        prisma.transaction.groupBy({
-          by: ['type', 'category'],
-          where,
-          _sum: { amount: true },
-          _count: true,
-          orderBy: {
-            _sum: { amount: 'desc' },
-          },
-        }),
+      // Faturas pendentes (não pagas) do período
+      prisma.invoice.aggregate({
+        where: {
+          orgId,
+          status: { not: 'PAID' },
+          deletedAt: null,
+          ...(dateFrom || dateTo
+            ? {
+                dueDate: {
+                  ...(dateFrom && { gte: dateFrom }),
+                  ...(dateTo && { lte: dateTo }),
+                },
+              }
+            : {}),
+        },
+        _sum: { total: true },
+      }),
+    ])
 
-        // Agrupado por subtipo
-        prisma.transaction.groupBy({
-          by: ['type', 'subtype'],
-          where,
-          _sum: { amount: true },
-          _count: true,
-          orderBy: {
-            _sum: { amount: 'desc' },
-          },
-        }),
-
-        // Faturas pendentes (não pagas) do período
-        prisma.invoice.aggregate({
-          where: {
-            orgId,
-            status: { not: 'PAID' },
-            deletedAt: null,
-            ...(dateFrom || dateTo
-              ? {
-                  dueDate: {
-                    ...(dateFrom && { gte: dateFrom }),
-                    ...(dateTo && { lte: dateTo }),
-                  },
-                }
-              : {}),
-          },
-          _sum: { total: true },
-        }),
-      ])
-
-    const totalIncome = incomes._sum.amount || 0
-    const totalExpense = expenses._sum.amount || 0
-    const netProfit = totalIncome - totalExpense
+    const totalIncome = summary.income
+    const totalExpense = summary.expense
+    const netProfit = summary.net
     const pendingIncome = pendingInvoices._sum.total || 0
 
     return {
@@ -431,11 +419,11 @@ export class TransactionService {
       // Keep original structure for backward compatibility if needed
       income: {
         total: totalIncome,
-        count: incomes._count,
+        count: incomesCount,
       },
       expense: {
         total: totalExpense,
-        count: expenses._count,
+        count: expensesCount,
       },
       byCategory: byCategory.map((item) => ({
         type: item.type,

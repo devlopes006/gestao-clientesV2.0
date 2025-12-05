@@ -242,11 +242,8 @@ export async function GET(req: NextRequest) {
     const clientsHealth = clients.map((client) => {
       const clientTasks = tasks.filter((t) => t.clientId === client.id)
       const total = clientTasks.length
-      return applySecurityHeaders(
-        (req as NextRequest) ?? (req as Request),
-        NextResponse.json({ error: 'Dashboard error' }, { status: 500 })
-      )
       const pending = clientTasks.filter((t) => isPending(t.status)).length
+      const completed = clientTasks.filter((t) => isDone(t.status)).length
       const overdue = clientTasks.filter(
         (t) =>
           !isDone(t.status) && t.dueDate && t.dueDate.getTime() < Date.now()

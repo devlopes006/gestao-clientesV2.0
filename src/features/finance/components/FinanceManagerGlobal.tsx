@@ -33,7 +33,8 @@ import { toast } from "sonner";
 
 interface Finance {
   id: string;
-  type: "income" | "expense";
+  type: "INCOME" | "EXPENSE";
+  subtype?: string;
   amount: number;
   description?: string | null;
   category?: string | null;
@@ -51,14 +52,14 @@ interface FinanceManagerGlobalProps {
 }
 
 const CATEGORIES = {
-  income: [
+  INCOME: [
     "Pagamento Cliente",
     "Investimento",
     "Serviços",
     "Consultoria",
     "Outro",
   ],
-  expense: [
+  EXPENSE: [
     "Anúncios",
     "Ferramentas",
     "Freelancer",
@@ -78,12 +79,12 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
   const [submitting, setSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Finance | null>(null);
-  const [filter, setFilter] = useState<"all" | "income" | "expense">("all");
+  const [filter, setFilter] = useState<"all" | "INCOME" | "EXPENSE">("all");
   const [clientFilter, setClientFilter] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("");
 
   const [formData, setFormData] = useState({
-    type: "income" as Finance["type"],
+    type: "INCOME" as Finance["type"],
     amount: "",
     description: "",
     category: "",
@@ -114,7 +115,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
       setLoading(true);
       const [financesRes, clientsRes] = await Promise.all([
         fetch("/api/finance"),
-        fetch("/api/clients?lite=1"),
+        fetch("/api/mobile/clients?page=1&limit=100"),
       ]);
 
       if (financesRes.ok) {
@@ -162,7 +163,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
 
   const resetForm = () => {
     setFormData({
-      type: "income",
+      type: "INCOME",
       amount: "",
       description: "",
       category: "",
@@ -271,19 +272,19 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
 
   const totals = useMemo(() => {
     const income = finances
-      .filter((f) => f.type === "income")
+      .filter((f) => f.type === "INCOME")
       .reduce((sum, f) => sum + f.amount, 0);
 
     const expense = finances
-      .filter((f) => f.type === "expense")
+      .filter((f) => f.type === "EXPENSE")
       .reduce((sum, f) => sum + f.amount, 0);
 
     return {
       income,
       expense,
       balance: income - expense,
-      incomeCount: finances.filter((f) => f.type === "income").length,
-      expenseCount: finances.filter((f) => f.type === "expense").length,
+      incomeCount: finances.filter((f) => f.type === "INCOME").length,
+      expenseCount: finances.filter((f) => f.type === "EXPENSE").length,
     };
   }, [finances]);
 
@@ -295,7 +296,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
       if (!stats[category]) {
         stats[category] = { amount: 0, count: 0 };
       }
-      stats[category].amount += f.type === "income" ? f.amount : -f.amount;
+      stats[category].amount += f.type === "INCOME" ? f.amount : -f.amount;
       stats[category].count += 1;
     });
 
@@ -623,18 +624,18 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                     Todas
                   </Button>
                   <Button
-                    variant={filter === "income" ? "default" : "outline"}
+                    variant={filter === "INCOME" ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setFilter("income")}
+                    onClick={() => setFilter("INCOME")}
                     className="text-xs gap-1 flex-1 sm:flex-initial"
                   >
                     <ArrowUpCircle className="h-3 w-3" />
                     Receitas
                   </Button>
                   <Button
-                    variant={filter === "expense" ? "default" : "outline"}
+                    variant={filter === "EXPENSE" ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setFilter("expense")}
+                    onClick={() => setFilter("EXPENSE")}
                     className="text-xs gap-1 flex-1 sm:flex-initial"
                   >
                     <ArrowDownCircle className="h-3 w-3" />
@@ -707,19 +708,19 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                   {filteredFinances.map((finance) => (
                     <div
                       key={finance.id}
-                      className={`flex flex-col sm:flex-row items-start gap-3 p-3 sm:p-4 rounded-xl border-2 transition-all hover:shadow-md ${finance.type === "income"
+                      className={`flex flex-col sm:flex-row items-start gap-3 p-3 sm:p-4 rounded-xl border-2 transition-all hover:shadow-md ${finance.type === "INCOME"
                         ? "border-green-200 bg-green-50/50 hover:border-green-300"
                         : "border-red-200 bg-red-50/50 hover:border-red-300"
                         }`}
                     >
                       <div className="flex items-start gap-3 flex-1 w-full min-w-0">
                         <div
-                          className={`h-12 w-12 sm:h-14 sm:w-14 rounded-full flex items-center justify-center shrink-0 ${finance.type === "income"
+                          className={`h-12 w-12 sm:h-14 sm:w-14 rounded-full flex items-center justify-center shrink-0 ${finance.type === "INCOME"
                             ? "bg-green-100"
                             : "bg-red-100"
                             }`}
                         >
-                          {finance.type === "income" ? (
+                          {finance.type === "INCOME" ? (
                             <ArrowUpCircle className="h-6 w-6 sm:h-7 sm:w-7 text-green-600" />
                           ) : (
                             <ArrowDownCircle className="h-6 w-6 sm:h-7 sm:w-7 text-red-600" />
@@ -747,12 +748,12 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                           </p>
                           <div className="mt-2 sm:hidden">
                             <div
-                              className={`text-xl font-bold ${finance.type === "income"
+                              className={`text-xl font-bold ${finance.type === "INCOME"
                                 ? "text-green-600"
                                 : "text-red-600"
                                 }`}
                             >
-                              {finance.type === "income" ? "+" : "-"}
+                              {finance.type === "INCOME" ? "+" : "-"}
                               {formatCurrency(finance.amount)}
                             </div>
                           </div>
@@ -760,12 +761,12 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                       </div>
                       <div className="hidden sm:flex text-right shrink-0 items-center">
                         <div
-                          className={`text-xl sm:text-2xl font-bold ${finance.type === "income"
+                          className={`text-xl sm:text-2xl font-bold ${finance.type === "INCOME"
                             ? "text-green-600"
                             : "text-red-600"
                             }`}
                         >
-                          {finance.type === "income" ? "+" : "-"}
+                          {finance.type === "INCOME" ? "+" : "-"}
                           {formatCurrency(finance.amount)}
                         </div>
                       </div>
@@ -825,7 +826,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                         onValueChange={(value) =>
                           setFormData({
                             ...formData,
-                            type: value as "income" | "expense",
+                            type: value as "INCOME" | "EXPENSE",
                             category: "",
                           })
                         }
@@ -835,8 +836,8 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="income">Receita</SelectItem>
-                          <SelectItem value="expense">Despesa</SelectItem>
+                          <SelectItem value="INCOME">Receita</SelectItem>
+                          <SelectItem value="EXPENSE">Despesa</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

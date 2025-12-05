@@ -131,10 +131,13 @@ async function getDynamicNotifications(orgId: string) {
         where: {
           orgId,
           OR: [
-            { priority: 'high', status: { notIn: ['done', 'completed'] } },
+            {
+              priority: { in: ['HIGH', 'URGENT'] },
+              status: { notIn: ['DONE', 'CANCELLED'] },
+            },
             {
               dueDate: { lt: new Date() },
-              status: { notIn: ['done', 'completed'] },
+              status: { notIn: ['DONE', 'CANCELLED'] },
             },
           ],
         },

@@ -1,15 +1,16 @@
 import { z } from 'zod'
 
-// Basic reusable status helpers
+// Task status enum - matches Prisma schema
 export const TaskStatusEnum = z.enum([
-  'todo',
-  'in-progress',
-  'in_progress',
-  'done',
-  'completed',
-  'pending',
+  'TODO',
+  'IN_PROGRESS',
+  'REVIEW',
+  'DONE',
+  'CANCELLED',
 ])
-export const PriorityEnum = z.enum(['low', 'medium', 'high'])
+
+// Task priority enum - matches Prisma schema
+export const PriorityEnum = z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT'])
 
 export const ClientSummarySchema = z.object({
   id: z.string(),

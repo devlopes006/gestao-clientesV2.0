@@ -15,7 +15,7 @@ Task 5 implementa melhorias significativas no sistema multi-tenant com foco em:
 
 ### 2.1 Roles Definidos
 
-```
+```text
 Hierarquia de Roles (do mais alto para o mais baixo):
 
 1. SUPER_ADMIN (super_admin)
@@ -51,14 +51,14 @@ Hierarquia de Roles (do mais alto para o mais baixo):
 
 ### 2.2 Permissões Implementadas
 
-**Organização**
+#### Organização
 
 - `org:create` - Criar organização
 - `org:read` - Ler dados org
 - `org:update` - Atualizar org
 - `org:delete` - Deletar org
 
-**Usuários**
+#### Usuários
 
 - `user:create` - Criar usuários
 - `user:read` - Ler dados usuários
@@ -66,14 +66,14 @@ Hierarquia de Roles (do mais alto para o mais baixo):
 - `user:delete` - Deletar usuários
 - `user:manage_roles` - Gerenciar funções
 
-**Clientes**
+#### Clientes
 
 - `client:create` - Criar cliente
 - `client:read` - Ler cliente
 - `client:update` - Atualizar cliente
 - `client:delete` - Deletar cliente
 
-**Invoices**
+#### Invoices
 
 - `invoice:create` - Criar invoice
 - `invoice:read` - Ler invoice
@@ -82,24 +82,24 @@ Hierarquia de Roles (do mais alto para o mais baixo):
 - `invoice:download` - Baixar invoice
 - `invoice:send` - Enviar invoice
 
-**Transações**
+#### Transações
 
 - `transaction:create` - Criar transação
 - `transaction:read` - Ler transação
 - `transaction:update` - Atualizar transação
 - `transaction:delete` - Deletar transação
 
-**Relatórios**
+#### Relatórios
 
 - `report:read` - Gerar relatórios
 - `report:export` - Exportar relatórios
 
-**Configurações**
+#### Configurações
 
 - `settings:read` - Ler settings
 - `settings:update` - Atualizar settings
 
-**Auditoria**
+#### Auditoria
 
 - `audit:read` - Acessar logs de auditoria
 
@@ -107,7 +107,7 @@ Hierarquia de Roles (do mais alto para o mais baixo):
 
 ### 3.1 Ações Auditadas
 
-**Usuários**
+#### Usuários (Auditadas)
 
 - `user_login` - Login do usuário
 - `user_logout` - Logout do usuário
@@ -116,13 +116,13 @@ Hierarquia de Roles (do mais alto para o mais baixo):
 - `user_deleted` - Usuário deletado
 - `user_role_changed` - Função alterada
 
-**Clientes**
+#### Clientes (Auditadas)
 
 - `client_created` - Cliente criado
 - `client_updated` - Cliente atualizado
 - `client_deleted` - Cliente deletado
 
-**Invoices**
+#### Invoices (Auditadas)
 
 - `invoice_created` - Invoice criada
 - `invoice_updated` - Invoice atualizada
@@ -130,19 +130,19 @@ Hierarquia de Roles (do mais alto para o mais baixo):
 - `invoice_sent` - Invoice enviada
 - `invoice_paid` - Invoice paga
 
-**Transações**
+#### Transações (Auditadas)
 
 - `transaction_created` - Transação criada
 - `transaction_updated` - Transação atualizada
 - `transaction_deleted` - Transação deletada
 
-**Organização**
+#### Organização (Auditadas)
 
 - `org_settings_changed` - Configurações alteradas
 - `org_member_added` - Membro adicionado
 - `org_member_removed` - Membro removido
 
-**Segurança**
+#### Segurança (Auditadas)
 
 - `permission_denied` - Permissão negada
 - `unauthorized_access` - Acesso não autorizado
@@ -178,7 +178,7 @@ interface AuditLogEntry {
 
 ### 4.1 Campos de Configuração
 
-**Branding**
+#### Branding
 
 ```typescript
 {
@@ -191,7 +191,7 @@ interface AuditLogEntry {
 }
 ```
 
-**Features (Flags)**
+#### Features (Flags)
 
 ```typescript
 {
@@ -204,7 +204,7 @@ interface AuditLogEntry {
 }
 ```
 
-**Financeiro**
+#### Financeiro
 
 ```typescript
 {
@@ -215,7 +215,7 @@ interface AuditLogEntry {
 }
 ```
 
-**Segurança**
+#### Segurança (Configurações)
 
 ```typescript
 {
@@ -230,7 +230,7 @@ interface AuditLogEntry {
 }
 ```
 
-**Notificações**
+#### Notificações (Configurações)
 
 ```typescript
 {
@@ -240,7 +240,7 @@ interface AuditLogEntry {
 }
 ```
 
-**Integrações**
+#### Integrações (Configurações)
 
 ```typescript
 {
@@ -250,7 +250,7 @@ interface AuditLogEntry {
 }
 ```
 
-**Localização**
+#### Localização (Configurações)
 
 ```typescript
 {
@@ -495,7 +495,7 @@ it('should grant accountant financial permissions', () => {
 
 ### 8.2 Estrutura de Arquivos
 
-```
+```text
 src/lib/rbac/
 ├── permissions.ts      # 320 linhas - Definições de roles e permissões
 └── middleware.ts       # 210 linhas - Middlewares de proteção
@@ -520,7 +520,7 @@ tests/lib/organizations/
 
 ### 9.1 Fluxo de Autenticação
 
-```
+```text
 1. User faz login → Firebase auth
 2. Middleware extrai UserContext
 3. UserContext contém role/org

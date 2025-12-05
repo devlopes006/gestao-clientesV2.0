@@ -109,7 +109,7 @@
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.22",
     "babel-plugin-react-compiler": "1.0.0",
-    "baseline-browser-mapping": "^2.8.32",
+    "baseline-browser-mapping": "^2.9.2",
     "eslint": "^9.39.1",
     "eslint-config-next": "16.0.1",
     "jsdom": "^27.2.0",

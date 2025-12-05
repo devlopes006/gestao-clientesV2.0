@@ -41,7 +41,10 @@ export async function POST(
             invoiceNumber: invoice.number,
             clientName: client.name,
             clientEmail: client.email,
-            amount: invoice.total,
+            amount:
+              typeof invoice.total === 'object'
+                ? invoice.total.toNumber()
+                : invoice.total,
             currency: 'BRL',
             paidDate: new Date(invoice.paidAt!).toLocaleDateString('pt-BR'),
             orgName: 'Gestão Clientes',

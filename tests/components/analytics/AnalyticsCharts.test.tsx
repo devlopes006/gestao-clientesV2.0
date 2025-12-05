@@ -72,11 +72,12 @@ const mockSummary: AnalyticsSummary = {
   totalCost: 13000,
   totalProfit: 9000,
   avgProfitMargin: 40.84,
-  revenueGrowth: { trend: 'up', changePercent: 20 },
-  profitGrowth: { trend: 'up', changePercent: 25 },
-  topClientByRevenue: mockProfitabilityData[0],
-  topClientByProfit: mockProfitabilityData[0],
-  bottomClientByProfit: mockProfitabilityData[1],
+  revenueGrowth: 20,
+  costGrowth: 15,
+  profitGrowth: 25,
+  topClientByRevenue: { name: 'Client A', revenue: 5000 },
+  topClientByProfit: { name: 'Client A', profit: 2000 },
+  lowestMarginClient: { name: 'Client B', margin: 10 },
 }
 
 describe('Analytics Components', () => {

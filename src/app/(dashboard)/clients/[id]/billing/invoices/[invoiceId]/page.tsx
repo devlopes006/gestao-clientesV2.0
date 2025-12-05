@@ -19,5 +19,19 @@ export default async function InvoiceDetailPage({ params }: InvoiceDetailPagePro
   const invoice = await prisma.invoice.findUnique({ where: { id: invoiceId }, include: { items: true, client: true } });
   if (!invoice || invoice.orgId !== orgId || invoice.clientId !== id) return null;
 
-  return <ClientInvoiceDetail invoice={invoice} role={role} />;
+  // Convert Decimal to number for type compatibility
+  const normalizedInvoice = {
+    ...invoice,
+    total: Number(invoice.total),
+    subtotal: Number(invoice.subtotal),
+    discount: Number(invoice.discount),
+    tax: Number(invoice.tax),
+    items: invoice.items.map(item => ({
+      ...item,
+      unitAmount: Number(item.unitAmount),
+      total: Number(item.total),
+    })),
+  };
+
+  return <ClientInvoiceDetail invoice={normalizedInvoice} role={role} />;
 }

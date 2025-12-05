@@ -45,8 +45,8 @@ export function useTasks({ clientId, initial = [] }: UseTasksOptions) {
         id: String(t.id),
         title: String(t.title ?? ''),
         description: (t.description as string | undefined) ?? undefined,
-        status: (t.status as TaskStatus) ?? 'todo',
-        priority: (t.priority as TaskPriority) ?? 'medium',
+        status: (t.status as TaskStatus) ?? 'TODO',
+        priority: (t.priority as TaskPriority) ?? 'MEDIUM',
         assignee: (t.assignee as string | undefined) ?? undefined,
         dueDate: t.dueDate ? formatDateInput(String(t.dueDate)) : undefined,
         createdAt: new Date(String(t.createdAt ?? new Date().toISOString())),
@@ -62,9 +62,9 @@ export function useTasks({ clientId, initial = [] }: UseTasksOptions) {
   const stats: TaskStats = useMemo(
     () => ({
       total: tasks.length,
-      todo: tasks.filter((t) => t.status === 'todo').length,
-      doing: tasks.filter((t) => t.status === 'in-progress').length,
-      done: tasks.filter((t) => t.status === 'done').length,
+      todo: tasks.filter((t) => t.status === 'TODO').length,
+      doing: tasks.filter((t) => t.status === 'IN_PROGRESS').length,
+      done: tasks.filter((t) => t.status === 'DONE').length,
     }),
     [tasks]
   )

@@ -282,7 +282,14 @@ export function validateWebhookSignature(
 export function parseWebhookEvent(
   body: Record<string, unknown>
 ): WhatsAppWebhookEvent {
-  return body as WhatsAppWebhookEvent
+  // Validate required fields for WhatsApp webhook
+  if (typeof body === 'object' && body !== null) {
+    const parsed = body as unknown as WhatsAppWebhookEvent
+    if ('object' in body && 'entry' in body) {
+      return parsed
+    }
+  }
+  throw new Error('Invalid webhook payload structure')
 }
 
 /**

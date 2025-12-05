@@ -15,14 +15,14 @@ export function TaskFilters({ statusFilter, setStatusFilter, search, setSearch }
   return (
     <div className="flex flex-col md:flex-row gap-4 md:items-center justify-between p-4 rounded-xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border-2 border-slate-200 dark:border-slate-700 shadow-lg">
       <div className="flex gap-2 flex-wrap">
-        {(['all', 'todo', 'in-progress', 'done'] as const).map(s => (
+        {(['all', 'TODO', 'IN_PROGRESS', 'DONE'] as const).map(s => (
           <Button
             key={s}
             size="sm"
             variant={statusFilter === s ? 'default' : 'outline'}
             onClick={() => setStatusFilter(s)}
           >
-            {s === 'all' ? 'Todas' : s === 'todo' ? 'A Fazer' : s === 'in-progress' ? 'Em Progresso' : 'Concluídas'}
+            {s === 'all' ? 'Todas' : s === 'TODO' ? 'A Fazer' : s === 'IN_PROGRESS' ? 'Em Progresso' : 'Concluídas'}
           </Button>
         ))}
       </div>

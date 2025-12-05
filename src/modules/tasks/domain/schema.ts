@@ -1,7 +1,13 @@
 import { z } from 'zod'
 
-export const TaskStatusEnum = z.enum(['todo', 'in-progress', 'done'])
-export const TaskPriorityEnum = z.enum(['low', 'medium', 'high'])
+export const TaskStatusEnum = z.enum([
+  'TODO',
+  'IN_PROGRESS',
+  'REVIEW',
+  'DONE',
+  'CANCELLED',
+])
+export const TaskPriorityEnum = z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT'])
 
 export const TaskBoardItemSchema = z.object({
   id: z.string(),

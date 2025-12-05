@@ -1,4 +1,3 @@
-import { auth } from '@/lib/auth'
 import {
   buildPaginatedResponse,
   getPrismaSkipTake,
@@ -6,6 +5,9 @@ import {
   toMobileInvoice,
 } from '@/lib/mobile/optimization'
 import { prisma } from '@/lib/prisma'
+import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/ratelimit'
+import { getAuthContext } from '@/middleware/auth'
+import * as Sentry from '@sentry/nextjs'
 import { NextRequest, NextResponse } from 'next/server'
 
 /**
@@ -17,13 +19,30 @@ import { NextRequest, NextResponse } from 'next/server'
  * Query params:
  * - page: number (default: 1)
  * - limit: number (default: 20, max: 100)
- * - status: string (optional, e.g., 'pending', 'paid')
+ * - status: string (optional, e.g., 'PENDING', 'PAID')
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // Rate limiting
+    const id = getIdentifier(request as unknown as Request)
+    const rl = await checkRateLimit(id, apiRatelimit)
+    if (!rl.success) {
+      return NextResponse.json(
+        {
+          error: 'Too many requests',
+          message: 'Rate limit exceeded. Please try again later.',
+          resetAt: rl.reset.toISOString(),
+        },
+        { status: 429 }
+      )
+    }
+
+    const { orgId: organizationId } = getAuthContext(request)
+    if (!organizationId) {
+      return NextResponse.json(
+        { error: 'Organization ID required' },
+        { status: 400 }
+      )
     }
 
     // Get pagination params
@@ -35,14 +54,24 @@ export async function GET(request: NextRequest) {
       ? parseInt(searchParams.get('limit') || '20')
       : 20
     const status = searchParams.get('status') || ''
+    const cursor = searchParams.get('cursor') || undefined
 
     const { page: normalizedPage, limit: normalizedLimit } =
       normalizePaginationParams(page, limit)
 
-    // Build where clause
+    // Build where clause - only include status if it matches InvoiceStatus enum
+    const validStatuses = [
+      'OPEN',
+      'PARTIALLY_PAID',
+      'PAID',
+      'OVERDUE',
+      'CANCELLED',
+    ]
+    const isValidStatus = status && validStatuses.includes(status.toUpperCase())
+
     const where = {
-      organizationId: session.user.organizationId,
-      ...(status && { status }),
+      orgId: organizationId,
+      ...(isValidStatus && { status: status.toUpperCase() as any }),
     }
 
     // Get total count
@@ -54,16 +83,17 @@ export async function GET(request: NextRequest) {
       where,
       select: {
         id: true,
-        invoiceNumber: true,
+        number: true,
         status: true,
-        totalAmount: true,
+        total: true,
         dueDate: true,
         clientId: true,
+        createdAt: true,
         client: {
           select: { name: true },
         },
       },
-      skip,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : { skip }),
       take,
       orderBy: { createdAt: 'desc' as const },
     })
@@ -86,6 +116,12 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response, { headers })
   } catch (error) {
+    Sentry.addBreadcrumb({
+      category: 'api',
+      message: 'mobile/invoices:get',
+      level: 'error',
+    })
+    Sentry.captureException(error)
     console.error('[Mobile Invoices API]', error)
     return NextResponse.json(
       { error: 'Failed to fetch invoices' },

@@ -10,13 +10,17 @@ const byStatusQuerySchema = z.object({
 })
 
 export async function GET(req: NextRequest) {
-  const orgId = req.headers.get('x-org-id')
+  const { getAuthContext } = await import('@/middleware/auth')
+  const { orgId } = getAuthContext(req)
   const parsed = byStatusQuerySchema.safeParse({
     status: req.nextUrl.searchParams.get('status') ?? undefined,
   })
   const status = parsed.success ? (parsed.data.status ?? 'active') : 'active'
   if (!orgId)
-    return NextResponse.json({ error: 'x-org-id obrigatório' }, { status: 400 })
+    return NextResponse.json(
+      { error: 'Organization ID required' },
+      { status: 400 }
+    )
 
   // Rate limit por org
   const idKey = `${orgId}:${getIdentifier(req)}`

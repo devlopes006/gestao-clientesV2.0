@@ -34,27 +34,41 @@ function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
   const { setNodeRef, listeners, attributes, isDragging } = useSortable({ id: task.id });
 
   // Cores sofisticadas por status
-  const statusStyles = {
-    'todo': {
+  const statusStyles: Record<string, any> = {
+    'TODO': {
       bg: 'bg-linear-to-br from-white via-amber-50/50 to-yellow-50 dark:from-slate-900 dark:via-amber-950/30 dark:to-yellow-950/30',
       border: 'border-amber-200 dark:border-amber-800',
       text: 'text-amber-900 dark:text-amber-100',
       dot: 'bg-amber-400',
       badge: 'bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700'
     },
-    'in-progress': {
+    'IN_PROGRESS': {
       bg: 'bg-linear-to-br from-white via-blue-50/50 to-indigo-50 dark:from-slate-900 dark:via-blue-950/30 dark:to-indigo-950/30',
       border: 'border-blue-200 dark:border-blue-800',
       text: 'text-blue-900 dark:text-blue-100',
       dot: 'bg-blue-400',
       badge: 'bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700'
     },
-    'done': {
+    'DONE': {
       bg: 'bg-linear-to-br from-white via-emerald-50/50 to-green-50 dark:from-slate-900 dark:via-emerald-950/30 dark:to-green-950/30',
       border: 'border-emerald-200 dark:border-emerald-800',
       text: 'text-emerald-900 dark:text-emerald-100',
       dot: 'bg-emerald-400',
       badge: 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
+    },
+    'REVIEW': {
+      bg: 'bg-linear-to-br from-white via-purple-50/50 to-violet-50 dark:from-slate-900 dark:via-purple-950/30 dark:to-violet-950/30',
+      border: 'border-purple-200 dark:border-purple-800',
+      text: 'text-purple-900 dark:text-purple-100',
+      dot: 'bg-purple-400',
+      badge: 'bg-purple-100 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700'
+    },
+    'CANCELLED': {
+      bg: 'bg-linear-to-br from-white via-gray-50/50 to-slate-50 dark:from-slate-900 dark:via-gray-950/30 dark:to-slate-950/30',
+      border: 'border-gray-200 dark:border-gray-800',
+      text: 'text-gray-900 dark:text-gray-100',
+      dot: 'bg-gray-400',
+      badge: 'bg-gray-100 dark:bg-gray-950/50 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700'
     },
   };
 
@@ -108,7 +122,7 @@ function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
       {/* Footer com badges */}
       <div className="flex items-center gap-2 flex-wrap">
         <span className={`text-xs px-2.5 py-1 rounded-full font-semibold border ${style.badge}`}>
-          {task.priority === 'high' ? 'Alta' : task.priority === 'medium' ? 'Média' : 'Baixa'}
+          {task.priority === 'URGENT' ? 'Urgente' : task.priority === 'HIGH' ? 'Alta' : task.priority === 'MEDIUM' ? 'Média' : 'Baixa'}
         </span>
         {task.dueDate && (
           <span className={`text-xs flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300`}>
@@ -134,27 +148,41 @@ function KanbanColumn({ column, tasks, handleEdit, handleDelete }: KanbanColumnP
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
 
   // Estilos sofisticados por coluna
-  const columnStyles = {
-    'todo': {
+  const columnStyles: Record<string, any> = {
+    'TODO': {
       bg: 'bg-linear-to-b from-amber-50/80 to-yellow-50/50 dark:from-amber-950/20 dark:to-yellow-950/10',
       border: 'border-amber-200 dark:border-amber-800',
       header: 'bg-linear-to-r from-amber-100 to-yellow-100 dark:from-amber-900/50 dark:to-yellow-900/50',
       text: 'text-amber-900 dark:text-amber-100',
       badge: 'bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100'
     },
-    'in-progress': {
+    'IN_PROGRESS': {
       bg: 'bg-linear-to-b from-blue-50/80 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/10',
       border: 'border-blue-200 dark:border-blue-800',
       header: 'bg-linear-to-r from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50',
       text: 'text-blue-900 dark:text-blue-100',
       badge: 'bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100'
     },
-    'done': {
+    'DONE': {
       bg: 'bg-linear-to-b from-emerald-50/80 to-green-50/50 dark:from-emerald-950/20 dark:to-green-950/10',
       border: 'border-emerald-200 dark:border-emerald-800',
       header: 'bg-linear-to-r from-emerald-100 to-green-100 dark:from-emerald-900/50 dark:to-green-900/50',
       text: 'text-emerald-900 dark:text-emerald-100',
       badge: 'bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-100'
+    },
+    'REVIEW': {
+      bg: 'bg-linear-to-b from-purple-50/80 to-violet-50/50 dark:from-purple-950/20 dark:to-violet-950/10',
+      border: 'border-purple-200 dark:border-purple-800',
+      header: 'bg-linear-to-r from-purple-100 to-violet-100 dark:from-purple-900/50 dark:to-violet-900/50',
+      text: 'text-purple-900 dark:text-purple-100',
+      badge: 'bg-purple-200 dark:bg-purple-800 text-purple-900 dark:text-purple-100'
+    },
+    'CANCELLED': {
+      bg: 'bg-linear-to-b from-gray-50/80 to-slate-50/50 dark:from-gray-950/20 dark:to-slate-950/10',
+      border: 'border-gray-200 dark:border-gray-800',
+      header: 'bg-linear-to-r from-gray-100 to-slate-100 dark:from-gray-900/50 dark:to-slate-900/50',
+      text: 'text-gray-900 dark:text-gray-100',
+      badge: 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
     },
   };
 
@@ -234,9 +262,9 @@ export function TasksPanel({ clientId, initialTasks = [] }: TasksPanelProps) {
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editing, setEditing] = useState<Task | null>(null)
-  const [form, setForm] = useState({ title: "", description: "", status: "todo" as TaskStatus, priority: "medium" as TaskPriority, assignee: "", dueDate: "" })
+  const [form, setForm] = useState({ title: "", description: "", status: "TODO" as TaskStatus, priority: "MEDIUM" as TaskPriority, assignee: "", dueDate: "" })
 
-  const resetForm = () => { setForm({ title: "", description: "", status: "todo", priority: "medium", assignee: "", dueDate: "" }); setEditing(null) }
+  const resetForm = () => { setForm({ title: "", description: "", status: "TODO", priority: "MEDIUM", assignee: "", dueDate: "" }); setEditing(null) }
   const handleEdit = (task: Task) => { setEditing(task); setForm({ title: task.title, description: task.description || "", status: task.status, priority: task.priority, assignee: task.assignee || "", dueDate: task.dueDate || "" }); setIsModalOpen(true) }
 
   const handleDelete = async (id: string) => {

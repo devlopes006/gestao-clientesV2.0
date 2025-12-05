@@ -78,7 +78,7 @@ export function CreateCostSubscriptionModal({
   const fetchClients = async () => {
     try {
       setLoadingClients(true);
-      const response = await fetch('/api/clients?limit=100');
+      const response = await fetch('/api/mobile/clients?page=1&limit=100');
       if (!response.ok) throw new Error('Erro ao buscar clientes');
       const data = await response.json();
       setClients(data.data || []);

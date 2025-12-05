@@ -51,6 +51,8 @@ export interface PaginationMeta {
   total: number
   totalPages: number
   hasMore: boolean
+  nextCursor?: string | null
+  prevCursor?: string | null
 }
 
 /**
@@ -79,9 +81,9 @@ export function toMobileClient(
   return {
     id: String(client.id),
     name: String(client.name),
-    email: String(client.email),
+    email: String(client.email || ''),
     avatar: client.avatar as string | null | undefined,
-    status: (client.isActive as boolean) ? 'active' : 'inactive',
+    status: String(client.status) === 'ACTIVE' ? 'active' : 'inactive',
   }
 }
 
@@ -93,10 +95,12 @@ export function toMobileInvoice(
 ): MobileInvoiceResponse {
   return {
     id: String(invoice.id),
-    number: String(invoice.invoiceNumber),
+    number: String(invoice.number),
     status: String(invoice.status),
-    totalAmount: Number(invoice.totalAmount),
-    dueDate: (invoice.dueDate as Date).toISOString(),
+    totalAmount: Number(invoice.total),
+    dueDate: invoice.dueDate
+      ? new Date(invoice.dueDate as string | Date).toISOString()
+      : new Date().toISOString(),
     clientName:
       ((invoice.client as Record<string, unknown>)?.name as string) ||
       'Unknown',
@@ -147,9 +151,25 @@ export function buildPaginatedResponse<T>(
   page: number,
   limit: number
 ): PaginatedResponse<T> {
+  const meta = calculatePaginationMeta(total, page, limit)
+  // Best-effort cursor derivation when data items have 'id'
+  const first: any = data[0] as any
+  const last: any = data[data.length - 1] as any
+  const firstId =
+    first && typeof first === 'object'
+      ? (first.id as string | undefined)
+      : undefined
+  const lastId =
+    last && typeof last === 'object'
+      ? (last.id as string | undefined)
+      : undefined
   return {
     data,
-    meta: calculatePaginationMeta(total, page, limit),
+    meta: {
+      ...meta,
+      nextCursor: meta.hasMore && lastId ? String(lastId) : null,
+      prevCursor: page > 1 && firstId ? String(firstId) : null,
+    },
   }
 }
 

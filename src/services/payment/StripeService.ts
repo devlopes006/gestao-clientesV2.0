@@ -15,7 +15,7 @@ export const stripePaymentSessionSchema = z.object({
   description: z.string().min(1),
   successUrl: z.string().url(),
   cancelUrl: z.string().url(),
-  metadata: z.record(z.string()).optional(),
+  metadata: z.record(z.string(), z.string()).optional(),
 })
 
 export type StripePaymentSessionInput = z.infer<
@@ -38,7 +38,7 @@ export const stripeWebhookSchema = z.object({
       id: z.string(),
       payment_status: z.string(),
       customer_email: z.string().optional(),
-      metadata: z.record(z.string()).optional(),
+      metadata: z.record(z.string(), z.string()).optional(),
     }),
   }),
 })
@@ -88,7 +88,8 @@ export class StripeService {
     webhookSecret: string = process.env.STRIPE_WEBHOOK_SECRET || ''
   ) {
     this.stripe = new Stripe(apiKey, {
-      apiVersion: '2023-10-16',
+      // Use Stripe default API version to avoid type union mismatches
+      // apiVersion intentionally omitted
       typescript: true,
     })
     this.webhookSecret = webhookSecret
@@ -183,8 +184,12 @@ export class StripeService {
           return {
             success: true,
             paymentStatus: 'succeeded',
-            invoiceId: validatedEvent.data.object.metadata?.invoiceId,
-            clientId: validatedEvent.data.object.metadata?.clientId,
+            invoiceId: validatedEvent.data.object.metadata?.invoiceId as
+              | string
+              | undefined,
+            clientId: validatedEvent.data.object.metadata?.clientId as
+              | string
+              | undefined,
             message: 'Payment completed successfully',
           }
 
@@ -192,8 +197,12 @@ export class StripeService {
           return {
             success: true,
             paymentStatus: 'succeeded',
-            invoiceId: validatedEvent.data.object.metadata?.invoiceId,
-            clientId: validatedEvent.data.object.metadata?.clientId,
+            invoiceId: validatedEvent.data.object.metadata?.invoiceId as
+              | string
+              | undefined,
+            clientId: validatedEvent.data.object.metadata?.clientId as
+              | string
+              | undefined,
             message: 'Async payment succeeded',
           }
 
@@ -201,8 +210,12 @@ export class StripeService {
           return {
             success: false,
             paymentStatus: 'failed',
-            invoiceId: validatedEvent.data.object.metadata?.invoiceId,
-            clientId: validatedEvent.data.object.metadata?.clientId,
+            invoiceId: validatedEvent.data.object.metadata?.invoiceId as
+              | string
+              | undefined,
+            clientId: validatedEvent.data.object.metadata?.clientId as
+              | string
+              | undefined,
             message: 'Async payment failed',
           }
 
@@ -240,7 +253,7 @@ export class StripeService {
 
       return {
         refundId: refund.id,
-        status: refund.status,
+        status: refund.status ?? 'pending',
       }
     } catch (error) {
       throw new Error(`Failed to process refund: ${error}`)

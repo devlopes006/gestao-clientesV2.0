@@ -15,6 +15,7 @@ describe('WhatsApp Webhook API', () => {
       const token = 'wrong_token'
       const verifyToken = 'your_verify_token'
 
+      // @ts-expect-error - Testing intentional type mismatch
       expect(mode === 'subscribe' && token === verifyToken).toBe(false)
     })
 
@@ -23,6 +24,7 @@ describe('WhatsApp Webhook API', () => {
       const token = 'your_verify_token'
       const verifyToken = 'your_verify_token'
 
+      // @ts-expect-error - Testing intentional type mismatch
       expect(mode === 'subscribe' && token === verifyToken).toBe(false)
     })
   })

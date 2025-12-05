@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from '@prisma/client'
+import { Prisma, PrismaClient } from '@prisma/client'
 
 /**
  * Prisma Transaction Utilities
@@ -161,7 +161,10 @@ export class PrismaTransactionManager {
           invoiceId: invoice.id,
           type: 'INCOME',
           subtype: 'INVOICE_PAYMENT',
-          amount: invoice.total,
+          amount:
+            typeof invoice.total === 'object'
+              ? invoice.total.toNumber()
+              : invoice.total,
           description: `Pagamento da fatura ${invoice.number}`,
           category: 'Receita de Cliente',
           date: data.paidAt,

@@ -39,17 +39,12 @@ const mockData = {
     totalCost: 5000,
     totalProfit: 5000,
     avgProfitMargin: 50,
-    revenueGrowth: {
-      trend: 'up' as const,
-      changePercent: 10,
-    },
-    profitGrowth: {
-      trend: 'up' as const,
-      changePercent: 15,
-    },
-    topClientByRevenue: mockProfitabilityData[0],
-    topClientByProfit: mockProfitabilityData[0],
-    bottomClientByProfit: mockProfitabilityData[0],
+    revenueGrowth: 10,
+    costGrowth: 8,
+    profitGrowth: 15,
+    topClientByRevenue: { name: 'Client A', revenue: 2000 },
+    topClientByProfit: { name: 'Client A', profit: 1000 },
+    lowestMarginClient: { name: 'Client B', margin: 20 },
   },
 }
 

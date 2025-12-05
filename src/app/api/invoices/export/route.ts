@@ -8,6 +8,7 @@ import {
   parseInvoiceFilters,
 } from '@/lib/invoice-filters-export'
 import { prisma } from '@/lib/prisma'
+import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/ratelimit'
 import { getSessionProfile } from '@/services/auth/session'
 import * as Sentry from '@sentry/nextjs'
 import { NextResponse } from 'next/server'
@@ -18,6 +19,19 @@ import { NextResponse } from 'next/server'
  */
 export async function GET(request: Request) {
   try {
+    // Rate limit export to prevent abuse
+    const id = getIdentifier(request)
+    const rl = await checkRateLimit(id, apiRatelimit)
+    if (!rl.success) {
+      return new NextResponse(
+        JSON.stringify({
+          error: 'Too many requests',
+          message: 'Rate limit exceeded. Please try again later.',
+          resetAt: rl.reset.toISOString(),
+        }),
+        { status: 429, headers: { 'Content-Type': 'application/json' } }
+      )
+    }
     const profile = await getSessionProfile()
     if (!profile || profile.role !== 'OWNER' || !profile.orgId) {
       return ApiResponseHandler.unauthorized()

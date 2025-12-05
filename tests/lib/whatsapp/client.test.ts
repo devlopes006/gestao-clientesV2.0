@@ -181,7 +181,7 @@ describe('WhatsApp Templates', () => {
 
     it('should include template and config for each', () => {
       const templates = getAvailableTemplates()
-      templates.forEach((item) => {
+      templates.forEach((item: any) => {
         expect(item.template).toBeDefined()
         expect(item.config).toBeDefined()
         expect(item.config.templateName).toBeDefined()
@@ -191,7 +191,7 @@ describe('WhatsApp Templates', () => {
 
     it('should have mix of categories', () => {
       const templates = getAvailableTemplates()
-      const categories = new Set(templates.map((t) => t.config.category))
+      const categories = new Set(templates.map((t: any) => t.config.category))
 
       expect(categories.has('TRANSACTIONAL')).toBe(true)
       expect(categories.has('MARKETING')).toBe(true)
@@ -202,8 +202,8 @@ describe('WhatsApp Templates', () => {
   describe('Template Categories Distribution', () => {
     it('should have transactional templates for critical actions', () => {
       const transactional = ['invoice_created', 'invoice_paid']
-      transactional.forEach((templateName) => {
-        const found = getAvailableTemplates().find((t) =>
+      transactional.forEach((templateName: any) => {
+        const found = getAvailableTemplates().find((t: any) =>
           t.config.templateName.includes(templateName)
         )
         expect(found?.config.category).toBe('TRANSACTIONAL')
@@ -250,7 +250,7 @@ describe('WhatsApp Integration Patterns', () => {
 
   it('should have template for every common notification', () => {
     const templates = getAvailableTemplates()
-    const templateNames = templates.map((t) => t.config.templateName)
+    const templateNames = templates.map((t: any) => t.config.templateName)
 
     expect(templateNames).toContain('invoice_created')
     expect(templateNames).toContain('invoice_paid')

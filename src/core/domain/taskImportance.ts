@@ -26,8 +26,8 @@ export function computeUrgencyScore(
 ): number {
   // Base score pela prioridade
   let score = 0
-  if (task.priority === 'high') score += 3
-  else if (task.priority === 'medium') score += 2
+  if (task.priority === 'HIGH' || task.priority === 'URGENT') score += 3
+  else if (task.priority === 'MEDIUM') score += 2
   else score += 1
 
   // Adiciona peso pelo prazo
@@ -56,7 +56,7 @@ export function getUrgentTasks(
   limit: number = 20,
   now: Date = new Date()
 ): UrgentTask[] {
-  const completedStatuses = ['done', 'completed']
+  const completedStatuses = ['DONE', 'CANCELLED']
 
   return tasks
     .filter((t) => !completedStatuses.includes(t.status))
@@ -76,12 +76,12 @@ export function computeTaskStats(
   tasks: TaskForUrgency[],
   now: Date = new Date()
 ) {
-  const completedStatuses = ['done', 'completed']
-  const inProgressStatuses = ['in-progress', 'in_progress']
+  const completedStatuses = ['DONE', 'CANCELLED']
+  const inProgressStatuses = ['IN_PROGRESS', 'REVIEW']
 
   return {
     total: tasks.length,
-    todo: tasks.filter((t) => t.status === 'todo').length,
+    todo: tasks.filter((t) => t.status === 'TODO').length,
     inProgress: tasks.filter((t) => inProgressStatuses.includes(t.status))
       .length,
     done: tasks.filter((t) => completedStatuses.includes(t.status)).length,

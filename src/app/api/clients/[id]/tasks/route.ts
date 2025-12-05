@@ -167,8 +167,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         orgId,
         title: sanitized.title,
         description: sanitized.description ?? null,
-        status: sanitized.status ?? 'todo',
-        priority: sanitized.priority ?? 'medium',
+        status: (sanitized.status?.toUpperCase() as any) ?? 'TODO',
+        priority: (sanitized.priority?.toUpperCase() as any) ?? 'MEDIUM',
         assignee: sanitized.assignee ?? null,
         dueDate: normalizedDueDate,
       },
@@ -242,8 +242,12 @@ export async function PATCH(request: NextRequest) {
       data: {
         title: sanitized.title,
         description: sanitized.description,
-        status: sanitized.status,
-        priority: sanitized.priority,
+        status: sanitized.status
+          ? (sanitized.status.toUpperCase() as any)
+          : undefined,
+        priority: sanitized.priority
+          ? (sanitized.priority.toUpperCase() as any)
+          : undefined,
         assignee: sanitized.assignee,
         // Only update dueDate if provided; set to null if explicitly null
         ...(normalizedUpdateDueDate !== undefined && {

@@ -20,7 +20,7 @@ export default function ApiDocsPage() {
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-xl font-semibold">Swagger UI</h2>
             <a
-              href="/api-docs"
+              href="/api/openapi"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-blue-600 hover:text-blue-800"
@@ -124,7 +124,7 @@ export default function ApiDocsPage() {
                 >
                   Swagger Editor
                 </a>{' '}
-                (paste the JSON spec from <code>/api-docs</code>)
+                (paste the JSON spec from <code>/api/openapi</code>)
               </li>
               <li>Postman or Insomnia (import OpenAPI spec)</li>
               <li>cURL with session cookie from browser DevTools</li>

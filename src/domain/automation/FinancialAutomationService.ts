@@ -1,6 +1,10 @@
-import { InvoiceService } from '@/services/financial/InvoiceService'
 import { prisma } from '@/lib/prisma'
-import { InvoiceStatus, TransactionType, TransactionStatus } from '@prisma/client'
+import { InvoiceService } from '@/services/financial/InvoiceService'
+import {
+  InvoiceStatus,
+  TransactionStatus,
+  TransactionType,
+} from '@prisma/client'
 
 interface InstallmentPlan {
   installmentNumber: number
@@ -335,14 +339,24 @@ export class FinancialAutomationService {
         {
           description: `${client.plan || 'Serviços de gestão'} - ${now.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`,
           quantity: 1,
-          unitAmount: client.contractValue!,
+          unitAmount:
+            (client.contractValue as any)?.toNumber?.() ??
+            client.contractValue!,
         },
       ],
       notes: 'Fatura mensal',
       createdBy,
     })
 
-    return { invoice }
+    return {
+      invoice: {
+        ...invoice,
+        total:
+          typeof invoice.total === 'object'
+            ? invoice.total.toNumber()
+            : invoice.total,
+      },
+    }
   }
 
   static async updateOverdueInvoices(orgId: string): Promise<number> {
@@ -366,7 +380,10 @@ export class FinancialAutomationService {
     return result.count
   }
 
-  static async syncClientFinancialData(clientId: string, orgId: string): Promise<void> {
+  static async syncClientFinancialData(
+    clientId: string,
+    orgId: string
+  ): Promise<void> {
     const client = await prisma.client.findFirst({
       where: { id: clientId, orgId },
       include: {
@@ -383,8 +400,12 @@ export class FinancialAutomationService {
 
     if (!client) return
 
-    const hasOverdue = client.invoices.some((inv) => inv.status === InvoiceStatus.OVERDUE)
-    const hasOpen = client.invoices.some((inv) => inv.status === InvoiceStatus.OPEN)
+    const hasOverdue = client.invoices.some(
+      (inv) => inv.status === InvoiceStatus.OVERDUE
+    )
+    const hasOpen = client.invoices.some(
+      (inv) => inv.status === InvoiceStatus.OPEN
+    )
 
     let paymentStatus: any = 'PAID'
     if (hasOverdue) paymentStatus = 'OVERDUE'
@@ -398,7 +419,17 @@ export class FinancialAutomationService {
     })
   }
 
-  static async calculateProjection(orgId: string, months: number = 3): Promise<{ projections: Array<{ month: string; expectedRevenue: number; confirmedRevenue: number; clients: number }> }> {
+  static async calculateProjection(
+    orgId: string,
+    months: number = 3
+  ): Promise<{
+    projections: Array<{
+      month: string
+      expectedRevenue: number
+      confirmedRevenue: number
+      clients: number
+    }>
+  }> {
     const clients = await prisma.client.findMany({
       where: {
         orgId,
@@ -407,12 +438,20 @@ export class FinancialAutomationService {
       },
     })
 
-    const projections: Array<{ month: string; expectedRevenue: number; confirmedRevenue: number; clients: number }> = []
+    const projections: Array<{
+      month: string
+      expectedRevenue: number
+      confirmedRevenue: number
+      clients: number
+    }> = []
     const now = new Date()
 
     for (let i = 0; i < months; i++) {
       const targetMonth = new Date(now.getFullYear(), now.getMonth() + i, 1)
-      const monthName = targetMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+      const monthName = targetMonth.toLocaleDateString('pt-BR', {
+        month: 'long',
+        year: 'numeric',
+      })
 
       let expectedRevenue = 0
       let activeClients = 0
@@ -423,12 +462,23 @@ export class FinancialAutomationService {
 
         if (targetMonth >= contractStart && targetMonth <= contractEnd) {
           activeClients++
-          expectedRevenue += client.isInstallment && client.installmentValue ? client.installmentValue : client.contractValue || 0
+          expectedRevenue +=
+            client.isInstallment && client.installmentValue
+              ? client.installmentValue
+              : client.contractValue || 0
         }
       }
 
-      const firstDay = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), 1)
-      const lastDay = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0)
+      const firstDay = new Date(
+        targetMonth.getFullYear(),
+        targetMonth.getMonth(),
+        1
+      )
+      const lastDay = new Date(
+        targetMonth.getFullYear(),
+        targetMonth.getMonth() + 1,
+        0
+      )
 
       const confirmedTransactions = await prisma.transaction.aggregate({
         where: {

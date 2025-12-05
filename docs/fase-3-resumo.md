@@ -127,11 +127,8 @@ Status: **CONCLUÍDO**
 
 2. **Invoice model:**
 
-   ```prisma
-   @@index([orgId, status, dueDate])   // Overdue detection
-   ```
-
 3. **RecurringExpense model:**
+
    ```prisma
    @@index([orgId, cycle, active])     // Monthly/annual expense calc
    ```

@@ -117,7 +117,7 @@ function MembersAdminPage() {
   });
   const { data: clientsData } = useQuery<ApiList<{ id: string; name: string }[]>>({
     queryKey: ["clients", "lite"],
-    queryFn: () => fetchJson<ApiList<{ id: string; name: string }[]>>("/api/clients?lite=1"),
+    queryFn: () => fetchJson<ApiList<{ id: string; name: string }[]>>("/api/mobile/clients?page=1&limit=100"),
   });
   const [selectedRole, setSelectedRole] = useState<Role>("STAFF");
   const [selectedClient, setSelectedClient] = useState<string | undefined>(

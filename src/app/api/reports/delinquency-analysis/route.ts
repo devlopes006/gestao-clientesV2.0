@@ -138,7 +138,10 @@ export async function GET(request: Request) {
       if (invoice.status === 'OVERDUE') {
         const data = monthlyData.get(month)!
         data.overdueCount += 1
-        data.overdueAmount += invoice.total || 0
+        data.overdueAmount +=
+          typeof invoice.total === 'object'
+            ? invoice.total.toNumber()
+            : invoice.total || 0
       }
     }
 

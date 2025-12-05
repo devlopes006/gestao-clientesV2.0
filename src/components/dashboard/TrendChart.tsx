@@ -13,15 +13,14 @@ import {
   LineChart,
   ResponsiveContainer,
   Tooltip,
-  TooltipProps,
   XAxis,
-  YAxis,
+  YAxis
 } from 'recharts'
 
 export interface TrendDataPoint {
   name: string
-  value: number
-  [key: string]: string | number
+  value?: number
+  [key: string]: string | number | undefined
 }
 
 export interface TrendChartProps {
@@ -104,12 +103,12 @@ export interface TrendChartProps {
 /**
  * Custom tooltip for charts
  */
-function CustomTooltip({ active, payload, label, formatTooltip }: TooltipProps<number, string> & { formatTooltip?: (value: number) => string }) {
+function CustomTooltip({ active, payload, label, formatTooltip }: any) {
   if (active && payload?.length) {
     return (
       <div className="rounded-lg border border-border bg-background p-2 shadow-lg">
         <p className="text-xs font-medium text-foreground">{label}</p>
-        {payload.map((entry, index) => (
+        {payload.map((entry: any, index: number) => (
           <p key={index} className="text-xs" style={{ color: entry.color }}>
             {entry.name}: {formatTooltip ? formatTooltip(entry.value as number) : entry.value}
           </p>

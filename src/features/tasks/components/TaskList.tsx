@@ -28,9 +28,10 @@ export function TaskList({ tasks, onEdit, onDelete, onStatusChange }: TaskListPr
     <div className="space-y-3">
       {tasks.map(task => {
         const priorityColors: Record<TaskPriority, string> = {
-          high: 'border-l-red-500 bg-red-50/50 dark:bg-red-950/20',
-          medium: 'border-l-amber-500 bg-amber-50/50 dark:bg-amber-950/20',
-          low: 'border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
+          URGENT: 'border-l-red-600 bg-red-50/50 dark:bg-red-950/20',
+          HIGH: 'border-l-red-500 bg-red-50/50 dark:bg-red-950/20',
+          MEDIUM: 'border-l-amber-500 bg-amber-50/50 dark:bg-amber-950/20',
+          LOW: 'border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
         };
         return (
           <div
@@ -40,13 +41,15 @@ export function TaskList({ tasks, onEdit, onDelete, onStatusChange }: TaskListPr
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 text-xs mb-2">
-                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium ${task.priority === 'high'
+                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium ${task.priority === 'URGENT'
+                    ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                    : task.priority === 'HIGH'
                       ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                      : task.priority === 'medium'
+                      : task.priority === 'MEDIUM'
                         ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
                         : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
                     }`}>
-                    <Flag className="h-3 w-3" /> {task.priority === 'high' ? 'Alta' : task.priority === 'medium' ? 'Média' : 'Baixa'}
+                    <Flag className="h-3 w-3" /> {task.priority === 'URGENT' ? 'Urgente' : task.priority === 'HIGH' ? 'Alta' : task.priority === 'MEDIUM' ? 'Média' : 'Baixa'}
                   </span>
                   {task.dueDate && (
                     <span className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-400">

@@ -1,4 +1,3 @@
-
 import { getEmailNotificationService } from '@/lib/email-notifications'
 import { prisma } from '@/lib/prisma'
 import * as Sentry from '@sentry/nextjs'
@@ -68,7 +67,7 @@ export async function GET(request: Request) {
             clientEmail: invoice.client.email,
             dueDate: new Date(invoice.dueDate).toLocaleDateString('pt-BR'),
             daysOverdue,
-            amount: invoice.total,
+            amount: Number(invoice.total),
             currency: 'BRL',
             orgName: invoice.org?.name || 'Gestão Clientes',
             invoiceUrl: `${process.env.NEXT_PUBLIC_APP_URL}/invoices/${invoice.id}`,
@@ -138,7 +137,9 @@ export async function GET(request: Request) {
               contactEmail:
                 process.env.SUPPORT_EMAIL || 'support@gestao-clientes.com',
               overdueCount: group._count.id,
-              totalOverdueAmount: group._sum?.total || 0,
+              totalOverdueAmount:
+                (group._sum?.total as any)?.toNumber?.() ??
+                (group._sum?.total || 0),
               currency: 'BRL',
               orgName: org?.name || 'Gestão Clientes',
               dashboardUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,

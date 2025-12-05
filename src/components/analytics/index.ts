@@ -6,8 +6,8 @@ export {
 } from './AnalyticsCharts'
 export type {
   AnalyticsSummaryProps,
-  ExportButtonProps,
   ProfitabilityChartProps,
   RevenueChartProps,
 } from './AnalyticsCharts'
 export { ExportButton } from './ExportButton'
+export type { ExportButtonProps } from './ExportButton'

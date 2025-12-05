@@ -120,7 +120,10 @@ export async function POST(request: Request) {
             clientName: client.name,
             clientEmail: client.email,
             dueDate: new Date(invoice.dueDate).toLocaleDateString('pt-BR'),
-            amount: invoice.total,
+            amount:
+              typeof invoice.total === 'object'
+                ? invoice.total.toNumber()
+                : invoice.total,
             currency: 'BRL',
             orgName: 'Gestão Clientes',
             invoiceUrl: `${process.env.NEXT_PUBLIC_APP_URL}/invoices/${invoice.id}`,

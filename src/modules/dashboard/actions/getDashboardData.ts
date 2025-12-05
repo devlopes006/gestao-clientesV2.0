@@ -7,6 +7,29 @@ import {
   type DashboardData,
 } from '../domain/schema'
 
+// Normalize legacy status values to current enum
+function normalizeTaskStatus(status: string): string {
+  const normalized = status.toUpperCase().replace(/[-_]/g, '_')
+  const validStatuses = ['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE', 'CANCELLED']
+
+  // Map legacy values
+  const statusMap: Record<string, string> = {
+    todo: 'TODO',
+    'in-progress': 'IN_PROGRESS',
+    in_progress: 'IN_PROGRESS',
+    review: 'REVIEW',
+    done: 'DONE',
+    completed: 'DONE',
+    cancelled: 'CANCELLED',
+    pending: 'TODO',
+  }
+
+  return (
+    statusMap[status.toLowerCase()] ||
+    (validStatuses.includes(normalized) ? normalized : 'TODO')
+  )
+}
+
 // Extracted logic from API route for server usage (simplified parallelization)
 export const getDashboardData = cache(
   async (monthKey?: string): Promise<DashboardData> => {
@@ -119,10 +142,9 @@ export const getDashboardData = cache(
       }),
     ])
 
-    const isPending = (s: string) => ['pending', 'todo'].includes(s)
-    const isInProgress = (s: string) =>
-      ['in_progress', 'in-progress'].includes(s)
-    const isDone = (s: string) => ['done', 'completed'].includes(s)
+    const isPending = (s: string) => ['PENDING', 'TODO'].includes(s)
+    const isInProgress = (s: string) => ['IN_PROGRESS', 'REVIEW'].includes(s)
+    const isDone = (s: string) => ['DONE', 'CANCELLED'].includes(s)
     const computeUrgency = (t: {
       dueDate: Date | null
       priority: string
@@ -130,8 +152,8 @@ export const getDashboardData = cache(
     }) => {
       if (isDone(t.status)) return 0
       let score = 0
-      if (t.priority === 'high') score += 3
-      else if (t.priority === 'medium') score += 2
+      if (t.priority === 'HIGH' || t.priority === 'URGENT') score += 3
+      else if (t.priority === 'MEDIUM') score += 2
       else score += 1
       if (t.dueDate) {
         const diffDays = (t.dueDate.getTime() - Date.now()) / 86400000
@@ -168,6 +190,9 @@ export const getDashboardData = cache(
       []
 
     for (const t of tasks) {
+      // Normalize status to valid enum value
+      const normalizedStatus = normalizeTaskStatus(t.status)
+
       const bucket = (taskAggByClient[t.clientId] ||= {
         total: 0,
         pending: 0,
@@ -177,17 +202,23 @@ export const getDashboardData = cache(
         name: t.client.name,
       })
       bucket.total++
-      if (isPending(t.status)) bucket.pending++
-      else if (isInProgress(t.status)) bucket.inProgress++
-      else if (isDone(t.status)) bucket.done++
+      if (isPending(normalizedStatus)) bucket.pending++
+      else if (isInProgress(normalizedStatus)) bucket.inProgress++
+      else if (isDone(normalizedStatus)) bucket.done++
       const urgencyScore = computeUrgency({
         dueDate: t.dueDate,
         priority: t.priority,
-        status: t.status,
+        status: normalizedStatus,
       })
       if (urgencyScore >= 5) {
         bucket.urgent++
-        urgentTasks.push(UrgentTaskSchema.parse({ ...t, urgencyScore }))
+        urgentTasks.push(
+          UrgentTaskSchema.parse({
+            ...t,
+            status: normalizedStatus,
+            urgencyScore,
+          })
+        )
       }
       if (!mostPendingClient || bucket.pending > mostPendingClient.pending) {
         mostPendingClient = {
@@ -209,11 +240,17 @@ export const getDashboardData = cache(
     const clientsHealth = clients.map((c) => {
       const cTasks = tasks.filter((t) => t.clientId === c.id)
       const total = cTasks.length
-      const completed = cTasks.filter((t) => isDone(t.status)).length
-      const pending = cTasks.filter((t) => isPending(t.status)).length
+      const completed = cTasks.filter((t) =>
+        isDone(normalizeTaskStatus(t.status))
+      ).length
+      const pending = cTasks.filter((t) =>
+        isPending(normalizeTaskStatus(t.status))
+      ).length
       const overdue = cTasks.filter(
         (t) =>
-          !isDone(t.status) && t.dueDate && t.dueDate.getTime() < Date.now()
+          !isDone(normalizeTaskStatus(t.status)) &&
+          t.dueDate &&
+          t.dueDate.getTime() < Date.now()
       ).length
       const completionRate = total ? Math.round((completed / total) * 100) : 0
       const balance = finances
@@ -256,7 +293,7 @@ export const getDashboardData = cache(
           date: t.dueDate!,
           clientId: t.clientId,
           clientName: t.client.name,
-          status: t.status,
+          status: normalizeTaskStatus(t.status),
         })),
       ...dashboardEvents.map((e) => ({
         id: e.id,

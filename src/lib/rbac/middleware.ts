@@ -29,7 +29,9 @@ export async function extractUserContext(
   try {
     // Get user from session/auth header
     const userId = request.headers.get('x-user-id')
-    const organizationId = request.headers.get('x-org-id')
+    const { orgId: organizationId } = await import('@/middleware/auth').then(
+      (m) => m.getAuthContext(request)
+    )
     const email = request.headers.get('x-user-email')
     const role = request.headers.get('x-user-role') as UserRole
 
@@ -37,12 +39,18 @@ export async function extractUserContext(
       return null
     }
 
+    // Extract IP from headers (x-forwarded-for is set by proxies)
+    const forwardedFor = request.headers.get('x-forwarded-for')
+    const ipAddress = forwardedFor
+      ? forwardedFor.split(',')[0].trim()
+      : undefined
+
     return {
       id: userId,
       organizationId,
       email,
       role,
-      ipAddress: request.ip,
+      ipAddress,
       userAgent: request.headers.get('user-agent') || undefined,
     }
   } catch (error) {

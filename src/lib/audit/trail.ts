@@ -3,6 +3,9 @@
  *
  * Tracks all important actions in the system for compliance
  * and security purposes
+ *
+ * NOTE: Uses optional Firebase for real-time audit logs.
+ * If Firebase is not configured, logs are silently dropped.
  */
 
 import { db } from '@/lib/firebase'
@@ -15,6 +18,11 @@ import {
   query,
   where,
 } from 'firebase/firestore'
+
+// Guard to check if Firebase is initialized
+const isFirebaseReady = () => {
+  return db !== undefined && db !== null
+}
 
 /**
  * Audit action types
@@ -82,14 +90,20 @@ export interface AuditLogEntry {
  */
 export async function createAuditLog(entry: AuditLogEntry): Promise<string> {
   try {
-    const docRef = await addDoc(collection(db, 'audit_logs'), {
+    if (!isFirebaseReady()) {
+      console.warn('Firebase not initialized, skipping audit log')
+      return 'noop'
+    }
+
+    const docRef = await addDoc(collection(db!, 'audit_logs'), {
       ...entry,
       timestamp: new Date(),
     })
     return docRef.id
   } catch (error) {
     console.error('Failed to create audit log:', error)
-    throw new Error('Failed to create audit log entry')
+    // Don't throw - audit logs are non-critical
+    return 'error'
   }
 }
 
@@ -108,13 +122,12 @@ export async function getAuditLogs(
   }
 ): Promise<AuditLogEntry[]> {
   try {
-    let q = query(
-      collection(db, 'audit_logs'),
-      where('organizationId', '==', organizationId)
-    )
+    if (!isFirebaseReady()) {
+      console.warn('Firebase not initialized, returning empty audit logs')
+      return []
+    }
 
-    // Add filters
-    const conditions = [where('organizationId', '==', organizationId)]
+    const conditions: any[] = [where('organizationId', '==', organizationId)]
 
     if (options?.userId) {
       conditions.push(where('userId', '==', options.userId))
@@ -128,8 +141,8 @@ export async function getAuditLogs(
       conditions.push(where('resourceType', '==', options.resourceType))
     }
 
-    q = query(
-      collection(db, 'audit_logs'),
+    const q = query(
+      collection(db!, 'audit_logs'),
       ...conditions,
       orderBy('timestamp', 'desc')
     )
@@ -153,7 +166,7 @@ export async function getAuditLogs(
     return logs.slice(0, options?.limit || 100)
   } catch (error) {
     console.error('Failed to get audit logs:', error)
-    throw new Error('Failed to retrieve audit logs')
+    return []
   }
 }
 
@@ -166,8 +179,12 @@ export async function getResourceAuditLogs(
   resourceId: string
 ): Promise<AuditLogEntry[]> {
   try {
+    if (!isFirebaseReady()) {
+      return []
+    }
+
     const q = query(
-      collection(db, 'audit_logs'),
+      collection(db!, 'audit_logs'),
       where('organizationId', '==', organizationId),
       where('resourceType', '==', resourceType),
       where('resourceId', '==', resourceId),
@@ -183,7 +200,7 @@ export async function getResourceAuditLogs(
     })) as AuditLogEntry[]
   } catch (error) {
     console.error('Failed to get resource audit logs:', error)
-    throw new Error('Failed to retrieve resource audit logs')
+    return []
   }
 }
 

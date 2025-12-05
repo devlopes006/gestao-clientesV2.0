@@ -32,9 +32,7 @@ export async function updateTaskStatus(taskId: string, status: string) {
     id: updated.id,
     title: updated.title,
     status: updated.status,
-    priority: (['low', 'medium', 'high'].includes(updated.priority)
-      ? updated.priority
-      : 'medium') as 'low' | 'medium' | 'high',
+    priority: updated.priority,
     clientName: updated.client?.name || 'Sem cliente',
     clientId: updated.clientId,
     dueDate: updated.dueDate ? updated.dueDate.toISOString() : null,

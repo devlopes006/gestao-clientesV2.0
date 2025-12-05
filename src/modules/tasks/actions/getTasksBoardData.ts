@@ -22,12 +22,8 @@ export const getTasksBoardData = cache(async (): Promise<TaskBoardData> => {
   const mapped = tasks.map((t) => ({
     id: t.id,
     title: t.title,
-    status: (['todo', 'in-progress', 'done'].includes(t.status)
-      ? t.status
-      : 'todo') as 'todo' | 'in-progress' | 'done',
-    priority: (['low', 'medium', 'high'].includes(t.priority)
-      ? t.priority
-      : 'medium') as 'low' | 'medium' | 'high',
+    status: t.status,
+    priority: t.priority,
     clientName: t.client?.name || 'Sem cliente',
     clientId: t.clientId,
     dueDate: t.dueDate ? t.dueDate.toISOString() : null,

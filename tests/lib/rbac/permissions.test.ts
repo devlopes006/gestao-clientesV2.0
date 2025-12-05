@@ -186,7 +186,7 @@ describe('Permission Matrices', () => {
 
   it('viewer should have only read permissions', () => {
     const viewerPerms = getRolePermissions(UserRole.VIEWER)
-    viewerPerms.forEach((perm) => {
+    viewerPerms.forEach((perm: string) => {
       expect(perm).toMatch(/read/)
     })
   })

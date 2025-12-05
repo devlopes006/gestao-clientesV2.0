@@ -35,8 +35,8 @@ export const taskSchema = z.object({
   id: z.string().cuid(),
   title: z.string().min(1, 'Título é obrigatório'),
   description: z.string().optional().nullable(),
-  status: z.enum(['todo', 'in-progress', 'done', 'completed']),
-  priority: z.enum(['low', 'medium', 'high']),
+  status: z.enum(['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE', 'CANCELLED']),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']),
   assignee: z.string().optional().nullable(),
   dueDate: z.coerce.date().optional().nullable(),
   clientId: z.string().cuid(),
@@ -47,8 +47,10 @@ export const taskSchema = z.object({
 export const createTaskSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório').max(200),
   description: z.string().max(5000).optional(),
-  status: z.enum(['todo', 'in-progress', 'done']).default('todo'),
-  priority: z.enum(['low', 'medium', 'high']).default('medium'),
+  status: z
+    .enum(['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE', 'CANCELLED'])
+    .default('TODO'),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).default('MEDIUM'),
   assignee: z.string().optional(),
   dueDate: z.coerce.date().optional(),
   clientId: z.string().cuid(),

@@ -101,8 +101,12 @@ export class ReportingService {
       }),
     ])
 
-    const monthlyFixedTotal = fixedMonthlyAgg._sum.amount || 0
-    const materializedFixedThisPeriod = fixedMaterializedAgg._sum.amount || 0
+    const monthlyFixedTotal =
+      (fixedMonthlyAgg._sum.amount as any)?.toNumber?.() ??
+      (fixedMonthlyAgg._sum.amount || 0)
+    const materializedFixedThisPeriod =
+      (fixedMaterializedAgg._sum.amount as any)?.toNumber?.() ??
+      (fixedMaterializedAgg._sum.amount || 0)
     const pendingFixed = Math.max(
       0,
       monthlyFixedTotal - materializedFixedThisPeriod
@@ -223,12 +227,18 @@ export class ReportingService {
         }),
       ])
 
-      const fixedMonthlyTotal = fixedMonthlyAgg._sum.amount || 0
-      const fixedMaterialized = fixedMaterializedAgg._sum.amount || 0
+      const fixedMonthlyTotal =
+        (fixedMonthlyAgg._sum.amount as any)?.toNumber?.() ??
+        (fixedMonthlyAgg._sum.amount || 0)
+      const fixedMaterialized =
+        (fixedMaterializedAgg._sum.amount as any)?.toNumber?.() ??
+        (fixedMaterializedAgg._sum.amount || 0)
       const pendingFixed = Math.max(0, fixedMonthlyTotal - fixedMaterialized)
       const openInvoicesTotal =
         (invoiceSummary.open?.total || 0) + (invoiceSummary.overdue?.total || 0)
-      const nonFixedExpenseThisPeriod = nonFixedExpenseAgg._sum.amount || 0
+      const nonFixedExpenseThisPeriod =
+        (nonFixedExpenseAgg._sum.amount as any)?.toNumber?.() ??
+        (nonFixedExpenseAgg._sum.amount || 0)
       const projectedNetProfit =
         openInvoicesTotal - (nonFixedExpenseThisPeriod + pendingFixed)
 
@@ -368,11 +378,30 @@ export class ReportingService {
     ])
 
     return {
-      open: { count: open._count, total: open._sum.total || 0 },
-      paid: { count: paid._count, total: paid._sum.total || 0 },
-      overdue: { count: overdue._count, total: overdue._sum.total || 0 },
-      cancelled: { count: cancelled._count, total: cancelled._sum.total || 0 },
-      totalReceivable: (open._sum.total || 0) + (overdue._sum.total || 0),
+      open: {
+        count: open._count,
+        total: (open._sum.total as any)?.toNumber?.() ?? (open._sum.total || 0),
+      },
+      paid: {
+        count: paid._count,
+        total: (paid._sum.total as any)?.toNumber?.() ?? (paid._sum.total || 0),
+      },
+      overdue: {
+        count: overdue._count,
+        total:
+          (overdue._sum.total as any)?.toNumber?.() ??
+          (overdue._sum.total || 0),
+      },
+      cancelled: {
+        count: cancelled._count,
+        total:
+          (cancelled._sum.total as any)?.toNumber?.() ??
+          (cancelled._sum.total || 0),
+      },
+      totalReceivable:
+        ((open._sum.total as any)?.toNumber?.() ?? (open._sum.total || 0)) +
+        ((overdue._sum.total as any)?.toNumber?.() ??
+          (overdue._sum.total || 0)),
     }
   }
 
@@ -596,7 +625,12 @@ export class ReportingService {
           paid: invoices.filter((i) => i.status === InvoiceStatus.PAID).length,
           overdue: invoices.filter((i) => i.status === InvoiceStatus.OVERDUE)
             .length,
-          totalValue: invoices.reduce((sum, i) => sum + i.total, 0),
+          totalValue: invoices.reduce(
+            (sum, i) =>
+              sum +
+              (typeof i.total === 'object' ? i.total.toNumber() : i.total),
+            0
+          ),
         },
         transactions: {
           total: transactions.length,

@@ -4,12 +4,13 @@
  * Deve estar alinhado com Prisma schema
  */
 
-// Task Status
+// Task Status - Alinhado com Prisma enum TaskStatus
 export const TASK_STATUS = {
-  TODO: 'todo',
-  IN_PROGRESS: 'in-progress',
-  DONE: 'done',
-  COMPLETED: 'completed', // alias para done (compatibilidade)
+  TODO: 'TODO',
+  IN_PROGRESS: 'IN_PROGRESS',
+  REVIEW: 'REVIEW',
+  DONE: 'DONE',
+  CANCELLED: 'CANCELLED',
 } as const
 
 export type TaskStatus = (typeof TASK_STATUS)[keyof typeof TASK_STATUS]
@@ -17,15 +18,17 @@ export type TaskStatus = (typeof TASK_STATUS)[keyof typeof TASK_STATUS]
 export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
   [TASK_STATUS.TODO]: 'A Fazer',
   [TASK_STATUS.IN_PROGRESS]: 'Em Progresso',
+  [TASK_STATUS.REVIEW]: 'Em Revisão',
   [TASK_STATUS.DONE]: 'Concluído',
-  [TASK_STATUS.COMPLETED]: 'Concluído',
+  [TASK_STATUS.CANCELLED]: 'Cancelado',
 }
 
-// Task Priority
+// Task Priority - Alinhado com Prisma enum TaskPriority
 export const TASK_PRIORITY = {
-  LOW: 'low',
-  MEDIUM: 'medium',
-  HIGH: 'high',
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  URGENT: 'URGENT',
 } as const
 
 export type TaskPriority = (typeof TASK_PRIORITY)[keyof typeof TASK_PRIORITY]
@@ -34,6 +37,7 @@ export const TASK_PRIORITY_LABELS: Record<TaskPriority, string> = {
   [TASK_PRIORITY.LOW]: 'Baixa',
   [TASK_PRIORITY.MEDIUM]: 'Média',
   [TASK_PRIORITY.HIGH]: 'Alta',
+  [TASK_PRIORITY.URGENT]: 'Urgente',
 }
 
 // Client Status

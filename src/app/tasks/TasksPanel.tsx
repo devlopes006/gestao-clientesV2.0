@@ -109,9 +109,9 @@ export function TasksPanel({ clientId, initialTasks = [] }: TasksPanelProps) {
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editing, setEditing] = useState<Task | null>(null)
-  const [form, setForm] = useState({ title: "", description: "", status: "todo" as TaskStatus, priority: "medium" as TaskPriority, assignee: "", dueDate: "" })
+  const [form, setForm] = useState({ title: "", description: "", status: "TODO" as TaskStatus, priority: "MEDIUM" as TaskPriority, assignee: "", dueDate: "" })
 
-  const resetForm = () => { setForm({ title: "", description: "", status: "todo", priority: "medium", assignee: "", dueDate: "" }); setEditing(null) }
+  const resetForm = () => { setForm({ title: "", description: "", status: "TODO", priority: "MEDIUM", assignee: "", dueDate: "" }); setEditing(null) }
   // Removed unused handleEdit and handleDelete functions
 
   const handleStatusChange = async (id: string, status: TaskStatus) => {

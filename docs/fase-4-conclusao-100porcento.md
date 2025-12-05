@@ -66,7 +66,7 @@
 
 ## 📁 Estrutura de Arquivos Task 6
 
-```
+```text
 src/
 ├── lib/
 │   └── advanced-reporting.ts          # 493 linhas
@@ -119,7 +119,7 @@ tests/
 
 ## 🧪 Testes Finais
 
-```
+```text
 Test Files: 20 passed (20)
 Tests:      113 passed (113) ✅
 
@@ -223,7 +223,7 @@ Breakdown por arquivo:
 
 ## 🚀 Próximos Passos (Fase 5)
 
-### Recomendações Pós-Fase 4:
+### Recomendações Pós-Fase 4
 
 1. **Validação em Produção**
    - Deploy em staging
@@ -255,7 +255,7 @@ Breakdown por arquivo:
 
 ## 🎊 Conclusão
 
-**Fase 4 foi concluída com SUCESSO 100%**
+### Fase 4 foi concluída com SUCESSO 100%
 
 - ✅ Todas as 6 tasks implementadas
 - ✅ 113 testes passando
@@ -284,4 +284,4 @@ Breakdown por arquivo:
 | Type Errors | 0       | 0       | 0       |
 | Status      | ✅ 100% | ✅ 100% | ✅ 100% |
 
-**Conclusão: FASE 4 E 3 = 100% COMPLETAS ✅**
+### Conclusão - FASE 4 E 3 = 100% COMPLETAS ✅

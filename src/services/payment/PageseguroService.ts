@@ -10,7 +10,7 @@ export const pageseguroPixPaymentSchema = z.object({
   description: z.string().min(1),
   customerEmail: z.string().email(),
   customerPhone: z.string().min(10),
-  metadata: z.record(z.string()).optional(),
+  metadata: z.record(z.string(), z.string()).optional(),
 })
 
 export type PageseguroPixPaymentInput = z.infer<

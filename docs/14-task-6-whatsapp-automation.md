@@ -53,9 +53,9 @@ enum MessageStatus {
 
 ### 3.1 Templates Implementados
 
-**1. Invoice Created (TRANSACTIONAL)**
+#### 1. Invoice Created (TRANSACTIONAL)
 
-```
+```text
 Parâmetros:
 - clientName: Nome do cliente
 - invoiceNumber: Número da invoice
@@ -65,9 +65,9 @@ Parâmetros:
 Exemplo: "Olá João, sua invoice #1234 de R$ 1.000,00 vence em 30/12/2024"
 ```
 
-**2. Invoice Paid (TRANSACTIONAL)**
+#### 2. Invoice Paid (TRANSACTIONAL)
 
-```
+```text
 Parâmetros:
 - invoiceNumber: Número da invoice
 - amount: Valor pago
@@ -76,9 +76,9 @@ Parâmetros:
 Exemplo: "Invoice #1234 de R$ 1.000,00 foi paga em 25/12/2024"
 ```
 
-**3. Payment Reminder (MARKETING)**
+#### 3. Payment Reminder (MARKETING)
 
-```
+```text
 Parâmetros:
 - invoiceNumber: Número da invoice
 - amount: Valor a pagar
@@ -87,9 +87,9 @@ Parâmetros:
 Exemplo: "Lembrete: Invoice #1234 de R$ 1.000,00 vence em 30/12/2024"
 ```
 
-**4. Invoice Overdue (MARKETING)**
+#### 4. Invoice Overdue (MARKETING)
 
-```
+```text
 Parâmetros:
 - invoiceNumber: Número da invoice
 - amount: Valor em atraso
@@ -98,27 +98,27 @@ Parâmetros:
 Exemplo: "Invoice #1234 de R$ 1.000,00 está 5 dias vencida"
 ```
 
-**5. Welcome (MARKETING)**
+#### 5. Welcome (MARKETING)
 
-```
+```text
 Parâmetros:
 - userName: Nome do usuário
 
 Exemplo: "Bem-vindo João! Estamos felizes em tê-lo conosco"
 ```
 
-**6. Password Reset (OTP)**
+#### 6. Password Reset (OTP)
 
-```
+```text
 Parâmetros:
 - code: Código de redefinição
 
 Exemplo: "Seu código de redefinição é: 123456"
 ```
 
-**7. Meeting Reminder (MARKETING)**
+#### 7. Meeting Reminder (MARKETING)
 
-```
+```text
 Parâmetros:
 - meetingTitle: Título da reunião
 - meetingTime: Horário
@@ -127,7 +127,7 @@ Parâmetros:
 Exemplo: "Lembrete: Reunião de Planejamento às 14h"
 ```
 
-## 4. Interfac es de Dados
+## 4. Interfaces de Dados
 
 ### 4.1 WhatsApp Request
 
@@ -321,7 +321,7 @@ await sendCustomMessage(
 
 **GET** `/api/webhooks/whatsapp`
 
-```
+```text
 Parâmetros:
 - hub.mode: 'subscribe'
 - hub.verify_token: seu token
@@ -334,7 +334,7 @@ Resposta: challenge (se válido) ou 403 (se inválido)
 
 **POST** `/api/webhooks/whatsapp`
 
-```
+```text
 Headers:
 - x-hub-signature-256: Assinatura HMAC-SHA256
 - content-type: application/json
@@ -411,7 +411,7 @@ it('should parse incoming message event', () => {
 
 ### 9.1 Fluxo Completo
 
-```
+```text
 1. Evento ocorre (ex: Invoice criada)
    ↓
 2. Sistema chama notifyInvoiceCreated()
@@ -532,7 +532,7 @@ WHATSAPP_VERIFY_TOKEN = env_secret_xyz789
 
 ### 11.3 Rate Limiting
 
-```
+```text
 // WhatsApp tem limits:
 - 80 mensagens/segundo por número
 - 1000 mensagens/hora por número
@@ -543,7 +543,7 @@ WHATSAPP_VERIFY_TOKEN = env_secret_xyz789
 
 ### 12.1 Métricas Importantes
 
-```
+```text
 - Taxa de entrega (delivered/sent)
 - Taxa de falha (failed/sent)
 - Tempo médio de entrega
@@ -580,7 +580,7 @@ await createAuditLog({
 
 ### 13.2 Erros Comuns
 
-```
+```text
 - "Phone number not registered"
 - "Template not approved"
 - "Rate limit exceeded"
@@ -603,7 +603,7 @@ await createAuditLog({
 
 ### 14.2 Estrutura de Arquivos
 
-```
+```text
 src/lib/whatsapp/
 ├── client.ts       # 380 linhas - Cliente WhatsApp
 └── templates.ts    # 230 linhas - Templates de notificação

@@ -1,4 +1,3 @@
-
 import {
   buildPaginatedResponse,
   getPrismaSkipTake,
@@ -6,6 +5,9 @@ import {
   toMobileClient,
 } from '@/lib/mobile/optimization'
 import { prisma } from '@/lib/prisma'
+import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/ratelimit'
+import { getAuthContext } from '@/middleware/auth'
+import * as Sentry from '@sentry/nextjs'
 import { NextRequest, NextResponse } from 'next/server'
 
 /**
@@ -21,9 +23,26 @@ import { NextRequest, NextResponse } from 'next/server'
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // Rate limiting
+    const id = getIdentifier(request as unknown as Request)
+    const rl = await checkRateLimit(id, apiRatelimit)
+    if (!rl.success) {
+      return NextResponse.json(
+        {
+          error: 'Too many requests',
+          message: 'Rate limit exceeded. Please try again later.',
+          resetAt: rl.reset.toISOString(),
+        },
+        { status: 429 }
+      )
+    }
+
+    const { orgId: organizationId } = getAuthContext(request)
+    if (!organizationId) {
+      return NextResponse.json(
+        { error: 'Organization ID required' },
+        { status: 400 }
+      )
     }
 
     // Get pagination params
@@ -35,13 +54,14 @@ export async function GET(request: NextRequest) {
       ? parseInt(searchParams.get('limit') || '20')
       : 20
     const search = searchParams.get('search') || ''
+    const cursor = searchParams.get('cursor') || undefined
 
     const { page: normalizedPage, limit: normalizedLimit } =
       normalizePaginationParams(page, limit)
 
     // Build where clause
     const where = {
-      organizationId: session.user.organizationId,
+      orgId: organizationId,
       ...(search && {
         OR: [
           { name: { contains: search, mode: 'insensitive' as const } },
@@ -61,10 +81,11 @@ export async function GET(request: NextRequest) {
         id: true,
         name: true,
         email: true,
-        avatar: true,
-        isActive: true,
+        phone: true,
+        status: true,
+        createdAt: true,
       },
-      skip,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : { skip }),
       take,
       orderBy: { createdAt: 'desc' as const },
     })
@@ -87,6 +108,12 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response, { headers })
   } catch (error) {
+    Sentry.addBreadcrumb({
+      category: 'api',
+      message: 'mobile/clients:get',
+      level: 'error',
+    })
+    Sentry.captureException(error)
     console.error('[Mobile Clients API]', error)
     return NextResponse.json(
       { error: 'Failed to fetch clients' },

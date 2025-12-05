@@ -22,10 +22,10 @@ export async function createTask(input: TaskCreateInput) {
       clientId: input.clientId,
       title: input.title,
       description: input.description ?? undefined,
-      status: input.status ?? undefined,
+      status: (input.status?.toUpperCase() as any) ?? 'TODO',
       assignee: input.assignee ?? undefined,
       dueDate: input.dueDate ?? undefined,
-      priority: input.priority ?? undefined,
+      priority: (input.priority?.toUpperCase() as any) ?? 'MEDIUM',
     },
   })
 

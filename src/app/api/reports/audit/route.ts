@@ -2,7 +2,8 @@ import { getSessionProfile } from '@/services/auth/session'
 import { ReportingService } from '@/services/financial'
 import { NextResponse } from 'next/server'
 
-export async function GET(request: Request) {
+import { NextRequest } from 'next/server'
+export async function GET(request: NextRequest) {
   try {
     // Allow OWNER session OR an admin token with explicit orgId header/query
     const authHeader = request.headers.get('authorization') || ''
@@ -17,7 +18,8 @@ export async function GET(request: Request) {
       const url = new URL(request.url)
       orgId =
         url.searchParams.get('orgId') ||
-        request.headers.get('x-org-id') ||
+        // Prefer centralized auth context; fallback to header for debugging
+        (await import('@/middleware/auth')).getAuthContext(request).orgId ||
         undefined
       if (!orgId) {
         return NextResponse.json(

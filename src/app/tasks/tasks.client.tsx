@@ -26,20 +26,21 @@ import { useEffect, useMemo, useState } from 'react';
 interface Task {
   id: string
   title: string
-  status: 'todo' | 'in-progress' | 'done'
-  priority: 'low' | 'medium' | 'high'
+  status: 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE' | 'CANCELLED'
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
   clientName: string
   clientId: string
   dueDate?: string | null
   description?: string | null
 }
 
-interface Column { id: string; title: string; status: 'todo' | 'in-progress' | 'done'; color: string }
+interface Column { id: string; title: string; status: 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE' | 'CANCELLED'; color: string }
 
 const columns: Column[] = [
-  { id: 'todo', title: 'A Fazer', status: 'todo', color: 'bg-slate-100 dark:bg-slate-800' },
-  { id: 'in-progress', title: 'Em Progresso', status: 'in-progress', color: 'bg-blue-100 dark:bg-blue-950/30' },
-  { id: 'done', title: 'Concluído', status: 'done', color: 'bg-emerald-100 dark:bg-emerald-950/30' },
+  { id: 'TODO', title: 'A Fazer', status: 'TODO', color: 'bg-slate-100 dark:bg-slate-800' },
+  { id: 'IN_PROGRESS', title: 'Em Progresso', status: 'IN_PROGRESS', color: 'bg-blue-100 dark:bg-blue-950/30' },
+  { id: 'REVIEW', title: 'Em Revisão', status: 'REVIEW', color: 'bg-purple-100 dark:bg-purple-950/30' },
+  { id: 'DONE', title: 'Concluído', status: 'DONE', color: 'bg-emerald-100 dark:bg-emerald-950/30' },
 ]
 
 
@@ -75,7 +76,7 @@ function TaskCard({ task }: { task: Task }) {
           <h4 className="font-semibold text-sm mb-2 line-clamp-2">{task.title}</h4>
           {task.description && <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{task.description}</p>}
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant={task.priority === 'high' ? 'high' : task.priority === 'medium' ? 'medium' : 'low'}>
+            <Badge variant={task.priority === 'HIGH' ? 'high' : task.priority === 'URGENT' ? 'high' : task.priority === 'MEDIUM' ? 'medium' : 'low'}>
               {TASK_PRIORITY_LABELS[task.priority]}
             </Badge>
             <Link href={`/clients/${task.clientId}`} className="text-xs text-blue-600 hover:underline flex items-center gap-1">
@@ -153,7 +154,7 @@ export default function TasksClient({ initialTasks, updateTaskStatusAction }: { 
     if (!activeTask) return;
     // Corrige: busca coluna pelo id do over, não pelo filtro
     const overColumn = columns.find(c => c.id === over.id);
-    const validStatuses = ['todo', 'in-progress', 'done'] as const;
+    const validStatuses = ['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE', 'CANCELLED'] as const;
     const newStatus = overColumn
       ? overColumn.status
       : (validStatuses.includes(over.id as Column['status'])
@@ -196,9 +197,10 @@ export default function TasksClient({ initialTasks, updateTaskStatusAction }: { 
               </div>
               <select className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm" value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)} aria-label="Filtrar por prioridade">
                 <option value="">Todas as prioridades</option>
-                <option value="low">Baixa</option>
-                <option value="medium">Média</option>
-                <option value="high">Alta</option>
+                <option value="LOW">Baixa</option>
+                <option value="MEDIUM">Média</option>
+                <option value="HIGH">Alta</option>
+                <option value="URGENT">Urgente</option>
               </select>
               {(searchQuery || priorityFilter) && <Button variant="outline" size="sm" onClick={() => { setSearchQuery(''); setPriorityFilter('') }}>Limpar</Button>}
             </div>

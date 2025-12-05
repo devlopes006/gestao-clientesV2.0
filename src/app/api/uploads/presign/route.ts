@@ -1,46 +1,62 @@
-import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/ratelimit'
+import { authenticateStaff } from '@/infra/http/auth-middleware'
+import { ApiResponseHandler } from '@/infra/http/response'
 import {
   createPresignedPutUrl,
   generateFileKey,
   isAllowedMimeType,
 } from '@/lib/storage'
-import { applySecurityHeaders, guardAccess } from '@/proxy'
-import * as Sentry from '@sentry/nextjs'
-import { NextRequest, NextResponse } from 'next/server'
+import { applySecurityHeaders } from '@/proxy'
+import { NextRequest } from 'next/server'
+import { z } from 'zod'
+
+const presignSchema = z.object({
+  clientId: z.string().min(1),
+  filename: z.string().min(1),
+  mimeType: z.string().min(1),
+  size: z.number().positive().optional(),
+})
 
 export async function POST(req: NextRequest) {
   try {
-    // Rate limit para geração de URLs de upload
-    const idKey = getIdentifier(req)
-    const rl = await checkRateLimit(idKey, apiRatelimit)
-    if (!rl.success) {
-      return NextResponse.json(
-        { error: 'Too many requests', resetAt: rl.reset.toISOString() },
-        { status: 429, headers: { 'Content-Type': 'application/json' } }
+    // Autenticação e rate limiting
+    const authResult = await authenticateStaff(req)
+    if ('error' in authResult) {
+      return applySecurityHeaders(req, authResult.error)
+    }
+
+    // Validação do body
+    const body = await req.json()
+    const validation = presignSchema.safeParse(body)
+
+    if (!validation.success) {
+      return applySecurityHeaders(
+        req,
+        ApiResponseHandler.validationError(
+          'Parâmetros inválidos',
+          validation.error.format()
+        )
       )
     }
-    const guard = guardAccess(req)
-    if (guard) return guard
-    const { clientId, filename, mimeType, size } = await req.json()
-    if (!clientId || !filename || !mimeType) {
-      return NextResponse.json(
-        { error: 'Parâmetros inválidos' },
-        { status: 400 }
-      )
-    }
+
+    const { clientId, filename, mimeType, size } = validation.data
+
+    // Verificar MIME type permitido
     if (!isAllowedMimeType(mimeType)) {
-      return NextResponse.json(
-        { error: 'MIME type não permitido' },
-        { status: 415 }
+      return applySecurityHeaders(
+        req,
+        ApiResponseHandler.validationError('MIME type não permitido')
       )
     }
+
     // Tamanho máximo configurável (GB) para upload direto do cliente; padrão 2GB
     const maxGb = Number(process.env.NEXT_PUBLIC_MAX_DIRECT_UPLOAD_GB || '2')
     const maxBytes = maxGb * 1024 * 1024 * 1024
-    if (typeof size === 'number' && size > maxBytes) {
-      return NextResponse.json(
-        { error: 'Arquivo muito grande' },
-        { status: 413 }
+    if (size && size > maxBytes) {
+      return applySecurityHeaders(
+        req,
+        ApiResponseHandler.validationError(
+          `Arquivo muito grande. Máximo permitido: ${maxGb}GB`
+        )
       )
     }
 
@@ -50,27 +66,26 @@ export async function POST(req: NextRequest) {
 
     const uploadUrl = await createPresignedPutUrl(originalKey, mimeType, 900)
     if (!uploadUrl) {
-      return NextResponse.json(
-        { error: 'Storage S3/R2 não configurado para presigned uploads' },
-        { status: 500 }
+      return applySecurityHeaders(
+        req,
+        ApiResponseHandler.internalError(
+          'Storage S3/R2 não configurado para presigned uploads',
+          'uploads:presign:storage-config'
+        )
       )
     }
 
-    const res = NextResponse.json({
+    const response = ApiResponseHandler.success({
       originalKey,
       uploadUrl,
-      // dica para front renderizar preview após finalize
       willGenerateOptimized: mimeType.startsWith('image/'),
     })
-    return applySecurityHeaders(req, res)
+
+    return applySecurityHeaders(req, response)
   } catch (err) {
-    Sentry.addBreadcrumb({
-      category: 'api',
-      message: 'uploads:presign',
-      level: 'error',
-    })
-    Sentry.captureException(err)
-    const res = NextResponse.json({ error: String(err) }, { status: 500 })
-    return applySecurityHeaders(req, res)
+    return applySecurityHeaders(
+      req,
+      ApiResponseHandler.internalError(err, 'uploads:presign')
+    )
   }
 }

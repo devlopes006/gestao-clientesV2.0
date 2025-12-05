@@ -49,7 +49,7 @@ export function FinanceEditModal({ row }: { row: FinanceRow }) {
 
   useEffect(() => {
     if (open) {
-      fetch('/api/clients?lite=1')
+      fetch('/api/mobile/clients?page=1&limit=100')
         .then(res => res.json())
         .then(data => {
           console.log('Clientes carregados:', data)

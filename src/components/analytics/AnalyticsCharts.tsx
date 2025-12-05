@@ -166,12 +166,12 @@ export function AnalyticsSummaryCards({
       />
 
       {/* Lowest Margin Alert */}
-      {summary.bottomClientByProfit && (
+      {summary.lowestMarginClient && (
         <MetricCard
           icon={AlertCircle}
-          value={summary.bottomClientByProfit.clientName}
+          value={summary.lowestMarginClient.name}
           label="Menor Margem"
-          description={formatPercent(summary.bottomClientByProfit.profitMargin)}
+          description={formatPercent(summary.lowestMarginClient.margin)}
           variant="orange"
           isLoading={isLoading}
         />

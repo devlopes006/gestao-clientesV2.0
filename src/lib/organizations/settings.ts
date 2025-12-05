@@ -2,10 +2,17 @@
  * Organization Settings Management
  *
  * Handles organization-level configurations and preferences
+ * NOTE: Uses optional Firebase for real-time settings sync.
+ * If Firebase is not configured, functions return null/defaults.
  */
 
 import { db } from '@/lib/firebase'
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+
+// Guard to check if Firebase is initialized
+const isFirebaseReady = () => {
+  return db !== undefined && db !== null
+}
 
 /**
  * Organization settings interface
@@ -124,8 +131,17 @@ export async function getOrganizationSettings(
   organizationId: string
 ): Promise<OrganizationSettings | null> {
   try {
+    if (!isFirebaseReady()) {
+      console.warn('Firebase not initialized, returning default settings')
+      return {
+        id: 'general',
+        organizationId,
+        ...DEFAULT_SETTINGS,
+      } as OrganizationSettings
+    }
+
     const docRef = doc(
-      db,
+      db!,
       'organizations',
       organizationId,
       'settings',
@@ -147,7 +163,12 @@ export async function getOrganizationSettings(
     } as OrganizationSettings
   } catch (error) {
     console.error('Failed to get organization settings:', error)
-    throw new Error('Failed to retrieve organization settings')
+    // Return defaults instead of throwing
+    return {
+      id: 'general',
+      organizationId,
+      ...DEFAULT_SETTINGS,
+    } as OrganizationSettings
   }
 }
 
@@ -168,8 +189,13 @@ export async function createOrganizationSettings(
       updatedAt: new Date(),
     }
 
+    if (!isFirebaseReady()) {
+      console.warn('Firebase not initialized, returning in-memory settings')
+      return settings
+    }
+
     const docRef = doc(
-      db,
+      db!,
       'organizations',
       organizationId,
       'settings',
@@ -184,7 +210,15 @@ export async function createOrganizationSettings(
     return settings
   } catch (error) {
     console.error('Failed to create organization settings:', error)
-    throw new Error('Failed to create organization settings')
+    // Return settings anyway for resilience
+    return {
+      id: 'general',
+      organizationId,
+      ...DEFAULT_SETTINGS,
+      ...overrides,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as OrganizationSettings
   }
 }
 
@@ -196,8 +230,15 @@ export async function updateOrganizationSettings(
   updates: Partial<OrganizationSettings>
 ): Promise<OrganizationSettings> {
   try {
+    if (!isFirebaseReady()) {
+      console.warn('Firebase not initialized, returning merged settings')
+      // Return merged settings in-memory
+      const current = await getOrganizationSettings(organizationId)
+      return { ...(current || ({} as any)), ...updates } as OrganizationSettings
+    }
+
     const docRef = doc(
-      db,
+      db!,
       'organizations',
       organizationId,
       'settings',

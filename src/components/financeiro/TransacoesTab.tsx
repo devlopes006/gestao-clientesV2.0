@@ -96,8 +96,10 @@ export function TransacoesTab() {
       }
 
       const result = await response.json()
-      setTransactions(result.data || [])
-      setTotalPages(result.totalPages || 1)
+      // ApiResponseHandler retorna { data: { transactions, meta } } ou { data: [] }
+      const data = result.data || result
+      setTransactions(Array.isArray(data) ? data : (data.transactions || []))
+      setTotalPages(data.meta?.totalPages || result.totalPages || 1)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido')
     } finally {

@@ -147,7 +147,7 @@ export default async function ClientsPage({ searchParams }: PageProps) {
                     className="rounded-lg bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 sm:px-6 shadow-lg shadow-blue-500/30 gap-2 w-full sm:w-auto transition-all duration-200 hover:shadow-xl hover:scale-105 active:scale-95"
                     asChild
                   >
-                    <Link href="/clients/new">
+                    <Link href="/clients/new" className="flex items-center gap-2">
                       <Plus className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:scale-110" />
                       <span className="hidden sm:inline">Novo Cliente</span>
                       <span className="sm:hidden">Novo</span>

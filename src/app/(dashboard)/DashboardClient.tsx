@@ -1,10 +1,10 @@
 "use client";
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { KpiCard, KpiGrid } from '@/components/ui/kpi-card';
 import { DashboardNotes } from '@/features/dashboard/components/DashboardNotes';
 import { MonthlyCalendar } from '@/features/dashboard/components/MonthlyCalendar';
 import { AppRole } from '@/lib/permissions';
 import { DashboardData } from '@/modules/dashboard/domain/schema';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/components/base/Card';
 import { motion } from 'framer-motion';
 import { Activity, ArrowUpRight, Calendar, CheckCircle2, Clock, ListTodo, TrendingUp, Users } from 'lucide-react';
 import Link from 'next/link';

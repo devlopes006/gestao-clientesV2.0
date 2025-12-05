@@ -1,4 +1,5 @@
 import { InvoiceStatus } from '@/domain/invoice/value-objects/invoice-status.vo'
+import { Role } from '@prisma/client'
 import { authenticateRequest } from '@/infrastructure/http/middlewares/auth.middleware'
 import { PrismaInvoiceRepository } from '@/infrastructure/database/repositories/prisma-invoice.repository'
 import { prisma } from '@/lib/prisma'
@@ -26,7 +27,7 @@ export class InvoiceController {
     try {
       // 1. Autenticação
       const authResult = await authenticateRequest(request, {
-        allowedRoles: ['OWNER', 'ADMIN'],
+        allowedRoles: [Role.OWNER, Role.ADMIN],
         requireOrg: true,
       })
 
@@ -147,7 +148,7 @@ export class InvoiceController {
     try {
       // 1. Autenticação
       const authResult = await authenticateRequest(request, {
-        allowedRoles: ['OWNER', 'ADMIN'],
+        allowedRoles: [Role.OWNER, Role.ADMIN],
         requireOrg: true,
       })
 
@@ -197,7 +198,7 @@ export class InvoiceController {
     try {
       // 1. Autenticação
       const authResult = await authenticateRequest(request, {
-        allowedRoles: ['OWNER', 'ADMIN'],
+        allowedRoles: [Role.OWNER, Role.ADMIN],
         requireOrg: true,
       })
 

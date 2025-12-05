@@ -60,10 +60,14 @@ export async function GET(request: NextRequest) {
 
     const result = await controller.list({
       orgId,
-      page: Number(page ?? 1),
-      limit: Number(limit ?? 50),
-      status: status.length ? (status as any) : undefined,
-      priority: priority.length ? (priority as any) : undefined,
+      page: page ? parseInt(page) : 1,
+      limit: limit ? parseInt(limit) : 50,
+      status: status.length
+        ? (status as unknown as TaskStatus[])
+        : undefined,
+      priority: priority.length
+        ? (priority as unknown as TaskPriority[])
+        : undefined,
       assignee: assignee || undefined,
       clientId: clientId || undefined,
     })

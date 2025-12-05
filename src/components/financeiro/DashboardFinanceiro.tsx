@@ -147,12 +147,15 @@ export function DashboardFinanceiro() {
       }
 
       const result = await response.json()
-      setData(result)
+      // ApiResponseHandler.success retorna { data: dashboard }
+      const dashboardData = result.data || result
+      setData(dashboardData)
       // Carrega resumo global do ano selecionado
       const sRes = await fetch(`/api/reports/summary?year=${year}`)
       if (sRes.ok) {
         const s = await sRes.json()
-        setGlobalSummary(s)
+        // ApiResponseHandler também retorna { data: summary }
+        setGlobalSummary(s.data || s)
       } else {
         setGlobalSummary(null)
       }

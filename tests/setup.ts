@@ -1,24 +1,23 @@
-import { expect } from 'vitest'
+import '@testing-library/jest-dom'
+import { cleanup } from '@testing-library/react'
+import { afterEach, vi } from 'vitest'
 
-// Extend Vitest matchers with custom DOM assertions
-expect.extend({
-  toBeInTheDocument(received: Element | null) {
-    const pass = received !== null && document.body.contains(received)
-    return {
-      pass,
-      message: () =>
-        pass
-          ? `expected element not to be in the document`
-          : `expected element to be in the document`,
-    }
-  },
+// Cleanup after each test
+afterEach(() => {
+  cleanup()
 })
 
-declare module 'vitest' {
-  interface Assertion {
-    toBeInTheDocument(): void
-  }
-  interface AsymmetricMatchersContaining {
-    toBeInTheDocument(): void
-  }
-}
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation((query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+})

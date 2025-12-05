@@ -376,28 +376,15 @@ export async function GET(req: NextRequest) {
         59
       )
 
-      // Buscar pagamentos confirmados no mês (transactions com subtype INVOICE_PAYMENT)
-      // Aplicamos deduplicação por `invoiceId`, preferindo transação quando presente.
-      const payments = await prisma.transaction.findMany({
-        where: {
-          orgId,
-          subtype: 'INVOICE_PAYMENT',
-          date: { gte: monthStart, lte: monthEnd },
-        },
-        select: { id: true, amount: true, invoiceId: true },
-      })
-
-      const monthFinancesIncome = await prisma.transaction.findMany({
+      // Buscar todas as receitas (incluindo pagamentos de faturas) no mês
+      // NOTA: type: INCOME já inclui subtype INVOICE_PAYMENT (não duplicar!)
+      const monthIncome = await prisma.transaction.findMany({
         where: {
           orgId,
           type: 'INCOME',
-          date: {
-            gte: monthStart,
-            lte: monthEnd,
-          },
+          date: { gte: monthStart, lte: monthEnd },
         },
         select: {
-          id: true,
           amount: true,
         },
       })
@@ -417,22 +404,7 @@ export async function GET(req: NextRequest) {
         },
       })
 
-      const revenueMap = new Map<string, number>()
-      // Somar receitas (transactions)
-      for (const f of monthFinancesIncome) {
-        const key = `txn:${f.id}`
-        revenueMap.set(key, (revenueMap.get(key) || 0) + f.amount)
-      }
-      // Somar pagamentos confirmados
-      for (const p of payments) {
-        const key = p.invoiceId ? `inv:${p.invoiceId}` : `pay:${p.id}`
-        revenueMap.set(key, (revenueMap.get(key) || 0) + p.amount)
-      }
-
-      const receitas = Array.from(revenueMap.values()).reduce(
-        (sum, v) => sum + v,
-        0
-      )
+      const receitas = monthIncome.reduce((sum, i) => sum + i.amount, 0)
       const despesas = monthExpenses.reduce((sum, e) => sum + e.amount, 0)
       const saldo = receitas - despesas
 

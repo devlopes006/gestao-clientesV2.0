@@ -214,15 +214,16 @@ export default async function ClientsPage({ searchParams }: PageProps) {
                   </p>
                 </div>
                 {canCreateClient && !(query || status || plan) && (
-                  <Link href="/clients/new">
-                    <Button
-                      size="sm"
-                      className="mt-4 rounded-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 gap-2 transition-all duration-200 hover:shadow-xl hover:scale-105 active:scale-95"
-                    >
+                  <Button
+                    size="sm"
+                    className="mt-4 rounded-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 gap-2 transition-all duration-200 hover:shadow-xl hover:scale-105 active:scale-95"
+                    asChild
+                  >
+                    <Link href="/clients/new" className="flex items-center gap-2">
                       <Plus className="w-4 h-4 transition-transform group-hover:scale-110" />
                       Adicionar Cliente
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 )}
               </Card>
             ) : view === "list" ? (
@@ -271,11 +272,11 @@ export default async function ClientsPage({ searchParams }: PageProps) {
                             {formatDate(client.created_at)}
                           </td>
                           <td className="p-4 text-right">
-                            <Link href={`/clients/${client.id}/info`}>
-                              <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" asChild>
+                              <Link href={`/clients/${client.id}/info`}>
                                 Abrir
-                              </Button>
-                            </Link>
+                              </Link>
+                            </Button>
                             <GenerateInvoiceButton clientId={client.id} />
                           </td>
                         </tr>

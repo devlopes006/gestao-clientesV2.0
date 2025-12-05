@@ -82,8 +82,8 @@ export function CSVImportButton() {
       />
       <label htmlFor="csv-upload">
         <Button asChild variant="outline" disabled={isLoading}>
-          <span className="cursor-pointer">
-            <Upload className="h-4 w-4 mr-2" />
+          <span className="cursor-pointer flex items-center gap-2">
+            <Upload className="h-4 w-4" />
             {isLoading ? "Importando..." : "Importar CSV"}
           </span>
         </Button>

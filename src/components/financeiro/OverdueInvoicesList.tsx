@@ -103,10 +103,10 @@ export function OverdueInvoicesList({ overdue }: OverdueInvoicesListProps) {
               >
                 <Card
                   className={`border-2 transition-all duration-300 hover:shadow-lg hover:-translate-x-1 ${isCritical
-                      ? 'border-red-400 dark:border-red-700 bg-gradient-to-r from-red-50/80 to-rose-50/80 dark:from-red-950/30 dark:to-rose-950/30'
-                      : isUrgent
-                        ? 'border-orange-300 dark:border-orange-700 bg-gradient-to-r from-orange-50/80 to-amber-50/80 dark:from-orange-950/30 dark:to-amber-950/30'
-                        : 'border-yellow-300 dark:border-yellow-700 bg-gradient-to-r from-yellow-50/80 to-amber-50/80 dark:from-yellow-950/30 dark:to-amber-950/30'
+                    ? 'border-red-400 dark:border-red-700 bg-gradient-to-r from-red-50/80 to-rose-50/80 dark:from-red-950/30 dark:to-rose-950/30'
+                    : isUrgent
+                      ? 'border-orange-300 dark:border-orange-700 bg-gradient-to-r from-orange-50/80 to-amber-50/80 dark:from-orange-950/30 dark:to-amber-950/30'
+                      : 'border-yellow-300 dark:border-yellow-700 bg-gradient-to-r from-yellow-50/80 to-amber-50/80 dark:from-yellow-950/30 dark:to-amber-950/30'
                     }`}
                 >
                   <CardContent className="p-4">
@@ -158,7 +158,7 @@ export function OverdueInvoicesList({ overdue }: OverdueInvoicesListProps) {
                               className="h-7 text-xs gap-1"
                               asChild
                             >
-                              <a href={`tel:${inv.client.phone}`}>
+                              <a href={`tel:${inv.client.phone}`} className="flex items-center gap-1">
                                 <Phone className="h-3 w-3" />
                                 Ligar
                               </a>
@@ -171,7 +171,7 @@ export function OverdueInvoicesList({ overdue }: OverdueInvoicesListProps) {
                               className="h-7 text-xs gap-1"
                               asChild
                             >
-                              <a href={`mailto:${inv.client.email}`}>
+                              <a href={`mailto:${inv.client.email}`} className="flex items-center gap-1">
                                 <Mail className="h-3 w-3" />
                                 Email
                               </a>
@@ -183,7 +183,7 @@ export function OverdueInvoicesList({ overdue }: OverdueInvoicesListProps) {
                             className="h-7 text-xs gap-1 ml-auto"
                             asChild
                           >
-                            <a href={`/clients/${inv.clientId}`}>
+                            <a href={`/clients/${inv.clientId}`} className="flex items-center gap-1">
                               Ver cliente
                               <ArrowRight className="h-3 w-3" />
                             </a>
@@ -194,10 +194,10 @@ export function OverdueInvoicesList({ overdue }: OverdueInvoicesListProps) {
                       <div className="text-right flex-shrink-0">
                         <p
                           className={`text-2xl font-black ${isCritical
-                              ? 'text-red-700 dark:text-red-400'
-                              : isUrgent
-                                ? 'text-orange-700 dark:text-orange-400'
-                                : 'text-amber-700 dark:text-amber-400'
+                            ? 'text-red-700 dark:text-red-400'
+                            : isUrgent
+                              ? 'text-orange-700 dark:text-orange-400'
+                              : 'text-amber-700 dark:text-amber-400'
                             }`}
                         >
                           {formatCurrency(inv.total)}

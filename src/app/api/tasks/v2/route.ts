@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validação falhou', details: error.errors },
+        { error: 'Validação falhou', details: error.issues },
         { status: 400 }
       )
     }
@@ -60,10 +60,14 @@ export async function GET(request: NextRequest) {
 
     const result = await controller.list({
       orgId,
-      page: page ? parseInt(page) : undefined,
-      limit: limit ? parseInt(limit) : undefined,
-      status,
-      priority,
+      page: page ? parseInt(page) : 1,
+      limit: limit ? parseInt(limit) : 50,
+      status: status.length
+        ? (status as unknown as TaskStatus[])
+        : undefined,
+      priority: priority.length
+        ? (priority as unknown as TaskPriority[])
+        : undefined,
       assignee: assignee || undefined,
       clientId: clientId || undefined,
     })

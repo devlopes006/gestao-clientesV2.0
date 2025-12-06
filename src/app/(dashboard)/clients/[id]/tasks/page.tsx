@@ -10,5 +10,5 @@ export default async function ClientTasksPage({ params }: ClientTasksPageProps) 
   // Obter orgId da session
   const { orgId } = await getSessionProfile();
   
-  return <TasksPanel clientId={id} orgId={orgId} />;
+  return <TasksPanel clientId={id} orgId={orgId || undefined} />;
 }

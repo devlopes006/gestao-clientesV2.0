@@ -50,17 +50,42 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
 
   const tasks = data.tasks
   const clients = data.clients
-  const isPendingStatus = (s: string) => s === 'pending' || s === 'todo'
-  const isInProgressStatus = (s: string) => s === 'in_progress' || s === 'in-progress'
-  const isDoneStatus = (s: string) => s === 'done' || s === 'completed'
-  const pendingTasks = tasks.filter(t => isPendingStatus(t.status))
-  const inProgressTasks = tasks.filter(t => isInProgressStatus(t.status))
-  const completedTasks = tasks.filter(t => isDoneStatus(t.status))
-  const priorities = pendingTasks.slice(0, 6)
   const metrics = data.metrics
   const totalClients = metrics?.totals.clients ?? clients.length
   const totalTasks = metrics?.totals.tasks ?? tasks.length
-  const completedPercent = totalTasks > 0 ? Math.round((completedTasks.length / totalTasks) * 100) : 0
+  
+  // Normalize status checking
+  const isPendingStatus = (s: string) => {
+    const normalized = s.toUpperCase().replace(/-/g, '_')
+    return normalized === 'TODO' || normalized === 'PENDING'
+  }
+  const isInProgressStatus = (s: string) => {
+    const normalized = s.toUpperCase().replace(/-/g, '_')
+    return normalized === 'IN_PROGRESS' || normalized === 'REVIEW'
+  }
+  const isDoneStatus = (s: string) => {
+    const normalized = s.toUpperCase().replace(/-/g, '_')
+    return normalized === 'DONE' || normalized === 'CANCELLED'
+  }
+  
+  // Count from full metrics instead of limited array samples
+  const pendingTasks = tasks.filter(t => isPendingStatus(t.status))
+  const inProgressTasks = tasks.filter(t => isInProgressStatus(t.status))
+  const completedTasks = tasks.filter(t => isDoneStatus(t.status))
+  
+  // Calculate totals from metrics when available (more accurate)
+  const totalPendingTasks = metrics?.taskAggByClient 
+    ? Object.values(metrics.taskAggByClient).reduce((sum, agg) => sum + agg.pending, 0)
+    : pendingTasks.length
+  const totalInProgressTasks = metrics?.taskAggByClient 
+    ? Object.values(metrics.taskAggByClient).reduce((sum, agg) => sum + agg.inProgress, 0)
+    : inProgressTasks.length
+  const totalCompletedTasks = metrics?.taskAggByClient 
+    ? Object.values(metrics.taskAggByClient).reduce((sum, agg) => sum + agg.done, 0)
+    : completedTasks.length
+  
+  const priorities = pendingTasks.slice(0, 6)
+  const completedPercent = totalTasks > 0 ? Math.round((totalCompletedTasks / totalTasks) * 100) : 0
 
   return (
     <div className="page-background">
@@ -115,21 +140,21 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
             <KpiCard
               variant="amber"
               icon={ListTodo}
-              value={pendingTasks.length}
+              value={totalPendingTasks}
               label="Tarefas Pendentes"
               description="Requerem atenção"
             />
             <KpiCard
               variant="indigo"
               icon={Activity}
-              value={inProgressTasks.length}
+              value={totalInProgressTasks}
               label="Em Progresso"
               description="Do total de tarefas"
             />
             <KpiCard
               variant="emerald"
               icon={CheckCircle2}
-              value={completedTasks.length}
+              value={totalCompletedTasks}
               label="Concluídas"
               description={`${completedPercent}% taxa de conclusão`}
               progress={completedPercent}

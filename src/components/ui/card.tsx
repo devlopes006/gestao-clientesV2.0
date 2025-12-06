@@ -27,13 +27,13 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
     const effectiveSize: 'sm' | 'md' | 'lg' = (size as any) ?? (parentSize ? 'sm' : 'md')
     const variantClasses = {
       default:
-        'border border-slate-200/70 dark:border-slate-800/70 bg-white/90 dark:bg-slate-900/80 shadow-sm backdrop-blur',
+        'border border-slate-200/80 dark:border-slate-800/70 bg-white/90 dark:bg-slate-900/80 shadow-sm backdrop-blur overflow-hidden',
       elevated:
-        'border border-slate-200/80 dark:border-slate-800/60 bg-white/95 dark:bg-slate-900/85 shadow-lg backdrop-blur-lg',
+        'border border-slate-200/80 dark:border-slate-800/60 bg-white/95 dark:bg-slate-900/85 shadow-lg shadow-indigo-500/10 dark:shadow-none backdrop-blur-lg overflow-hidden ring-1 ring-indigo-50 dark:ring-indigo-500/10',
       interactive:
-        'border border-slate-200/80 dark:border-slate-800/70 bg-white/90 dark:bg-slate-900/75 shadow-sm backdrop-blur cursor-pointer hover:-translate-y-0.5 active:translate-y-0',
+        'border border-slate-200/80 dark:border-slate-800/70 bg-white/90 dark:bg-slate-900/75 shadow-sm backdrop-blur overflow-hidden cursor-pointer hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 transition-transform',
       bordered:
-        'border border-slate-300/80 dark:border-slate-700/70 bg-white/80 dark:bg-slate-900/60 backdrop-blur',
+        'border border-slate-300/80 dark:border-slate-700/70 bg-gradient-to-br from-white/85 to-slate-50/80 dark:from-slate-900/70 dark:to-slate-900/60 backdrop-blur overflow-hidden',
     };
 
     return (
@@ -42,7 +42,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
           ref={ref}
           className={cn(
             // Base styles
-            'rounded-2xl text-card-foreground transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-200 dark:focus-visible:ring-indigo-500/40',
+            'rounded-2xl text-card-foreground transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-200 dark:focus-visible:ring-indigo-500/40 ring-offset-1 ring-offset-white dark:ring-offset-slate-950',
             // Variant styles
             variantClasses[variant],
             // Hover effect

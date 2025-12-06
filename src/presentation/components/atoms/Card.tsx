@@ -8,16 +8,16 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { forwardRef, HTMLAttributes } from 'react'
 
 const cardVariants = cva(
-  'surface-panel text-card-foreground transition-colors duration-200',
+  'surface-panel text-card-foreground transition-all duration-200 rounded-2xl overflow-hidden ring-offset-1 ring-offset-white dark:ring-offset-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-200 dark:focus-visible:ring-indigo-500/40',
   {
     variants: {
       variant: {
-        default: '',
-        outline: 'border-2',
+        default: 'border border-slate-200/70 dark:border-slate-800/70 shadow-sm',
+        outline: 'border-2 border-slate-300/70 dark:border-slate-700/70 shadow-sm',
         ghost: 'border-0 shadow-none bg-transparent',
       },
       hover: {
-        true: 'hover:shadow-lg hover:border-slate-300/80 dark:hover:border-slate-700/80',
+        true: 'hover:-translate-y-0.5 hover:shadow-lg hover:border-slate-300/80 dark:hover:border-slate-700/80',
         false: '',
       },
     },

@@ -12,7 +12,7 @@ interface TaskModalProps {
   open: boolean;
   onClose: () => void;
   editing: Task | null;
-  orgId: string;
+  orgId?: string;
   form: {
     title: string; description: string; status: TaskStatus; priority: TaskPriority; assignee: string; dueDate: string;
   };

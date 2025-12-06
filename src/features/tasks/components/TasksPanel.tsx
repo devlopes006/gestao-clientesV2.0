@@ -235,9 +235,9 @@ function KanbanColumn({ column, tasks, handleEdit, handleDelete }: KanbanColumnP
   );
 }
 
-interface TasksPanelProps { clientId: string; initialTasks?: Task[] }
+interface TasksPanelProps { clientId: string; initialTasks?: Task[]; orgId?: string }
 
-export function TasksPanel({ clientId, initialTasks = [] }: TasksPanelProps) {
+export function TasksPanel({ clientId, initialTasks = [], orgId }: TasksPanelProps) {
   const { tasks, filtered, stats, isLoading, refetch, invalidate, search, setSearch, statusFilter, setStatusFilter, error } = useTasks({ clientId, initial: initialTasks })
 
   // Kanban columns
@@ -432,7 +432,7 @@ export function TasksPanel({ clientId, initialTasks = [] }: TasksPanelProps) {
           </DragOverlay>
         </DndContext>
 
-        <TaskModal open={isModalOpen} onClose={() => setIsModalOpen(false)} editing={editing} form={form} setForm={setForm} onSubmit={handleSubmit} />
+        <TaskModal open={isModalOpen} onClose={() => setIsModalOpen(false)} editing={editing} orgId={orgId} form={form} setForm={setForm} onSubmit={handleSubmit} />
       </div>
     </div>
   )

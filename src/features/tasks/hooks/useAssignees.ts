@@ -11,7 +11,7 @@ export interface AssigneeOption {
 /**
  * Hook para buscar owners e staff disponíveis para atribuição de tasks
  */
-export function useAssignees(orgId: string) {
+export function useAssignees(orgId?: string) {
   const [assignees, setAssignees] = useState<AssigneeOption[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)

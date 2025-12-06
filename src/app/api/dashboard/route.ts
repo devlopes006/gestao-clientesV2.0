@@ -78,18 +78,18 @@ export async function GET(req: NextRequest) {
       dashboardNotes,
     ] = await Promise.all([
       prisma.client.findMany({
-        where: { 
+        where: {
           orgId,
-          deletedAt: null,  // Excluir soft-deleted
+          deletedAt: null, // Excluir soft-deleted
         },
         orderBy: { createdAt: 'desc' },
         // Sem limite - retorna TODOS os clientes
         select: { id: true, name: true, email: true, createdAt: true },
       }),
       prisma.task.findMany({
-        where: { 
+        where: {
           orgId,
-          deletedAt: null,  // Excluir soft-deleted
+          deletedAt: null, // Excluir soft-deleted
         },
         orderBy: { createdAt: 'desc' },
         // Sem limite - retorna TODAS as tarefas
@@ -425,13 +425,16 @@ export async function GET(req: NextRequest) {
       })
 
       const receitas = monthIncome.reduce((sum, i) => sum + i.amount, 0)
-      const transactionExpenses = monthExpenses.reduce((sum, e) => sum + e.amount, 0)
-      
+      const transactionExpenses = monthExpenses.reduce(
+        (sum, e) => sum + e.amount,
+        0
+      )
+
       // Adicionar despesas recorrentes MONTHLY
       const monthlyRecurringExpense = recurringExpenses
-        .filter(r => r.cycle === 'MONTHLY')
+        .filter((r) => r.cycle === 'MONTHLY')
         .reduce((sum, r) => sum + r.amount, 0)
-      
+
       const despesas = transactionExpenses + monthlyRecurringExpense
       const saldo = receitas - despesas
 

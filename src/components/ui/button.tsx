@@ -11,35 +11,41 @@ import { Spinner } from "./spinner";
  */
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-all duration-200 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-ring/50",
+  "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl font-semibold leading-tight tracking-tight transition-all duration-200 disabled:pointer-events-none disabled:opacity-60 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500/40 shadow-sm",
   {
     variants: {
       variant: {
         default:
-          "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95",
+          "bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 text-white shadow-indigo-500/20 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 focus-visible:ring-indigo-500/50",
         destructive:
-          "bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95",
+          "bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 text-white shadow-rose-500/25 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 focus-visible:ring-rose-400/60",
         success:
-          "bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95",
+          "bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 text-white shadow-emerald-500/20 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 focus-visible:ring-emerald-400/60",
         warning:
-          "bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95",
-        outline:
-          "border-2 border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50 text-slate-900 dark:text-white",
+          "bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 text-white shadow-amber-500/25 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 focus-visible:ring-amber-400/60",
         secondary:
-          "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white shadow-sm hover:shadow-md",
+          "bg-white/85 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800/70 text-slate-900 dark:text-slate-100 shadow-sm hover:border-indigo-200 hover:-translate-y-0.5 hover:shadow-lg",
+        outline:
+          "border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white hover:bg-white/70 dark:hover:bg-slate-900/60 hover:-translate-y-0.5",
         ghost:
-          "hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-900 dark:text-white",
+          "text-slate-700 dark:text-slate-200 hover:bg-slate-100/70 dark:hover:bg-slate-800/70",
+        subtle:
+          "bg-slate-100/80 dark:bg-slate-800/70 text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700/70 hover:-translate-y-0.5",
         link:
-          "text-blue-600 dark:text-blue-400 underline-offset-4 hover:underline",
+          "text-indigo-600 dark:text-indigo-300 underline underline-offset-4 hover:text-indigo-500 dark:hover:text-indigo-200 shadow-none",
       },
       size: {
-        default: "h-10 px-6 py-2.5",
-        sm: "h-9 px-4 text-xs",
-        lg: "h-12 px-8 text-base",
-        xl: "h-14 px-10 text-lg",
+        xs: "h-9 px-3 text-xs",
+        sm: "h-10 px-4 text-sm",
+        default: "h-11 px-5 text-sm",
+        lg: "h-12 px-6 text-base",
+        xl: "h-14 px-8 text-lg",
         icon: "size-10",
         "icon-sm": "size-9",
         "icon-lg": "size-12",
+      },
+      block: {
+        true: "w-full",
       },
     },
     defaultVariants: {

@@ -37,6 +37,7 @@ type StatusStyle = {
   text: string
   dot: string
   badge: string
+  header?: string
 }
 
 function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
@@ -200,10 +201,10 @@ function KanbanColumn({ column, tasks, handleEdit, handleDelete }: KanbanColumnP
       <div
         className={`h-full rounded-2xl shadow-xl border-2 transition-all duration-200 flex flex-col ${style.bg} ${style.border}${isOver ? ' ring-4 ring-blue-400 ring-offset-2 scale-[1.02] shadow-2xl' : ''}`}
       >
-        {/* Header da coluna - Mobile First */}
-        <div className={`${style.header} rounded-t-2xl p-3 sm:p-4 border-b-2 ${style.border} flex-shrink-0`}>
-          <div className="flex items-center justify-between gap-2">
-            <h3 className={`font-bold text-sm sm:text-base ${style.text} flex items-center gap-2 truncate`}>
+        {/* Header da coluna */}
+        <div className={`${style.header ?? style.bg} rounded-t-2xl p-4 border-b-2 ${style.border}`}>
+          <div className="flex items-center justify-between">
+            <h3 className={`font-bold text-base ${style.text} flex items-center gap-2`}>
               {column.title}
             </h3>
             <span className={`text-xs font-bold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full ${style.badge} shadow-sm flex-shrink-0`}>

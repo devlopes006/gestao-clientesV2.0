@@ -78,12 +78,12 @@ export function TaskModal({ open, onClose, editing, orgId, form, setForm, onSubm
                 Carregando responsáveis...
               </div>
             ) : assignees.length > 0 ? (
-              <Select value={form.assignee} onValueChange={(value) => setForm({ ...form, assignee: value })}>
+              <Select value={form.assignee || "none"} onValueChange={(value) => setForm({ ...form, assignee: value === "none" ? "" : value })}>
                 <SelectTrigger className="border-2 border-slate-200 dark:border-slate-700">
                   <SelectValue placeholder="Selecione um responsável" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Sem atribuição</SelectItem>
+                  <SelectItem value="none">Sem atribuição</SelectItem>
                   {assignees.map((assignee) => (
                     <SelectItem key={assignee.id} value={assignee.id}>
                       <div className="flex items-center gap-2">

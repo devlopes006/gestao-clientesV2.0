@@ -24,7 +24,6 @@ import {
 } from '@dnd-kit/sortable';
 import { AlertCircle, ListTodo, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 
 interface TaskCardProps {
   task: Task;

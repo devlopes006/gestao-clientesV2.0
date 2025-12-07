@@ -5,8 +5,8 @@
  */
 
 import { spawn } from 'child_process'
-import { cpSync, existsSync, resolve } from 'fs'
-import { dirname } from 'path'
+import { cpSync, existsSync } from 'fs'
+import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)

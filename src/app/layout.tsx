@@ -100,14 +100,12 @@ export default async function RootLayout({
       <body
         className={`${inter.className} min-h-screen bg-background text-foreground antialiased transition-colors`}
       >
-        {nonce && (
-          <script
-            nonce={nonce}
-            dangerouslySetInnerHTML={{
-              __html: `window.__CSP_NONCE__ = "${nonce}";`,
-            }}
-          />
-        )}
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: `window.__CSP_NONCE__ = "${nonce}";`,
+          }}
+        />
         <PostHogProvider />
         <ErrorBoundary>
           <ReactQueryProvider>

@@ -94,7 +94,7 @@ export default function ApiDocsPage() {
             <h3 className="mt-6 text-lg font-semibold">Rate Limiting</h3>
             <p className="text-sm text-gray-600">
               API endpoints are rate-limited to 100 requests per 10 minutes per IP
-              address. If exceeded, you'll receive a 429 response with a{' '}
+              address. If exceeded, you&apos;ll receive a 429 response with a{' '}
               <code>resetAt</code> timestamp.
             </p>
 

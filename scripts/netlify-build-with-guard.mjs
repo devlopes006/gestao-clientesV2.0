@@ -30,7 +30,7 @@ function ensureMiddlewareStub() {
     if (!existsSync(middlewarePath)) {
       writeFileSync(
         middlewarePath,
-        "export default function middleware() {}\n",
+        "function middleware() {}\nmodule.exports = middleware\nmodule.exports.default = middleware\n",
         'utf-8'
       )
       console.log('[netlify-guard] created placeholder middleware.js')

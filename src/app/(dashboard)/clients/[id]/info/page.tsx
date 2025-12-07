@@ -101,7 +101,7 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
 
   return (
     <ProtectedRoute>
-      <div className="space-y-2 sm:space-y-3 lg:space-y-4">
+      <div className="space-y-1 sm:space-y-2 lg:space-y-3">
         {/* Header do Dashboard
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
@@ -149,54 +149,54 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
           </div> /*/}
 
         {/* Grid Principal */}
-        <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+        <div className="space-y-1.5 sm:space-y-2 lg:space-y-3">
           {/* KPIs Principais */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-3 lg:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1 sm:gap-2 lg:gap-3">
             {/* Taxa de Conclusão */}
             <Card className="group relative overflow-hidden border border-emerald-200/70 dark:border-emerald-800/70 bg-gradient-to-br from-emerald-50/80 to-green-50/70 dark:from-emerald-950/40 dark:to-green-950/30 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-sm sm:shadow-md lg:shadow-lg shadow-emerald-200/50 dark:shadow-black/20 hover:shadow-md sm:hover:shadow-lg lg:hover:shadow-xl hover:shadow-emerald-500/20 transition-all duration-300 backdrop-blur-sm cursor-default min-w-0">
-              <CardContent className="p-1 sm:p-3 lg:p-4">
-                <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-2 lg:mb-3 min-w-0">
-                  <div className="p-0.5 sm:p-1.5 lg:p-2 bg-emerald-100/80 dark:bg-emerald-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
-                    <CheckCircle2 className="h-3 w-3 sm:h-4 lg:h-5 text-emerald-600 dark:text-emerald-300" />
+              <CardContent className="p-2 sm:p-3 lg:p-4">
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5 lg:mb-2 min-w-0">
+                  <div className="p-1 sm:p-1.5 lg:p-2 bg-emerald-100/80 dark:bg-emerald-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
+                    <CheckCircle2 className="h-4 w-4 sm:h-5 lg:h-6 text-emerald-600 dark:text-emerald-300" />
                   </div>
-                  <div className="text-sm sm:text-2xl lg:text-3xl font-bold text-emerald-700 dark:text-emerald-200 truncate">{taskStats.completionRate}%</div>
+                  <div className="text-base sm:text-2xl lg:text-3xl font-bold text-emerald-700 dark:text-emerald-200 truncate">{taskStats.completionRate}%</div>
                 </div>
-                <h3 className="text-[8px] sm:text-xs font-semibold text-emerald-700 dark:text-emerald-300 leading-tight truncate">Taxa de Conclusão</h3>
+                <h3 className="text-xs sm:text-sm font-semibold text-emerald-700 dark:text-emerald-300 leading-tight truncate">Taxa de Conclusão</h3>
               </CardContent>
             </Card>
 
             {/* Tarefas Ativas */}
             <Card className="group relative overflow-hidden border border-blue-200/70 dark:border-blue-800/70 bg-gradient-to-br from-blue-50/80 to-indigo-50/70 dark:from-blue-950/40 dark:to-indigo-950/30 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-sm sm:shadow-md lg:shadow-lg shadow-blue-200/50 dark:shadow-black/20 hover:shadow-md sm:hover:shadow-lg lg:hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 backdrop-blur-sm cursor-default min-w-0">
-              <CardContent className="p-1 sm:p-3 lg:p-4">
-                <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-2 lg:mb-3 min-w-0">
-                  <div className="p-0.5 sm:p-1.5 lg:p-2 bg-blue-100/80 dark:bg-blue-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
-                    <FolderKanban className="h-3 w-3 sm:h-4 lg:h-5 text-blue-600 dark:text-blue-300" />
+              <CardContent className="p-2 sm:p-3 lg:p-4">
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5 lg:mb-2 min-w-0">
+                  <div className="p-1 sm:p-1.5 lg:p-2 bg-blue-100/80 dark:bg-blue-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
+                    <FolderKanban className="h-4 w-4 sm:h-5 lg:h-6 text-blue-600 dark:text-blue-300" />
                   </div>
-                  <div className="text-sm sm:text-2xl lg:text-3xl font-bold text-blue-700 dark:text-blue-200 truncate">{taskStats.total - taskStats.completed}</div>
+                  <div className="text-base sm:text-2xl lg:text-3xl font-bold text-blue-700 dark:text-blue-200 truncate">{taskStats.total - taskStats.completed}</div>
                 </div>
-                <h3 className="text-[8px] sm:text-xs font-semibold text-blue-700 dark:text-blue-300 leading-tight truncate">Tarefas Ativas</h3>
+                <h3 className="text-xs sm:text-sm font-semibold text-blue-700 dark:text-blue-300 leading-tight truncate">Tarefas Ativas</h3>
               </CardContent>
             </Card>
 
             {/* Mídias */}
             <Card className="group relative overflow-hidden border border-purple-200/70 dark:border-purple-800/70 bg-gradient-to-br from-purple-50/80 to-pink-50/70 dark:from-purple-950/40 dark:to-pink-950/30 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-sm sm:shadow-md lg:shadow-lg shadow-purple-200/50 dark:shadow-black/20 hover:shadow-md sm:hover:shadow-lg lg:hover:shadow-xl hover:shadow-purple-500/20 transition-all duration-300 backdrop-blur-sm cursor-default min-w-0">
-              <CardContent className="p-1 sm:p-3 lg:p-4">
-                <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-2 lg:mb-3 min-w-0">
-                  <div className="p-0.5 sm:p-1.5 lg:p-2 bg-purple-100/80 dark:bg-purple-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
-                    <ImageIcon className="h-3 w-3 sm:h-4 lg:h-5 text-purple-600 dark:text-purple-300" />
+              <CardContent className="p-2 sm:p-3 lg:p-4">
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5 lg:mb-2 min-w-0">
+                  <div className="p-1 sm:p-1.5 lg:p-2 bg-purple-100/80 dark:bg-purple-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
+                    <ImageIcon className="h-4 w-4 sm:h-5 lg:h-6 text-purple-600 dark:text-purple-300" />
                   </div>
-                  <div className="text-sm sm:text-2xl lg:text-3xl font-bold text-purple-700 dark:text-purple-200 truncate">{mediaStats.total}</div>
+                  <div className="text-base sm:text-2xl lg:text-3xl font-bold text-purple-700 dark:text-purple-200 truncate">{mediaStats.total}</div>
                 </div>
-                <h3 className="text-[8px] sm:text-xs font-semibold text-purple-700 dark:text-purple-300 leading-tight truncate">Total de Mídias</h3>
+                <h3 className="text-xs sm:text-sm font-semibold text-purple-700 dark:text-purple-300 leading-tight truncate">Total de Mídias</h3>
               </CardContent>
             </Card>
 
             {/* Reuniões */}
             <Card className="group relative overflow-hidden border border-amber-200/70 dark:border-amber-800/70 bg-gradient-to-br from-amber-50/85 to-orange-50/75 dark:from-amber-950/40 dark:to-orange-950/30 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-sm sm:shadow-md lg:shadow-lg shadow-amber-200/50 dark:shadow-black/20 hover:shadow-md sm:hover:shadow-lg lg:hover:shadow-xl hover:shadow-amber-500/20 transition-all duration-300 backdrop-blur-sm cursor-default min-w-0">
-              <CardContent className="p-1 sm:p-3 lg:p-4">
-                <div className="flex items-center gap-1 sm:gap-2 mb-0.5 sm:mb-2 lg:mb-3 min-w-0">
-                  <div className="p-0.5 sm:p-1.5 lg:p-2 bg-amber-100/80 dark:bg-amber-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
-                    <Users className="h-3 w-3 sm:h-4 lg:h-5 text-amber-600 dark:text-amber-200" />
+              <CardContent className="p-2 sm:p-3 lg:p-4">
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5 lg:mb-2 min-w-0">
+                  <div className="p-1 sm:p-1.5 lg:p-2 bg-amber-100/80 dark:bg-amber-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
+                    <Users className="h-4 w-4 sm:h-5 lg:h-6 text-amber-600 dark:text-amber-200" />
                   </div>
                   <span className="text-sm sm:text-2xl lg:text-3xl font-bold text-amber-700 dark:text-amber-100 truncate">
                     {meetingStats.upcoming}

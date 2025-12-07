@@ -141,6 +141,19 @@ const config: Config = {
               'linear-gradient(to bottom right, rgb(2 6 23), rgb(15 23 42), rgb(2 6 23))',
           },
         },
+        // Global responsive utilities
+        '.overflow-safe': {
+          'max-width': '100%',
+          'overflow-x': 'hidden',
+        },
+        '.flex-safe': {
+          'min-width': '0',
+          flex: '1 1 0%',
+        },
+        '.grid-safe': {
+          'min-width': '0',
+          overflow: 'hidden',
+        },
       })
     },
   ],

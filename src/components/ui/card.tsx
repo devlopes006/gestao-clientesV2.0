@@ -27,14 +27,11 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
     // default to 'sm' for nested cards, else default to 'md' for top-level cards.
     const effectiveSize: 'sm' | 'md' | 'lg' = (size as any) ?? (parentSize ? 'sm' : 'md')
     const variantClasses = {
-      default:
-        'border border-slate-200/80 dark:border-slate-800/70 bg-white/90 dark:bg-slate-900/80 shadow-sm backdrop-blur overflow-hidden',
-      elevated:
-        'border border-slate-200/80 dark:border-slate-800/60 bg-white/95 dark:bg-slate-900/85 shadow-lg shadow-indigo-500/10 dark:shadow-none backdrop-blur-lg overflow-hidden ring-1 ring-indigo-50 dark:ring-indigo-500/10',
+      default: 'surface-elevated hover-raise transition-base overflow-hidden',
+      elevated: 'surface-elevated shadow-strong transition-base overflow-hidden',
       interactive:
-        'border border-slate-200/80 dark:border-slate-800/70 bg-white/90 dark:bg-slate-900/75 shadow-sm backdrop-blur overflow-hidden cursor-pointer hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 transition-transform',
-      bordered:
-        'border border-slate-300/80 dark:border-slate-700/70 bg-gradient-to-br from-white/85 to-slate-50/80 dark:from-slate-900/70 dark:to-slate-900/60 backdrop-blur overflow-hidden',
+        'surface-elevated transition-base overflow-hidden cursor-pointer hover-raise hover:-translate-y-0.5 active:translate-y-0',
+      bordered: 'surface-muted transition-base overflow-hidden border border-slate-300/80 dark:border-slate-700/70',
     };
 
     return (

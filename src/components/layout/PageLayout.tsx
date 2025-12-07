@@ -48,17 +48,17 @@ export function PageLayout({
   const innerMax = centered ? maxWidthClasses[maxWidth] : "max-w-full";
 
   return (
-    <div className="relative dark:from-slate-950 dark:via-blue-950/20 dark:to-slate-900">
+    <div className="relative dark:from-slate-950 dark:via-blue-950/20 dark:to-slate-900 overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 -left-4 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob" />
-        <div className="absolute top-0 -right-4 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000" />
-        <div className="absolute -bottom-8 left-20 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000" />
+        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000" />
+        <div className="absolute bottom-0 left-20 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000" />
       </div>
 
       <div
         className={cn(
-          "relative px-2 py-2 sm:px-3 sm:py-3 lg:px-4 lg:py-4",
+          "relative px-2 py-1 sm:px-3 sm:py-2 lg:px-4 lg:py-3",
           centered ? "mx-auto" : "",
           innerMax,
           className,

@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { ExpenseCycle } from '@prisma/client'
+import { motion } from 'framer-motion'
 import {
   AlertCircle,
   Calendar,
@@ -269,178 +270,216 @@ export function DespesasTab() {
   })
 
   return (
-    <div className="space-y-6">
-      {/* Cabeçalho Premium */}
-      <Card size="md" className="border-0 shadow-lg bg-gradient-to-r from-red-50 via-rose-50 to-pink-50 dark:from-red-950/30 dark:via-rose-950/30 dark:to-pink-950/30">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 bg-clip-text text-transparent">Despesas Fixas</h2>
-              <p className="text-muted-foreground mt-1">Gestão de despesas recorrentes</p>
-            </div>
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={handleMaterialize} disabled={materializing} className="shadow-md">
-                {materializing ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : <Repeat className="mr-2 h-4 w-4" />}
-                Materializar
-              </Button>
-              <Button onClick={() => setModalOpen(true)} className="shadow-lg">
-                <Plus className="mr-2 h-4 w-4" />
-                Nova Despesa
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-red-50/30 to-rose-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="page-shell py-2 sm:py-6 lg:py-8 space-y-2 sm:space-y-6 lg:space-y-8">
 
-      <Card size="md" className="border-0 shadow-md">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-lg">Filtros</CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="search">Buscar</Label>
-                <Input id="search" placeholder="Nome da despesa..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-11" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="cycle">Ciclo</Label>
-                <select id="cycle" value={cycleFilter} onChange={(e) => setCycleFilter(e.target.value)} className="w-full h-11 px-3 py-2 border rounded-md" aria-label="Filtrar por ciclo">
-                  <option value="">Todos</option>
-                  <option value="MONTHLY">Mensal</option>
-                  <option value="ANNUAL">Anual</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="active">Status</Label>
-                <select id="active" value={activeFilter} onChange={(e) => setActiveFilter(e.target.value)} className="w-full h-11 px-3 py-2 border rounded-md" aria-label="Filtrar por status ativo">
-                  <option value="">Todos</option>
-                  <option value="active">Ativos</option>
-                  <option value="inactive">Inativos</option>
-                </select>
-              </div>
-            </div>
-            <Button variant="outline" onClick={() => { setSearchTerm(''); setCycleFilter(''); setActiveFilter('') }} className="w-full sm:w-auto">Limpar Filtros</Button>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Header */}
+        <motion.div
+          className="relative overflow-hidden rounded-xl sm:rounded-3xl bg-gradient-to-br from-red-600 via-rose-600 to-pink-600 p-3 sm:p-6 lg:p-8 shadow-lg sm:shadow-xl lg:shadow-2xl shadow-red-500/25"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-rose-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
-      <Card size="md" className="border-0 shadow-lg">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-xl">Despesas Recorrentes</CardTitle>
-          <CardDescription className="text-base">Mostrando {filteredExpenses.length} de {expenses.length} despesas</CardDescription>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <div className="flex justify-between items-center gap-3 mb-6 p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-lg">
-            <div className="text-sm font-medium text-muted-foreground">
-              Página {page} de {totalPages}
+          <div className="relative z-10 flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-2 sm:space-y-3">
+              <motion.div
+                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-white/20 backdrop-blur-sm px-2.5 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 text-xs font-bold text-white ring-1 ring-white/30 shadow-lg"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-white animate-pulse shadow-lg shadow-white/50" />
+                Gestão Financeira
+              </motion.div>
+              <div>
+                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white leading-tight tracking-tight">
+                  Despesas Fixas
+                </h1>
+                <p className="text-xs sm:text-sm md:text-base text-white/90 font-medium mt-1 sm:mt-2">
+                  Gestão de despesas recorrentes
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
-                Anterior
+            <motion.div
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+              className="flex gap-2"
+            >
+              <Button variant="secondary" onClick={handleMaterialize} disabled={materializing} className="shadow-lg bg-white/90 hover:bg-white font-bold">
+                {materializing ? <RefreshCw className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" /> : <Repeat className="h-4 w-4 sm:h-5 sm:w-5" />}
+                <span className="ml-2">Materializar</span>
               </Button>
-              <select
-                value={page}
-                onChange={(e) => setPage(Number(e.target.value))}
-                className="px-3 py-1.5 border rounded-md text-sm font-medium"
-                aria-label="Ir para página"
-              >
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-                  <option key={p} value={p}>Página {p}</option>
-                ))}
-              </select>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-              >
-                Próxima
+              <Button onClick={() => setModalOpen(true)} className="shadow-lg bg-white text-red-600 hover:bg-white/90 font-bold">
+                <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="ml-2">Nova Despesa</span>
               </Button>
-            </div>
+            </motion.div>
           </div>
-          {error && <Alert variant="destructive" className="mb-4"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>}
-          {loading ? <div className="text-center py-12 text-muted-foreground">Carregando...</div> : filteredExpenses.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <Repeat className="h-16 w-16 mx-auto mb-4 opacity-20" />
-              <p className="text-lg font-medium">Nenhuma despesa encontrada</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {filteredExpenses.map((expense) => (
-                <div key={expense.id} className="flex items-center justify-between p-5 border rounded-xl hover:bg-gradient-to-r hover:from-red-50 hover:to-rose-50 dark:hover:from-red-950/20 dark:hover:to-rose-950/20 hover:shadow-md transition-all cursor-pointer group" onClick={() => handleViewExpense(expense.id)}>
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className={`p-2 rounded-full ${expense.isActive ? 'bg-green-100' : 'bg-gray-100'}`}>
-                      {expense.isActive ? <ToggleRight className="h-5 w-5 text-green-600" /> : <ToggleLeft className="h-5 w-5 text-gray-400" />}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium">{expense.name}</p>
-                        {getCycleBadge(expense.cycle)}
-                        {!expense.isActive && <Badge variant="outline" className="bg-gray-100">Inativo</Badge>}
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                        {expense.description && <span>{expense.description}</span>}
-                        <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />Próximo: {formatDate(expense.nextDueDate)}</span>
-                        {expense.paidThisMonth && <Badge variant="outline" className="border-green-200 text-green-700">Pago este mês</Badge>}
-                      </div>
-                    </div>
+        </motion.div>
+
+        {/* Filtros */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+
+          <Card size="md" className="surface-elevated hover-raise transition-base">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg">Filtros</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="search">Buscar</Label>
+                    <Input id="search" placeholder="Nome da despesa..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-11" />
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <div className="text-lg font-bold text-red-600">{formatCurrency(expense.amount)}</div>
-                      <div className="text-xs text-muted-foreground">{expense.cycle === 'MONTHLY' ? '/mês' : '/ano'}</div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={(ev) => handleToggleActive(expense.id, expense.isActive, ev)}
-                        className={expense.isActive ? 'text-orange-600' : 'text-green-600'}
-                      >
-                        {expense.isActive ? <ToggleLeft className="h-4 w-4" /> : <ToggleRight className="h-4 w-4" />}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={(ev) => handleDelete(expense.id, ev)}
-                        className="text-red-600"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={(ev) => handleMaterializeOne(expense.id, ev)}
-                        disabled={!expense.isActive || expense.paidThisMonth}
-                        title={expense.paidThisMonth ? 'Já pago/materializado este mês' : 'Pagar este mês'}
-                      >
-                        <CheckCircle className="h-4 w-4" />
-                      </Button>
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cycle">Ciclo</Label>
+                    <select id="cycle" value={cycleFilter} onChange={(e) => setCycleFilter(e.target.value)} className="w-full h-11 px-3 py-2 border rounded-md" aria-label="Filtrar por ciclo">
+                      <option value="">Todos</option>
+                      <option value="MONTHLY">Mensal</option>
+                      <option value="ANNUAL">Anual</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="active">Status</Label>
+                    <select id="active" value={activeFilter} onChange={(e) => setActiveFilter(e.target.value)} className="w-full h-11 px-3 py-2 border rounded-md" aria-label="Filtrar por status ativo">
+                      <option value="">Todos</option>
+                      <option value="active">Ativos</option>
+                      <option value="inactive">Inativos</option>
+                    </select>
                   </div>
                 </div>
-              ))}
+                <Button variant="outline" onClick={() => { setSearchTerm(''); setCycleFilter(''); setActiveFilter('') }} className="w-full sm:w-auto">Limpar Filtros</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.section>
+
+        <Card size="md" className="surface-elevated hover-raise transition-base">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl">Despesas Recorrentes</CardTitle>
+            <CardDescription className="text-base">Mostrando {filteredExpenses.length} de {expenses.length} despesas</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="flex justify-between items-center gap-3 mb-4 sm:mb-6 p-2 sm:p-3 lg:p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-lg">
+              <div className="text-sm font-medium text-muted-foreground">
+                Página {page} de {totalPages}
+              </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
+                  Anterior
+                </Button>
+                <select
+                  value={page}
+                  onChange={(e) => setPage(Number(e.target.value))}
+                  className="px-3 py-1.5 border rounded-md text-sm font-medium"
+                  aria-label="Ir para página"
+                >
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                    <option key={p} value={p}>Página {p}</option>
+                  ))}
+                </select>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                >
+                  Próxima
+                </Button>
+              </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
+            {error && <Alert variant="destructive" className="mb-4"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>}
+            {loading ? <div className="text-center py-12 text-muted-foreground">Carregando...</div> : filteredExpenses.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <Repeat className="h-16 w-16 mx-auto mb-4 opacity-20" />
+                <p className="text-lg font-medium">Nenhuma despesa encontrada</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredExpenses.map((expense) => (
+                  <div key={expense.id} className="responsive-list-item border rounded-xl hover:bg-gradient-to-r hover:from-red-50 hover:to-rose-50 dark:hover:from-red-950/20 dark:hover:to-rose-950/20 hover:shadow-md transition-all cursor-pointer group" onClick={() => handleViewExpense(expense.id)}>
+                    <div className="responsive-flex-container">
+                      <div className={`p-2 rounded-full shrink-0 ${expense.isActive ? 'bg-green-100' : 'bg-gray-100'}`}>
+                        {expense.isActive ? <ToggleRight className="responsive-icon text-green-600" /> : <ToggleLeft className="responsive-icon text-gray-400" />}
+                      </div>
+                      <div className="responsive-content">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-medium responsive-text">{expense.name}</p>
+                          {getCycleBadge(expense.cycle)}
+                          {!expense.isActive && <Badge variant="outline" className="bg-gray-100 shrink-0">Inativo</Badge>}
+                        </div>
+                        <div className="responsive-meta text-muted-foreground mt-1">
+                          {expense.description && <span className="truncate max-w-[150px] sm:max-w-none">{expense.description}</span>}
+                          <span className="flex items-center gap-1 shrink-0"><Calendar className="h-3 w-3" />Próximo: {formatDate(expense.nextDueDate)}</span>
+                          {expense.paidThisMonth && <Badge variant="outline" className="border-green-200 text-green-700 shrink-0 text-[10px] sm:text-xs">Pago este mês</Badge>}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="responsive-actions">
+                      <div className="text-left sm:text-right shrink-0">
+                        <div className="responsive-value text-red-600">{formatCurrency(expense.amount)}</div>
+                        <div className="responsive-badge text-muted-foreground">{expense.cycle === 'MONTHLY' ? '/mês' : '/ano'}</div>
+                      </div>
+                      <div className="flex gap-1.5 sm:gap-2 shrink-0">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(ev) => handleToggleActive(expense.id, expense.isActive, ev)}
+                          className={expense.isActive ? 'text-orange-600' : 'text-green-600'}
+                        >
+                          {expense.isActive ? <ToggleLeft className="h-4 w-4" /> : <ToggleRight className="h-4 w-4" />}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(ev) => handleDelete(expense.id, ev)}
+                          className="text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={(ev) => handleMaterializeOne(expense.id, ev)}
+                          disabled={!expense.isActive || expense.paidThisMonth}
+                          title={expense.paidThisMonth ? 'Já pago/materializado este mês' : 'Pagar este mês'}
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-      <CreateRecurringExpenseModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        onSuccess={handleExpenseCreated}
-      />
+        {/* Modals */}
+        <CreateRecurringExpenseModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          onSuccess={handleExpenseCreated}
+        />
 
-      <RecurringExpenseDetailModal
-        open={detailModalOpen}
-        onOpenChange={setDetailModalOpen}
-        expenseId={selectedExpenseId}
-      />
+        <RecurringExpenseDetailModal
+          open={detailModalOpen}
+          onOpenChange={setDetailModalOpen}
+          expenseId={selectedExpenseId}
+        />
+      </div>
     </div>
   )
 }

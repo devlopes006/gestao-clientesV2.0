@@ -80,8 +80,8 @@ export default async function ClientLayout({
     <AppShell>
       <PageLayout centered={false} maxWidth="7xl">
         {/* Header aligned with design system */}
-        <div className="mb-3 sm:mb-4">
-          <div className="mb-2 sm:mb-3">
+        <div className="mb-2 sm:mb-3">
+          <div className="mb-1.5 sm:mb-2">
             <Button variant="outline" size="sm" className="gap-2 rounded-lg" asChild>
               <Link href="/clients" className="flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
@@ -136,7 +136,7 @@ export default async function ClientLayout({
         </div>
 
         {/* Navigation Tabs */}
-        <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0 mb-2 sm:mb-3">
+        <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0 mb-1.5 sm:mb-2">
           <nav className="flex gap-0.5 pb-0.5 no-scrollbar justify-center">
             <TabsNav items={navItems} />
           </nav>

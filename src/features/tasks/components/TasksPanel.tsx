@@ -427,12 +427,12 @@ export function TasksPanel({ clientId, initialTasks = [], orgId }: TasksPanelPro
           <TaskFilters statusFilter={statusFilter} setStatusFilter={setStatusFilter} search={search} setSearch={setSearch} />
         </div>
 
-        {/* Kanban Board - Mobile Responsive */}
+        {/* Kanban Board - Mobile Vertical, Desktop Grid */}
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <div className="w-full overflow-x-auto -mx-1 sm:-mx-2 md:mx-0 px-1 sm:px-2 md:px-0">
-            <div className="inline-flex gap-2 sm:gap-3 lg:gap-4 min-w-min md:w-full md:grid md:grid-cols-2 lg:grid-cols-4 pb-4 pt-1">
+          <div className="w-full">
+            <div className="flex flex-col gap-2 sm:gap-3 md:grid md:grid-cols-2 lg:grid-cols-4 lg:gap-4">
               {filteredKanbanTasks.map(col => (
-                <div key={col.id} className="w-[calc(100vw-1rem)] sm:w-[280px] md:w-auto md:min-w-0">
+                <div key={col.id} className="w-full">
                   <KanbanColumn
                     column={col}
                     tasks={col.tasks}

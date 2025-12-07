@@ -199,7 +199,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         if (DEBUG_AUTH) logger.debug('[UserContext] getRedirectResult', {
           hasUser: !!result?.user,
           userEmail: result?.user?.email,
-          hasCredential: !!result?.credential,
           result
         });
 

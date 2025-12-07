@@ -88,49 +88,49 @@ export function MetricCard({
           <div className="absolute inset-0 bg-grid-pattern" />
         </div>
 
-        <CardContent className="relative pt-4 sm:pt-6">
-          <div className="flex items-start justify-between mb-4">
-            <div>
+        <CardContent className="relative pt-3 sm:pt-4 lg:pt-6 pb-3 sm:pb-4 lg:pb-6 px-3 sm:px-4 lg:px-6">
+          <div className="flex items-start justify-between gap-2 mb-3 sm:mb-4">
+            <div className="min-w-0">
               <p
-                className={`text-sm font-semibold uppercase tracking-wider ${scheme.text} mb-1`}
+                className={`text-xs sm:text-sm font-semibold uppercase tracking-wider ${scheme.text} mb-1`}
               >
                 {title}
               </p>
               {subtitle && (
-                <p className="text-xs text-muted-foreground">{subtitle}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-2">{subtitle}</p>
               )}
             </div>
             <div
-              className={`p-3 rounded-xl ${scheme.iconBg} group-hover:scale-110 transition-transform duration-300`}
+              className={`p-2 sm:p-2.5 lg:p-3 rounded-lg sm:rounded-xl ${scheme.iconBg} group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}
             >
-              <div className={scheme.text}>{icon}</div>
+              <div className={`${scheme.text} h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6`}>{icon}</div>
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5 sm:space-y-2">
             <p
-              className={`text-2xl font-extrabold tracking-tight ${scheme.valueText}`}
+              className={`text-lg sm:text-2xl lg:text-3xl font-extrabold tracking-tight ${scheme.valueText}`}
             >
               {formatCurrency(value)}
             </p>
 
             {trend && (
               <div
-                className={`flex items-center gap-1.5 text-sm font-medium ${trend.isPositive
+                className={`flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm font-medium ${trend.isPositive
                   ? 'text-green-600 dark:text-green-400'
                   : 'text-red-600 dark:text-red-400'
                   }`}
               >
                 {trend.isPositive ? (
-                  <ArrowUpRight className="h-4 w-4" />
+                  <ArrowUpRight className="h-3 w-3 sm:h-4 lg:h-5" />
                 ) : (
-                  <ArrowDownRight className="h-4 w-4" />
+                  <ArrowDownRight className="h-3 w-3 sm:h-4 lg:h-5" />
                 )}
                 <span>
                   {trend.isPositive ? '+' : ''}
                   {trend.value.toFixed(1)}%
                 </span>
-                <span className="text-xs text-muted-foreground">vs. mês anterior</span>
+                <span className="text-[9px] sm:text-xs text-muted-foreground">vs. mês anterior</span>
               </div>
             )}
           </div>

@@ -54,7 +54,7 @@ export default function AppShell({ children }: AppShellProps) {
       {/* Notificações globais flutuantes */}
       {/* <GlobalNotifications /> */}
       <main className="flex-1 min-h-0 overflow-y-auto">
-        <div className="w-full px-6 sm:px-8 py-4 sm:py-6">{children}</div>
+        <div className="w-full px-2 sm:px-3 py-2 sm:py-3">{children}</div>
         {/* Command Palette (Cmd+K) */}
 
       </main>

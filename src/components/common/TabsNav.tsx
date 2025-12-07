@@ -56,14 +56,14 @@ export function TabsNav({ items }: TabsNavProps) {
         const active = pathname?.startsWith(item.href);
         return (
           <Link key={item.href} href={item.href} className={
-            `gap-0.5 px-1 sm:px-1.5 py-0.5 text-xs rounded-md inline-flex items-center transition-colors border flex-shrink-0 whitespace-nowrap` +
+            `gap-1 px-2 sm:px-2.5 py-1 text-xs rounded-md inline-flex items-center transition-colors border flex-shrink-0 whitespace-nowrap` +
             (item.destructive
               ? " text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20 border-transparent"
               : active
                 ? " bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-foreground"
                 : " hover:bg-slate-100 dark:hover:bg-slate-800 border-transparent text-foreground")
           }>
-            {Icon && <Icon className="h-3 w-3" />}
+            {Icon && <Icon className="h-4 w-4 sm:h-5" />}
             <span className="hidden sm:inline">{item.label}</span>
           </Link>
         );

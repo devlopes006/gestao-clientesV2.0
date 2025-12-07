@@ -6,7 +6,7 @@
 
 import { spawn } from 'child_process'
 import { cpSync, existsSync } from 'fs'
-import { dirname, resolve } from 'path'
+import { delimiter, dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -26,9 +26,19 @@ function copyHeaders() {
   }
 }
 
-const child = spawn('next', ['build'], {
+const nodeBin = resolve(projectRoot, 'node_modules', '.bin')
+const nextExecutable =
+  process.platform === 'win32'
+    ? resolve(nodeBin, 'next.cmd')
+    : resolve(nodeBin, 'next')
+
+const child = spawn(nextExecutable, ['build'], {
   stdio: 'inherit',
-  env: process.env,
+  shell: process.platform === 'win32',
+  env: {
+    ...process.env,
+    PATH: `${nodeBin}${delimiter}${process.env.PATH ?? ''}`,
+  },
 })
 
 child.on('error', (err) => {

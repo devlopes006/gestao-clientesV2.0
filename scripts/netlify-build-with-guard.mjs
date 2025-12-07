@@ -37,6 +37,9 @@ function buildNft() {
     files.add('middleware/middleware-manifest.json')
   }
 
+  // Always include middleware.js so the plugin trace sees it
+  files.add('middleware.js')
+
   const nftDir = dirname(nftPath)
   if (!existsSync(nftDir)) {
     mkdirSync(nftDir, { recursive: true })
@@ -87,10 +90,12 @@ function copyHeaders() {
 }
 
 // Kick off guard loop
+ensureMiddlewareJs()
 buildNft()
 ensureMiddlewareJs()
 const interval = setInterval(() => {
   try {
+    ensureMiddlewareJs()
     buildNft()
     ensureMiddlewareJs()
   } catch (err) {
@@ -112,12 +117,24 @@ child.on('error', (err) => {
 child.on('exit', (code, signal) => {
   clearInterval(interval)
   try {
+    ensureMiddlewareJs()
     buildNft()
     ensureMiddlewareJs()
   } catch (err) {
     console.warn('[netlify-guard] final ensure failed:', err.message)
   }
   if (code === 0) {
+    try {
+      // Mirror stub into standalone bundle expected by Netlify
+      mkdirSync(dirname(standaloneMiddlewarePath), { recursive: true })
+      cpSync(middlewareJsPath, standaloneMiddlewarePath, { force: true })
+      console.log('[netlify-guard] copied middleware.js stub into standalone')
+    } catch (err) {
+      console.warn(
+        '[netlify-guard] failed to copy middleware.js stub:',
+        err.message
+      )
+    }
     copyHeaders()
   }
 

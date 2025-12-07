@@ -9,7 +9,14 @@
  */
 
 import { spawn } from 'child_process'
-import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  writeFileSync,
+} from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 

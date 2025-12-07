@@ -3,20 +3,10 @@
  * Runs `next build` while continuously ensuring the Netlify plugin's
  * expected middleware NFT file exists. This guards against Turbopack/Next 16
  * cleaning `.next/server` before the plugin reads `middleware.js.nft.json`.
- *
- * For Netlify deployments, we temporarily disable middleware during build
- * to avoid Edge Functions bundling issues with Next.js 16.
  */
 
 import { spawn } from 'child_process'
-import {
-  cpSync,
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  renameSync,
-  writeFileSync,
-} from 'fs'
+import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -27,8 +17,6 @@ const serverDir = resolve(projectRoot, '.next/server')
 const nftPath = resolve(serverDir, 'middleware.js.nft.json')
 const manifestPath = resolve(serverDir, 'middleware/middleware-manifest.json')
 const middlewarePath = resolve(serverDir, 'middleware.js')
-const rootMiddlewarePath = resolve(projectRoot, 'middleware.ts')
-const rootMiddlewareBackupPath = resolve(projectRoot, 'middleware.ts.backup')
 
 function ensureMiddlewareStub() {
   try {
@@ -113,40 +101,6 @@ function copyHeaders() {
   }
 }
 
-function disableMiddleware() {
-  // Temporarily rename middleware.ts to prevent Netlify Edge bundling issues
-  if (existsSync(rootMiddlewarePath) && !existsSync(rootMiddlewareBackupPath)) {
-    try {
-      renameSync(rootMiddlewarePath, rootMiddlewareBackupPath)
-      console.log(
-        '[netlify-guard] temporarily disabled middleware.ts for Netlify build'
-      )
-    } catch (err) {
-      console.warn('[netlify-guard] failed to disable middleware:', err.message)
-    }
-  }
-}
-
-function restoreMiddleware() {
-  // Restore middleware.ts after build
-  if (existsSync(rootMiddlewareBackupPath)) {
-    try {
-      renameSync(rootMiddlewareBackupPath, rootMiddlewarePath)
-      console.log('[netlify-guard] restored middleware.ts')
-    } catch (err) {
-      console.warn('[netlify-guard] failed to restore middleware:', err.message)
-    }
-  }
-}
-
-// Disable middleware before build for Netlify compatibility
-if (process.env.NETLIFY === 'true') {
-  console.log(
-    '[netlify-guard] Netlify environment detected, disabling middleware during build'
-  )
-  disableMiddleware()
-}
-
 // Kick off guard loop
 buildNft()
 const interval = setInterval(() => {
@@ -174,11 +128,6 @@ child.on('exit', (code, signal) => {
     buildNft()
   } catch (err) {
     console.warn('[netlify-guard] final ensure failed:', err.message)
-  }
-
-  // Restore middleware after build completes
-  if (process.env.NETLIFY === 'true') {
-    restoreMiddleware()
   }
 
   if (code === 0) {

@@ -16,9 +16,35 @@ const projectRoot = resolve(__dirname, '..')
 const serverDir = resolve(projectRoot, '.next/server')
 const nftPath = resolve(serverDir, 'middleware.js.nft.json')
 const manifestPath = resolve(serverDir, 'middleware/middleware-manifest.json')
+const middlewarePath = resolve(serverDir, 'middleware.js')
+
+function ensureMiddlewareStub() {
+  try {
+    // Next 16 with Turbopack may not emit middleware.js at all. Netlify's
+    // plugin still tries to copy it into the standalone bundle, so create a
+    // harmless placeholder when missing.
+    if (!existsSync(serverDir)) {
+      mkdirSync(serverDir, { recursive: true })
+    }
+
+    if (!existsSync(middlewarePath)) {
+      writeFileSync(
+        middlewarePath,
+        "export default function middleware() {}\n",
+        'utf-8'
+      )
+      console.log('[netlify-guard] created placeholder middleware.js')
+    }
+  } catch (err) {
+    console.warn('[netlify-guard] failed to ensure middleware.js:', err.message)
+  }
+}
 
 function buildNft() {
-  // If file already there, nothing to do
+  // Make sure middleware.js exists even if the NFT already does
+  ensureMiddlewareStub()
+
+  // If NFT file already there, nothing else to do
   if (existsSync(nftPath)) return
 
   const files = new Set()
@@ -57,6 +83,10 @@ function buildNft() {
     content.files.length,
     ')'
   )
+
+  // Ensure the Netlify plugin finds a middleware.js to copy into standalone
+  // output even when Next.js skips emitting it.
+  ensureMiddlewareStub()
 }
 
 function copyHeaders() {

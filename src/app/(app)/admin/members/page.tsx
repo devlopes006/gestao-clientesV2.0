@@ -26,10 +26,7 @@ import { UpdateRoleForm } from "@/features/admin/components/UpdateRoleForm";
 import { formatDate } from "@/lib/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  ChevronDown,
   Clock,
-  Copy,
-  Link as LinkIcon,
   Mail,
   RefreshCcw,
   Shield,
@@ -143,8 +140,10 @@ function MembersAdminPage() {
   if (isLoading)
     return (
       <div className="flex flex-col items-center justify-center h-[70vh] text-muted-foreground">
-        <Clock className="h-6 w-6 mb-3 animate-spin" />
-        Carregando informações...
+        <div className="p-4 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 mb-4 animate-pulse">
+          <Clock className="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400" />
+        </div>
+        <p className="text-lg font-semibold">Carregando informações...</p>
       </div>
     );
 
@@ -512,7 +511,7 @@ function MembersAdminPage() {
 
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader
         title="Administração"
         description="Gerencie membros e permissões da organização"
@@ -520,349 +519,198 @@ function MembersAdminPage() {
         iconColor="bg-indigo-600"
       />
 
-      {/* Hero sofisticado */}
-      <Card className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-lg">
-        <div className="absolute inset-0 pointer-events-none opacity-60 bg-linear-to-br from-indigo-500/10 via-fuchsia-500/10 to-emerald-500/10" />
-        <div className="relative p-6 lg:p-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/60 px-3 py-1 text-[10px] uppercase tracking-wider">
-                <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
-                Central de Membros
-              </div>
-              <h1 className="text-2xl lg:text-3xl font-bold leading-tight">
-                Equipe, Convites e Acessos em um só lugar
-              </h1>
-              <p className="text-sm text-muted-foreground max-w-2xl">
-                Convide novos colaboradores, ajuste permissões e acompanhe o status de acesso com uma experiência elegante e organizada.
-              </p>
-            </div>
-            <div className="grid grid-cols-3 gap-3 min-w-[280px]">
-              <div className="rounded-xl bg-linear-to-br from-violet-600 to-purple-700 text-white p-3 shadow-sm">
-                <div className="text-[10px] uppercase opacity-80">Owners</div>
-                <div className="text-2xl font-bold">{totalByRole.OWNER}</div>
-              </div>
-              <div className="rounded-xl bg-linear-to-br from-sky-600 to-blue-700 text-white p-3 shadow-sm">
-                <div className="text-[10px] uppercase opacity-80">Equipe</div>
-                <div className="text-2xl font-bold">{totalByRole.STAFF}</div>
-              </div>
-              <div className="rounded-xl bg-linear-to-br from-emerald-600 to-green-700 text-white p-3 shadow-sm">
-                <div className="text-[10px] uppercase opacity-80">Clientes</div>
-                <div className="text-2xl font-bold">{totalByRole.CLIENT}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      {/* 📊 RESUMO DE ROLES - Grid Responsivo (polido) */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* KPI Cards - Estatísticas por Role */}
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
         {(["OWNER", "STAFF", "CLIENT"] as Role[]).map((roleKey) => {
           const Icon =
             roleKey === "OWNER" ? Shield : roleKey === "STAFF" ? Users : User;
           const count = totalByRole[roleKey];
           const colors = {
-            OWNER: "from-violet-500 to-purple-600",
-            STAFF: "from-sky-500 to-blue-600",
-            CLIENT: "from-emerald-500 to-green-600",
-          };
-          const bgColors = {
-            OWNER: "bg-linear-to-br from-violet-50/80 to-purple-50/80 dark:from-violet-950/20 dark:to-purple-950/20",
-            STAFF: "bg-linear-to-br from-sky-50/80 to-blue-50/80 dark:from-sky-950/20 dark:to-blue-950/20",
-            CLIENT: "bg-linear-to-br from-emerald-50/80 to-green-50/80 dark:from-emerald-950/20 dark:to-green-950/20",
+            OWNER: "from-violet-600 to-purple-700",
+            STAFF: "from-blue-600 to-cyan-700",
+            CLIENT: "from-emerald-600 to-green-700",
           };
           return (
             <Card
               key={roleKey}
-              className={`rounded-xl border border-border shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group ${bgColors[roleKey]} backdrop-blur-sm`}
+              className="rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 p-6 shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl transition-all duration-300"
             >
-              <div className="p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div
-                    className={`p-2.5 rounded-lg bg-linear-to-r ${colors[roleKey]} shadow-md shadow-black/10`}
-                  >
-                    <Icon className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/80 bg-card/80 px-2.5 py-1 rounded-full border border-border/70">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 font-semibold mb-2">
                     {ROLE_LABEL[roleKey]}
-                  </span>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-3xl font-bold text-foreground">{count}</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
+                  </p>
+                  <p className="text-4xl font-black text-slate-900 dark:text-white">
+                    {count}
+                  </p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                     {ROLE_DESCRIPTION[roleKey]}
                   </p>
                 </div>
+                <div className={`p-4 rounded-2xl bg-gradient-to-br ${colors[roleKey]} shadow-lg`}>
+                  <Icon className="h-8 w-8 text-white" />
+                </div>
               </div>
-              <div
-                className={`h-1 w-full bg-linear-to-r ${colors[roleKey]} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300`}
-              />
             </Card>
           );
         })}
       </div>
 
-      {/* Grid de 2 colunas no desktop */}
-      <div className="lg:grid lg:grid-cols-3 lg:gap-4">
-        {/* Coluna esquerda: membros (desktop 2cols, mobile full) */}
-        <div className="lg:col-span-2 space-y-3">
-          {/* 📨 CONVITE - Card Reutilizável (mobile only) */}
-          <InviteCard responsiveClass="lg:hidden" idSuffix="sm" />
-
-          {/* 👥 LISTA DE MEMBROS - Grid Melhorado */}
-          <Card className="rounded-xl border border-border bg-card shadow-sm overflow-hidden transition-colors">
-            <div className="flex items-center justify-between border-b border-border/50 px-5 py-3 bg-linear-to-r from-blue-50 via-cyan-50 to-teal-50 dark:from-blue-950/30 dark:via-cyan-950/30 dark:to-teal-950/30">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-blue-600">
-                  <Users className="h-4 w-4 text-white" />
-                </div>
-                <h2 className="text-lg font-semibold text-foreground">
-                  Membros da organização
-                </h2>
-              </div>
-              <Badge
-                variant="secondary"
-                className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-blue-100 text-blue-700"
-              >
-                {members.length} membro(s)
+      {/* Main Grid - 2 cols on desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column - Members List */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Members Section */}
+          <div>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white">
+                Membros
+              </h2>
+              <Badge className="rounded-full px-3 py-1.5 bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 font-bold">
+                {members.length}
               </Badge>
             </div>
 
             {members.length === 0 ? (
-              <div className="px-5 py-8 text-center">
-                <Users className="h-12 w-12 text-muted-foreground mx-auto mb-3 opacity-40" />
-                <p className="text-muted-foreground font-medium">
-                  Nenhum membro cadastrado até o momento.
-                </p>
-                <p className="text-sm text-muted-foreground/80 mt-1">
-                  Envie convites usando o formulário acima
-                </p>
-              </div>
+              <Card className="p-12 text-center border-2 border-dashed">
+                <Users className="h-16 w-16 mx-auto mb-4 text-slate-400" />
+                <p className="font-semibold text-slate-600 dark:text-slate-400">Nenhum membro</p>
+              </Card>
             ) : (
-              <div className="divide-y divide-border/50">
+              <div className="space-y-3">
                 {members.map((m) => (
                   <div
                     key={m.id}
-                    className="group relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 px-5 py-3 rounded-xl hover:bg-accent/30 transition-colors border border-transparent hover:border-border/60"
+                    className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-white dark:bg-slate-900/50 hover:shadow-lg transition-all"
                   >
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-3 flex-wrap">
-                        <div className="w-9 h-9 rounded-full bg-linear-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center text-xs font-semibold ring-2 ring-indigo-500/20">
-                          {getAvatarInitial(m.full_name, m.email)}
-                        </div>
-                        <p className="text-base font-semibold text-foreground leading-none">
-                          {m.full_name || m.email?.split("@")[0] || "Usuário"}
-                        </p>
-                        <RoleBadge role={(m.role as Role) || "CLIENT"} />
-                        <MemberStatusBadge status={m.status} />
-                        <OnlineIndicator
-                          online={m.online}
-                          lastActive={m.last_active_at}
-                        />
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold">
+                        {getAvatarInitial(m.full_name, m.email)}
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Mail className="h-3.5 w-3.5" />
-                        <span className="truncate max-w-60">{m.email || "—"}</span>
-                        <span className="opacity-50">•</span>
-                        <Clock className="h-3.5 w-3.5" />
-                        <span>Desde {formatDate(m.created_at)}</span>
+                      <div className="flex-1">
+                        <p className="font-semibold text-slate-900 dark:text-white">
+                          {m.full_name || m.email?.split("@")[0]}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          {m.email}
+                        </p>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-                      <UpdateRoleForm
-                        memberId={m.id}
-                        currentRole={m.role || "CLIENT"}
-                        onSuccess={() => queryClient.invalidateQueries({ queryKey: ["members"] })}
-                      />
+                    <div className="flex items-center gap-2 flex-wrap justify-end">
+                      <RoleBadge role={(m.role as Role) || "CLIENT"} />
+                      <MemberStatusBadge status={m.status} />
+                      <OnlineIndicator online={m.online} lastActive={m.last_active_at} />
 
-                      <Button
-                        size="sm"
-                        variant={
-                          m.status === "inactive" ? "default" : "outline"
-                        }
-                        onClick={() => toggleMemberActive(m.id, m.status)}
-                        className={`rounded-lg shadow-sm ${m.status === "inactive" ? "bg-green-600 hover:bg-green-700 text-white" : ""}`}
-                      >
-                        {m.status === "inactive" ? "Ativar" : "Desativar"}
-                      </Button>
-
-                      {m.role !== "OWNER" && (
-                        <DeleteMemberButton
+                      <div className="flex gap-2">
+                        <UpdateRoleForm
                           memberId={m.id}
-                          displayName={m.full_name || m.email || "Usuário"}
+                          currentRole={m.role || "CLIENT"}
                           onSuccess={() => queryClient.invalidateQueries({ queryKey: ["members"] })}
                         />
-                      )}
+                        <Button
+                          size="sm"
+                          variant={m.status === "inactive" ? "default" : "outline"}
+                          onClick={() => toggleMemberActive(m.id, m.status)}
+                          className="rounded-lg h-9"
+                        >
+                          {m.status === "inactive" ? "Ativar" : "Desativar"}
+                        </Button>
+                        {m.role !== "OWNER" && (
+                          <DeleteMemberButton
+                            memberId={m.id}
+                            displayName={m.full_name || m.email || "Usuário"}
+                            onSuccess={() => queryClient.invalidateQueries({ queryKey: ["members"] })}
+                          />
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             )}
-          </Card>
+          </div>
 
-          {/* ✉️ CONVITES ENVIADOS - Grid Melhorado (moved below members list) */}
-          <Card className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-            <Button
-              type="button"
-              onClick={() => setShowInvites((v) => !v)}
-              className="w-full text-left flex items-center justify-between border-b border-border/50 px-5 py-3 bg-linear-to-r from-amber-50 via-orange-50 to-yellow-50 hover:brightness-95 dark:from-amber-950/30 dark:via-orange-950/30 dark:to-yellow-950/30"
-              aria-expanded={showInvites ? "true" : "false"}
-            >
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-amber-600">
-                  <Mail className="h-4 w-4 text-white" />
-                </div>
-                <h2 className="text-lg font-semibold text-slate-900">
-                  Convites enviados
-                </h2>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge
-                  variant="secondary"
-                  className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold bg-amber-100 text-amber-700"
-                >
-                  {activeInvites.length}
-                </Badge>
-                <ChevronDown
-                  className={`h-4 w-4 text-amber-700 transition-transform ${showInvites ? "rotate-180" : ""}`}
-                />
-              </div>
-            </Button>
+          {/* Invites Section */}
+          <div>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white">
+                Convites
+              </h2>
+              <Badge className="rounded-full px-3 py-1.5 bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 font-bold">
+                {activeInvites.length}
+              </Badge>
+            </div>
 
-            {showInvites &&
-              (activeInvites.length === 0 ? (
-                <div className="px-5 py-8 text-center">
-                  <Mail className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                  <p className="text-slate-500 font-medium">
-                    Nenhum convite pendente.
-                  </p>
-                  <p className="text-sm text-slate-400 mt-1">
-                    Todos os convites foram aceitos ou expirados
-                  </p>
-                </div>
-              ) : (
-                <div className="divide-y divide-border/50">
-                  {activeInvites.map(
-                    (invite: {
-                      id: string;
-                      email: string;
-                      roleRequested: string;
-                      status: string;
-                      expiresAt: string;
-                      token: string;
-                    }) => (
-                      <div
-                        key={invite.id}
-                        className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 px-5 py-3 hover:bg-accent/30 transition-colors"
-                      >
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center gap-3 flex-wrap">
-                            <p className="text-base font-semibold text-foreground">
-                              {invite.email}
-                            </p>
-                            <RoleBadge
-                              role={(invite.roleRequested as Role) || "CLIENT"}
-                            />
-                            <InviteStatusBadge status={invite.status} />
-                          </div>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Clock className="h-3.5 w-3.5" />
-                            <span>
-                              Expira em {formatDate(invite.expiresAt)}
-                            </span>
-                          </div>
-                        </div>
+            {activeInvites.length === 0 ? (
+              <Card className="p-12 text-center border-2 border-dashed">
+                <Mail className="h-16 w-16 mx-auto mb-4 text-slate-400" />
+                <p className="font-semibold text-slate-600 dark:text-slate-400">Nenhum convite pendente</p>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {activeInvites.map((invite: any) => (
+                  <div
+                    key={invite.id}
+                    className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-white dark:bg-slate-900/50 hover:shadow-lg transition-all"
+                  >
+                    <div className="flex-1">
+                      <p className="font-semibold text-slate-900 dark:text-white">
+                        {invite.email}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        Expira em {formatDate(invite.expiresAt)}
+                      </p>
+                    </div>
 
-                        <div className="flex flex-wrap items-center gap-2">
-                          {invite.status === "PENDING" && (
-                            <>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleResendInvite(invite.id)}
-                                disabled={resendingId === invite.id}
-                                className="rounded-lg"
-                              >
-                                {resendingId === invite.id ? (
-                                  <>
-                                    <RefreshCcw className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                                    Reenviando...
-                                  </>
-                                ) : (
-                                  <>
-                                    <RefreshCcw className="h-3.5 w-3.5 mr-1.5" />
-                                    Reenviar
-                                  </>
-                                )}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleCancelInvite(invite.id)}
-                                className="rounded-lg gap-1.5"
-                              >
-                                <XCircle className="h-3.5 w-3.5" />
-                                Cancelar
-                              </Button>
-                            </>
-                          )}
+                    <div className="flex items-center gap-2 flex-wrap justify-end">
+                      <RoleBadge role={(invite.roleRequested as Role) || "CLIENT"} />
+                      <InviteStatusBadge status={invite.status} />
+
+                      {invite.status === "PENDING" && (
+                        <>
                           <Button
                             size="sm"
-                            variant="destructive"
-                            onClick={() => handleDeleteInvite(invite.id)}
-                            className="rounded-lg gap-1.5"
+                            variant="outline"
+                            onClick={() => handleResendInvite(invite.id)}
+                            disabled={resendingId === invite.id}
+                            className="rounded-lg h-9 gap-1.5"
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
-                            Excluir
+                            <RefreshCcw className="h-3.5 w-3.5" />
+                            {resendingId === invite.id ? "Reenviando..." : "Reenviar"}
                           </Button>
-                          {invite.status === "PENDING" && (
-                            <>
-                              <a
-                                href={`/invite/${invite.token}`}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                <LinkIcon className="h-3.5 w-3.5" />
-                                Abrir link
-                              </a>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={async () => {
-                                  try {
-                                    const url = `${window.location.origin}/invite/${invite.token}`;
-                                    await navigator.clipboard.writeText(url);
-                                    toast.success("Link copiado");
-                                  } catch {
-                                    toast.error(
-                                      "Não foi possível copiar o link",
-                                    );
-                                  }
-                                }}
-                                className="rounded-lg gap-1.5"
-                              >
-                                <Copy className="h-3.5 w-3.5" />
-                                Copiar
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    ),
-                  )}
-                </div>
-              ))}
-          </Card>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleCancelInvite(invite.id)}
+                            className="rounded-lg h-9 gap-1.5"
+                          >
+                            <XCircle className="h-3.5 w-3.5" />
+                            Cancelar
+                          </Button>
+                        </>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDeleteInvite(invite.id)}
+                        className="rounded-lg h-9"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Coluna direita: form + invites (desktop only) */}
-        <div className="hidden lg:block lg:col-span-1 space-y-3">
-          {/* 📨 CONVITE - Card Reutilizável (desktop only) */}
-          <InviteCard responsiveClass="" idSuffix="lg" />
-
-
+        {/* Right Column - Invite Form */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-4">
+            <InviteCard responsiveClass="" idSuffix="lg" />
+          </div>
         </div>
       </div>
     </div>

@@ -26,6 +26,3 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-  [plugins.inputs]
-    # Desabilita injeção automática de CSP pelo Netlify para evitar conflitos
-    disableNextJsMiddleware = true

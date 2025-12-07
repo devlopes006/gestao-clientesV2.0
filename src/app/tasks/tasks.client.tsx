@@ -15,6 +15,7 @@ import {
   DragOverlay,
   DragStartEvent,
   PointerSensor,
+  useDroppable,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
@@ -99,9 +100,10 @@ function TaskCard({ task }: { task: Task }) {
 // priority colors now provided by PriorityBadge component
 
 function KanbanColumn({ column, tasks }: { column: Column; tasks: Task[] }) {
+  const { setNodeRef, isOver } = useDroppable({ id: column.id })
   return (
-    <div className="flex-1 min-w-[280px]">
-      <Card className={`h-full rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 shadow-xl transition-all duration-300 hover:shadow-2xl backdrop-blur-sm ${column.color}`}>
+    <div ref={setNodeRef} className="flex flex-col min-w-0 h-full">
+      <Card className={`h-full rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 shadow-xl transition-all duration-300 hover:shadow-2xl backdrop-blur-sm ${column.color} ${isOver ? 'ring-2 ring-purple-400/60' : ''}`}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-sm">{column.title}</h3>
@@ -109,7 +111,7 @@ function KanbanColumn({ column, tasks }: { column: Column; tasks: Task[] }) {
           </div>
         </CardHeader>
         <CardContent className="space-y-2">
-          <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+          <SortableContext id={column.id} items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
             {tasks.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-8">Nenhuma tarefa nesta coluna</p>
             ) : (
@@ -152,8 +154,8 @@ export default function TasksClient({ initialTasks, updateTaskStatusAction }: { 
     if (!over) return;
     const activeTask = tasks.find(t => t.id === active.id);
     if (!activeTask) return;
-    // Corrige: busca coluna pelo id do over, não pelo filtro
-    const overColumn = columns.find(c => c.id === over.id);
+    const overContainerId = (over.data.current as { sortable?: { containerId?: string } } | undefined)?.sortable?.containerId || over.id
+    const overColumn = columns.find(c => c.id === overContainerId);
     const validStatuses = ['TODO', 'IN_PROGRESS', 'REVIEW', 'DONE', 'CANCELLED'] as const;
     const newStatus = overColumn
       ? overColumn.status
@@ -187,15 +189,30 @@ export default function TasksClient({ initialTasks, updateTaskStatusAction }: { 
       <PageContainer className="space-y-6 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
         <Breadcrumbs items={[{ label: 'Kanban de Tarefas', icon: ListTodo }]} />
         <PageLayout centered={false}>
-          <PageHeader title="Kanban de Tarefas" description="Gerencie e organize suas tarefas com drag-and-drop" icon={ListTodo} iconColor="bg-purple-600" actions={<Link href="/clients"><Button size="lg" className="rounded-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 shadow-lg gap-2"><Plus className="w-5 h-5" />Nova Tarefa</Button></Link>} />
+          <PageHeader
+            title="Kanban de Tarefas"
+            description="Gerencie e organize suas tarefas com drag-and-drop"
+            icon={ListTodo}
+            iconColor="bg-purple-600"
+            actions={(
+              <Link href="/clients" className="w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  className="w-full sm:w-auto rounded-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 shadow-lg gap-2"
+                >
+                  <Plus className="w-5 h-5" />Nova Tarefa
+                </Button>
+              </Link>
+            )}
+          />
           <Card className="p-4 border-2 border-slate-200/70 dark:border-slate-800/70 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm">
-            <div className="flex flex-col sm:flex-row gap-3 items-center">
+            <div className="flex flex-col lg:flex-row gap-3 items-stretch lg:items-center">
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><Filter className="h-4 w-4" />Filtros:</div>
-              <div className="flex-1 relative">
+              <div className="flex-1 relative w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Buscar por título ou cliente..." className="pl-9" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                <Input placeholder="Buscar por título ou cliente..." className="pl-9 w-full" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
               </div>
-              <select className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm" value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)} aria-label="Filtrar por prioridade">
+              <select className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm w-full sm:w-52" value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)} aria-label="Filtrar por prioridade">
                 <option value="">Todas as prioridades</option>
                 <option value="LOW">Baixa</option>
                 <option value="MEDIUM">Média</option>
@@ -206,7 +223,7 @@ export default function TasksClient({ initialTasks, updateTaskStatusAction }: { 
             </div>
           </Card>
           <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-            <div className="flex gap-4 overflow-x-auto pb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 pb-4">
               {columns.map(column => <KanbanColumn key={column.id} column={column} tasks={filteredTasks.filter(t => t.status === column.status)} />)}
             </div>
             <DragOverlay>{activeTask ? <TaskCard task={activeTask} /> : null}</DragOverlay>

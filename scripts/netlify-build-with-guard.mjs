@@ -16,6 +16,21 @@ const projectRoot = resolve(__dirname, '..')
 const serverDir = resolve(projectRoot, '.next/server')
 const nftPath = resolve(serverDir, 'middleware.js.nft.json')
 const manifestPath = resolve(serverDir, 'middleware/middleware-manifest.json')
+const middlewareJsPath = resolve(serverDir, 'middleware.js')
+const standaloneMiddlewarePath = resolve(
+  projectRoot,
+  '.next/standalone/.next/server/middleware.js'
+)
+
+function ensureMiddlewareJs() {
+  // Create a stub middleware.js so Netlify plugin's copy step succeeds
+  if (!existsSync(middlewareJsPath)) {
+    const stub = `export default function middleware() { return Response.next?.() ?? null; }\nexport const config = { matcher: [] };\n`
+    mkdirSync(dirname(middlewareJsPath), { recursive: true })
+    writeFileSync(middlewareJsPath, stub, 'utf-8')
+    console.log('[netlify-guard] ensured middleware.js stub')
+  }
+}
 
 function buildNft() {
   // If file already there, nothing to do
@@ -35,6 +50,9 @@ function buildNft() {
     }
     files.add('middleware/middleware-manifest.json')
   }
+
+  // Always include middleware.js so the plugin trace sees it
+  files.add('middleware.js')
 
   const nftDir = dirname(nftPath)
   if (!existsSync(nftDir)) {
@@ -66,9 +84,11 @@ function copyHeaders() {
 }
 
 // Kick off guard loop
+ensureMiddlewareJs()
 buildNft()
 const interval = setInterval(() => {
   try {
+    ensureMiddlewareJs()
     buildNft()
   } catch (err) {
     console.warn('[netlify-guard] ensure failed:', err.message)
@@ -89,11 +109,23 @@ child.on('error', (err) => {
 child.on('exit', (code, signal) => {
   clearInterval(interval)
   try {
+    ensureMiddlewareJs()
     buildNft()
   } catch (err) {
     console.warn('[netlify-guard] final ensure failed:', err.message)
   }
   if (code === 0) {
+    try {
+      // Mirror stub into standalone bundle expected by Netlify
+      mkdirSync(dirname(standaloneMiddlewarePath), { recursive: true })
+      cpSync(middlewareJsPath, standaloneMiddlewarePath, { force: true })
+      console.log('[netlify-guard] copied middleware.js stub into standalone')
+    } catch (err) {
+      console.warn(
+        '[netlify-guard] failed to copy middleware.js stub:',
+        err.message
+      )
+    }
     copyHeaders()
   }
 

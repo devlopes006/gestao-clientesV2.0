@@ -1,0 +1,66 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - img [ref=e9]
+          - generic [ref=e12]: MyGest
+        - generic [ref=e13]:
+          - heading "Gestão inteligente para seu negócio" [level=1] [ref=e14]:
+            - text: Gestão inteligente
+            - text: para seu negócio
+          - paragraph [ref=e15]: Centralize clientes, projetos e equipes em uma plataforma moderna e intuitiva
+        - generic [ref=e16]:
+          - generic [ref=e17]:
+            - img [ref=e19]
+            - generic [ref=e22]:
+              - heading "Gestão completa de clientes" [level=3] [ref=e23]
+              - paragraph [ref=e24]: Acompanhe cada etapa do relacionamento
+          - generic [ref=e25]:
+            - img [ref=e27]
+            - generic [ref=e29]:
+              - heading "Workflow otimizado" [level=3] [ref=e30]
+              - paragraph [ref=e31]: Tarefas, prazos e prioridades organizadas
+          - generic [ref=e32]:
+            - img [ref=e34]
+            - generic [ref=e37]:
+              - heading "Seguro e confiável" [level=3] [ref=e38]
+              - paragraph [ref=e39]: Autenticação robusta e dados protegidos
+      - paragraph [ref=e40]: © 2025 MyGest. Todos os direitos reservados.
+    - generic [ref=e42]:
+      - generic [ref=e45]:
+        - generic [ref=e46]:
+          - heading "Bem-vindo de volta" [level=2] [ref=e47]
+          - paragraph [ref=e48]: Entre com sua conta para continuar
+        - button "Carregando Conectando..." [disabled]:
+          - generic:
+            - status "Carregando"
+            - generic: Conectando...
+        - generic [ref=e53]: Acesso seguro
+        - paragraph [ref=e55]:
+          - text: Ao continuar, você concorda com nossos
+          - link "Termos de Uso" [ref=e56] [cursor=pointer]:
+            - /url: "#"
+          - text: e
+          - link "Política de Privacidade" [ref=e57] [cursor=pointer]:
+            - /url: "#"
+      - paragraph [ref=e58]: Precisa de uma conta? Solicite acesso ao administrador
+  - generic [ref=e60]:
+    - generic [ref=e61]: "Mobile: ✗"
+    - generic [ref=e62]: "Loading: ✓"
+    - generic [ref=e63]: "User: null"
+    - generic [ref=e64]: "Pending Redirect: ✗"
+    - generic [ref=e65]: "Has Invite: ✗"
+    - generic [ref=e66]: "UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64..."
+    - generic [ref=e67]: 19:28:48
+  - group [ref=e69]:
+    - generic "Runtime Diagnostics" [ref=e70] [cursor=pointer]
+  - generic [ref=e71]: "Runtime diagnostics: mounted"
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e77] [cursor=pointer]:
+    - img [ref=e78]
+  - alert [ref=e81]
+```

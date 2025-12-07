@@ -27,11 +27,10 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
     // default to 'sm' for nested cards, else default to 'md' for top-level cards.
     const effectiveSize: 'sm' | 'md' | 'lg' = (size as any) ?? (parentSize ? 'sm' : 'md')
     const variantClasses = {
-      default: 'surface-elevated hover-raise transition-base overflow-hidden',
-      elevated: 'surface-elevated shadow-strong transition-base overflow-hidden',
-      interactive:
-        'surface-elevated transition-base overflow-hidden cursor-pointer hover-raise hover:-translate-y-0.5 active:translate-y-0',
-      bordered: 'surface-muted transition-base overflow-hidden border border-slate-300/80 dark:border-slate-700/70',
+      default: 'ds-card',
+      elevated: 'ds-card-strong',
+      interactive: 'ds-card ds-card--interactive',
+      bordered: 'ds-card ds-card--bordered',
     };
 
     return (
@@ -44,7 +43,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
             // Variant styles
             variantClasses[variant],
             // Hover effect
-            hover && 'hover:shadow-lg hover:border-slate-300/90 dark:hover:border-slate-700/90',
+            hover && 'ds-card--hover',
             className,
           )}
           {...props}

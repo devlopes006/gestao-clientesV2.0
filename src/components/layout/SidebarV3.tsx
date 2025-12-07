@@ -157,6 +157,7 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
       <aside
         className={cn(
           "fixed left-0 top-0 z-50 h-screen bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col transition-all duration-300",
+          "hidden lg:flex",
           collapsed ? "w-20 lg:w-20" : "w-72 lg:w-72",
           isOpen ? "translate-x-0" : "-translate-x-full",
           "lg:translate-x-0",

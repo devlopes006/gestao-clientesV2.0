@@ -1,65 +1,86 @@
 /**
- * Design Tokens Centralizados
- * Fonte única de verdade para cores, espaçamentos, sombras, etc.
- * Usado para gerar CSS custom properties e configuração do Tailwind
+ * Design Tokens centralizados
+ * Fonte única para gerar CSS vars e Tailwind theme
  */
 
 export const colors = {
-  // Brand palette (mantém compatibilidade com código existente)
   brand: {
-    50: '#f6f5ff',
-    100: '#ede9ff',
-    200: '#dbccff',
-    300: '#c1a8ff',
-    400: '#a07cff',
-    500: '#7b4bff',
-    600: '#6a3be6',
-    700: '#562fb4',
-    800: '#3f2388',
-    900: '#2b1a5a',
-    DEFAULT: '#5B4BFB',
-    foreground: '#FFFFFF',
-    subtle: '#F0EEFF',
+    50: '#eef2ff',
+    100: '#e0e7ff',
+    200: '#c7d2fe',
+    300: '#a5b4fc',
+    400: '#818cf8',
+    500: '#6366f1',
+    600: '#4f46e5',
+    700: '#4338ca',
+    800: '#3730a3',
+    900: '#312e81',
+    DEFAULT: '#4f46e5',
+    foreground: '#ffffff',
   },
-  // Semantic status colors
-  status: {
-    success: '#16A34A',
-    warning: '#F59E0B',
-    danger: '#DC2626',
-    info: '#0EA5E9',
+  accent: {
+    50: '#f0f9ff',
+    100: '#e0f2fe',
+    200: '#bae6fd',
+    300: '#7dd3fc',
+    400: '#38bdf8',
+    500: '#0ea5e9',
+    600: '#0284c7',
+    700: '#0369a1',
+    800: '#075985',
+    900: '#0c4a6e',
+    DEFAULT: '#0ea5e9',
+  },
+  semantic: {
+    success: '#16a34a',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#0ea5e9',
+  },
+  slate: {
+    50: '#f8fafc',
+    100: '#f1f5f9',
+    200: '#e2e8f0',
+    300: '#cbd5e1',
+    400: '#94a3b8',
+    500: '#64748b',
+    600: '#475569',
+    700: '#334155',
+    800: '#1e293b',
+    900: '#0f172a',
+    950: '#020617',
   },
 } as const
 
 export const spacing = {
-  xs: '0.25rem', // 4px (small step for tight UI)
-  sm: '0.5rem', // 8px
-  md: '1rem', // 16px
-  lg: '1.5rem', // 24px
-  xl: '2rem', // 32px
-  '2xl': '2.5rem', // 40px
-  '3xl': '3.5rem', // 56px
-  '4xl': '4.5rem', // 72px
+  xs: '0.25rem',
+  sm: '0.5rem',
+  md: '1rem',
+  lg: '1.5rem',
+  xl: '2rem',
+  '2xl': '2.5rem',
+  '3xl': '3.5rem',
+  '4xl': '4.5rem',
 } as const
 
 export const radii = {
-  xs: '0.125rem', // 2px (sharp controls)
-  sm: '0.375rem', // 6px
-  md: '0.5rem', // 8px
-  lg: '0.75rem', // 12px (rounded containers)
-  xl: '1rem', // 16px (cards and modals)
-  '2xl': '1.5rem', // 24px (large panels)
+  xs: '0.25rem',
+  sm: '0.5rem',
+  md: '0.75rem',
+  lg: '1rem',
+  xl: '1.25rem',
+  '2xl': '1.75rem',
   full: '9999px',
 } as const
 
 export const shadows = {
-  xs: '0 1px 2px rgba(16,24,40,0.04)',
-  sm: '0 4px 8px rgba(16,24,40,0.06)',
-  md: '0 8px 20px rgba(16,24,40,0.08)',
-  lg: '0 20px 40px rgba(16,24,40,0.12)',
-  xl: '0 30px 80px rgba(16,24,40,0.18)',
-  '2xl': '0 40px 120px rgba(16,24,40,0.22)',
-  focus: '0 0 0 4px rgba(91,75,251,0.18)',
-  soft: '0 6px 24px rgba(16,24,40,0.06)',
+  xs: '0 1px 2px rgba(15, 23, 42, 0.05)',
+  sm: '0 4px 10px rgba(15, 23, 42, 0.06)',
+  md: '0 10px 24px rgba(15, 23, 42, 0.08)',
+  lg: '0 16px 40px rgba(15, 23, 42, 0.12)',
+  xl: '0 24px 60px rgba(15, 23, 42, 0.16)',
+  focus: '0 0 0 4px rgba(79, 70, 229, 0.2)',
+  soft: '0 8px 28px rgba(15, 23, 42, 0.08)',
 } as const
 
 export const typography = {
@@ -68,15 +89,15 @@ export const typography = {
     mono: 'ui-monospace, monospace',
   },
   fontSize: {
-    xs: ['0.75rem', { lineHeight: '1rem' }], // 12px
-    sm: ['0.875rem', { lineHeight: '1.25rem' }], // 14px
-    base: ['1rem', { lineHeight: '1.6rem' }], // 16px
-    md: ['1.125rem', { lineHeight: '1.75rem' }], // 18px
-    lg: ['1.25rem', { lineHeight: '1.8rem' }], // 20px
-    xl: ['1.5rem', { lineHeight: '2rem' }], // 24px
-    '2xl': ['1.875rem', { lineHeight: '2.25rem' }], // 30px
-    '3xl': ['2.25rem', { lineHeight: '2.5rem' }], // 36px
-    '4xl': ['3rem', { lineHeight: '1' }], // 48px
+    xs: ['0.75rem', { lineHeight: '1.1rem' }],
+    sm: ['0.875rem', { lineHeight: '1.35rem' }],
+    base: ['1rem', { lineHeight: '1.6rem' }],
+    md: ['1.125rem', { lineHeight: '1.8rem' }],
+    lg: ['1.25rem', { lineHeight: '1.9rem' }],
+    xl: ['1.5rem', { lineHeight: '2.1rem' }],
+    '2xl': ['1.875rem', { lineHeight: '2.4rem' }],
+    '3xl': ['2.25rem', { lineHeight: '2.6rem' }],
+    '4xl': ['2.75rem', { lineHeight: '1' }],
   },
   fontWeight: {
     light: '300',
@@ -84,6 +105,7 @@ export const typography = {
     medium: '500',
     semibold: '600',
     bold: '700',
+    extrabold: '800',
   },
 } as const
 
@@ -104,24 +126,17 @@ export const zIndex = {
   tooltip: 1500,
 } as const
 
-/**
- * Gradientes predefinidos
- */
 export const gradients = {
-  brand: 'linear-gradient(135deg, #5B4BFB 0%, #8E54E9 50%, #FF6EA6 100%)',
-  warm: 'linear-gradient(135deg, #F97316, #EF4444)',
-  cool: 'linear-gradient(135deg, #0EA5E9, #6366F1)',
-  studio: 'linear-gradient(90deg, #2563eb, #7c3aed)',
+  brand: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #0ea5e9 100%)',
+  warm: 'linear-gradient(135deg, #f97316, #ef4444)',
+  cool: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+  emerald: 'linear-gradient(135deg, #10b981, #059669)',
 } as const
 
-/**
- * Tokens específicos do Branding Studio
- * (mantém compatibilidade com código existente)
- */
 export const studioTokens = {
   cardBg: '#ffffff',
-  cardBorder: '#e6e9ee',
+  cardBorder: '#e2e8f0',
   cardRadius: '0.75rem',
-  cardShadow: '0 6px 18px rgba(15, 23, 42, 0.06)',
+  cardShadow: '0 8px 24px rgba(15, 23, 42, 0.08)',
   accentGradient: 'linear-gradient(90deg, #2563eb, #7c3aed)',
 } as const

@@ -1,6 +1,5 @@
 "use client";
 
-import { AuthDebug } from "@/components/AuthDebug";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useUser } from "@/context/UserContext";
@@ -217,7 +216,6 @@ export default function LoginPage() {
       }
     >
       <LoginPageInner />
-      {process.env.NODE_ENV === 'development' && <AuthDebug />}
     </Suspense>
   );
 }

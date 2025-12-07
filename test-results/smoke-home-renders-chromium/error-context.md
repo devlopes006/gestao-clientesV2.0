@@ -1,0 +1,57 @@
+# Page snapshot
+
+```yaml
+- generic:
+  - generic [active]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - navigation [ref=e6]:
+            - button "previous" [disabled] [ref=e7]:
+              - img "previous" [ref=e8]
+            - generic [ref=e10]:
+              - generic [ref=e11]: 1/
+              - text: "1"
+            - button "next" [disabled] [ref=e12]:
+              - img "next" [ref=e13]
+          - img
+        - generic [ref=e15]:
+          - link "Next.js 16.0.1 (stale) Turbopack" [ref=e16] [cursor=pointer]:
+            - /url: https://nextjs.org/docs/messages/version-staleness
+            - img [ref=e17]
+            - generic "There is a newer version (16.0.7) available, upgrade recommended!" [ref=e19]: Next.js 16.0.1 (stale)
+            - generic [ref=e20]: Turbopack
+          - img
+      - dialog "Build Error" [ref=e22]:
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - generic [ref=e27]:
+              - generic [ref=e29]: Build Error
+              - generic [ref=e30]:
+                - button "Copy Error Info" [ref=e31] [cursor=pointer]:
+                  - img [ref=e32]
+                - button "No related documentation found" [disabled] [ref=e34]:
+                  - img [ref=e35]
+                - link "Learn more about enabling Node.js inspector for server code with Chrome DevTools" [ref=e37] [cursor=pointer]:
+                  - /url: https://nextjs.org/docs/app/building-your-application/configuring/debugging#server-side-code
+                  - img [ref=e38]
+            - generic [ref=e47]: Error evaluating Node.js code
+          - generic [ref=e49]:
+            - generic [ref=e51]:
+              - img [ref=e53]
+              - generic [ref=e55]: ./src/app/globals.css
+              - button "Open in editor" [ref=e56] [cursor=pointer]:
+                - img [ref=e58]
+            - generic [ref=e62]: "Error evaluating Node.js code CssSyntaxError: C:\\Users\\devel\\projetos\\gestao-clientes\\src\\app\\globals.css:161:20: The `bg-white/92` class does not exist. If `bg-white/92` is a custom class, make sure it is defined within a `@layer` directive. [at Input.error (turbopack:///[project]/node_modules/.pnpm/postcss@8.5.6/node_modules/postcss/lib/input.js:135:16)] [at AtRule.error (turbopack:///[project]/node_modules/.pnpm/postcss@8.5.6/node_modules/postcss/lib/node.js:146:32)] [at processApply (C:\\Users\\devel\\projetos\\gestao-clientes\\node_modules\\.pnpm\\tailwindcss@3.4.18_tsx@4.20.6\\node_modules\\tailwindcss\\lib\\lib\\expandApplyAtRules.js:380:29)] [at C:\\Users\\devel\\projetos\\gestao-clientes\\node_modules\\.pnpm\\tailwindcss@3.4.18_tsx@4.20.6\\node_modules\\tailwindcss\\lib\\lib\\expandApplyAtRules.js:551:9] [at C:\\Users\\devel\\projetos\\gestao-clientes\\node_modules\\.pnpm\\tailwindcss@3.4.18_tsx@4.20.6\\node_modules\\tailwindcss\\lib\\processTailwindFeatures.js:55:50] [at async plugins (C:\\Users\\devel\\projetos\\gestao-clientes\\node_modules\\.pnpm\\tailwindcss@3.4.18_tsx@4.20.6\\node_modules\\tailwindcss\\lib\\plugin.js:38:17)] [at async LazyResult.runAsync (turbopack:///[project]/node_modules/.pnpm/postcss@8.5.6/node_modules/postcss/lib/lazy-result.js:293:11)] [at async transform (turbopack:///[turbopack-node]/transforms/postcss.ts:70:34)] [at async run (turbopack:///[turbopack-node]/ipc/evaluate.ts:92:23)] Import trace: Client Component Browser: ./src/app/globals.css [Client Component Browser] ./src/app/layout.tsx [Server Component]"
+        - generic [ref=e63]: "1"
+        - generic [ref=e64]: "2"
+    - generic [ref=e69] [cursor=pointer]:
+      - button "Open Next.js Dev Tools" [ref=e70]:
+        - img [ref=e71]
+      - button "Open issues overlay" [ref=e75]:
+        - generic [ref=e76]:
+          - generic [ref=e77]: "0"
+          - generic [ref=e78]: "1"
+        - generic [ref=e79]: Issue
+  - alert [ref=e80]
+```

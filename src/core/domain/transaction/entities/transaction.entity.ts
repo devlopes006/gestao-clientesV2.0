@@ -1,4 +1,4 @@
-import { Money } from '@/domain/invoice/value-objects/money.vo'
+import { Money } from '@/core/domain/invoice/value-objects/money.vo'
 import {
   TransactionStatus,
   TransactionSubtype,

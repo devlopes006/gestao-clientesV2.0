@@ -12,11 +12,13 @@ import { IPaymentRepository } from '@/core/ports/repositories/payment.repository
 const dueDateSchema = z
   .union([z.date(), z.string()])
   .transform((value) => (value instanceof Date ? value : new Date(value)))
+  .optional()
 
 export const RecordPaymentInputSchema = z.object({
   id: z.string().uuid().optional(),
   orgId: z.string().uuid(),
-  clientId: z.string().uuid(),
+  clientId: z.string().uuid().optional(),
+  invoiceId: z.string().uuid().optional(),
   amount: z.number().positive(),
   dueDate: dueDateSchema,
   description: z.string().nullable().optional(),

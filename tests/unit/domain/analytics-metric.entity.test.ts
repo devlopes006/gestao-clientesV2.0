@@ -1,8 +1,8 @@
-import { AnalyticsMetric } from '@/domain/analytics/entities/analytics-metric.entity'
+import { AnalyticsMetric } from '@/core/domain/analytics/entities/analytics-metric.entity'
 import {
   MetricType,
   TimeRangeType,
-} from '@/domain/analytics/value-objects/analytics-metric.vo'
+} from '@/core/domain/analytics/value-objects/analytics-metric.vo'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 describe('AnalyticsMetric Entity', () => {

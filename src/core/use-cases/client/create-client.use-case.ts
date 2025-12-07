@@ -2,7 +2,7 @@ import type { ClientAggregate } from '@/core/domain/client/entities/client.entit
 import type { ClientRepository } from '@/core/ports/repositories/client.repository'
 import type { ClientBillingPort } from '@/core/ports/services/billing.service'
 import type { CreateClientInput } from '@/shared/schemas/client.schema'
-import { CLIENT_STATUS, type ClientStatus } from '@/types/enums'
+import { CLIENT_STATUS, type ClientStatus } from '@/shared/types/enums'
 import type { ClientPlan, SocialChannel } from '@prisma/client'
 
 export class CreateClientUseCase {

@@ -8,7 +8,6 @@ import {
   inviteStaffAction,
   resendInviteAction,
 } from "@/app/(app)/admin/members/actions";
-import { PageHeader } from "@/components/layout/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -366,56 +365,59 @@ function MembersAdminPage() {
       }
     }
     return (
-      <Card className={`rounded-xl border border-border bg-card shadow-sm overflow-hidden ${responsiveClass}`}>
-        <div className="border-b border-border/50 px-5 py-3 bg-linear-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950/30 dark:via-purple-950/30 dark:to-pink-950/30">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-indigo-600">
-              <UserPlus className="h-4 w-4 text-white" />
+      <Card className={`rounded-3xl border border-slate-200/50 dark:border-slate-800/50 bg-gradient-to-br from-white/80 to-slate-50/80 dark:from-slate-900/60 dark:to-slate-950/60 shadow-lg backdrop-blur-sm overflow-hidden hover:shadow-xl transition-all duration-300 ${responsiveClass}`}>
+        <div className="border-b border-slate-200/50 dark:border-slate-800/50 px-6 md:px-7 py-5 md:py-6 bg-gradient-to-r from-indigo-50/60 via-purple-50/60 to-pink-50/60 dark:from-indigo-950/30 dark:via-purple-950/30 dark:to-pink-950/30 backdrop-blur-md">
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 shadow-lg">
+              <UserPlus className="h-6 w-6 text-white" />
             </div>
-            <h2 className="text-lg font-semibold text-foreground">
-              Convidar novo membro
-            </h2>
+            <div>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                Convidar Membro
+              </h2>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">Expanda sua equipe</p>
+            </div>
           </div>
         </div>
 
-        <form action={handleInvite} className="p-5" onSubmit={onInviteSubmit}>
+        <form action={handleInvite} className="p-6 md:p-7 space-y-5" onSubmit={onInviteSubmit}>
           <input type="hidden" name="allow_resend_existing" value="true" />
           {/* persist selected role and client in form data for server action */}
           <input type="hidden" name="role" value={selectedRole} />
           <input type="hidden" name="client_id" value={selectedClient ?? ""} />
-          <div className="space-y-4">
-            <div className="space-y-2">
+          <div className="space-y-5">
+            <div className="space-y-2.5">
               <Label
                 htmlFor={`invite-email-${idSuffix}`}
-                className="text-sm font-medium text-foreground"
+                className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide"
               >
-                E-mail do convidado
+                E-mail
               </Label>
               <Input
                 id={`invite-email-${idSuffix}`}
                 name="email"
                 type="email"
                 required
-                placeholder="pessoa@empresa.com"
+                placeholder="contato@empresa.com"
                 autoComplete="email"
                 inputMode="email"
-                className="h-11 border-border bg-background focus:ring-2 focus:ring-indigo-500"
+                className="h-12 border-slate-200/70 dark:border-slate-800/70 bg-white dark:bg-slate-900/50 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 rounded-lg font-medium"
                 isInvalid={!!emailError}
                 error={emailError ?? undefined}
               />
               {emailError && (
-                <p id={`invite-email-${idSuffix}-error`} className="text-sm text-red-600 mt-1">
+                <p id={`invite-email-${idSuffix}-error`} className="text-sm text-red-600 dark:text-red-400 font-medium mt-1">
                   {emailError}
                 </p>
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <Label
                 htmlFor={`invite-role-${idSuffix}`}
-                className="text-sm font-medium text-foreground"
+                className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide"
               >
-                Papel na organização
+                Papel
               </Label>
               <Select
                 value={selectedRole}
@@ -425,7 +427,7 @@ function MembersAdminPage() {
                 }}
                 defaultValue="STAFF"
               >
-                <SelectTrigger id={`invite-role-${idSuffix}`} className="h-11 bg-background">
+                <SelectTrigger id={`invite-role-${idSuffix}`} className="h-12 bg-white dark:bg-slate-900/50 border-slate-200/70 dark:border-slate-800/70 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 rounded-lg font-medium">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -436,12 +438,12 @@ function MembersAdminPage() {
             </div>
 
             {selectedRole === "CLIENT" && (
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 <Label
                   htmlFor={`invite-client-${idSuffix}`}
-                  className="text-sm font-medium text-foreground"
+                  className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide"
                 >
-                  Vincular a cliente
+                  Cliente
                 </Label>
                 <Select
                   value={selectedClient ?? "__AUTO__"}
@@ -449,11 +451,11 @@ function MembersAdminPage() {
                     setSelectedClient(value === "__AUTO__" ? undefined : value)
                   }
                 >
-                  <SelectTrigger id={`invite-client-${idSuffix}`} className="h-11 bg-background">
+                  <SelectTrigger id={`invite-client-${idSuffix}`} className="h-12 bg-white dark:bg-slate-900/50 border-slate-200/70 dark:border-slate-800/70 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 rounded-lg font-medium">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="__AUTO__">Criar novo cliente automaticamente</SelectItem>
+                    <SelectItem value="__AUTO__">Criar novo automaticamente</SelectItem>
                     {clientsData?.data?.map((client: { id: string; name: string }) => (
                       <SelectItem key={client.id} value={client.id}>
                         {client.name}
@@ -465,11 +467,11 @@ function MembersAdminPage() {
             )}
           </div>
 
-          <div className="flex justify-end pt-3 border-t border-border/50 mt-4">
+          <div className="flex justify-end pt-5 border-t border-slate-200/50 dark:border-slate-800/50 mt-5">
             <Button
               type="submit"
               disabled={submitting}
-              className="bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 px-8 h-11 gap-2 shadow-lg"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 h-12 gap-2 shadow-lg hover:shadow-xl transition-all font-bold rounded-lg"
               aria-busy={submitting}
               aria-disabled={submitting}
             >
@@ -512,43 +514,84 @@ function MembersAdminPage() {
 
   return (
     <div className="space-y-8">
-      <PageHeader
-        title="Administração"
-        description="Gerencie membros e permissões da organização"
-        icon={Shield}
-        iconColor="bg-indigo-600"
-      />
+      {/* Header Premium com Background Animado */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900 dark:from-slate-950 dark:via-indigo-950 dark:to-purple-950 border border-indigo-700/30 shadow-2xl">
+        {/* Elementos de Fundo Decorativos */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-10 -right-10 w-96 h-96 bg-gradient-to-l from-indigo-500/30 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+          <div className="absolute -bottom-10 -left-10 w-96 h-96 bg-gradient-to-r from-purple-500/30 to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-500/15 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s' }} />
+        </div>
+
+        {/* Conteúdo do Header */}
+        <div className="relative z-10 p-8 md:p-12 lg:p-16">
+          <div className="flex items-start justify-between gap-8">
+            <div className="space-y-4 max-w-3xl flex-1">
+              <div className="flex items-center gap-4">
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 shadow-xl">
+                  <Shield className="h-9 w-9 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight">
+                    Administração
+                  </h1>
+                  <p className="text-indigo-200/90 font-semibold text-sm md:text-base mt-2">
+                    Painel de controle da organização
+                  </p>
+                </div>
+              </div>
+              <p className="text-lg text-indigo-100/80 font-medium leading-relaxed">
+                Gerencie membros, permissões, convites e controle total da sua organização
+              </p>
+            </div>
+            <div className="hidden lg:block text-right flex-shrink-0">
+              <p className="text-indigo-300/70 text-xs font-bold uppercase tracking-widest mb-2">Total de membros</p>
+              <div className="space-y-1">
+                <p className="text-6xl font-black text-white">{members.length}</p>
+                <div className="w-12 h-1 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full mx-auto"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* KPI Cards - Estatísticas por Role */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+      <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-3">
         {(["OWNER", "STAFF", "CLIENT"] as Role[]).map((roleKey) => {
           const Icon =
             roleKey === "OWNER" ? Shield : roleKey === "STAFF" ? Users : User;
           const count = totalByRole[roleKey];
           const colors = {
-            OWNER: "from-violet-600 to-purple-700",
-            STAFF: "from-blue-600 to-cyan-700",
-            CLIENT: "from-emerald-600 to-green-700",
+            OWNER: "from-violet-600 to-purple-700 shadow-violet-500/30",
+            STAFF: "from-blue-600 to-cyan-700 shadow-blue-500/30",
+            CLIENT: "from-emerald-600 to-green-700 shadow-emerald-500/30",
+          };
+          const bgColors = {
+            OWNER: "hover:bg-violet-50/60 dark:hover:bg-violet-950/30 border-violet-200/40 dark:border-violet-800/40 bg-gradient-to-br from-violet-50/40 to-purple-50/40 dark:from-violet-950/20 dark:to-purple-950/20",
+            STAFF: "hover:bg-blue-50/60 dark:hover:bg-blue-950/30 border-blue-200/40 dark:border-blue-800/40 bg-gradient-to-br from-blue-50/40 to-cyan-50/40 dark:from-blue-950/20 dark:to-cyan-950/20",
+            CLIENT: "hover:bg-emerald-50/60 dark:hover:bg-emerald-950/30 border-emerald-200/40 dark:border-emerald-800/40 bg-gradient-to-br from-emerald-50/40 to-green-50/40 dark:from-emerald-950/20 dark:to-green-950/20",
           };
           return (
             <Card
               key={roleKey}
-              className="rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 p-6 shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl transition-all duration-300"
+              className={`rounded-2xl border-2 p-6 md:p-7 transition-all duration-300 hover:shadow-xl cursor-default group ${bgColors[roleKey]}`}
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 font-semibold mb-2">
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-3 flex-1">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider">
                     {ROLE_LABEL[roleKey]}
                   </p>
-                  <p className="text-4xl font-black text-slate-900 dark:text-white">
-                    {count}
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    {ROLE_DESCRIPTION[roleKey]}
-                  </p>
+                  <div className="space-y-1">
+                    <p className="text-5xl md:text-6xl font-black bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+                      {count}
+                    </p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 font-semibold mt-2">
+                      {ROLE_DESCRIPTION[roleKey]}
+                    </p>
+                  </div>
                 </div>
-                <div className={`p-4 rounded-2xl bg-gradient-to-br ${colors[roleKey]} shadow-lg`}>
-                  <Icon className="h-8 w-8 text-white" />
+                <div className={`p-4 md:p-5 rounded-2xl bg-gradient-to-br ${colors[roleKey]} shadow-lg transform group-hover:scale-110 transition-all duration-300 flex-shrink-0`}>
+                  <Icon className="h-8 md:h-9 w-8 md:w-9 text-white" />
                 </div>
               </div>
             </Card>
@@ -557,52 +600,60 @@ function MembersAdminPage() {
       </div>
 
       {/* Main Grid - 2 cols on desktop */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
         {/* Left Column - Members List */}
         <div className="lg:col-span-2 space-y-6">
           {/* Members Section */}
           <div>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-2xl font-black text-slate-900 dark:text-white">
-                Membros
-              </h2>
-              <Badge className="rounded-full px-3 py-1.5 bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 font-bold">
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <div className="flex-1">
+                <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white leading-tight">
+                  Membros da Equipe
+                </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">Gerencie as pessoas e seus acessos</p>
+              </div>
+              <Badge className="rounded-full px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold text-lg shadow-lg flex-shrink-0">
                 {members.length}
               </Badge>
             </div>
 
             {members.length === 0 ? (
-              <Card className="p-12 text-center border-2 border-dashed">
-                <Users className="h-16 w-16 mx-auto mb-4 text-slate-400" />
-                <p className="font-semibold text-slate-600 dark:text-slate-400">Nenhum membro</p>
+              <Card className="p-12 text-center border-2 border-dashed rounded-2xl">
+                <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-slate-100 dark:bg-slate-800 mb-4">
+                  <Users className="h-10 w-10 text-slate-400" />
+                </div>
+                <p className="font-semibold text-slate-600 dark:text-slate-400 text-lg">Nenhum membro adicionado</p>
+                <p className="text-sm text-slate-500 dark:text-slate-500 mt-1">Comece convidando membros usando o formulário à direita</p>
               </Card>
             ) : (
               <div className="space-y-3">
                 {members.map((m) => (
                   <div
                     key={m.id}
-                    className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-white dark:bg-slate-900/50 hover:shadow-lg transition-all"
+                    className="flex items-center justify-between p-4 md:p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800/70 bg-white/60 dark:bg-slate-900/40 hover:bg-slate-50/80 dark:hover:bg-slate-900/60 hover:border-slate-300/70 dark:hover:border-slate-700/70 hover:shadow-md transition-all duration-200 group backdrop-blur-sm"
                   >
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold">
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg">
                         {getAvatarInitial(m.full_name, m.email)}
                       </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-slate-900 dark:text-white">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-slate-900 dark:text-white truncate">
                           {m.full_name || m.email?.split("@")[0]}
                         </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                           {m.email}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 flex-wrap justify-end">
-                      <RoleBadge role={(m.role as Role) || "CLIENT"} />
-                      <MemberStatusBadge status={m.status} />
-                      <OnlineIndicator online={m.online} lastActive={m.last_active_at} />
+                    <div className="flex items-center gap-2 flex-wrap justify-end ml-3">
+                      <div className="hidden sm:flex items-center gap-2 flex-wrap">
+                        <RoleBadge role={(m.role as Role) || "CLIENT"} />
+                        <MemberStatusBadge status={m.status} />
+                        <OnlineIndicator online={m.online} lastActive={m.last_active_at} />
+                      </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex gap-1.5 md:gap-2 flex-shrink-0">
                         <UpdateRoleForm
                           memberId={m.id}
                           currentRole={m.role || "CLIENT"}
@@ -612,7 +663,7 @@ function MembersAdminPage() {
                           size="sm"
                           variant={m.status === "inactive" ? "default" : "outline"}
                           onClick={() => toggleMemberActive(m.id, m.status)}
-                          className="rounded-lg h-9"
+                          className="rounded-lg h-9 text-xs md:text-sm"
                         >
                           {m.status === "inactive" ? "Ativar" : "Desativar"}
                         </Button>
@@ -633,37 +684,46 @@ function MembersAdminPage() {
 
           {/* Invites Section */}
           <div>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-2xl font-black text-slate-900 dark:text-white">
-                Convites
-              </h2>
-              <Badge className="rounded-full px-3 py-1.5 bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 font-bold">
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-black text-slate-900 dark:text-white">
+                  Convites Pendentes
+                </h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Acompanhe os convites enviados aos membros</p>
+              </div>
+              <Badge className="rounded-full px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold text-lg shadow-lg">
                 {activeInvites.length}
               </Badge>
             </div>
 
             {activeInvites.length === 0 ? (
-              <Card className="p-12 text-center border-2 border-dashed">
-                <Mail className="h-16 w-16 mx-auto mb-4 text-slate-400" />
-                <p className="font-semibold text-slate-600 dark:text-slate-400">Nenhum convite pendente</p>
+              <Card className="p-12 text-center border-2 border-dashed rounded-2xl">
+                <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-slate-100 dark:bg-slate-800 mb-4">
+                  <Mail className="h-10 w-10 text-slate-400" />
+                </div>
+                <p className="font-semibold text-slate-600 dark:text-slate-400 text-lg">Nenhum convite pendente</p>
+                <p className="text-sm text-slate-500 dark:text-slate-500 mt-1">Convites aceitos serão movidos para membros</p>
               </Card>
             ) : (
               <div className="space-y-3">
                 {activeInvites.map((invite: any) => (
                   <div
                     key={invite.id}
-                    className="flex items-center justify-between p-4 rounded-2xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-white dark:bg-slate-900/50 hover:shadow-lg transition-all"
+                    className="flex items-center justify-between p-4 md:p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800/70 bg-white dark:bg-slate-900/50 hover:bg-slate-50 dark:hover:bg-slate-900/80 hover:border-slate-300/70 dark:hover:border-slate-700/70 hover:shadow-md transition-all duration-200"
                   >
-                    <div className="flex-1">
-                      <p className="font-semibold text-slate-900 dark:text-white">
-                        {invite.email}
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-1">
+                        <div className="w-2.5 h-2.5 rounded-full bg-indigo-500 flex-shrink-0" />
+                        <p className="font-semibold text-slate-900 dark:text-white truncate">
+                          {invite.email}
+                        </p>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 ml-5.5">
                         Expira em {formatDate(invite.expiresAt)}
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-2 flex-wrap justify-end">
+                    <div className="flex items-center gap-2 flex-wrap justify-end ml-3">
                       <RoleBadge role={(invite.roleRequested as Role) || "CLIENT"} />
                       <InviteStatusBadge status={invite.status} />
 

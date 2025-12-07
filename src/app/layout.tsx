@@ -2,7 +2,6 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import AppLayoutClient from "@/components/layout/AppLayoutClient";
 import PostHogProvider from "@/components/providers/PostHogProvider";
 import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
-import RuntimeDiagnostics from "@/components/RuntimeDiagnostics";
 import { UserProvider } from "@/context/UserContext";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
@@ -110,12 +109,6 @@ export default async function RootLayout({
           <ReactQueryProvider>
             <UserProvider>
               <AppLayoutClient>{children}</AppLayoutClient>
-              <RuntimeDiagnostics />
-              {process.env.NODE_ENV !== 'production' && (
-                <div id="runtime-diagnostics-dev-check" style={{ position: 'fixed', left: 12, bottom: 12, zIndex: 9998, background: '#111827', color: 'white', padding: '6px 8px', borderRadius: 6, fontSize: 12 }}>
-                  Runtime diagnostics: mounted
-                </div>
-              )}
             </UserProvider>
             <Toaster
               position="top-right"

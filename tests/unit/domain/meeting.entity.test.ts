@@ -2,11 +2,11 @@
  * Teste Unitário - Meeting Entity
  */
 
-import { Meeting } from '@/domain/meeting/entities/meeting.entity'
+import { Meeting } from '@/core/domain/meeting/entities/meeting.entity'
 import {
   MeetingStatus,
   MeetingType,
-} from '@/domain/meeting/value-objects/meeting-status.vo'
+} from '@/core/domain/meeting/value-objects/meeting-status.vo'
 import { describe, expect, it } from 'vitest'
 
 describe('Meeting Entity', () => {

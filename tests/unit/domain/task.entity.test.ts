@@ -2,11 +2,11 @@
  * Teste Unitário - Task Entity
  */
 
+import { Task } from '@/core/domain/task/entities/task.entity'
 import {
   TaskPriority,
   TaskStatus,
-} from '@/domain/task/value-objects/task-type.vo'
-import { Task } from '@/domain/task/entities/task.entity'
+} from '@/core/domain/task/value-objects/task-type.vo'
 import { describe, expect, it } from 'vitest'
 
 describe('Task Entity', () => {

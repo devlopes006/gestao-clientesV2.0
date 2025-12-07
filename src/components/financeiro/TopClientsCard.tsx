@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/utils'
 import { motion } from 'framer-motion'
-import { TrendingUp, Trophy, Users } from 'lucide-react'
+import { Trophy, Users } from 'lucide-react'
 
 interface LegacyClient {
   clientId: string
@@ -95,10 +95,10 @@ export function TopClientsCard({ clients, items, title }: TopClientsCardProps) {
                         : 'bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-950/30 dark:to-indigo-950/30'
                     }`}
                 >
-                  <CardContent className="py-1.5 sm:py-2 md:py-3">
-                    <div className="flex items-center gap-2 sm:gap-3">
+                  <CardContent className="p-2 sm:p-2.5 md:p-3">
+                    <div className="flex items-start gap-2 sm:gap-2.5">
                       <div
-                        className={`flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full font-black text-white shadow-lg flex-shrink-0 text-xs sm:text-sm ${index === 0
+                        className={`flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-full font-black text-white shadow-lg flex-shrink-0 text-xs ${index === 0
                           ? 'bg-gradient-to-br from-yellow-400 to-orange-500'
                           : index === 1
                             ? 'bg-gradient-to-br from-slate-400 to-gray-500'
@@ -109,24 +109,24 @@ export function TopClientsCard({ clients, items, title }: TopClientsCardProps) {
                       >
                         {isTop3 ? (
                           <Trophy
-                            className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${index === 0 ? 'animate-pulse' : index === 1 ? 'opacity-90' : 'opacity-80'}`}
+                            className={`h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 ${index === 0 ? 'animate-pulse' : index === 1 ? 'opacity-90' : 'opacity-80'}`}
                           />
                         ) : (
-                          <span>{index + 1}</span>
+                          <span className="text-xs">{index + 1}</span>
                         )}
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                        <div className="flex items-start gap-1 mb-0.5 sm:mb-1">
                           <p title={client.clientName} className="font-semibold text-xs sm:text-sm truncate">{client.clientName}</p>
                           {isTop3 && (
-                            <Badge variant="secondary" className="text-xs font-bold py-0 px-1 sm:px-2 flex-shrink-0">
+                            <Badge variant="secondary" className="text-xs font-bold py-0 px-1.5 flex-shrink-0">
                               TOP {index + 1}
                             </Badge>
                           )}
                         </div>
 
-                        <div className="hidden sm:block relative h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden mb-1.5">
+                        <div className="hidden sm:block relative h-1.5 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden mb-1">
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${percentage}%` }}
@@ -144,20 +144,16 @@ export function TopClientsCard({ clients, items, title }: TopClientsCardProps) {
 
                         <div className="flex items-center justify-between text-xs gap-1">
                           <span className="text-muted-foreground truncate">
-                            {client.invoiceCount} {client.invoiceCount === 1 ? 'fatura' : 'faturas'}
+                            {client.invoiceCount} fatura{client.invoiceCount !== 1 ? 's' : ''}
                           </span>
                           <span className="text-muted-foreground flex-shrink-0">{percentage.toFixed(0)}%</span>
                         </div>
                       </div>
 
-                      <div className="text-right flex-shrink-0 min-w-max">
-                        <p className={`text-xs sm:text-sm md:text-lg font-extrabold ${index === 0 ? 'text-yellow-700 dark:text-yellow-400' : index === 1 ? 'text-slate-700 dark:text-slate-400' : index === 2 ? 'text-orange-700 dark:text-orange-400' : 'text-blue-700 dark:text-blue-400'}`}>
-                          {formatCurrency(client.totalRevenue).length > 12 ? formatCurrency(client.totalRevenue).slice(0, 12) + '...' : formatCurrency(client.totalRevenue)}
+                      <div className="text-right flex-shrink-0 pl-1">
+                        <p className={`text-xs sm:text-sm font-bold whitespace-nowrap ${index === 0 ? 'text-yellow-700 dark:text-yellow-400' : index === 1 ? 'text-slate-700 dark:text-slate-400' : index === 2 ? 'text-orange-700 dark:text-orange-400' : 'text-blue-700 dark:text-blue-400'}`}>
+                          {formatCurrency(client.totalRevenue)}
                         </p>
-                        <div className="hidden sm:flex items-center gap-0.5 text-xs text-green-600 dark:text-green-400 mt-0.5">
-                          <TrendingUp className="h-3 w-3" />
-                          <span>Receita</span>
-                        </div>
                       </div>
                     </div>
                   </CardContent>

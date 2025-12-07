@@ -322,20 +322,26 @@ export function DashboardFinanceiro() {
                     // Area gradient fill
                     const areaPoints = `${padding},${h - padding} ${points} ${padding + (values.length - 1) * stepX},${h - padding}`
 
+                    // Generate unique IDs for this chart instance to avoid conflicts
+                    const chartId = `chart-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+                    const gradientId = `gradient-${chartId}`
+                    const lineGradientId = `line-${chartId}`
+                    const glowId = `glow-${chartId}`
+
                     return (
                       <div className="space-y-3">
                         <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-32 sm:h-40">
                           <defs>
-                            <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <linearGradient id={gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
                               <stop offset="0%" style={{ stopColor: 'rgb(59, 130, 246)', stopOpacity: 0.3 }} />
                               <stop offset="100%" style={{ stopColor: 'rgb(99, 102, 241)', stopOpacity: 0.05 }} />
                             </linearGradient>
-                            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <linearGradient id={lineGradientId} x1="0%" y1="0%" x2="100%" y2="0%">
                               <stop offset="0%" style={{ stopColor: 'rgb(59, 130, 246)' }} />
                               <stop offset="50%" style={{ stopColor: 'rgb(99, 102, 241)' }} />
                               <stop offset="100%" style={{ stopColor: 'rgb(139, 92, 246)' }} />
                             </linearGradient>
-                            <filter id="glow">
+                            <filter id={glowId}>
                               <feGaussianBlur stdDeviation="2" result="coloredBlur" />
                               <feMerge>
                                 <feMergeNode in="coloredBlur" />
@@ -365,19 +371,19 @@ export function DashboardFinanceiro() {
 
                           {/* Area fill */}
                           <polygon
-                            fill="url(#chartGradient)"
+                            fill={`url(#${gradientId})`}
                             points={areaPoints}
                           />
 
                           {/* Main line */}
                           <polyline
                             fill="none"
-                            stroke="url(#lineGradient)"
+                            stroke={`url(#${lineGradientId})`}
                             strokeWidth="3"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             points={points}
-                            filter="url(#glow)"
+                            filter={`url(#${glowId})`}
                           />
 
                           {/* Data points */}

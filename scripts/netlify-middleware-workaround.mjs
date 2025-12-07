@@ -7,7 +7,7 @@
  * to satisfy the plugin's file existence check.
  */
 
-import { existsSync, readFileSync, writeFileSync } from 'fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -35,38 +35,43 @@ const manifestPath = resolve(
   '.next/server/middleware/middleware-manifest.json'
 )
 
-if (!existsSync(manifestPath)) {
-  console.error(
-    '[netlify-workaround] middleware-manifest.json not found. Build may have failed.'
-  )
-  process.exit(1)
-}
-
-const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
-
-// Extract all files from middleware entries
+let manifest = null
 const files = new Set()
-for (const config of Object.values(manifest.middleware || {})) {
-  if (config.files) {
-    config.files.forEach((file) => {
-      // Files in manifest have 'server/' prefix but nft.json is already in server/
-      // so we need relative paths from server/ directory
-      const relativePath = file.replace(/^server\//, '')
-      files.add(relativePath)
-    })
+
+if (existsSync(manifestPath)) {
+  manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
+
+  // Extract all files from middleware entries
+  for (const config of Object.values(manifest.middleware || {})) {
+    if (config.files) {
+      config.files.forEach((file) => {
+        // Files in manifest have 'server/' prefix but nft.json is already in server/
+        // so we need relative paths from server/ directory
+        const relativePath = file.replace(/^server\//, '')
+        files.add(relativePath)
+      })
+    }
   }
+
+  // Add middleware manifest
+  files.add('middleware/middleware-manifest.json')
+} else {
+  console.log(
+    '[netlify-workaround] middleware-manifest.json not found. Creating minimal nft.json.'
+  )
 }
 
 // Create a minimal nft.json with the edge chunks and common deps
 // Paths must be relative to .next/server/ (where middleware.js.nft.json lives)
 const nftContent = {
   version: 1,
-  files: [
-    // Edge chunks are already in server/edge/chunks, no need to adjust
-    ...Array.from(files),
-    // Add middleware manifest
-    'middleware/middleware-manifest.json',
-  ].filter(Boolean),
+  files: Array.from(files),
+}
+
+// Ensure the directory exists
+const nftDir = dirname(middlewareNftPath)
+if (!existsSync(nftDir)) {
+  mkdirSync(nftDir, { recursive: true })
 }
 
 writeFileSync(middlewareNftPath, JSON.stringify(nftContent, null, 2), 'utf-8')

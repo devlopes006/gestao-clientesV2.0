@@ -4,9 +4,9 @@ import {
 } from '@/domain/transactions/TransactionService'
 import { TransactionPrismaRepository } from '@/infrastructure/prisma/TransactionPrismaRepository'
 import { cacheManager } from '@/lib/cache'
+import { prisma } from '@/lib/prisma'
 import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/ratelimit'
 import { getSessionProfile } from '@/services/auth/session'
-import { PrismaClient } from '@prisma/client'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
@@ -51,8 +51,9 @@ export async function GET(request: Request) {
       return NextResponse.json(cached)
     }
 
-    const prisma = new PrismaClient()
-    const svc = new TransactionService(new TransactionPrismaRepository(prisma))
+    const svc = new TransactionService(
+      new TransactionPrismaRepository(prisma as any)
+    )
     const summary = await svc.summary(parsed.data)
 
     // Cache for 5 minutes

@@ -32,7 +32,7 @@ export function TopClientsCard({ clients, items, title }: TopClientsCardProps) {
 
   if (!normalized || normalized.length === 0) {
     return (
-      <Card size="md" className="border-2 border-border/50 shadow-lg">
+      <Card size="md" variant="elevated" className="overflow-hidden">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
@@ -53,7 +53,7 @@ export function TopClientsCard({ clients, items, title }: TopClientsCardProps) {
   const maxRevenue = Math.max(...normalized.map((c) => c.totalRevenue || 0), 0)
 
   return (
-    <Card size="md" className="border-2 border-border/50 shadow-xl overflow-hidden">
+    <Card size="md" variant="elevated" className="overflow-hidden">
       <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 h-1" />
       <CardHeader className="pb-3">
         <div className="flex items-center gap-3">
@@ -85,25 +85,26 @@ export function TopClientsCard({ clients, items, title }: TopClientsCardProps) {
                 <Card
                   size="sm"
                   data-testid={`top-client-${index}`}
-                  className={`border-2 transition-all duration-300 hover:shadow-md hover:scale-[1.02] ${index === 0
-                      ? 'border-yellow-400/50 bg-gradient-to-r from-yellow-50/80 to-amber-50/80 dark:from-yellow-950/30 dark:to-amber-950/30'
-                      : index === 1
-                        ? 'border-slate-300/50 bg-gradient-to-r from-slate-50/80 to-gray-50/80 dark:from-slate-950/30 dark:to-gray-950/30'
-                        : index === 2
-                          ? 'border-orange-300/50 bg-gradient-to-r from-orange-50/80 to-amber-50/80 dark:from-orange-950/30 dark:to-amber-950/30'
-                          : 'border-blue-200/50 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-950/30 dark:to-indigo-950/30'
+                  variant="interactive"
+                  className={`transition-all duration-300 hover:shadow-md hover:scale-[1.02] ${index === 0
+                    ? 'bg-gradient-to-r from-yellow-50/80 to-amber-50/80 dark:from-yellow-950/30 dark:to-amber-950/30'
+                    : index === 1
+                      ? 'bg-gradient-to-r from-slate-50/80 to-gray-50/80 dark:from-slate-950/30 dark:to-gray-950/30'
+                      : index === 2
+                        ? 'bg-gradient-to-r from-orange-50/80 to-amber-50/80 dark:from-orange-950/30 dark:to-amber-950/30'
+                        : 'bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-950/30 dark:to-indigo-950/30'
                     }`}
                 >
-                  <CardContent>
+                  <CardContent className="py-2 sm:py-3">
                     <div className="flex items-center gap-3">
                       <div
                         className={`flex items-center justify-center w-9 h-9 rounded-full font-black text-white shadow-lg flex-shrink-0 ${index === 0
-                            ? 'bg-gradient-to-br from-yellow-400 to-orange-500'
-                            : index === 1
-                              ? 'bg-gradient-to-br from-slate-400 to-gray-500'
-                              : index === 2
-                                ? 'bg-gradient-to-br from-orange-400 to-amber-500'
-                                : 'bg-gradient-to-br from-blue-500 to-indigo-600'
+                          ? 'bg-gradient-to-br from-yellow-400 to-orange-500'
+                          : index === 1
+                            ? 'bg-gradient-to-br from-slate-400 to-gray-500'
+                            : index === 2
+                              ? 'bg-gradient-to-br from-orange-400 to-amber-500'
+                              : 'bg-gradient-to-br from-blue-500 to-indigo-600'
                           }`}
                       >
                         {isTop3 ? (
@@ -131,12 +132,12 @@ export function TopClientsCard({ clients, items, title }: TopClientsCardProps) {
                             animate={{ width: `${percentage}%` }}
                             transition={{ duration: 0.5, delay: index * 0.1 }}
                             className={`absolute top-0 left-0 h-full rounded-full ${index === 0
-                                ? 'bg-gradient-to-r from-yellow-400 to-orange-500'
-                                : index === 1
-                                  ? 'bg-gradient-to-r from-slate-400 to-gray-500'
-                                  : index === 2
-                                    ? 'bg-gradient-to-r from-orange-400 to-amber-500'
-                                    : 'bg-gradient-to-r from-blue-500 to-indigo-600'
+                              ? 'bg-gradient-to-r from-yellow-400 to-orange-500'
+                              : index === 1
+                                ? 'bg-gradient-to-r from-slate-400 to-gray-500'
+                                : index === 2
+                                  ? 'bg-gradient-to-r from-orange-400 to-amber-500'
+                                  : 'bg-gradient-to-r from-blue-500 to-indigo-600'
                               }`}
                           />
                         </div>

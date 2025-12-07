@@ -75,7 +75,8 @@ export function MetricCard({
     >
       <Card
         size="md"
-        className={`relative overflow-hidden border-2 ${scheme.border} bg-gradient-to-br ${scheme.bg} backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 group`}
+        variant="elevated"
+        className={`relative overflow-hidden bg-gradient-to-br ${scheme.bg} backdrop-blur-sm hover:shadow-xl transition-all duration-300 group`}
       >
         {/* Gradient Accent */}
         <div
@@ -87,7 +88,7 @@ export function MetricCard({
           <div className="absolute inset-0 bg-grid-pattern" />
         </div>
 
-        <CardContent className="relative">
+        <CardContent className="relative pt-4 sm:pt-6">
           <div className="flex items-start justify-between mb-4">
             <div>
               <p

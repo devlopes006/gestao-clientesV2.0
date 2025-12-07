@@ -1,19 +1,19 @@
 'use client'
 
+import { DataLoader, PartialDataLoader } from '@/components/DataLoader'
+import { FinancialFilter } from '@/components/financeiro/FinancialFilter'
 import { InvoiceStatusGrid } from '@/components/financeiro/InvoiceStatusGrid'
 import { MetricCard } from '@/components/financeiro/MetricCard'
 import { OverdueInvoicesList } from '@/components/financeiro/OverdueInvoicesList'
 import { TopClientsCard } from '@/components/financeiro/TopClientsCard'
-import { FinancialFilter } from '@/components/financeiro/FinancialFilter'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { DataLoader, PartialDataLoader } from '@/components/DataLoader'
-import { CardGridSkeleton, TableSkeleton, ChartSkeleton } from '@/components/ui/skeleton-loaders'
-import { useFetchData, clearDataCache } from '@/hooks/useFetchData'
+import { CardGridSkeleton, ChartSkeleton, TableSkeleton } from '@/components/ui/skeleton-loaders'
+import { clearDataCache, useFetchData } from '@/hooks/useFetchData'
 import { formatCurrency } from '@/lib/utils'
 import { AlertCircle, DollarSign, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
-import { useState, useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { FinancialAlerts } from './FinancialAlerts'
 import { FinancialHealth } from './FinancialHealth'
 
@@ -56,6 +56,8 @@ export function DashboardFinanceiro() {
     isRefetching: isRefetchingSummary,
   } = useFetchData(summaryUrl, { cacheTime: 10 * 60 * 1000 })
 
+  const globalSummaryAny = globalSummary as any
+
   const handlePeriodChange = useCallback(
     (newYear: number, newMonth: number) => {
       console.debug('[DashboardFinanceiro] handlePeriodChange ->', { newYear, newMonth })
@@ -86,7 +88,12 @@ export function DashboardFinanceiro() {
     )
   }
 
-  const { financial, invoices, overdue, topClients, recentActivity, projections } = dashboardData || {}
+  const financial = (dashboardData as any)?.financial
+  const invoices = (dashboardData as any)?.invoices
+  const overdue = (dashboardData as any)?.overdue
+  const topClients = (dashboardData as any)?.topClients
+  const recentActivity = (dashboardData as any)?.recentActivity
+  const projections = (dashboardData as any)?.projections
 
   return (
     <div className="space-y-8">
@@ -168,7 +175,7 @@ export function DashboardFinanceiro() {
               icon={<Wallet className="h-5 w-5" />}
             />
           )}
-          <Card size="md" className="border-2 border-border/50 shadow-lg">
+          <Card size="md" variant="elevated" className="overflow-hidden">
             <CardHeader className="pb-2">
               <CardTitle className="text-lg font-bold">Resumo Despesas do Mês</CardTitle>
               <CardDescription className="text-sm">Total e principais categorias</CardDescription>
@@ -201,7 +208,7 @@ export function DashboardFinanceiro() {
       )}
 
       {globalSummary && (
-        <Card size="md" className="border-2 border-border/50 shadow-lg">
+        <Card size="md" variant="elevated" className="">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg font-bold">Resumo Geral da Empresa</CardTitle>
             <CardDescription className="text-sm">Visão histórica e desempenho no ano selecionado</CardDescription>
@@ -210,29 +217,29 @@ export function DashboardFinanceiro() {
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <MetricCard
                 title="Receita Total (Histórico)"
-                value={globalSummary.overall.totalIncome}
-                subtitle={`${globalSummary.overall.incomeCount} entradas`}
+                value={globalSummaryAny.overall.totalIncome}
+                subtitle={`${globalSummaryAny.overall.incomeCount} entradas`}
                 type="income"
                 icon={<TrendingUp className="h-5 w-5" />}
               />
               <MetricCard
                 title="Despesa Total (Histórico)"
-                value={globalSummary.overall.totalExpense}
-                subtitle={`${globalSummary.overall.expenseCount} saídas`}
+                value={globalSummaryAny.overall.totalExpense}
+                subtitle={`${globalSummaryAny.overall.expenseCount} saídas`}
                 type="expense"
                 icon={<TrendingDown className="h-5 w-5" />}
               />
               <MetricCard
                 title="Lucro Acumulado"
-                value={globalSummary.overall.netProfit}
-                subtitle={`Margem ${globalSummary.overall.profitMargin.toFixed(1)}%`}
+                value={globalSummaryAny.overall.netProfit}
+                subtitle={`Margem ${globalSummaryAny.overall.profitMargin.toFixed(1)}%`}
                 type="profit"
                 icon={<DollarSign className="h-5 w-5" />}
               />
               <MetricCard
                 title="Margem Histórica"
-                value={globalSummary.overall.profitMargin}
-                subtitle={`Primeira: ${globalSummary.overall.firstDate || '-'} | Última: ${globalSummary.overall.lastDate || '-'}`}
+                value={globalSummaryAny.overall.profitMargin}
+                subtitle={`Primeira: ${globalSummaryAny.overall.firstDate || '-'} | Última: ${globalSummaryAny.overall.lastDate || '-'}`}
                 type="profit"
                 icon={<DollarSign className="h-5 w-5" />}
               />
@@ -240,10 +247,10 @@ export function DashboardFinanceiro() {
 
             <div className="rounded-xl border p-4 bg-gradient-to-br from-background via-background to-muted/20">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold">Desempenho Mensal ({globalSummary.year.year})</span>
+                <span className="font-semibold">Desempenho Mensal ({globalSummaryAny.year.year})</span>
                 <div className="flex gap-2 text-xs text-muted-foreground">
                   {(() => {
-                    const m = globalSummary.monthly
+                    const m = globalSummaryAny.monthly
                     if (!m || m.length === 0) return null
                     const best = m.reduce((a, b) => (b.net > a.net ? b : a))
                     const worst = m.reduce((a, b) => (b.net < a.net ? b : a))
@@ -259,7 +266,7 @@ export function DashboardFinanceiro() {
                 </div>
               </div>
               {(() => {
-                const m = globalSummary.monthly
+                const m = globalSummaryAny.monthly
                 if (!m || m.length === 0) return <div className="text-sm text-muted-foreground">Sem dados para o ano.</div>
                 const values = m.map((x) => x.net)
                 const w = 520
@@ -307,16 +314,18 @@ export function DashboardFinanceiro() {
         </Card>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <DataLoader
-          loading={loadingDashboard}
-          error={errorDashboard}
-          data={dashboardData}
-          skeleton={<CardGridSkeleton columns={2} count={2} />}
-        >
-          <InvoiceStatusGrid invoices={dashboardData?.invoices} />
-        </DataLoader>
+      <DataLoader
+        loading={loadingDashboard}
+        error={errorDashboard}
+        data={dashboardData}
+        skeleton={<CardGridSkeleton columns={2} count={2} />}
+      >
+        <div className="mt-4">
+          <InvoiceStatusGrid invoices={(dashboardData as any)?.invoices} />
+        </div>
+      </DataLoader>
 
+      <div className="grid gap-6 md:grid-cols-2">
         <DataLoader
           loading={loadingDashboard}
           error={errorDashboard}
@@ -332,7 +341,7 @@ export function DashboardFinanceiro() {
         showSkeletonWhileLoading={false}
         skeleton={<ChartSkeleton />}
       >
-        <FinancialHealth data={dashboardData?.financial || null} />
+        <FinancialHealth data={(dashboardData as any)?.financial || null} />
       </PartialDataLoader>
 
       <DataLoader
@@ -341,7 +350,7 @@ export function DashboardFinanceiro() {
         data={dashboardData}
         skeleton={<TableSkeleton rows={5} />}
       >
-        <Card size="md" className="border-2 border-border/50 shadow-lg">
+        <Card size="md" variant="elevated" className="">
           <CardHeader>
             <CardTitle className="text-lg font-bold">Atividades Recentes</CardTitle>
             <CardDescription className="text-sm">Pagamentos, faturas e lançamentos confirmados</CardDescription>

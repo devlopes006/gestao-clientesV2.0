@@ -6,7 +6,6 @@ import { TaskModal } from "@/features/tasks/components/TaskModal";
 import { TaskStats as StatsCards } from "@/features/tasks/components/TaskStats";
 import { useTasks } from "@/features/tasks/hooks/useTasks";
 import { Task, TaskPriority, TaskStatus } from "@/features/tasks/types";
-import { toast } from "sonner";
 import { parseDateInput, toLocalISOString } from "@/lib/utils";
 import type { DragEndEvent, DragStartEvent, UniqueIdentifier } from '@dnd-kit/core';
 import {
@@ -24,6 +23,7 @@ import {
 } from '@dnd-kit/sortable';
 import { AlertCircle, ListTodo, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface TaskCardProps {
   task: Task;
@@ -162,6 +162,7 @@ function KanbanColumn({ column, tasks, handleEdit, handleDelete }: KanbanColumnP
       border: 'border-amber-200 dark:border-amber-800',
       header: 'bg-linear-to-r from-amber-100 to-yellow-100 dark:from-amber-900/50 dark:to-yellow-900/50',
       text: 'text-amber-900 dark:text-amber-100',
+      dot: 'bg-amber-400',
       badge: 'bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100'
     },
     'IN_PROGRESS': {
@@ -169,6 +170,7 @@ function KanbanColumn({ column, tasks, handleEdit, handleDelete }: KanbanColumnP
       border: 'border-blue-200 dark:border-blue-800',
       header: 'bg-linear-to-r from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50',
       text: 'text-blue-900 dark:text-blue-100',
+      dot: 'bg-blue-400',
       badge: 'bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100'
     },
     'REVIEW': {
@@ -176,6 +178,7 @@ function KanbanColumn({ column, tasks, handleEdit, handleDelete }: KanbanColumnP
       border: 'border-purple-200 dark:border-purple-800',
       header: 'bg-linear-to-r from-purple-100 to-violet-100 dark:from-purple-900/50 dark:to-violet-900/50',
       text: 'text-purple-900 dark:text-purple-100',
+      dot: 'bg-purple-400',
       badge: 'bg-purple-200 dark:bg-purple-800 text-purple-900 dark:text-purple-100'
     },
     'DONE': {
@@ -183,6 +186,7 @@ function KanbanColumn({ column, tasks, handleEdit, handleDelete }: KanbanColumnP
       border: 'border-emerald-200 dark:border-emerald-800',
       header: 'bg-linear-to-r from-emerald-100 to-green-100 dark:from-emerald-900/50 dark:to-green-900/50',
       text: 'text-emerald-900 dark:text-emerald-100',
+      dot: 'bg-emerald-400',
       badge: 'bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-100'
     },
     'CANCELLED': {
@@ -190,6 +194,7 @@ function KanbanColumn({ column, tasks, handleEdit, handleDelete }: KanbanColumnP
       border: 'border-gray-200 dark:border-gray-800',
       header: 'bg-linear-to-r from-gray-100 to-slate-100 dark:from-gray-900/50 dark:to-slate-900/50',
       text: 'text-gray-900 dark:text-gray-100',
+      dot: 'bg-gray-400',
       badge: 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
     },
   };

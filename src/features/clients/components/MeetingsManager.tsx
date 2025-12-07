@@ -447,8 +447,8 @@ export function MeetingsManager({ clientId }: MeetingsManagerProps) {
 
           {/* Main Card */}
           <div className="relative">
-            <div className="absolute -inset-1 bg-linear-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-20" />
-            <Card className="relative bg-white/80 backdrop-blur-sm dark:bg-slate-900/80 border-2 border-slate-200 dark:border-slate-700 shadow-xl" variant="default" hover>
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-20 pointer-events-none" />
+            <Card className="relative bg-white/90 backdrop-blur-md dark:bg-slate-900/90 border-2 border-slate-200/70 dark:border-slate-800/70 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl transition-all duration-300" variant="default" hover>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Calendar className="h-5 w-5" />

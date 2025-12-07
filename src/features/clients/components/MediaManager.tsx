@@ -940,8 +940,8 @@ export function MediaManager({ clientId }: MediaManagerProps) {
 
           {/* Main Card */}
           <div className="relative">
-            <div className="absolute -inset-1 bg-linear-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-20" />
-            <Card className="relative bg-white/80 backdrop-blur-sm dark:bg-slate-900/80 border-slate-200/50 dark:border-slate-700/50 shadow-xl">
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-20 pointer-events-none" />
+            <Card className="relative bg-white/90 backdrop-blur-md dark:bg-slate-900/90 border-2 border-slate-200/70 dark:border-slate-800/70 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl transition-all duration-300">
               <CardHeader>
                 <CardTitle className="flex items-center gap-3 text-slate-900 dark:text-white">
                   <div className="relative">

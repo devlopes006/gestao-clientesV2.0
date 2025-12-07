@@ -122,7 +122,7 @@ export function FinancialFilter({
     month === new Date().getMonth() + 1
 
   return (
-    <Card size="sm" className="relative z-40 pointer-events-auto border-2 border-border/50 shadow-lg bg-gradient-to-br from-background via-background to-muted/20" data-testid="financial-filter-card">
+    <Card size="sm" variant="elevated" className="relative z-40 pointer-events-auto bg-gradient-to-br from-background via-background to-muted/20" data-testid="financial-filter-card">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div>
@@ -151,7 +151,7 @@ export function FinancialFilter({
       <CardContent className="space-y-4">
         {/* Navegação Visual de Mês - Compacta */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-primary/8 via-primary/5 to-transparent border-2 border-primary/30 shadow-lg">
+          <div className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-gradient-to-r from-primary/8 via-primary/5 to-transparent border border-primary/30">
             <Button
               variant="outline"
               size="sm"
@@ -197,7 +197,7 @@ export function FinancialFilter({
               Mês
             </label>
             <Select value={month.toString()} onValueChange={(v) => handleMonthChange(Number(v))}>
-              <SelectTrigger className="border-2 h-8 text-sm">
+              <SelectTrigger className="h-8 text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -215,7 +215,7 @@ export function FinancialFilter({
               Ano
             </label>
             <Select value={year.toString()} onValueChange={(v) => handleYearChange(Number(v))}>
-              <SelectTrigger className="border-2 h-8 text-sm">
+              <SelectTrigger className="h-8 text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

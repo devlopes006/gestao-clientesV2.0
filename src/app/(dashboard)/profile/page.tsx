@@ -24,7 +24,7 @@ export default async function ProfilePage() {
 
   return (
     <AppShell>
-      <PageLayout centered={false} maxWidth="2xl" className="p-4 sm:p-6 lg:p-8 w-full">
+      <PageLayout centered={false} maxWidth="2xl" className="p-4 sm:p-6 lg:p-8 w-full min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
         <PageHeader
           title="Meu Perfil"
           description="Veja e edite suas informações pessoais."
@@ -32,21 +32,21 @@ export default async function ProfilePage() {
           iconColor="bg-blue-600"
         />
 
-        <Card className="p-6 sm:p-8 lg:p-10 shadow-lg hover:shadow-2xl transition-all duration-200 rounded-xl w-full border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <Card className="p-6 sm:p-8 lg:p-10 shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 rounded-3xl w-full border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-white via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 backdrop-blur-sm">
           <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8 lg:gap-10 w-full">
             {/* Avatar com ícone */}
-            <div className="relative h-20 w-20 sm:h-24 sm:w-24 lg:h-28 lg:w-28 rounded-full overflow-hidden shadow-lg ring-4 ring-blue-500/20 group hover:ring-8 transition-all duration-200" aria-label="Avatar do usuário">
+            <div className="relative h-20 w-20 sm:h-24 sm:w-24 lg:h-28 lg:w-28 rounded-full overflow-hidden shadow-xl ring-4 ring-blue-500/30 group hover:ring-8 hover:ring-indigo-500/40 transition-all duration-300" aria-label="Avatar do usuário">
               {user.image ? (
                 <Image
                   src={user.image}
                   alt={user.name || user.email}
                   fill
                   sizes="(max-width: 640px) 80px, (max-width: 1024px) 96px, 112px"
-                  className="object-cover group-hover:scale-110 transition-transform duration-200"
+                  className="object-cover group-hover:scale-110 transition-transform duration-300"
                   unoptimized
                 />
               ) : (
-                <div className="w-full h-full bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white text-3xl sm:text-4xl lg:text-5xl font-bold group-hover:scale-110 transition-transform duration-200">
+                <div className="w-full h-full bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center text-white text-3xl sm:text-4xl lg:text-5xl font-black group-hover:scale-110 transition-transform duration-300 shadow-inner">
                   {user.name ? user.name.slice(0, 2).toUpperCase() : user.email.slice(0, 2).toUpperCase()}
                 </div>
               )}
@@ -61,7 +61,7 @@ export default async function ProfilePage() {
               </div>
               <div className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-400 mb-3 truncate">{user.email}</div>
               <div className="flex flex-wrap items-center gap-2 mb-4">
-                <span className="text-xs sm:text-sm px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-medium transition-all duration-200 hover:shadow-md hover:scale-105" aria-label="Papel do usuário">
+                <span className="text-xs sm:text-sm px-3 py-1.5 rounded-2xl bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50 text-blue-700 dark:text-blue-300 font-bold border border-blue-200/50 dark:border-blue-800/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 hover:scale-105" aria-label="Papel do usuário">
                   {role === "OWNER"
                     ? "Administrador"
                     : role === "STAFF"
@@ -104,7 +104,7 @@ export default async function ProfilePage() {
 
         {/* Card de informações da organização */}
         {org && (
-          <Card className="mt-6 sm:mt-8 p-6 sm:p-8 lg:p-10 shadow-lg hover:shadow-2xl transition-all duration-200 rounded-xl w-full border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+          <Card className="mt-6 sm:mt-8 p-6 sm:p-8 lg:p-10 shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 rounded-3xl w-full border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-white via-purple-50/20 to-pink-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 backdrop-blur-sm">
             <div className="mb-4 sm:mb-6">
               <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Organização</h3>
               <p className="text-xs sm:text-sm lg:text-base text-slate-600 dark:text-slate-400 mt-1">Informações da empresa vinculada à sua conta.</p>

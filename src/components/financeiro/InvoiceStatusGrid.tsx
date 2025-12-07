@@ -1,16 +1,9 @@
-'use client'
+"use client"
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/utils'
-import { motion } from 'framer-motion'
-import {
-  AlertCircle,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  FileText
-} from 'lucide-react'
+import { AlertCircle, AlertTriangle, CheckCircle, Clock, FileText } from 'lucide-react'
 
 interface InvoiceStatusGridProps {
   invoices?: {
@@ -21,133 +14,98 @@ interface InvoiceStatusGridProps {
   } | null
 }
 
-const statusConfig = [
-  {
-    key: 'open',
-    label: 'Em Aberto',
-    icon: Clock,
-    gradient: 'from-amber-500 to-orange-500',
-    bg: 'from-amber-50/80 to-orange-50/80 dark:from-amber-950/30 dark:to-orange-950/30',
-    iconBg: 'bg-amber-100 dark:bg-amber-900/40',
-    textColor: 'text-amber-700 dark:text-amber-400',
-    valueColor: 'text-amber-900 dark:text-amber-100',
-    border: 'border-amber-300/50 dark:border-amber-700/50',
-  },
-  {
-    key: 'paid',
-    label: 'Pagas',
-    icon: CheckCircle,
-    gradient: 'from-emerald-500 to-green-500',
-    bg: 'from-emerald-50/80 to-green-50/80 dark:from-emerald-950/30 dark:to-green-950/30',
-    iconBg: 'bg-emerald-100 dark:bg-emerald-900/40',
-    textColor: 'text-emerald-700 dark:text-emerald-400',
-    valueColor: 'text-emerald-900 dark:text-emerald-100',
-    border: 'border-emerald-300/50 dark:border-emerald-700/50',
-  },
-  {
-    key: 'overdue',
-    label: 'Vencidas',
-    icon: AlertTriangle,
-    gradient: 'from-rose-500 to-red-500',
-    bg: 'from-rose-50/80 to-red-50/80 dark:from-rose-950/30 dark:to-red-950/30',
-    iconBg: 'bg-rose-100 dark:bg-rose-900/40',
-    textColor: 'text-rose-700 dark:text-rose-400',
-    valueColor: 'text-rose-900 dark:text-rose-100',
-    border: 'border-rose-300/50 dark:border-rose-700/50',
-  },
-  {
-    key: 'cancelled',
-    label: 'Canceladas',
-    icon: AlertCircle,
-    gradient: 'from-slate-500 to-gray-500',
-    bg: 'from-slate-50/80 to-gray-50/80 dark:from-slate-950/30 dark:to-gray-950/30',
-    iconBg: 'bg-slate-100 dark:bg-slate-900/40',
-    textColor: 'text-slate-700 dark:text-slate-400',
-    valueColor: 'text-slate-900 dark:text-slate-100',
-    border: 'border-slate-300/50 dark:border-slate-700/50',
-  },
+const STATUS = [
+  { key: 'open', label: 'Em Aberto', icon: Clock, color: 'amber' },
+  { key: 'paid', label: 'Pagas', icon: CheckCircle, color: 'emerald' },
+  { key: 'overdue', label: 'Vencidas', icon: AlertTriangle, color: 'rose' },
+  { key: 'cancelled', label: 'Canceladas', icon: AlertCircle, color: 'slate' },
 ]
 
-export function InvoiceStatusGrid({ invoices }: InvoiceStatusGridProps) {
-  if (!invoices) {
-    return null
+function colorClasses(color: string) {
+  switch (color) {
+    case 'amber':
+      return {
+        bg: 'from-amber-50/80 to-orange-50/80 dark:from-amber-950/30 dark:to-orange-950/30',
+        iconBg: 'bg-amber-100 dark:bg-amber-900/40',
+        text: 'text-amber-700 dark:text-amber-400',
+        value: 'text-amber-900 dark:text-amber-100',
+      }
+    case 'emerald':
+      return {
+        bg: 'from-emerald-50/80 to-green-50/80 dark:from-emerald-950/30 dark:to-green-950/30',
+        iconBg: 'bg-emerald-100 dark:bg-emerald-900/40',
+        text: 'text-emerald-700 dark:text-emerald-400',
+        value: 'text-emerald-900 dark:text-emerald-100',
+      }
+    case 'rose':
+      return {
+        bg: 'from-rose-50/80 to-red-50/80 dark:from-rose-950/30 dark:to-red-950/30',
+        iconBg: 'bg-rose-100 dark:bg-rose-900/40',
+        text: 'text-rose-700 dark:text-rose-400',
+        value: 'text-rose-900 dark:text-rose-100',
+      }
+    default:
+      return {
+        bg: 'from-slate-50/80 to-gray-50/80 dark:from-slate-950/30 dark:to-gray-950/30',
+        iconBg: 'bg-slate-100 dark:bg-slate-900/40',
+        text: 'text-slate-700 dark:text-slate-400',
+        value: 'text-slate-900 dark:text-slate-100',
+      }
   }
+}
+
+export function InvoiceStatusGrid({ invoices }: InvoiceStatusGridProps) {
+  if (!invoices) return null
+
   return (
-    <Card size="md" className="border-2 border-border/50 shadow-xl overflow-hidden">
-      <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 h-1" />
+    <Card size="md" variant="elevated" className="overflow-visible">
+      <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 h-1 rounded-t-xl" />
       <CardHeader className="pb-3">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+          <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-sm">
             <FileText className="h-5 w-5 text-white" />
           </div>
           <div>
-            <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Status das Faturas
-            </CardTitle>
-            <CardDescription className="text-sm">
-              Visão geral completa do status de todas as faturas
-            </CardDescription>
+            <CardTitle className="text-xl font-bold">Status das Faturas</CardTitle>
+            <CardDescription className="text-sm">Visão geral completa do status de todas as faturas</CardDescription>
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {statusConfig.map((status, index) => {
-            const Icon = status.icon
-            const data = invoices[status.key as keyof typeof invoices]
+
+      <CardContent className="py-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {STATUS.map((s) => {
+            const Icon = s.icon as any
+            const classes = colorClasses(s.color)
+            const data = invoices[s.key as keyof typeof invoices]
             const count = data?.count ?? 0
             const total = data?.total ?? 0
 
             return (
-              <motion.div
-                key={status.key}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-              >
-                <Card
-                  size="sm"
-                  className={`relative overflow-hidden border-2 ${status.border} bg-gradient-to-br ${status.bg} hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group`}
-                >
-                  {/* Top gradient accent */}
-                  <div
-                    className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${status.gradient}`}
-                  />
-
-                  <CardContent>
-                    <div className="flex items-start justify-between mb-4">
-                      <div
-                        className={`p-3 rounded-xl ${status.iconBg} shadow-sm group-hover:scale-110 transition-transform duration-300`}
-                      >
-                        <Icon className={`h-6 w-6 ${status.textColor}`} />
+              <Card key={s.key} size="sm" variant="elevated" className={`h-full ${classes.bg} p-0 overflow-visible`}>
+                <CardContent className="py-6 px-6 flex flex-col justify-between h-full">
+                  <div className="flex items-start gap-3">
+                    <div className={`${classes.iconBg} p-3 rounded-lg shadow-sm flex items-center justify-center`}>
+                      <Icon className={`${classes.text} h-6 w-6`} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className={`${classes.text} text-sm font-semibold uppercase tracking-wider`}>{s.label}</p>
+                        <span className="ml-auto" />
                       </div>
-                      <Badge
-                        variant="secondary"
-                        className={`${status.textColor} bg-white/50 dark:bg-black/20 text-xs font-bold`}
-                      >
-                        {count}
-                      </Badge>
                     </div>
+                    <div />
+                  </div>
 
-                    <div className="space-y-2">
-                      <p
-                        className={`text-xs font-semibold uppercase tracking-wider ${status.textColor}`}
-                      >
-                        {status.label}
-                      </p>
-                      <p className={`text-2xl font-black ${status.valueColor}`}>
-                        {formatCurrency(total)}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {count} {count === 1 ? 'fatura' : 'faturas'}
-                      </p>
+                  <div>
+                    <div className={`${classes.value} font-extrabold leading-tight text-[clamp(1.2rem,2.2vw,2.6rem)]`}>{formatCurrency(total)}</div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <Badge variant="secondary" className="text-xs px-2 py-0.5">{count}</Badge>
+                      <div className="text-xs text-muted-foreground">{count} {count === 1 ? 'fatura' : 'faturas'}</div>
                     </div>
-
-                    {/* Shine effect (visual only, non-interactive) */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
-                  </CardContent>
-                </Card>
-              </motion.div>
+                  </div>
+                </CardContent>
+              </Card>
             )
           })}
         </div>
@@ -155,3 +113,7 @@ export function InvoiceStatusGrid({ invoices }: InvoiceStatusGridProps) {
     </Card>
   )
 }
+
+export default InvoiceStatusGrid
+
+

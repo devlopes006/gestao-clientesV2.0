@@ -5,12 +5,12 @@ import {
 import { TransactionPrismaRepository } from '@/infrastructure/prisma/TransactionPrismaRepository'
 import { ApiResponseHandler } from '@/lib/api-response'
 import { cacheInvalidation } from '@/lib/cache'
+import { prisma } from '@/lib/prisma'
 import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/ratelimit'
 import { transactionListQuerySchema } from '@/lib/validations'
 import { getSessionProfile } from '@/services/auth/session'
 import { TransactionService as FinancialTransactionService } from '@/services/financial'
 import {
-  PrismaClient,
   TransactionStatus,
   TransactionSubtype,
   TransactionType,
@@ -137,9 +137,8 @@ export async function POST(request: Request) {
       )
     }
 
-    const prisma = new PrismaClient()
     const svc = new DomainTransactionService(
-      new TransactionPrismaRepository(prisma)
+      new TransactionPrismaRepository(prisma as any)
     )
     const created = await svc.create(parsed.data)
 

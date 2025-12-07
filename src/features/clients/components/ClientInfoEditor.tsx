@@ -135,13 +135,13 @@ export function ClientInfoEditor({ client, canEdit }: ClientInfoEditorProps) {
   };
 
   return (
-    <Card className="relative overflow-hidden border-2 border-slate-200/60 shadow-xl shadow-slate-200/50">
-      {/* Gradient background effect */}
-      <div className="absolute top-0 left-0 w-full h-2 bg-linear-to-r from-blue-600 via-purple-600 to-blue-600 bg-size-[200%_100%] animate-gradient" />
+    <Card variant="bordered" className="relative overflow-hidden">
+      {/* Decorative gradient strip integrated into header for consistent spacing */}
+      <div className="w-full h-2 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600" />
 
-      <CardHeader className="pb-4">
+      <CardHeader className="pb-4 pt-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-xl font-bold bg-linear-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+          <CardTitle className="text-xl font-bold text-slate-900 dark:text-white">
             Informações Básicas
           </CardTitle>
           {canEdit && !isEditing && (

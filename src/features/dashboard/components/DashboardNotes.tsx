@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -217,18 +217,19 @@ export function DashboardNotes({ initialNotes = [] }: DashboardNotesProps) {
                 <StickyNote className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
               <div>
-                <CardTitle className="text-base sm:text-lg">Notas Rápidas</CardTitle>
+                {/* <CardTitle className="text-base sm:text-lg">Notas Rápidas</CardTitle> */}
                 <p className="text-xs text-slate-500 dark:text-slate-400">Organize lembretes curtos e ideias em um só lugar</p>
               </div>
+              <Button
+                size="sm"
+                onClick={() => handleOpenDialog()}
+                className="gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Nova</span>
+              </Button>
             </div>
-            <Button
-              size="sm"
-              onClick={() => handleOpenDialog()}
-              className="gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              <span className="hidden sm:inline">Nova</span>
-            </Button>
+
           </div>
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto">
@@ -254,51 +255,58 @@ export function DashboardNotes({ initialNotes = [] }: DashboardNotesProps) {
                   })()
                 const isDeleting = deleting === note.id;
 
+                const gradients: Record<string, string> = {
+                  yellow: 'from-yellow-100 via-amber-50 to-yellow-100 dark:from-yellow-900/30 dark:via-amber-900/20 dark:to-yellow-900/30 border-yellow-300/50 dark:border-yellow-700/50 shadow-yellow-500/10',
+                  blue: 'from-blue-100 via-cyan-50 to-blue-100 dark:from-blue-900/30 dark:via-cyan-900/20 dark:to-blue-900/30 border-blue-300/50 dark:border-blue-700/50 shadow-blue-500/10',
+                  green: 'from-green-100 via-emerald-50 to-green-100 dark:from-green-900/30 dark:via-emerald-900/20 dark:to-green-900/30 border-green-300/50 dark:border-green-700/50 shadow-green-500/10',
+                  pink: 'from-pink-100 via-rose-50 to-pink-100 dark:from-pink-900/30 dark:via-rose-900/20 dark:to-pink-900/30 border-pink-300/50 dark:border-pink-700/50 shadow-pink-500/10',
+                  purple: 'from-purple-100 via-fuchsia-50 to-purple-100 dark:from-purple-900/30 dark:via-fuchsia-900/20 dark:to-purple-900/30 border-purple-300/50 dark:border-purple-700/50 shadow-purple-500/10',
+                };
+                const gradient = gradients[note.color] || gradients.yellow;
+
                 return (
                   <div
                     key={note.id}
-                    className={`${colorClasses.bg} ${colorClasses.border} ${colorClasses.text} border rounded-lg p-4 shadow-sm hover:shadow-md transition-all relative group glass-surface ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}
+                    className={`group relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br ${gradient} border hover:shadow-lg transition-all duration-300 ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}
                   >
                     {isDeleting && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-slate-900/50 rounded-lg">
-                        <Loader2 className="h-6 w-6 animate-spin text-slate-600" />
+                      <div className="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-slate-900/50 rounded-2xl backdrop-blur-sm">
+                        <Loader2 className="h-6 w-6 animate-spin text-slate-600 dark:text-slate-400" />
                       </div>
                     )}
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-200 flex gap-1">
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => handleOpenDialog(note)}
-                        className="h-7 w-7 p-0 hover:bg-white/50"
+                        className="h-8 w-8 p-0 rounded-xl bg-white/80 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 shadow-sm"
                         disabled={isDeleting}
                         aria-label="Editar nota"
                       >
-                        <Edit className="h-3 w-3" />
+                        <Edit className="h-3.5 w-3.5" />
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => handleDelete(note.id)}
-                        className="h-7 w-7 p-0 hover:bg-white/50 hover:text-red-600"
+                        className="h-8 w-8 p-0 rounded-xl bg-white/80 dark:bg-slate-900/80 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/50 shadow-sm"
                         disabled={isDeleting}
                         aria-label="Excluir nota"
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
-                    <h4 className="font-bold text-sm mb-2 pr-16 wrap-break-word">
+                    <h4 className="font-black text-sm mb-2 pr-20 wrap-break-word text-slate-900 dark:text-white">
                       {displayTitle}
                     </h4>
-                    <p className="text-xs whitespace-pre-wrap wrap-break-word">
+                    <p className="text-xs whitespace-pre-wrap wrap-break-word text-slate-700 dark:text-slate-300 leading-relaxed">
                       {note.content}
                     </p>
-                    <p className="text-[10px] mt-3 opacity-60">
+                    <p className="text-[10px] mt-3 font-semibold text-slate-500 dark:text-slate-500">
                       {new Date(note.updatedAt).toLocaleDateString("pt-BR", {
                         day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                        month: 'short',
+                        year: 'numeric'
                       })}
                     </p>
                   </div>

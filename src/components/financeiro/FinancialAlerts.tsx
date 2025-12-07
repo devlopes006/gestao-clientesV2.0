@@ -173,7 +173,7 @@ export function FinancialAlerts() {
 
   if (loading) {
     return (
-      <Card size="sm" className="border-2 border-border/50 shadow-lg bg-gradient-to-br from-background via-background to-muted/10">
+      <Card size="sm" variant="elevated" className="bg-gradient-to-br from-background via-background to-muted/10">
         <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 h-1 animate-pulse" />
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -193,7 +193,7 @@ export function FinancialAlerts() {
   }
 
   return (
-    <Card size="sm" className="border-2 border-border/50 shadow-md overflow-hidden">
+    <Card size="sm" variant="elevated" className="overflow-hidden">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -228,7 +228,7 @@ export function FinancialAlerts() {
                   exit={{ opacity: 0, y: 6 }}
                   transition={{ duration: 0.18, delay: index * 0.04 }}
                 >
-                  <div className={`flex items-center gap-3 px-3 py-2 border rounded-lg max-w-xs ${colors.bg} ${colors.border}`}>
+                  <div className={`flex items-center gap-3 px-3 py-2 rounded-lg max-w-xs ${colors.bg}`}>
                     <div className={`${colors.iconBg} rounded-full p-2 flex-shrink-0`}>
                       <div className={colors.iconColor}>{getAlertIcon(alert.type)}</div>
                     </div>

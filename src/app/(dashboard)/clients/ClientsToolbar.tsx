@@ -75,26 +75,26 @@ export default function ClientsToolbar({ uniquePlans, initialQuery, initialStatu
 
   return (
     <div className="flex items-center justify-between gap-2 mt-1">
-      <div className="inline-flex rounded-lg border bg-white/70 dark:bg-slate-900/50 backdrop-blur-md overflow-hidden">
+      <div className="inline-flex rounded-2xl border-2 border-slate-200/70 dark:border-slate-700/70 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md overflow-hidden shadow-lg">
         <Button
           variant={view === "grid" ? "default" : "ghost"}
           size="sm"
-          className={view === "grid" ? "rounded-none" : "rounded-none"}
+          className={view === "grid" ? "rounded-none bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" : "rounded-none hover:bg-slate-100 dark:hover:bg-slate-800"}
           onClick={() => setParam("view", "grid")}
           title="Visualizar em grade"
         >
           <LayoutGrid className="h-4 w-4 mr-2" />
-          Grade
+          <span>Grade</span>
         </Button>
         <Button
           variant={view === "list" ? "default" : "ghost"}
           size="sm"
-          className={view === "list" ? "rounded-none" : "rounded-none"}
+          className={view === "list" ? "rounded-none bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" : "rounded-none hover:bg-slate-100 dark:hover:bg-slate-800"}
           onClick={() => setParam("view", "list")}
           title="Visualizar em lista"
         >
           <Rows className="h-4 w-4 mr-2" />
-          Lista
+          <span>Lista</span>
         </Button>
       </div>
 
@@ -103,10 +103,10 @@ export default function ClientsToolbar({ uniquePlans, initialQuery, initialStatu
           variant="outline"
           size="sm"
           onClick={() => setOpen(true)}
-          className="rounded-lg"
+          className="rounded-2xl border-2 border-slate-200/70 dark:border-slate-700/70 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-blue-950/50 dark:hover:to-indigo-950/50 transition-all duration-300 shadow-lg hover:shadow-xl"
         >
           <ListFilter className="h-4 w-4 mr-2" />
-          Filtros
+          <span>Filtros</span>
         </Button>
       </div>
 

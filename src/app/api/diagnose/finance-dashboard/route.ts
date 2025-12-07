@@ -1,6 +1,6 @@
+import { ReportingService } from '@/domain/reports/ReportingService'
 import { authenticateRequest } from '@/infrastructure/http/middlewares/auth.middleware'
 import { ApiResponseHandler } from '@/infrastructure/http/response'
-import { ReportingService } from '@/domain/reports/ReportingService'
 import { prisma } from '@/lib/prisma'
 import { TransactionStatus, TransactionType } from '@prisma/client'
 import { NextRequest } from 'next/server'
@@ -107,9 +107,11 @@ export async function GET(request: NextRequest) {
 
     // 4. Cálculos de validação
     const transactionSum =
-      (confirmedIncomes._sum.amount || 0) - (confirmedExpenses._sum.amount || 0)
+      Number(confirmedIncomes._sum.amount ?? 0) -
+      Number(confirmedExpenses._sum.amount ?? 0)
     const invoiceSum =
-      (openInvoices._sum.total || 0) + (overdueInvoices._sum.total || 0)
+      Number(openInvoices._sum.total ?? 0) +
+      Number(overdueInvoices._sum.total ?? 0)
     const expectedLucroPrevisto =
       invoiceSum - (confirmedExpenses._sum.amount || 0)
 

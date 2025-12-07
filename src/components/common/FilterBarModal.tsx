@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -122,9 +122,15 @@ export function FilterBarModal({ filters, open, setOpen, onSubmit, onClear, subm
             </Button>
           </div>
         </form>
-        <DialogClose asChild>
-          <Button variant="ghost" className="absolute top-4 right-4">Fechar</Button>
-        </DialogClose>
+        <button
+          onClick={() => setOpen(false)}
+          className="absolute top-4 right-4 p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+          aria-label="Fechar"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </DialogContent>
     </Dialog>
   );

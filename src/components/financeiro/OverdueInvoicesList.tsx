@@ -33,7 +33,7 @@ interface OverdueInvoicesListProps {
 export function OverdueInvoicesList({ overdue }: OverdueInvoicesListProps) {
   if (!overdue || overdue.length === 0) {
     return (
-      <Card size="md" className="border-2 border-emerald-200/50 dark:border-emerald-800/50 bg-gradient-to-br from-emerald-50/80 to-green-50/80 dark:from-emerald-950/30 dark:to-green-950/30 shadow-lg">
+      <Card size="md" variant="elevated" className="bg-gradient-to-br from-emerald-50/80 to-green-50/80 dark:from-emerald-950/30 dark:to-green-950/30">
         <CardContent className="py-16">
           <div className="text-center">
             <motion.div
@@ -60,7 +60,7 @@ export function OverdueInvoicesList({ overdue }: OverdueInvoicesListProps) {
   const criticalOverdue = overdue.filter((inv) => inv.daysLate > 30)
 
   return (
-    <Card size="md" className="border-2 border-rose-200/50 dark:border-rose-800/50 shadow-xl">
+    <Card size="md" variant="elevated" className="overflow-hidden">
       <div className="bg-gradient-to-r from-rose-500 via-red-500 to-pink-500 h-1" />
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
@@ -103,14 +103,15 @@ export function OverdueInvoicesList({ overdue }: OverdueInvoicesListProps) {
               >
                 <Card
                   size="sm"
-                  className={`border-2 transition-all duration-300 hover:shadow-lg hover:-translate-x-1 ${isCritical
-                    ? 'border-red-400 dark:border-red-700 bg-gradient-to-r from-red-50/80 to-rose-50/80 dark:from-red-950/30 dark:to-rose-950/30'
+                  variant="interactive"
+                  className={`transition-all duration-300 ${isCritical
+                    ? 'bg-gradient-to-r from-red-50/80 to-rose-50/80 dark:from-red-950/30 dark:to-rose-950/30'
                     : isUrgent
-                      ? 'border-orange-300 dark:border-orange-700 bg-gradient-to-r from-orange-50/80 to-amber-50/80 dark:from-orange-950/30 dark:to-amber-950/30'
-                      : 'border-yellow-300 dark:border-yellow-700 bg-gradient-to-r from-yellow-50/80 to-amber-50/80 dark:from-yellow-950/30 dark:to-amber-950/30'
+                      ? 'bg-gradient-to-r from-orange-50/80 to-amber-50/80 dark:from-orange-950/30 dark:to-amber-950/30'
+                      : 'bg-gradient-to-r from-yellow-50/80 to-amber-50/80 dark:from-yellow-950/30 dark:to-amber-950/30'
                     }`}
                 >
-                  <CardContent>
+                  <CardContent className="py-3 sm:py-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">

@@ -469,8 +469,9 @@ export class ReportingService {
 
     return transactions.map((t) => ({
       clientId: t.clientId!,
-      clientName: clientMap.get(t.clientId!)?.name || 'Cliente não encontrado',
-      clientEmail: clientMap.get(t.clientId!)?.email,
+      clientName:
+        (clientMap.get(t.clientId!) as any)?.name || 'Cliente não encontrado',
+      clientEmail: (clientMap.get(t.clientId!) as any)?.email,
       totalRevenue: t._sum.amount || 0,
       transactionCount: t._count,
     }))
@@ -524,8 +525,9 @@ export class ReportingService {
 
     return invoices.map((i) => ({
       clientId: i.clientId,
-      clientName: clientMap.get(i.clientId)?.name || 'Cliente não encontrado',
-      clientEmail: clientMap.get(i.clientId)?.email,
+      clientName:
+        (clientMap.get(i.clientId) as any)?.name || 'Cliente não encontrado',
+      clientEmail: (clientMap.get(i.clientId) as any)?.email,
       totalOverdue: i._sum.total || 0,
       invoiceCount: i._count,
       avgDaysLate: avgDaysLateByClient.get(i.clientId) || 0,

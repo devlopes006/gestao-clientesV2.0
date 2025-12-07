@@ -65,7 +65,7 @@ function TaskCard({ task }: { task: Task }) {
     <div
       ref={setNodeRef}
       style={dragVars}
-      className={`task-card relative bg-white dark:bg-slate-900 border rounded-lg p-3 mb-3 shadow-sm hover:shadow-md transition-[box-shadow,opacity] cursor-move will-change-transform data-[dragging=true]:opacity-50${isDragging ? ' dragging' : ''}`}
+      className={`task-card relative bg-gradient-to-br from-white via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 border-2 border-slate-200/70 dark:border-slate-800/70 rounded-2xl p-3 mb-3 shadow-lg hover:shadow-xl transition-all duration-300 cursor-move will-change-transform backdrop-blur-sm data-[dragging=true]:opacity-50${isDragging ? ' dragging' : ''}`}
       data-dragging={isDragging ? 'true' : 'false'}
     >
       <div className="flex items-start gap-2">
@@ -101,7 +101,7 @@ function TaskCard({ task }: { task: Task }) {
 function KanbanColumn({ column, tasks }: { column: Column; tasks: Task[] }) {
   return (
     <div className="flex-1 min-w-[280px]">
-      <Card className={`h-full ${column.color}`}>
+      <Card className={`h-full rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 shadow-xl transition-all duration-300 hover:shadow-2xl backdrop-blur-sm ${column.color}`}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-sm">{column.title}</h3>
@@ -184,11 +184,11 @@ export default function TasksClient({ initialTasks, updateTaskStatusAction }: { 
 
   return (
     <AppShell>
-      <PageContainer className="space-y-6">
+      <PageContainer className="space-y-6 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
         <Breadcrumbs items={[{ label: 'Kanban de Tarefas', icon: ListTodo }]} />
         <PageLayout centered={false}>
           <PageHeader title="Kanban de Tarefas" description="Gerencie e organize suas tarefas com drag-and-drop" icon={ListTodo} iconColor="bg-purple-600" actions={<Link href="/clients"><Button size="lg" className="rounded-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 shadow-lg gap-2"><Plus className="w-5 h-5" />Nova Tarefa</Button></Link>} />
-          <Card className="p-4 border-2 shadow-sm">
+          <Card className="p-4 border-2 border-slate-200/70 dark:border-slate-800/70 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm">
             <div className="flex flex-col sm:flex-row gap-3 items-center">
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><Filter className="h-4 w-4" />Filtros:</div>
               <div className="flex-1 relative">

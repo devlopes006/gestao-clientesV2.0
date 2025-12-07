@@ -1,13 +1,11 @@
 // @ts-nocheck
-import { PrismaClient } from '@prisma/client'
-import { IAnalyticsMetricRepository } from '@/core/ports/repositories/analytics-metric.repository.interface'
 import { AnalyticsMetric } from '@/core/domain/analytics/entities/analytics-metric.entity'
 import {
   MetricType,
   TimeRangeType,
 } from '@/core/domain/analytics/value-objects/analytics-metric.vo'
-
-const prisma = new PrismaClient()
+import { IAnalyticsMetricRepository } from '@/core/ports/repositories/analytics-metric.repository.interface'
+import { prisma } from '@/lib/prisma'
 
 export class PrismaAnalyticsMetricRepository
   implements IAnalyticsMetricRepository

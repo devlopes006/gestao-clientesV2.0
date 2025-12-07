@@ -156,17 +156,17 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
               {/* KPIs Principais */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Taxa de Conclusão */}
-                <Card className="group border-2 border-emerald-200 dark:border-emerald-800 bg-linear-to-br from-emerald-50 to-green-50 dark:from-emerald-950/50 dark:to-green-950/30 hover:shadow-xl transition-all hover:scale-105 cursor-default">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/50 rounded-xl group-hover:scale-110 transition-transform">
-                        <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                <Card className="group relative overflow-visible border-2 border-emerald-200/70 dark:border-emerald-800/70 bg-gradient-to-br from-emerald-50/80 to-green-50/70 dark:from-emerald-950/40 dark:to-green-950/30 rounded-3xl shadow-xl shadow-emerald-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300 backdrop-blur-sm cursor-default">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-3 gap-1.5">
+                      <div className="p-2 bg-emerald-100/80 dark:bg-emerald-900/40 rounded-2xl group-hover:scale-110 transition-transform shadow-sm flex-shrink-0">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-300" />
                       </div>
-                      <span className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+                      <span className="text-lg sm:text-xl font-black text-emerald-700 dark:text-emerald-200 flex-shrink-0 tabular-nums">
                         {taskStats.completionRate}%
                       </span>
                     </div>
-                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-2">
                       Taxa de Conclusão
                     </p>
                     <Progress
@@ -174,83 +174,87 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
                       className="h-2 bg-emerald-100 dark:bg-emerald-900/30"
                     />
                   </CardContent>
+                  <div className="absolute -top-8 -right-8 w-24 h-24 bg-gradient-to-br from-emerald-400/20 to-green-400/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                 </Card>
 
                 {/* Tarefas Ativas */}
-                <Card className="group border-2 border-blue-200 dark:border-blue-800 bg-linear-to-br from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/30 hover:shadow-xl transition-all hover:scale-105 cursor-default">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="p-2.5 bg-blue-100 dark:bg-blue-900/50 rounded-xl group-hover:scale-110 transition-transform">
-                        <FolderKanban className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <Card className="group relative overflow-visible border-2 border-blue-200/70 dark:border-blue-800/70 bg-gradient-to-br from-blue-50/80 to-indigo-50/70 dark:from-blue-950/40 dark:to-indigo-950/30 rounded-3xl shadow-xl shadow-blue-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300 backdrop-blur-sm cursor-default">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-3 gap-1.5">
+                      <div className="p-2 bg-blue-100/80 dark:bg-blue-900/40 rounded-2xl group-hover:scale-110 transition-transform shadow-sm flex-shrink-0">
+                        <FolderKanban className="h-4 w-4 text-blue-600 dark:text-blue-300" />
                       </div>
-                      <span className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                      <span className="text-lg sm:text-xl font-black text-blue-700 dark:text-blue-200 flex-shrink-0 tabular-nums">
                         {taskStats.total - taskStats.completed}
                       </span>
                     </div>
-                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">
                       Tarefas Ativas
                     </p>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                    <p className="text-xs text-slate-600 dark:text-slate-300">
                       {taskStats.completed} concluídas
                     </p>
                   </CardContent>
+                  <div className="absolute -top-8 -right-8 w-24 h-24 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                 </Card>
 
                 {/* Mídias */}
-                <Card className="group border-2 border-purple-200 dark:border-purple-800 bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-950/50 dark:to-pink-950/30 hover:shadow-xl transition-all hover:scale-105 cursor-default">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="p-2.5 bg-purple-100 dark:bg-purple-900/50 rounded-xl group-hover:scale-110 transition-transform">
-                        <ImageIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <Card className="group relative overflow-visible border-2 border-purple-200/70 dark:border-purple-800/70 bg-gradient-to-br from-purple-50/80 to-pink-50/70 dark:from-purple-950/40 dark:to-pink-950/30 rounded-3xl shadow-xl shadow-purple-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 backdrop-blur-sm cursor-default">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-3 gap-1.5">
+                      <div className="p-2 bg-purple-100/80 dark:bg-purple-900/40 rounded-2xl group-hover:scale-110 transition-transform shadow-sm flex-shrink-0">
+                        <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-300" />
                       </div>
-                      <span className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                      <span className="text-lg sm:text-xl font-black text-purple-700 dark:text-purple-200 flex-shrink-0 tabular-nums">
                         {mediaStats.total}
                       </span>
                     </div>
-                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">
                       Arquivos de Mídia
                     </p>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                    <p className="text-xs text-slate-600 dark:text-slate-300">
                       {mediaStats.images} imagens
                     </p>
                   </CardContent>
+                  <div className="absolute -top-8 -right-8 w-24 h-24 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                 </Card>
 
                 {/* Reuniões */}
-                <Card className="group border-2 border-amber-200 dark:border-amber-800 bg-linear-to-br from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/30 hover:shadow-xl transition-all hover:scale-105 cursor-default">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="p-2.5 bg-amber-100 dark:bg-amber-900/50 rounded-xl group-hover:scale-110 transition-transform">
-                        <Users className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                <Card className="group relative overflow-visible border-2 border-amber-200/70 dark:border-amber-800/70 bg-gradient-to-br from-amber-50/85 to-orange-50/75 dark:from-amber-950/40 dark:to-orange-950/30 rounded-3xl shadow-xl shadow-amber-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-amber-500/20 transition-all duration-300 backdrop-blur-sm cursor-default">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-3 gap-1.5">
+                      <div className="p-2 bg-amber-100/80 dark:bg-amber-900/40 rounded-2xl group-hover:scale-110 transition-transform shadow-sm flex-shrink-0">
+                        <Users className="h-4 w-4 text-amber-600 dark:text-amber-200" />
                       </div>
-                      <span className="text-3xl font-bold text-amber-600 dark:text-amber-400">
+                      <span className="text-lg sm:text-xl font-black text-amber-700 dark:text-amber-100 flex-shrink-0 tabular-nums">
                         {meetingStats.upcoming}
                       </span>
                     </div>
-                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">
                       Reuniões Futuras
                     </p>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">
+                    <p className="text-xs text-slate-600 dark:text-slate-300">
                       {meetingStats.total} no total
                     </p>
                   </CardContent>
+                  <div className="absolute -top-8 -right-8 w-24 h-24 bg-gradient-to-br from-amber-400/20 to-orange-400/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                 </Card>
               </div>
 
               {/* Informações do Cliente */}
-              <Card className="border-2 shadow-sm hover:shadow-lg transition-all">
+              <Card className="border-2 border-slate-200/70 dark:border-slate-800/70 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl transition-all duration-300 backdrop-blur-sm">
                 <ClientInfoDisplay client={client} canEdit={canEditClient} />
               </Card>
 
               {/* Resumo Executivo */}
               {canManageFinance && (
-                <Card className="border-2 shadow-sm hover:shadow-lg transition-all">
+                <Card className="border-2 border-slate-200/70 dark:border-slate-800/70 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl transition-all duration-300 backdrop-blur-sm">
                   <CardHeader className="pb-3">
                     <div className="flex items-center gap-2">
-                      <div className="p-2 bg-linear-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-lg">
+                      <div className="p-2 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl shadow-sm">
                         <Zap className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                       </div>
-                      <CardTitle className="text-base font-semibold">
+                      <CardTitle className="text-base font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                         Resumo Executivo
                       </CardTitle>
                     </div>
@@ -350,13 +354,13 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
               )}
 
               {/* Desempenho de Tarefas */}
-              <Card className="border-2 shadow-sm hover:shadow-lg transition-all">
+              <Card className="border-2 border-slate-200/70 dark:border-slate-800/70 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl transition-all duration-300 backdrop-blur-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2">
-                    <div className="p-2 bg-linear-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg">
+                    <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl shadow-sm">
                       <FolderKanban className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <CardTitle className="text-base font-semibold">
+                    <CardTitle className="text-base font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                       Desempenho de Tarefas
                     </CardTitle>
                   </div>
@@ -540,13 +544,13 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
 
               {/* Tendências */}
               {dash?.trends && (
-                <Card className="border-2 shadow-sm hover:shadow-lg transition-all">
+                <Card className="border-2 border-slate-200/70 dark:border-slate-800/70 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl transition-all duration-300 backdrop-blur-sm">
                   <CardHeader className="pb-3">
                     <div className="flex items-center gap-2">
-                      <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+                      <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-2xl shadow-sm">
                         <TrendingUp className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                       </div>
-                      <CardTitle className="text-base font-semibold">
+                      <CardTitle className="text-base font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                         Tendências (30 dias)
                       </CardTitle>
                     </div>
@@ -727,13 +731,13 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
 
               {/* Próximo Vencimento */}
               {canManageFinance && nextDueDate && (
-                <Card className="border-2 border-emerald-200 dark:border-emerald-800 shadow-sm hover:shadow-lg transition-all">
+                <Card className="border-2 border-emerald-200/70 dark:border-emerald-800/70 rounded-3xl shadow-xl shadow-emerald-200/50 dark:shadow-black/20 hover:shadow-2xl transition-all duration-300 backdrop-blur-sm">
                   <CardHeader className="pb-3">
                     <div className="flex items-center gap-2">
-                      <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+                      <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl shadow-sm">
                         <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                       </div>
-                      <CardTitle className="text-base font-semibold">
+                      <CardTitle className="text-base font-black text-emerald-700 dark:text-emerald-300">
                         Próximo Vencimento
                       </CardTitle>
                     </div>
@@ -759,43 +763,43 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
               )}
 
               {/* Biblioteca de Mídia */}
-              <Card className="border-2 shadow-sm hover:shadow-lg transition-all">
+              <Card className="border-2 border-slate-200/70 dark:border-slate-800/70 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl transition-all duration-300 backdrop-blur-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2">
-                    <div className="p-2 bg-linear-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-lg">
+                    <div className="p-2 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl shadow-sm">
                       <ImageIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                     </div>
-                    <CardTitle className="text-base font-semibold">
+                    <CardTitle className="text-base font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                       Biblioteca de Mídia
                     </CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent className="px-4 pb-4">
                   <div className="grid grid-cols-3 gap-3">
-                    <div className="text-center p-4 rounded-xl bg-linear-to-br from-purple-50 to-purple-100 dark:from-purple-950/30 dark:to-purple-900/30 border border-purple-200 dark:border-purple-800 hover:scale-105 transition-transform">
+                    <div className="relative text-center p-4 rounded-2xl bg-gradient-to-br from-purple-50/90 to-purple-100/90 dark:from-purple-950/30 dark:to-purple-900/30 border-2 border-purple-200/70 dark:border-purple-800/70 shadow-lg hover:shadow-xl transition-all duration-300 overflow-visible">
                       <ImageIcon className="h-6 w-6 text-purple-600 dark:text-purple-400 mx-auto mb-2" />
-                      <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                      <div className="text-2xl font-black text-purple-700 dark:text-purple-200">
                         {mediaStats.images}
                       </div>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">
+                      <p className="text-xs text-slate-700 dark:text-slate-300 mt-1 font-bold">
                         Imagens
                       </p>
                     </div>
-                    <div className="text-center p-4 rounded-xl bg-linear-to-br from-pink-50 to-pink-100 dark:from-pink-950/30 dark:to-pink-900/30 border border-pink-200 dark:border-pink-800 hover:scale-105 transition-transform">
+                    <div className="relative text-center p-4 rounded-2xl bg-gradient-to-br from-pink-50/90 to-pink-100/90 dark:from-pink-950/30 dark:to-pink-900/30 border-2 border-pink-200/70 dark:border-pink-800/70 shadow-lg hover:shadow-xl transition-all duration-300 overflow-visible">
                       <Video className="h-6 w-6 text-pink-600 dark:text-pink-400 mx-auto mb-2" />
-                      <div className="text-2xl font-bold text-pink-600 dark:text-pink-400">
+                      <div className="text-2xl font-black text-pink-700 dark:text-pink-200">
                         {mediaStats.videos}
                       </div>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">
+                      <p className="text-xs text-slate-700 dark:text-slate-300 mt-1 font-bold">
                         Vídeos
                       </p>
                     </div>
-                    <div className="text-center p-4 rounded-xl bg-linear-to-br from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/30 border border-indigo-200 dark:border-indigo-800 hover:scale-105 transition-transform">
+                    <div className="relative text-center p-4 rounded-2xl bg-gradient-to-br from-indigo-50/90 to-indigo-100/90 dark:from-indigo-950/30 dark:to-indigo-900/30 border-2 border-indigo-200/70 dark:border-indigo-800/70 shadow-lg hover:shadow-xl transition-all duration-300 overflow-visible">
                       <FileText className="h-6 w-6 text-indigo-600 dark:text-indigo-400 mx-auto mb-2" />
-                      <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                      <div className="text-2xl font-black text-indigo-700 dark:text-indigo-200">
                         {mediaStats.documents}
                       </div>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 font-medium">
+                      <p className="text-xs text-slate-700 dark:text-slate-300 mt-1 font-bold">
                         Docs
                       </p>
                     </div>
@@ -811,13 +815,13 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
               </Card>
 
               {/* Histórico de Reuniões */}
-              <Card className="border-2 shadow-sm hover:shadow-lg transition-all">
+              <Card className="border-2 border-slate-200/70 dark:border-slate-800/70 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl transition-all duration-300 backdrop-blur-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2">
-                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-2xl shadow-sm">
                       <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <CardTitle className="text-base font-semibold">
+                    <CardTitle className="text-base font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                       Histórico de Reuniões
                     </CardTitle>
                   </div>

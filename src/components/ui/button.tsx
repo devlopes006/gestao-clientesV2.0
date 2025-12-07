@@ -82,6 +82,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     // When using Slot (asChild), ensure a single React element child and avoid invalid props
     if (asChild) {
+      // Slot requires a single React element child. If callers passed multiple
+      // nodes (text + icon) or plain text, wrap them in a <span> so Slot
+      // always receives a single element and avoids React.Children.only errors.
+      const count = React.Children.count(children);
+      const singleChild =
+        count === 1 && React.isValidElement(children) ? children : <span>{children}</span>;
+
       // Slot does not accept ref, so omit it
       return (
         <Comp
@@ -94,7 +101,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           )}
           {...props}
         >
-          {children}
+          {singleChild}
         </Comp>
       );
     }

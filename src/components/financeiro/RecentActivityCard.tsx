@@ -37,7 +37,7 @@ const statusLabels: Record<string, string> = {
 export function RecentActivityCard({ activities }: RecentActivityCardProps) {
   if (activities.length === 0) {
     return (
-      <Card size="md" className="border-2 border-border/50 shadow-lg">
+      <Card size="md" variant="elevated" className="">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5" />
@@ -55,7 +55,7 @@ export function RecentActivityCard({ activities }: RecentActivityCardProps) {
   }
 
   return (
-    <Card size="md" className="border-2 border-border/50 shadow-xl overflow-hidden">
+    <Card size="md" variant="elevated" className="overflow-hidden">
       <div className="bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 h-1" />
       <CardHeader className="pb-3">
         <div className="flex items-center gap-3">
@@ -85,7 +85,7 @@ export function RecentActivityCard({ activities }: RecentActivityCardProps) {
                 transition={{ duration: 0.2, delay: index * 0.03 }}
               >
                 <Card size="sm" className="border hover:shadow-md transition-all duration-200">
-                  <CardContent>
+                  <CardContent className="py-2 sm:py-3">
                     <div className="flex items-center gap-3">
                       {/* Icon */}
                       <div

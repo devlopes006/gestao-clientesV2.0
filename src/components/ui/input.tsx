@@ -1,6 +1,8 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
-import * as React from "react";
+import React from "react";
 
 const inputVariants = cva(
   "input-surface text-sm placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 py-2.5 focus-visible:ring-2 focus-visible:ring-indigo-500/35 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900 focus-visible:border-indigo-400 shadow-sm disabled:cursor-not-allowed",
@@ -38,7 +40,7 @@ export interface InputProps
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type, error, isInvalid, variant, size, ...props }, ref) => {
     const hasError = isInvalid || !!error;
-    const finalVariant = hasError ? "error" : variant;
+    const finalVariant = (hasError ? "error" : variant) as any;
 
     return (
       <input

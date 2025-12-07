@@ -4,8 +4,8 @@ import {
 } from '@/domain/invoices/InvoiceService'
 import { ClientPrismaRepository } from '@/infrastructure/prisma/ClientPrismaRepository'
 import { InvoicePrismaRepository } from '@/infrastructure/prisma/InvoicePrismaRepository'
+import { prisma } from '@/lib/prisma'
 import { getSessionProfile } from '@/services/auth/session'
-import { PrismaClient } from '@prisma/client'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
@@ -28,10 +28,9 @@ export async function POST(request: Request) {
       )
     }
 
-    const prisma = new PrismaClient()
     const service = new InvoiceService(
-      new ClientPrismaRepository(prisma),
-      new InvoicePrismaRepository(prisma)
+      new ClientPrismaRepository(prisma as any),
+      new InvoicePrismaRepository(prisma as any)
     )
     const results = await service.generateMonthlyInvoices(parsed.data)
 

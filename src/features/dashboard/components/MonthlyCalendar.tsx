@@ -205,7 +205,7 @@ export function MonthlyCalendar({
               variant="outline"
               size="sm"
               onClick={() => handleOpenCreateEvent()}
-              className="h-8 gap-2"
+              className="h-9 px-4 gap-2 rounded-xl border-slate-300 dark:border-slate-700 hover:bg-gradient-to-r hover:from-blue-600 hover:to-cyan-600 hover:text-white hover:border-transparent transition-all duration-300 font-semibold"
             >
               <Plus className="h-4 w-4" />
               <span className="hidden sm:inline">Evento</span>
@@ -214,7 +214,7 @@ export function MonthlyCalendar({
               variant="outline"
               size="sm"
               onClick={prevMonth}
-              className="h-8 w-8 p-0"
+              className="h-9 w-9 p-0 rounded-xl border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -222,7 +222,7 @@ export function MonthlyCalendar({
               variant="outline"
               size="sm"
               onClick={goToday}
-              className="h-8 text-xs px-3"
+              className="h-9 px-4 text-xs rounded-xl border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold"
             >
               Hoje
             </Button>
@@ -230,7 +230,7 @@ export function MonthlyCalendar({
               variant="outline"
               size="sm"
               onClick={nextMonth}
-              className="h-8 w-8 p-0"
+              className="h-9 w-9 p-0 rounded-xl border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -277,22 +277,22 @@ export function MonthlyCalendar({
           </Select>
 
           {/* Legenda compacta */}
-          <div className="flex items-center gap-3 text-xs">
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded bg-blue-500" />
-              <span className="text-slate-600 dark:text-slate-400">
+          <div className="flex items-center gap-4 text-xs">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 shadow-sm" />
+              <span className="text-slate-600 dark:text-slate-400 font-medium">
                 Reuniões
               </span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded bg-purple-500" />
-              <span className="text-slate-600 dark:text-slate-400">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-lg bg-gradient-to-br from-purple-500 to-fuchsia-500 shadow-sm" />
+              <span className="text-slate-600 dark:text-slate-400 font-medium">
                 Tarefas
               </span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-3 h-3 rounded bg-green-500" />
-              <span className="text-slate-600 dark:text-slate-400">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 shadow-sm" />
+              <span className="text-slate-600 dark:text-slate-400 font-medium">
                 Avulsos
               </span>
             </div>

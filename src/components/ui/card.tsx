@@ -1,7 +1,8 @@
+
 "use client";
 
 import { cn } from "@/lib/utils";
-import * as React from "react";
+import React from "react";
 
 /**
  * Card Component - Design System MyGest

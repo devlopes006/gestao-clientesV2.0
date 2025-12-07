@@ -81,7 +81,7 @@ export function AuthDebug() {
   if (!mounted || !showDebug) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 bg-slate-900 text-white p-4 rounded-lg shadow-2xl text-xs font-mono max-w-md z-50 border border-slate-700">
+    <div className="fixed bottom-4 right-4 bg-slate-900 text-white p-4 rounded-lg shadow-lg text-xs font-mono max-w-md z-50 border border-slate-700">
       <div className="flex items-center justify-between mb-3">
         <div className="font-bold text-yellow-400">🔍 Auth Debug</div>
         <button

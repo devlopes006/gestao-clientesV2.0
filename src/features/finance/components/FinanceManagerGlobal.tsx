@@ -426,7 +426,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
 
           {/* Stats Cards */}
           <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3">
-            <Card className="relative overflow-hidden border-2 border-green-200/60 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <Card variant="elevated" className="relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-green-500 to-emerald-500" />
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-xs sm:text-sm font-medium text-slate-700">
@@ -447,7 +447,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
               </CardContent>
             </Card>
 
-            <Card className="relative overflow-hidden border-2 border-red-200/60 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <Card variant="elevated" className="relative overflow-hidden">
               <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-red-500 to-rose-500" />
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-xs sm:text-sm font-medium text-slate-700">
@@ -468,12 +468,8 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
               </CardContent>
             </Card>
 
-            <Card
-              className={`relative overflow-hidden border-2 shadow-2xl ${totals.balance >= 0
-                ? "border-blue-200/60 shadow-lg hover:shadow-xl"
-                : "border-orange-200/60 shadow-lg hover:shadow-xl"
-                } transition-shadow duration-300`}
-            >
+            <Card variant="elevated" className={`relative overflow-hidden transition-shadow duration-300`}>
+              {/* gradient bar adjusts color based on positive/negative balance */}
               <div
                 className={`absolute top-0 left-0 w-full h-1.5 bg-linear-to-r ${totals.balance >= 0
                   ? "from-blue-500 to-purple-500"
@@ -511,7 +507,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
 
           {/* Top Categorias - Resumo Visual */}
           {categoryStats.length > 0 && (
-            <Card className="shadow-lg bg-white/90 backdrop-blur-sm hover:shadow-xl transition-shadow duration-300">
+            <Card variant="elevated" className="bg-white/90 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="text-base sm:text-lg flex items-center gap-2">
                   <Filter className="h-5 w-5 text-blue-600" />
@@ -559,7 +555,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
 
           {/* Parcelas deste mês */}
           {installments.length > 0 && (
-            <Card className="shadow-lg bg-white/90 backdrop-blur-sm hover:shadow-xl transition-shadow duration-300">
+            <Card variant="elevated" className="bg-white/90 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="text-base sm:text-lg flex items-center gap-2">
                   <DollarSign className="h-5 w-5 text-violet-600" />
@@ -605,7 +601,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
           )}
 
           {/* Filters */}
-          <Card className="shadow-lg bg-white/90 backdrop-blur-sm">
+          <Card variant="elevated" className="bg-white/90 backdrop-blur-sm">
             <CardContent className="pt-4 sm:pt-6">
               <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-4">
                 <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -688,7 +684,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
           </Card>
 
           {/* Transactions List */}
-          <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <Card variant="elevated" className="transition-shadow duration-300">
             <CardHeader>
               <CardTitle className="text-lg sm:text-xl">Histórico de Transações</CardTitle>
             </CardHeader>
@@ -708,9 +704,9 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                   {filteredFinances.map((finance) => (
                     <div
                       key={finance.id}
-                      className={`flex flex-col sm:flex-row items-start gap-3 p-3 sm:p-4 rounded-xl border-2 transition-all hover:shadow-md ${finance.type === "INCOME"
-                        ? "border-green-200 bg-green-50/50 hover:border-green-300"
-                        : "border-red-200 bg-red-50/50 hover:border-red-300"
+                      className={`flex flex-col sm:flex-row items-start gap-3 p-3 sm:p-4 rounded-xl shadow-sm transition-all hover:shadow-md ${finance.type === "INCOME"
+                        ? "bg-green-50/50"
+                        : "bg-red-50/50"
                         }`}
                     >
                       <div className="flex items-start gap-3 flex-1 w-full min-w-0">

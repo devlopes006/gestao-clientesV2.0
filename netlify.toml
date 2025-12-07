@@ -27,3 +27,8 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Edge Function nativo do Netlify (substitui middleware Next.js)
+[[edge_functions]]
+  function = "middleware"
+  path = "/*"

@@ -1,18 +1,21 @@
-import type { NextRequest } from 'next/server'
-import { NextResponse } from 'next/server'
-import { proxy as proxyFn } from './src/proxy'
+// MIDDLEWARE DESABILITADO - Usando Edge Function nativo do Netlify
+// Veja: netlify/edge-functions/middleware.ts
 
-export async function middleware(req: NextRequest) {
-  try {
-    const result = await proxyFn(req)
-    // Ensure we always return a valid Response
-    return result || NextResponse.next()
-  } catch (error) {
-    console.error('[middleware] Error:', error)
-    // Return next() on error to avoid breaking the request
-    return NextResponse.next()
-  }
-}
+// import type { NextRequest } from 'next/server'
+// import { NextResponse } from 'next/server'
+// import { proxy as proxyFn } from './src/proxy'
+
+// export async function middleware(req: NextRequest) {
+//   try {
+//     const result = await proxyFn(req)
+//     // Ensure we always return a valid Response
+//     return result || NextResponse.next()
+//   } catch (error) {
+//     console.error('[middleware] Error:', error)
+//     // Return next() on error to avoid breaking the request
+//     return NextResponse.next()
+//   }
+// }
 
 export const config = {
   matcher: [

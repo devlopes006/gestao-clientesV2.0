@@ -6,7 +6,14 @@
  */
 
 import { spawn } from 'child_process'
-import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  writeFileSync,
+} from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -90,6 +97,102 @@ function buildNft() {
   ensureMiddlewareStub()
 }
 
+function convertMiddlewareToESM() {
+  try {
+    // Convert main middleware.js
+    if (existsSync(middlewarePath)) {
+      let content = readFileSync(middlewarePath, 'utf-8')
+
+      // Check if already ES Module
+      if (!content.includes('export ')) {
+        // Convert CommonJS to ES Modules
+        content = content.replace(
+          /exports\.middleware\s*=\s*/g,
+          'export const middleware = '
+        )
+        content = content.replace(/exports\.default\s*=\s*/g, 'export default ')
+        content = content.replace(/module\.exports\s*=\s*/g, 'export default ')
+        content = content.replace(
+          /exports\.config\s*=\s*/g,
+          'export const config = '
+        )
+        content = content.replace(/["']use strict["'];?\n?/g, '')
+
+        writeFileSync(middlewarePath, content, 'utf-8')
+        console.log('[netlify-guard] converted middleware.js to ES modules')
+      } else {
+        console.log('[netlify-guard] middleware.js already uses ES modules')
+      }
+    } else {
+      console.log('[netlify-guard] no middleware.js to convert')
+    }
+
+    // Also convert any middleware in edge-chunks (Next.js 16 puts it there)
+    const edgeChunksDir = resolve(serverDir, 'edge-chunks')
+    if (existsSync(edgeChunksDir)) {
+      const middlewareFiles = []
+      const findMiddleware = (dir) => {
+        try {
+          const entries = readdirSync(dir, { withFileTypes: true })
+          for (const entry of entries) {
+            const fullPath = resolve(dir, entry.name)
+            if (entry.isDirectory()) {
+              findMiddleware(fullPath)
+            } else if (
+              entry.name.includes('middleware') &&
+              entry.name.endsWith('.js')
+            ) {
+              middlewareFiles.push(fullPath)
+            }
+          }
+        } catch (err) {
+          // Ignore errors
+        }
+      }
+      findMiddleware(edgeChunksDir)
+
+      for (const file of middlewareFiles) {
+        try {
+          let content = readFileSync(file, 'utf-8')
+          if (!content.includes('export ')) {
+            content = content.replace(
+              /exports\.middleware\s*=\s*/g,
+              'export const middleware = '
+            )
+            content = content.replace(
+              /exports\.default\s*=\s*/g,
+              'export default '
+            )
+            content = content.replace(
+              /module\.exports\s*=\s*/g,
+              'export default '
+            )
+            content = content.replace(
+              /exports\.config\s*=\s*/g,
+              'export const config = '
+            )
+            content = content.replace(/["']use strict["'];?\n?/g, '')
+            writeFileSync(file, content, 'utf-8')
+            console.log('[netlify-guard] converted', file, 'to ES modules')
+          }
+        } catch (err) {
+          console.warn(
+            '[netlify-guard] failed to convert',
+            file,
+            ':',
+            err.message
+          )
+        }
+      }
+    }
+  } catch (err) {
+    console.warn(
+      '[netlify-guard] failed to convert middleware.js:',
+      err.message
+    )
+  }
+}
+
 function copyHeaders() {
   try {
     const src = resolve(projectRoot, 'public/_headers')
@@ -126,6 +229,8 @@ child.on('exit', (code, signal) => {
   clearInterval(interval)
   try {
     buildNft()
+    // Convert middleware.js to ES modules after build
+    convertMiddlewareToESM()
   } catch (err) {
     console.warn('[netlify-guard] final ensure failed:', err.message)
   }

@@ -392,24 +392,28 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
 
   return (
     <>
-      <div className="relative bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-100 overflow-x-hidden">
-        {/* Animated background */}
+      <div className="relative overflow-x-hidden">
+        {/* Decorative background elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 -left-4 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob" />
-          <div className="absolute top-0 -right-4 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000" />
-          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000" />
+          <div className="absolute top-0 -left-10 w-72 h-72 bg-gradient-to-br from-emerald-400/20 to-green-400/20 rounded-full blur-3xl" />
+          <div className="absolute top-20 -right-10 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-full blur-3xl" />
         </div>
 
-        <div className="relative space-y-6 p-4 sm:p-6 max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-blue-600 to-purple-600">
-                Financeiro da Organização
-              </h1>
-              <p className="text-sm text-slate-600">
-                Gestão completa de receitas e despesas
-              </p>
+        <div className="relative space-y-6 sm:space-y-8 py-6 sm:py-8 lg:py-10">
+          {/* Premium Header */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+            <div className="flex items-start gap-4 sm:gap-6">
+              <div className="p-4 rounded-3xl bg-gradient-to-br from-emerald-600 via-green-600 to-teal-600 shadow-2xl shadow-emerald-500/30">
+                <DollarSign className="h-8 w-8 text-white" />
+              </div>
+              <div className="flex-1">
+                <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-2">
+                  Financeiro
+                </h1>
+                <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base font-medium">
+                  Gestão completa de receitas e despesas da organização
+                </p>
+              </div>
             </div>
             <Button
               onClick={() => {
@@ -417,152 +421,148 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                 setIsModalOpen(true);
               }}
               size="default"
-              className="gap-2 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/20 shrink-0 w-full sm:w-auto"
+              className="gap-2 bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 hover:from-emerald-700 hover:via-green-700 hover:to-teal-700 text-white shadow-xl shadow-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/40 transition-all duration-300 shrink-0 w-full sm:w-auto font-bold"
             >
               <Plus className="h-5 w-5" />
               Nova Transação
             </Button>
           </div>
 
-          {/* Stats Cards */}
+          {/* Stats Cards Premium */}
           <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3">
-            <Card variant="elevated" className="relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-green-500 to-emerald-500" />
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs sm:text-sm font-medium text-slate-700">
-                  Receita Total
-                </CardTitle>
-                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-                  <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
+            <Card className="group relative overflow-visible rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-white via-emerald-50/30 to-green-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300">
+              <div className="p-6 sm:p-8">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-600 to-green-600 shadow-lg shadow-emerald-500/30">
+                    <TrendingUp className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      Receita Total
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                      {totals.incomeCount} transação{totals.incomeCount !== 1 ? "ões" : ""}
+                    </p>
+                  </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl sm:text-3xl font-bold text-green-600 wrap-break-word">
+                <div className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums wrap-break-word">
                   {formatCurrency(totals.income)}
                 </div>
-                <p className="text-xs text-slate-500 mt-2">
-                  {totals.incomeCount} transação
-                  {totals.incomeCount !== 1 ? "ões" : ""}
-                </p>
-              </CardContent>
+              </div>
+              <div className="absolute -top-8 -right-8 w-28 h-28 bg-gradient-to-br from-emerald-400/20 to-green-400/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-600 to-green-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-b-3xl" />
             </Card>
 
-            <Card variant="elevated" className="relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-red-500 to-rose-500" />
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs sm:text-sm font-medium text-slate-700">
-                  Despesas
-                </CardTitle>
-                <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-red-100 flex items-center justify-center shrink-0">
-                  <TrendingDown className="h-5 w-5 sm:h-6 sm:w-6 text-red-600" />
+            <Card className="group relative overflow-visible rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-white via-red-50/30 to-rose-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-red-500/20 transition-all duration-300">
+              <div className="p-6 sm:p-8">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 rounded-2xl bg-gradient-to-br from-red-600 to-rose-600 shadow-lg shadow-red-500/30">
+                    <TrendingDown className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      Despesas
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                      {totals.expenseCount} transação{totals.expenseCount !== 1 ? "ões" : ""}
+                    </p>
+                  </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl sm:text-3xl font-bold text-red-600 wrap-break-word">
+                <div className="text-2xl sm:text-3xl font-black text-red-600 dark:text-red-400 tabular-nums wrap-break-word">
                   {formatCurrency(totals.expense)}
                 </div>
-                <p className="text-xs text-slate-500 mt-2">
-                  {totals.expenseCount} transação
-                  {totals.expenseCount !== 1 ? "ões" : ""}
-                </p>
-              </CardContent>
+              </div>
+              <div className="absolute -top-8 -right-8 w-28 h-28 bg-gradient-to-br from-red-400/20 to-rose-400/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-600 to-rose-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-b-3xl" />
             </Card>
 
-            <Card variant="elevated" className={`relative overflow-hidden transition-shadow duration-300`}>
-              {/* gradient bar adjusts color based on positive/negative balance */}
-              <div
-                className={`absolute top-0 left-0 w-full h-1.5 bg-linear-to-r ${totals.balance >= 0
-                  ? "from-blue-500 to-purple-500"
-                  : "from-orange-500 to-red-500"
-                  }`}
-              />
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-xs sm:text-sm font-medium text-slate-700">
-                  Saldo
-                </CardTitle>
-                <div
-                  className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full flex items-center justify-center shrink-0 ${totals.balance >= 0 ? "bg-blue-100" : "bg-orange-100"
-                    }`}
-                >
-                  <DollarSign
-                    className={`h-5 w-5 sm:h-6 sm:w-6 ${totals.balance >= 0 ? "text-blue-600" : "text-orange-600"
-                      }`}
-                  />
+            <Card className={`group relative overflow-visible rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 ${totals.balance >= 0 ? 'bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/40' : 'bg-gradient-to-br from-white via-orange-50/30 to-red-50/40'} dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl ${totals.balance >= 0 ? 'hover:shadow-blue-500/20' : 'hover:shadow-orange-500/20'} transition-all duration-300`}>
+              <div className="p-6 sm:p-8">
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`p-3 rounded-2xl ${totals.balance >= 0 ? 'bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30' : 'bg-gradient-to-br from-orange-600 to-red-600 shadow-lg shadow-orange-500/30'}`}>
+                    <DollarSign className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      Saldo
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                      {totals.balance >= 0 ? "✓ Positivo" : "⚠ Negativo"} • {totals.incomeCount + totals.expenseCount} total
+                    </p>
+                  </div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div
-                  className={`text-2xl sm:text-3xl font-bold wrap-break-word ${totals.balance >= 0 ? "text-blue-600" : "text-orange-600"
-                    }`}
-                >
+                <div className={`text-2xl sm:text-3xl font-black tabular-nums wrap-break-word ${totals.balance >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-orange-600 dark:text-orange-400'}`}>
                   {formatCurrency(totals.balance)}
                 </div>
-                <p className="text-xs text-slate-500 mt-2">
-                  {totals.balance >= 0 ? "✓ Positivo" : "⚠ Negativo"} •{" "}
-                  {totals.incomeCount + totals.expenseCount} total
-                </p>
-              </CardContent>
+              </div>
+              <div className={`absolute -top-8 -right-8 w-28 h-28 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none ${totals.balance >= 0 ? 'bg-gradient-to-br from-blue-400/20 to-indigo-400/20' : 'bg-gradient-to-br from-orange-400/20 to-red-400/20'}`} />
+              <div className={`absolute bottom-0 left-0 w-full h-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-b-3xl ${totals.balance >= 0 ? 'bg-gradient-to-r from-blue-600 to-indigo-600' : 'bg-gradient-to-r from-orange-600 to-red-600'}`} />
             </Card>
           </div>
 
           {/* Top Categorias - Resumo Visual */}
           {categoryStats.length > 0 && (
-            <Card variant="elevated" className="bg-white/90 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                  <Filter className="h-5 w-5 text-blue-600" />
-                  Top 5 Categorias
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {categoryStats.map((stat, index) => (
-                    <div key={stat.category} className="space-y-2">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
-                          <span className="text-xs font-bold text-slate-400 shrink-0">
-                            #{index + 1}
-                          </span>
-                          <p className="text-sm font-medium text-slate-900 truncate">
-                            {stat.category}
-                          </p>
-                          <span className="text-xs text-slate-500 shrink-0">
-                            ({stat.count})
-                          </span>
-                        </div>
-                        <div
-                          className={`text-sm font-bold shrink-0 ${stat.amount >= 0 ? "text-green-600" : "text-red-600"
-                            }`}
-                        >
-                          {stat.amount >= 0 ? "+" : "-"}
-                          {formatCurrency(Math.abs(stat.amount))}
-                        </div>
-                      </div>
-                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full ${stat.amount >= 0
-                            ? "bg-linear-to-r from-green-500 to-emerald-500"
-                            : "bg-linear-to-r from-red-500 to-rose-500"
-                            } ${getWidthClass(stat.amount, Math.max(...categoryStats.map((s) => Math.abs(s.amount))))}`}
-                        />
-                      </div>
-                    </div>
-                  ))}
+            <Card className="rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm shadow-xl shadow-slate-200/50 dark:shadow-black/20">
+              <div className="p-6 sm:p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2.5 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-600 shadow-lg shadow-violet-500/30">
+                    <Filter className="h-5 w-5 text-white" />
+                  </div>
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white">
+                    Top 5 Categorias
+                  </h3>
                 </div>
-              </CardContent>
+                <CardContent>
+                  <div className="space-y-3">
+                    {categoryStats.map((stat, index) => (
+                      <div key={stat.category} className="space-y-2">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
+                            <span className="text-xs font-bold text-slate-400 shrink-0">
+                              #{index + 1}
+                            </span>
+                            <p className="text-sm font-medium text-slate-900 truncate">
+                              {stat.category}
+                            </p>
+                            <span className="text-xs text-slate-500 shrink-0">
+                              ({stat.count})
+                            </span>
+                          </div>
+                          <div
+                            className={`text-sm font-bold shrink-0 ${stat.amount >= 0 ? "text-green-600" : "text-red-600"
+                              }`}
+                          >
+                            {stat.amount >= 0 ? "+" : "-"}
+                            {formatCurrency(Math.abs(stat.amount))}
+                          </div>
+                        </div>
+                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${stat.amount >= 0
+                              ? "bg-linear-to-r from-green-500 to-emerald-500"
+                              : "bg-linear-to-r from-red-500 to-rose-500"
+                              } ${getWidthClass(stat.amount, Math.max(...categoryStats.map((s) => Math.abs(s.amount))))}`}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+              </div>
             </Card>
           )}
 
           {/* Parcelas deste mês */}
           {installments.length > 0 && (
-            <Card variant="elevated" className="bg-white/90 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-violet-600" />
-                  Parcelas deste mês
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+            <Card className="rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm shadow-xl shadow-slate-200/50 dark:shadow-black/20">
+              <div className="p-6 sm:p-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2.5 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-600 shadow-lg shadow-violet-500/30">
+                    <DollarSign className="h-5 w-5 text-white" />
+                  </div>
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white">
+                    Parcelas deste mês
+                  </h3>
+                </div>
                 <div className="space-y-3">
                   {installments.map((i) => (
                     <div
@@ -601,8 +601,8 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
           )}
 
           {/* Filters */}
-          <Card variant="elevated" className="bg-white/90 backdrop-blur-sm">
-            <CardContent className="pt-4 sm:pt-6">
+          <Card className="rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm shadow-xl shadow-slate-200/50 dark:shadow-black/20">
+            <div className="p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-4">
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   <Filter className="h-4 w-4 text-slate-500" />
@@ -680,17 +680,17 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                   )}
                 </div>
               </div>
-            </CardContent>
+            </div>
           </Card>
 
           {/* Transactions List */}
-          <Card variant="elevated" className="transition-shadow duration-300">
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl">Histórico de Transações</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <Card className="rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm shadow-xl shadow-slate-200/50 dark:shadow-black/20">
+            <div className="p-6 sm:p-8">
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mb-6">
+                Histórico de Transações
+              </h3>
               {filteredFinances.length === 0 ? (
-                <div className="text-center py-12 text-slate-500">
+                <div className="text-center py-12 text-slate-500 dark:text-slate-400">
                   <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p className="font-medium">Nenhuma transação encontrada</p>
                   <p className="text-sm mt-1">
@@ -788,7 +788,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                   ))}
                 </div>
               )}
-            </CardContent>
+            </div>
           </Card>
 
           {/* Modal */}

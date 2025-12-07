@@ -131,8 +131,8 @@ export async function proxy(req: NextRequest) {
 export function applySecurityHeaders(req: NextRequest, res?: NextResponse) {
   const response = res ?? NextResponse.next()
 
-  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
-  response.headers.set('x-nonce', nonce)
+  // Nonce removido - incompatível com Netlify plugin auto-injection
+  // CSP usa 'unsafe-inline' para compatibilidade com Next.js inline scripts
 
   if (process.env.NODE_ENV === 'production') {
     const appUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL
@@ -159,8 +159,8 @@ export function applySecurityHeaders(req: NextRequest, res?: NextResponse) {
 
     const cspDirectives = [
       "default-src 'self'",
-      `script-src 'self' 'nonce-${nonce}' https://accounts.google.com https://apis.google.com https://*.googletagmanager.com https://www.gstatic.com https://us.i.posthog.com`,
-      `script-src-elem 'self' 'nonce-${nonce}' https://accounts.google.com https://apis.google.com https://*.googletagmanager.com https://www.gstatic.com https://us.i.posthog.com`,
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://*.googletagmanager.com https://www.gstatic.com https://us.i.posthog.com",
+      "script-src-elem 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com https://*.googletagmanager.com https://www.gstatic.com https://us.i.posthog.com",
       "worker-src 'self' blob:",
       "connect-src 'self' https://*.googleapis.com https://apis.google.com https://*.firebaseio.com https://*.cloudfunctions.net wss://*.firebaseio.com https://*.ingest.us.sentry.io https://*.ingest.sentry.io https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://*.google.com https://www.googleapis.com https://*.r2.cloudflarestorage.com https://us.i.posthog.com https://*.posthog.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com",

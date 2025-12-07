@@ -16,7 +16,8 @@
   # Monthly projection on the 25th at 02:20 UTC
   finance_projection_monthly = { schedule = "20 2 25 * *" }
 
-# Headers definidos em public/_headers
+# Headers definidos em public/_headers (apenas security headers básicos)
+# CSP gerenciado pelo middleware Next.js (src/proxy.ts) para evitar conflitos com Netlify plugin
 
 # Redirects básicos
 [[redirects]]

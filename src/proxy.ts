@@ -36,18 +36,8 @@ export async function proxy(req: NextRequest) {
   // Allow session creation (login) to pass through without redirect
   if (isSessionCreate) return NextResponse.next()
 
-  // Gera um nonce único para esta requisição (CSP)
-  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
-
   // Cria response que será modificada com headers de segurança
-  const requestHeaders = new Headers(req.headers)
-  requestHeaders.set('x-nonce', nonce)
-
-  const response = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  })
+  const response = NextResponse.next()
 
   // Adiciona headers de segurança
   if (process.env.NODE_ENV === 'production') {
@@ -75,11 +65,11 @@ export async function proxy(req: NextRequest) {
       'camera=(), microphone=(), geolocation=()'
     )
 
-    // Content Security Policy - Completo para Google OAuth + Firebase + Sentry + R2 Media + PostHog com nonce
+    // Content Security Policy - Usando unsafe-inline para compatibilidade com Netlify Edge
     const cspDirectives = [
       "default-src 'self'",
-      `script-src 'self' 'nonce-${nonce}' https://accounts.google.com https://apis.google.com https://*.googletagmanager.com https://www.gstatic.com https://us.i.posthog.com`,
-      `script-src-elem 'self' 'nonce-${nonce}' https://accounts.google.com https://apis.google.com https://*.googletagmanager.com https://www.gstatic.com https://us.i.posthog.com`,
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://*.googletagmanager.com https://www.gstatic.com https://us.i.posthog.com",
+      "script-src-elem 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com https://*.googletagmanager.com https://www.gstatic.com https://us.i.posthog.com",
       "worker-src 'self' blob:",
       "connect-src 'self' https://*.googleapis.com https://apis.google.com https://*.firebaseio.com https://*.cloudfunctions.net wss://*.firebaseio.com https://*.ingest.us.sentry.io https://*.ingest.sentry.io https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://*.google.com https://www.googleapis.com https://*.r2.cloudflarestorage.com https://us.i.posthog.com https://*.posthog.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com",

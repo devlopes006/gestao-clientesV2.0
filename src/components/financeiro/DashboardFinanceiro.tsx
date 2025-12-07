@@ -330,6 +330,11 @@ export function DashboardFinanceiro() {
                               <stop offset="0%" style={{ stopColor: 'rgb(59, 130, 246)', stopOpacity: 0.3 }} />
                               <stop offset="100%" style={{ stopColor: 'rgb(99, 102, 241)', stopOpacity: 0.05 }} />
                             </linearGradient>
+                            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop offset="0%" style={{ stopColor: 'rgb(59, 130, 246)' }} />
+                              <stop offset="50%" style={{ stopColor: 'rgb(99, 102, 241)' }} />
+                              <stop offset="100%" style={{ stopColor: 'rgb(139, 92, 246)' }} />
+                            </linearGradient>
                             <filter id="glow">
                               <feGaussianBlur stdDeviation="2" result="coloredBlur" />
                               <feMerge>
@@ -374,13 +379,6 @@ export function DashboardFinanceiro() {
                             points={points}
                             filter="url(#glow)"
                           />
-                          <defs>
-                            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                              <stop offset="0%" style={{ stopColor: 'rgb(59, 130, 246)' }} />
-                              <stop offset="50%" style={{ stopColor: 'rgb(99, 102, 241)' }} />
-                              <stop offset="100%" style={{ stopColor: 'rgb(139, 92, 246)' }} />
-                            </linearGradient>
-                          </defs>
 
                           {/* Data points */}
                           {values.map((v, i) => {

@@ -55,17 +55,17 @@ export function TopClientsCard({ clients, items, title }: TopClientsCardProps) {
   return (
     <Card size="md" variant="elevated" className="overflow-hidden">
       <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 h-1" />
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-            <Trophy className="h-5 w-5 text-white" />
+      <CardHeader className="pb-2 sm:pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+          <div className="p-2 sm:p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg flex-shrink-0">
+            <Trophy className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
           </div>
-          <div>
-            <CardTitle className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center gap-2">
+          <div className="min-w-0 flex-1">
+            <CardTitle className="text-base sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex flex-wrap items-center gap-2">
               {title ?? 'Top Clientes'}
-              <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600">{normalized.length}</Badge>
+              <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-xs sm:text-sm">{normalized.length}</Badge>
             </CardTitle>
-            <CardDescription className="text-sm">Total de receita: {formatCurrency(totalRevenue)}</CardDescription>
+            <CardDescription className="text-xs sm:text-sm line-clamp-1">Total de receita: {formatCurrency(totalRevenue)}</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -95,10 +95,10 @@ export function TopClientsCard({ clients, items, title }: TopClientsCardProps) {
                         : 'bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-950/30 dark:to-indigo-950/30'
                     }`}
                 >
-                  <CardContent className="py-2 sm:py-3">
-                    <div className="flex items-center gap-3">
+                  <CardContent className="py-1.5 sm:py-2 md:py-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <div
-                        className={`flex items-center justify-center w-9 h-9 rounded-full font-black text-white shadow-lg flex-shrink-0 ${index === 0
+                        className={`flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full font-black text-white shadow-lg flex-shrink-0 text-xs sm:text-sm ${index === 0
                           ? 'bg-gradient-to-br from-yellow-400 to-orange-500'
                           : index === 1
                             ? 'bg-gradient-to-br from-slate-400 to-gray-500'
@@ -109,24 +109,24 @@ export function TopClientsCard({ clients, items, title }: TopClientsCardProps) {
                       >
                         {isTop3 ? (
                           <Trophy
-                            className={`h-4 w-4 ${index === 0 ? 'animate-pulse' : index === 1 ? 'opacity-90' : 'opacity-80'}`}
+                            className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${index === 0 ? 'animate-pulse' : index === 1 ? 'opacity-90' : 'opacity-80'}`}
                           />
                         ) : (
-                          <span className="text-sm">{index + 1}</span>
+                          <span>{index + 1}</span>
                         )}
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <p title={client.clientName} className="font-semibold text-sm truncate">{client.clientName}</p>
+                        <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                          <p title={client.clientName} className="font-semibold text-xs sm:text-sm truncate">{client.clientName}</p>
                           {isTop3 && (
-                            <Badge variant="secondary" className="text-xs font-bold">
+                            <Badge variant="secondary" className="text-xs font-bold py-0 px-1 sm:px-2 flex-shrink-0">
                               TOP {index + 1}
                             </Badge>
                           )}
                         </div>
 
-                        <div className="relative h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden mb-2">
+                        <div className="hidden sm:block relative h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden mb-1.5">
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${percentage}%` }}
@@ -142,21 +142,21 @@ export function TopClientsCard({ clients, items, title }: TopClientsCardProps) {
                           />
                         </div>
 
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">
+                        <div className="flex items-center justify-between text-xs gap-1">
+                          <span className="text-muted-foreground truncate">
                             {client.invoiceCount} {client.invoiceCount === 1 ? 'fatura' : 'faturas'}
                           </span>
-                          <span className="text-muted-foreground">{percentage.toFixed(0)}% do total</span>
+                          <span className="text-muted-foreground flex-shrink-0">{percentage.toFixed(0)}%</span>
                         </div>
                       </div>
 
-                      <div className="text-right flex-shrink-0">
-                        <p className={`text-lg font-extrabold ${index === 0 ? 'text-yellow-700 dark:text-yellow-400' : index === 1 ? 'text-slate-700 dark:text-slate-400' : index === 2 ? 'text-orange-700 dark:text-orange-400' : 'text-blue-700 dark:text-blue-400'}`}>
-                          {formatCurrency(client.totalRevenue)}
+                      <div className="text-right flex-shrink-0 min-w-max">
+                        <p className={`text-xs sm:text-sm md:text-lg font-extrabold ${index === 0 ? 'text-yellow-700 dark:text-yellow-400' : index === 1 ? 'text-slate-700 dark:text-slate-400' : index === 2 ? 'text-orange-700 dark:text-orange-400' : 'text-blue-700 dark:text-blue-400'}`}>
+                          {formatCurrency(client.totalRevenue).length > 12 ? formatCurrency(client.totalRevenue).slice(0, 12) + '...' : formatCurrency(client.totalRevenue)}
                         </p>
-                        <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400 mt-0.5">
+                        <div className="hidden sm:flex items-center gap-0.5 text-xs text-green-600 dark:text-green-400 mt-0.5">
                           <TrendingUp className="h-3 w-3" />
-                          <span>Receita total</span>
+                          <span>Receita</span>
                         </div>
                       </div>
                     </div>

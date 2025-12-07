@@ -245,57 +245,181 @@ export function DashboardFinanceiro() {
               />
             </div>
 
-            <div className="rounded-xl border p-4 bg-gradient-to-br from-background via-background to-muted/20">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold">Desempenho Mensal ({globalSummaryAny.year.year})</span>
-                <div className="flex gap-2 text-xs text-muted-foreground">
-                  {(() => {
-                    const m = globalSummaryAny.monthly
-                    if (!m || m.length === 0) return null
-                    const best = m.reduce((a, b) => (b.net > a.net ? b : a))
-                    const worst = m.reduce((a, b) => (b.net < a.net ? b : a))
-                    const avgIncome = m.reduce((s, x) => s + x.income, 0) / m.length
-                    return (
-                      <>
-                        <Badge variant="outline">Melhor: {MONTHS_NAMES[best.month - 1]}</Badge>
-                        <Badge variant="outline">Pior: {MONTHS_NAMES[worst.month - 1]}</Badge>
-                        <Badge variant="outline">Média Receita: {formatCurrency(avgIncome)}</Badge>
-                      </>
-                    )
-                  })()}
-                </div>
-              </div>
-              {(() => {
-                const m = globalSummaryAny.monthly
-                if (!m || m.length === 0) return <div className="text-sm text-muted-foreground">Sem dados para o ano.</div>
-                const values = m.map((x) => x.net)
-                const w = 520
-                const h = 60
-                const min = Math.min(...values, 0)
-                const max = Math.max(...values, 0)
-                const range = max - min || 1
-                const stepX = w / (values.length - 1 || 1)
-                const points = values
-                  .map((v, i) => {
-                    const x = i * stepX
-                    const y = h - ((v - min) / range) * h
-                    return `${x},${y}`
-                  })
-                  .join(' ')
-                return (
-                  <div className="space-y-2">
-                    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-16">
-                      <polyline
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        className="text-primary"
-                        points={points}
-                      />
-                    </svg>
+            <div className="rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 p-6 sm:p-8 bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/20 relative overflow-hidden">
+              {/* Decorative elements */}
+              <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-blue-400/10 to-indigo-400/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-gradient-to-br from-purple-400/10 to-pink-400/10 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="relative space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30">
+                      <TrendingUp className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                        Desempenho Mensal ({globalSummaryAny.year.year})
+                      </h3>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
+                        Evolução do lucro líquido ao longo do ano
+                      </p>
+                    </div>
                   </div>
-                )
-              })()}
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    {(() => {
+                      const m = globalSummaryAny.monthly
+                      if (!m || m.length === 0) return null
+                      const best = m.reduce((a, b) => (b.net > a.net ? b : a))
+                      const worst = m.reduce((a, b) => (b.net < a.net ? b : a))
+                      const avgIncome = m.reduce((s, x) => s + x.income, 0) / m.length
+                      return (
+                        <>
+                          <Badge className="bg-gradient-to-r from-emerald-600 to-green-600 text-white border-0 shadow-md font-bold">
+                            Melhor: {MONTHS_NAMES[best.month - 1]}
+                          </Badge>
+                          <Badge className="bg-gradient-to-r from-orange-600 to-red-600 text-white border-0 shadow-md font-bold">
+                            Pior: {MONTHS_NAMES[worst.month - 1]}
+                          </Badge>
+                          <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-md font-bold">
+                            Média: {formatCurrency(avgIncome)}
+                          </Badge>
+                        </>
+                      )
+                    })()}
+                  </div>
+                </div>
+
+                {(() => {
+                  const m = globalSummaryAny.monthly
+                  if (!m || m.length === 0) {
+                    return (
+                      <div className="text-center py-12 text-slate-500 dark:text-slate-400">
+                        <TrendingUp className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                        <p className="font-medium">Sem dados para o ano</p>
+                      </div>
+                    )
+                  }
+
+                  const values = m.map((x) => x.net)
+                  const w = 1200
+                  const h = 180
+                  const padding = 20
+                  const min = Math.min(...values, 0)
+                  const max = Math.max(...values, 0)
+                  const range = max - min || 1
+                  const stepX = (w - padding * 2) / (values.length - 1 || 1)
+
+                  // Points for main line
+                  const points = values
+                    .map((v, i) => {
+                      const x = padding + i * stepX
+                      const y = h - padding - ((v - min) / range) * (h - padding * 2)
+                      return `${x},${y}`
+                    })
+                    .join(' ')
+
+                  // Area gradient fill
+                  const areaPoints = `${padding},${h - padding} ${points} ${padding + (values.length - 1) * stepX},${h - padding}`
+
+                  return (
+                    <div className="space-y-3">
+                      <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-32 sm:h-40">
+                        <defs>
+                          <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style={{ stopColor: 'rgb(59, 130, 246)', stopOpacity: 0.3 }} />
+                            <stop offset="100%" style={{ stopColor: 'rgb(99, 102, 241)', stopOpacity: 0.05 }} />
+                          </linearGradient>
+                          <filter id="glow">
+                            <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+                            <feMerge>
+                              <feMergeNode in="coloredBlur" />
+                              <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                          </filter>
+                        </defs>
+
+                        {/* Grid lines */}
+                        {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+                          const y = h - padding - ratio * (h - padding * 2)
+                          return (
+                            <line
+                              key={ratio}
+                              x1={padding}
+                              y1={y}
+                              x2={w - padding}
+                              y2={y}
+                              stroke="currentColor"
+                              strokeWidth="1"
+                              className="text-slate-200 dark:text-slate-700"
+                              strokeDasharray="4 4"
+                              opacity="0.5"
+                            />
+                          )
+                        })}
+
+                        {/* Area fill */}
+                        <polygon
+                          fill="url(#chartGradient)"
+                          points={areaPoints}
+                        />
+
+                        {/* Main line */}
+                        <polyline
+                          fill="none"
+                          stroke="url(#lineGradient)"
+                          strokeWidth="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          points={points}
+                          filter="url(#glow)"
+                        />
+                        <defs>
+                          <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style={{ stopColor: 'rgb(59, 130, 246)' }} />
+                            <stop offset="50%" style={{ stopColor: 'rgb(99, 102, 241)' }} />
+                            <stop offset="100%" style={{ stopColor: 'rgb(139, 92, 246)' }} />
+                          </linearGradient>
+                        </defs>
+
+                        {/* Data points */}
+                        {values.map((v, i) => {
+                          const x = padding + i * stepX
+                          const y = h - padding - ((v - min) / range) * (h - padding * 2)
+                          const isPositive = v >= 0
+                          return (
+                            <g key={i}>
+                              <circle
+                                cx={x}
+                                cy={y}
+                                r="5"
+                                fill="white"
+                                stroke={isPositive ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'}
+                                strokeWidth="2.5"
+                                className="hover:r-7 transition-all cursor-pointer"
+                              />
+                              <circle
+                                cx={x}
+                                cy={y}
+                                r="3"
+                                fill={isPositive ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'}
+                              />
+                            </g>
+                          )
+                        })}
+                      </svg>
+
+                      {/* Month labels */}
+                      <div className="flex justify-between px-2 text-xs font-bold text-slate-600 dark:text-slate-400">
+                        {MONTHS_NAMES.map((name, i) => (
+                          <span key={i} className="w-8 text-center">
+                            {name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })()}
+              </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">

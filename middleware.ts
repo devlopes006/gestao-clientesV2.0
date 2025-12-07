@@ -2,12 +2,16 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { proxy as proxyFn } from './src/proxy'
 
-export function middleware(req: NextRequest) {
-  if (process.env.NETLIFY_DISABLE_MIDDLEWARE === 'true') {
-    // No-op on Netlify to avoid middleware nft checks during build
+export async function middleware(req: NextRequest) {
+  try {
+    const result = await proxyFn(req)
+    // Ensure we always return a valid Response
+    return result || NextResponse.next()
+  } catch (error) {
+    console.error('[middleware] Error:', error)
+    // Return next() on error to avoid breaking the request
     return NextResponse.next()
   }
-  return proxyFn(req)
 }
 
 export const config = {

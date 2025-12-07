@@ -186,7 +186,7 @@ export default function TasksClient({ initialTasks, updateTaskStatusAction }: { 
 
   return (
     <AppShell>
-      <PageContainer className="space-y-6 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
+      <PageContainer className="space-y-6 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 px-4 sm:px-6 lg:px-8">
         <Breadcrumbs items={[{ label: 'Kanban de Tarefas', icon: ListTodo }]} />
         <PageLayout centered={false}>
           <PageHeader
@@ -206,24 +206,24 @@ export default function TasksClient({ initialTasks, updateTaskStatusAction }: { 
             )}
           />
           <Card className="p-4 border-2 border-slate-200/70 dark:border-slate-800/70 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm">
-            <div className="flex flex-col lg:flex-row gap-3 items-stretch lg:items-center">
+            <div className="flex flex-col md:flex-row md:flex-wrap gap-3 items-stretch md:items-center">
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><Filter className="h-4 w-4" />Filtros:</div>
-              <div className="flex-1 relative w-full">
+              <div className="flex-1 relative w-full min-w-[220px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input placeholder="Buscar por título ou cliente..." className="pl-9 w-full" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
               </div>
-              <select className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm w-full sm:w-52" value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)} aria-label="Filtrar por prioridade">
+              <select className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm w-full sm:w-48 md:w-52" value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)} aria-label="Filtrar por prioridade">
                 <option value="">Todas as prioridades</option>
                 <option value="LOW">Baixa</option>
                 <option value="MEDIUM">Média</option>
                 <option value="HIGH">Alta</option>
                 <option value="URGENT">Urgente</option>
               </select>
-              {(searchQuery || priorityFilter) && <Button variant="outline" size="sm" onClick={() => { setSearchQuery(''); setPriorityFilter('') }}>Limpar</Button>}
+              {(searchQuery || priorityFilter) && <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => { setSearchQuery(''); setPriorityFilter('') }}>Limpar</Button>}
             </div>
           </Card>
           <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 pb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 pb-4 min-w-0">
               {columns.map(column => <KanbanColumn key={column.id} column={column} tasks={filteredTasks.filter(t => t.status === column.status)} />)}
             </div>
             <DragOverlay>{activeTask ? <TaskCard task={activeTask} /> : null}</DragOverlay>

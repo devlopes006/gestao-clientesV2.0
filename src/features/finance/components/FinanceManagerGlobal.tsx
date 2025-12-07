@@ -399,7 +399,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
           <div className="absolute top-20 -right-10 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-full blur-3xl" />
         </div>
 
-        <div className="relative space-y-6 sm:space-y-8 py-6 sm:py-8 lg:py-10">
+        <div className="relative space-y-6 sm:space-y-8 py-6 sm:py-8 lg:py-10 max-w-6xl mx-auto px-3 sm:px-4">
           {/* Premium Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
             <div className="flex items-start gap-4 sm:gap-6">

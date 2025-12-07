@@ -4,6 +4,7 @@ import { DataLoader, PartialDataLoader } from '@/components/DataLoader'
 import { FinancialFilter } from '@/components/financeiro/FinancialFilter'
 import { InvoiceStatusGrid } from '@/components/financeiro/InvoiceStatusGrid'
 import { MetricCard } from '@/components/financeiro/MetricCard'
+import { MonthlyPerformanceChart } from '@/components/financeiro/MonthlyPerformanceChart'
 import { OverdueInvoicesList } from '@/components/financeiro/OverdueInvoicesList'
 import { TopClientsCard } from '@/components/financeiro/TopClientsCard'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -16,21 +17,6 @@ import { AlertCircle, DollarSign, TrendingDown, TrendingUp, Wallet } from 'lucid
 import { useCallback, useState } from 'react'
 import { FinancialAlerts } from './FinancialAlerts'
 import { FinancialHealth } from './FinancialHealth'
-
-const MONTHS_NAMES = [
-  'Jan',
-  'Fev',
-  'Mar',
-  'Abr',
-  'Mai',
-  'Jun',
-  'Jul',
-  'Ago',
-  'Set',
-  'Out',
-  'Nov',
-  'Dez',
-]
 
 export function DashboardFinanceiro() {
   const now = new Date()
@@ -208,240 +194,61 @@ export function DashboardFinanceiro() {
       )}
 
       {globalSummary && (
-        <Card size="md" variant="elevated" className="">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-bold">Resumo Geral da Empresa</CardTitle>
-            <CardDescription className="text-sm">Visão histórica e desempenho no ano selecionado</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 sm:space-y-4 lg:space-y-5">
-            <div className="grid gap-3 sm:gap-4 lg:gap-6 md:grid-cols-2 lg:grid-cols-4">
-              <MetricCard
-                title="Receita Total (Histórico)"
-                value={globalSummaryAny.overall.totalIncome}
-                subtitle={`${globalSummaryAny.overall.incomeCount} entradas`}
-                type="income"
-                icon={<TrendingUp className="h-5 w-5" />}
-              />
-              <MetricCard
-                title="Despesa Total (Histórico)"
-                value={globalSummaryAny.overall.totalExpense}
-                subtitle={`${globalSummaryAny.overall.expenseCount} saídas`}
-                type="expense"
-                icon={<TrendingDown className="h-5 w-5" />}
-              />
-              <MetricCard
-                title="Lucro Acumulado"
-                value={globalSummaryAny.overall.netProfit}
-                subtitle={`Margem ${globalSummaryAny.overall.profitMargin.toFixed(1)}%`}
-                type="profit"
-                icon={<DollarSign className="h-5 w-5" />}
-              />
-              <MetricCard
-                title="Margem Histórica"
-                value={globalSummaryAny.overall.profitMargin}
-                subtitle={`Primeira: ${globalSummaryAny.overall.firstDate || '-'} | Última: ${globalSummaryAny.overall.lastDate || '-'}`}
-                type="profit"
-                icon={<DollarSign className="h-5 w-5" />}
-              />
-            </div>
+        <div className="space-y-4 sm:space-y-5">
+          <MonthlyPerformanceChart data={globalSummaryAny.monthly} year={globalSummaryAny.year.year} />
 
-            <div className="rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 p-3 sm:p-4 lg:p-6 bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/20 relative">
-              {/* Decorative elements */}
-              <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-400/10 to-indigo-400/10 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-br from-purple-400/10 to-pink-400/10 rounded-full blur-3xl pointer-events-none" />
-
-                <div className="relative space-y-4">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3 sm:mb-4 lg:mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30">
-                        <TrendingUp className="h-5 w-5 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-black text-slate-900 dark:text-white">
-                          Desempenho Mensal ({globalSummaryAny.year.year})
-                        </h3>
-                        <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">
-                          Evolução do lucro líquido ao longo do ano
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2 text-xs">
-                      {(() => {
-                        const m = globalSummaryAny.monthly
-                        if (!m || m.length === 0) return null
-                        const best = m.reduce((a, b) => (b.net > a.net ? b : a))
-                        const worst = m.reduce((a, b) => (b.net < a.net ? b : a))
-                        const avgIncome = m.reduce((s, x) => s + x.income, 0) / m.length
-                        return (
-                          <>
-                            <Badge className="bg-gradient-to-r from-emerald-600 to-green-600 text-white border-0 shadow-md font-bold">
-                              Melhor: {MONTHS_NAMES[best.month - 1]}
-                            </Badge>
-                            <Badge className="bg-gradient-to-r from-orange-600 to-red-600 text-white border-0 shadow-md font-bold">
-                              Pior: {MONTHS_NAMES[worst.month - 1]}
-                            </Badge>
-                            <Badge className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-0 shadow-md font-bold">
-                              Média: {formatCurrency(avgIncome)}
-                            </Badge>
-                          </>
-                        )
-                      })()}
-                    </div>
-                  </div>
-
-                  {(() => {
-                    const m = globalSummaryAny.monthly
-                    if (!m || m.length === 0) {
-                      return (
-                        <div className="text-center py-12 text-slate-500 dark:text-slate-400">
-                          <TrendingUp className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                          <p className="font-medium">Sem dados para o ano</p>
-                        </div>
-                      )
-                    }
-
-                    const values = m.map((x) => x.net)
-                    const w = 1200
-                    const h = 180
-                    const padding = 20
-                    const min = Math.min(...values, 0)
-                    const max = Math.max(...values, 0)
-                    const range = max - min || 1
-                    const stepX = (w - padding * 2) / (values.length - 1 || 1)
-
-                    // Points for main line
-                    const points = values
-                      .map((v, i) => {
-                        const x = padding + i * stepX
-                        const y = h - padding - ((v - min) / range) * (h - padding * 2)
-                        return `${x},${y}`
-                      })
-                      .join(' ')
-
-                    // Area gradient fill
-                    const areaPoints = `${padding},${h - padding} ${points} ${padding + (values.length - 1) * stepX},${h - padding}`
-
-                    // Generate unique IDs for this chart instance to avoid conflicts
-                    const chartId = `chart-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-                    const gradientId = `gradient-${chartId}`
-                    const lineGradientId = `line-${chartId}`
-                    const glowId = `glow-${chartId}`
-
-                    return (
-                      <div className="space-y-3">
-                        <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-32 sm:h-40">
-                          <defs>
-                            <linearGradient id={gradientId} x1="0%" y1="0%" x2="0%" y2="100%">
-                              <stop offset="0%" style={{ stopColor: 'rgb(59, 130, 246)', stopOpacity: 0.3 }} />
-                              <stop offset="100%" style={{ stopColor: 'rgb(99, 102, 241)', stopOpacity: 0.05 }} />
-                            </linearGradient>
-                            <linearGradient id={lineGradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-                              <stop offset="0%" style={{ stopColor: 'rgb(59, 130, 246)' }} />
-                              <stop offset="50%" style={{ stopColor: 'rgb(99, 102, 241)' }} />
-                              <stop offset="100%" style={{ stopColor: 'rgb(139, 92, 246)' }} />
-                            </linearGradient>
-                            <filter id={glowId}>
-                              <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-                              <feMerge>
-                                <feMergeNode in="coloredBlur" />
-                                <feMergeNode in="SourceGraphic" />
-                              </feMerge>
-                            </filter>
-                          </defs>
-
-                          {/* Grid lines */}
-                          {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
-                            const y = h - padding - ratio * (h - padding * 2)
-                            return (
-                              <line
-                                key={ratio}
-                                x1={padding}
-                                y1={y}
-                                x2={w - padding}
-                                y2={y}
-                                stroke="currentColor"
-                                strokeWidth="1"
-                                className="text-slate-200 dark:text-slate-700"
-                                strokeDasharray="4 4"
-                                opacity="0.5"
-                              />
-                            )
-                          })}
-
-                          {/* Area fill */}
-                          <polygon
-                            fill={`url(#${gradientId})`}
-                            points={areaPoints}
-                          />
-
-                          {/* Main line */}
-                          <polyline
-                            fill="none"
-                            stroke={`url(#${lineGradientId})`}
-                            strokeWidth="3"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            points={points}
-                            filter={`url(#${glowId})`}
-                          />
-
-                          {/* Data points */}
-                          {values.map((v, i) => {
-                            const x = padding + i * stepX
-                            const y = h - padding - ((v - min) / range) * (h - padding * 2)
-                            const isPositive = v >= 0
-                            return (
-                              <g key={i}>
-                                <circle
-                                  cx={x}
-                                  cy={y}
-                                  r="5"
-                                  fill="white"
-                                  stroke={isPositive ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'}
-                                  strokeWidth="2.5"
-                                  className="hover:r-7 transition-all cursor-pointer"
-                                />
-                                <circle
-                                  cx={x}
-                                  cy={y}
-                                  r="3"
-                                  fill={isPositive ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'}
-                                />
-                              </g>
-                            )
-                          })}
-                        </svg>
-
-                        {/* Month labels */}
-                        <div className="flex justify-between px-2 text-xs font-bold text-slate-600 dark:text-slate-400">
-                          {MONTHS_NAMES.map((name, i) => (
-                            <span key={i} className="w-8 text-center">
-                              {name}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )
-                  })()}
-                </div>
+          <Card size="md" variant="elevated" className="">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-bold">Resumo Geral da Empresa</CardTitle>
+              <CardDescription className="text-sm">Visão histórica e desempenho no ano selecionado</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3 sm:space-y-4 lg:space-y-5">
+              <div className="grid gap-3 sm:gap-4 lg:gap-6 md:grid-cols-2 lg:grid-cols-4">
+                <MetricCard
+                  title="Receita Total (Histórico)"
+                  value={globalSummaryAny.overall.totalIncome}
+                  subtitle={`${globalSummaryAny.overall.incomeCount} entradas`}
+                  type="income"
+                  icon={<TrendingUp className="h-5 w-5" />}
+                />
+                <MetricCard
+                  title="Despesa Total (Histórico)"
+                  value={globalSummaryAny.overall.totalExpense}
+                  subtitle={`${globalSummaryAny.overall.expenseCount} saídas`}
+                  type="expense"
+                  icon={<TrendingDown className="h-5 w-5" />}
+                />
+                <MetricCard
+                  title="Lucro Acumulado"
+                  value={globalSummaryAny.overall.netProfit}
+                  subtitle={`Margem ${globalSummaryAny.overall.profitMargin.toFixed(1)}%`}
+                  type="profit"
+                  icon={<DollarSign className="h-5 w-5" />}
+                />
+                <MetricCard
+                  title="Margem Histórica"
+                  value={globalSummaryAny.overall.profitMargin}
+                  subtitle={`Primeira: ${globalSummaryAny.overall.firstDate || '-'} | Última: ${globalSummaryAny.overall.lastDate || '-'}`}
+                  type="profit"
+                  icon={<DollarSign className="h-5 w-5" />}
+                />
               </div>
-            </div>
 
-            <div className="grid gap-3 sm:gap-4 lg:gap-6 md:grid-cols-2">
-              <TopClientsCard
-                title="Top Receita"
-                items={topClients?.byRevenue || []}
-                type="revenue"
-              />
-              <TopClientsCard
-                title="Top Inadimplência"
-                items={topClients?.byOverdue || []}
-                type="overdue"
-              />
-            </div>
-          </CardContent>
-        </Card>
+              <div className="grid gap-3 sm:gap-4 lg:gap-6 md:grid-cols-2">
+                <TopClientsCard
+                  title="Top Receita"
+                  items={topClients?.byRevenue || []}
+                  type="revenue"
+                />
+                <TopClientsCard
+                  title="Top Inadimplência"
+                  items={topClients?.byOverdue || []}
+                  type="overdue"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       <DataLoader

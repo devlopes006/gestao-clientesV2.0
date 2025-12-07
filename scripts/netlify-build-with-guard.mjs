@@ -17,6 +17,10 @@ const serverDir = resolve(projectRoot, '.next/server')
 const nftPath = resolve(serverDir, 'middleware.js.nft.json')
 const manifestPath = resolve(serverDir, 'middleware/middleware-manifest.json')
 const middlewareJsPath = resolve(serverDir, 'middleware.js')
+const standaloneMiddlewarePath = resolve(
+  projectRoot,
+  '.next/standalone/.next/server/middleware.js'
+)
 
 function buildNft() {
   // If file already there, nothing to do
@@ -66,12 +70,10 @@ function ensureMiddlewareJs() {
   if (existsSync(middlewareJsPath)) return
   if (!existsSync(serverDir)) return
 
-  const content = `import { NextResponse } from 'next/server'
-export function middleware() {
-  return NextResponse.next()
-}
-export default middleware
-export const config = { matcher: [] }
+  // CJS stub to satisfy Netlify plugin copy step. It is never executed.
+  const content = `function middleware(req, res) { return null; }
+module.exports = middleware;
+module.exports.config = { matcher: [] };
 `
 
   writeFileSync(middlewareJsPath, content, 'utf-8')

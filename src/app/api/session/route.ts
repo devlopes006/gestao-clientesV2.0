@@ -61,11 +61,12 @@ export async function POST(req: NextRequest) {
     const expires = new Date(decoded.exp * 1000)
     const isProduction = process.env.NODE_ENV === 'production'
 
-    // Auth cookie endurecida: sameSite 'strict' para mitigar CSRF
+    // Auth cookie com sameSite 'lax' para compatibilidade mobile (atualização de página)
+    // 'lax' mantém segurança contra CSRF mas permite cookies em navegação top-level
     cookieStore.set('auth', idToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'strict',
+      sameSite: 'lax',
       path: '/',
       expires,
     })

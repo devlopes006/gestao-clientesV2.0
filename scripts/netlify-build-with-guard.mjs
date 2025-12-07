@@ -16,6 +16,7 @@ const projectRoot = resolve(__dirname, '..')
 const serverDir = resolve(projectRoot, '.next/server')
 const nftPath = resolve(serverDir, 'middleware.js.nft.json')
 const manifestPath = resolve(serverDir, 'middleware/middleware-manifest.json')
+const middlewareJsPath = resolve(serverDir, 'middleware.js')
 
 function buildNft() {
   // If file already there, nothing to do
@@ -54,6 +55,26 @@ function buildNft() {
   )
 }
 
+function ensureMiddlewareJs() {
+  // Next 16+ (Turbopack) no longer outputs .next/server/middleware.js by default.
+  // The Netlify Next.js plugin still attempts to copy this file when packaging
+  // the standalone output, so we create a harmless placeholder to satisfy the
+  // copy step and avoid ENOENT failures during the build.
+  if (existsSync(middlewareJsPath)) return
+  if (!existsSync(serverDir)) return
+
+  const content = `import { NextResponse } from 'next/server'
+export function middleware() {
+  return NextResponse.next()
+}
+export default middleware
+export const config = { matcher: [] }
+`
+
+  writeFileSync(middlewareJsPath, content, 'utf-8')
+  console.log('[netlify-guard] created placeholder middleware.js')
+}
+
 function copyHeaders() {
   try {
     const src = resolve(projectRoot, 'public/_headers')
@@ -67,9 +88,11 @@ function copyHeaders() {
 
 // Kick off guard loop
 buildNft()
+ensureMiddlewareJs()
 const interval = setInterval(() => {
   try {
     buildNft()
+    ensureMiddlewareJs()
   } catch (err) {
     console.warn('[netlify-guard] ensure failed:', err.message)
   }
@@ -90,6 +113,7 @@ child.on('exit', (code, signal) => {
   clearInterval(interval)
   try {
     buildNft()
+    ensureMiddlewareJs()
   } catch (err) {
     console.warn('[netlify-guard] final ensure failed:', err.message)
   }

@@ -28,9 +28,10 @@ function ensureMiddlewareStub() {
     }
 
     if (!existsSync(middlewarePath)) {
+      // Use ES Module syntax for Netlify Edge Functions compatibility
       writeFileSync(
         middlewarePath,
-        "function middleware() {}\nmodule.exports = middleware\nmodule.exports.default = middleware\n",
+        'export function middleware(request) { return; }\nexport default middleware;\n',
         'utf-8'
       )
       console.log('[netlify-guard] created placeholder middleware.js')

@@ -76,6 +76,13 @@ const baseConfig = {
       bodySizeLimit: '10mb',
     },
   },
+  // Ensure middleware runs correctly on Netlify Edge Functions
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
 }
 
 // Habilita Sentry com configuração padrão; respeita arquivos sentry.*.config.ts

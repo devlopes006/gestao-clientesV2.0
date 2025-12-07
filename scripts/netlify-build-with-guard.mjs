@@ -30,7 +30,7 @@ function ensureMiddlewareStub() {
     if (!existsSync(middlewarePath)) {
       writeFileSync(
         middlewarePath,
-        "function middleware() {}\nmodule.exports = middleware\nmodule.exports.default = middleware\n",
+        "const { NextResponse } = require('next/server')\nfunction middleware(req) { return NextResponse.next({ request: req }) }\nmodule.exports = middleware\nmodule.exports.default = middleware\n",
         'utf-8'
       )
       console.log('[netlify-guard] created placeholder middleware.js')

@@ -25,9 +25,14 @@ export async function GET(req: NextRequest) {
     isMobile: boolean
     userAgent: string
     session: {
-      user: { id?: string; email?: string; name?: string } | null
-      orgId?: string
-      role?: string
+      user: {
+        id: string
+        email: string
+        name: string | null
+        image?: string | null
+      } | null
+      orgId: string | null
+      role: string | null
       error?: string
     }
     cookies: {
@@ -43,10 +48,10 @@ export async function GET(req: NextRequest) {
     timestamp: new Date().toISOString(),
     isMobile,
     userAgent,
-    session: { user: null },
+    session: { user: null, orgId: null, role: null },
     cookies: {
       authCookie: false,
-      sameSite: 'strict',
+      sameSite: 'lax',
     },
     headers: {
       origin: req.headers.get('origin') || 'unknown',

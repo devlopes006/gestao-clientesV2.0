@@ -194,15 +194,15 @@ export function DashboardFinanceiro() {
       )}
 
       {globalSummary && (
-        <div className="space-y-4 sm:space-y-5">
+        <div className="space-y-3">
           <MonthlyPerformanceChart data={globalSummaryAny.monthly} year={globalSummaryAny.year.year} />
 
           <Card size="md" variant="elevated" className="">
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-2">
               <CardTitle className="text-lg font-bold">Resumo Geral da Empresa</CardTitle>
               <CardDescription className="text-sm">Visão histórica e desempenho no ano selecionado</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3 sm:space-y-4 lg:space-y-5">
+            <CardContent className="space-y-1.5">
               <div className="grid gap-3 sm:gap-4 lg:gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <MetricCard
                   title="Receita Total (Histórico)"
@@ -234,7 +234,7 @@ export function DashboardFinanceiro() {
                 />
               </div>
 
-              <div className="grid gap-3 sm:gap-4 lg:gap-6 md:grid-cols-2">
+              <div className="grid gap-1.5 sm:gap-2 lg:gap-3 md:grid-cols-1 lg:grid-cols-2">
                 <TopClientsCard
                   title="Top Receita"
                   items={topClients?.byRevenue || []}

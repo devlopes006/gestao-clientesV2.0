@@ -21,6 +21,13 @@ interface MonthlyPerformanceChartProps {
 }
 
 export function MonthlyPerformanceChart({ data, year }: MonthlyPerformanceChartProps) {
+  // Generate unique IDs
+  const chartId = useId()
+  const areaGradientId = `area-${chartId}`
+  const lineGradientId = `line-${chartId}`
+  const glowId = `glow-${chartId}`
+  const bgGradientId = `bg-${chartId}`
+
   if (!data || data.length === 0) {
     return (
       <Card size="md" variant="elevated" className="overflow-hidden border-0 bg-gradient-to-br from-background to-muted/20">
@@ -61,12 +68,6 @@ export function MonthlyPerformanceChart({ data, year }: MonthlyPerformanceChartP
   const worst = data.reduce((a, b) => (b.net < a.net ? b : a))
   const avgIncome = data.reduce((s, x) => s + x.income, 0) / data.length
   const totalNet = data.reduce((s, x) => s + x.net, 0)
-  // Generate unique IDs
-  const chartId = useId()
-  const areaGradientId = `area-${chartId}`
-  const lineGradientId = `line-${chartId}`
-  const glowId = `glow-${chartId}`
-  const bgGradientId = `bg-${chartId}`
 
   // Points for main line
   const points = values

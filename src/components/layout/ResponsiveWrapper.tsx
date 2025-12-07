@@ -165,7 +165,7 @@ const colsClasses = {
 
 const gapClasses = {
   small: 'gap-2 sm:gap-3',
-  medium: 'gap-3 sm:gap-4 lg:gap-6',
+  medium: 'gap-2 sm:gap-2.5 lg:gap-3',
   large: 'gap-4 sm:gap-6 lg:gap-8',
 }
 

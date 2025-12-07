@@ -512,46 +512,43 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                     Top 5 Categorias
                   </h3>
                 </div>
-                <CardContent>
-                  <div className="space-y-3">
-                    {categoryStats.map((stat, index) => (
-                      <div key={stat.category} className="space-y-2">
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
-                            <span className="text-xs font-bold text-slate-400 shrink-0">
-                              #{index + 1}
-                            </span>
-                            <p className="text-sm font-medium text-slate-900 truncate">
-                              {stat.category}
-                            </p>
-                            <span className="text-xs text-slate-500 shrink-0">
-                              ({stat.count})
-                            </span>
-                          </div>
-                          <div
-                            className={`text-sm font-bold shrink-0 ${stat.amount >= 0 ? "text-green-600" : "text-red-600"
-                              }`}
-                          >
-                            {stat.amount >= 0 ? "+" : "-"}
-                            {formatCurrency(Math.abs(stat.amount))}
-                          </div>
+                <div className="space-y-3">
+                  {categoryStats.map((stat, index) => (
+                    <div key={stat.category} className="space-y-2">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
+                          <span className="text-xs font-bold text-slate-400 shrink-0">
+                            #{index + 1}
+                          </span>
+                          <p className="text-sm font-medium text-slate-900 truncate">
+                            {stat.category}
+                          </p>
+                          <span className="text-xs text-slate-500 shrink-0">
+                            ({stat.count})
+                          </span>
                         </div>
-                        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full ${stat.amount >= 0
-                              ? "bg-linear-to-r from-green-500 to-emerald-500"
-                              : "bg-linear-to-r from-red-500 to-rose-500"
-                              } ${getWidthClass(stat.amount, Math.max(...categoryStats.map((s) => Math.abs(s.amount))))}`}
-                          />
+                        <div
+                          className={`text-sm font-bold shrink-0 ${stat.amount >= 0 ? "text-green-600" : "text-red-600"
+                            }`}
+                        >
+                          {stat.amount >= 0 ? "+" : "-"}
+                          {formatCurrency(Math.abs(stat.amount))}
                         </div>
                       </div>
-                    ))}
-                  </div>
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${stat.amount >= 0
+                            ? "bg-linear-to-r from-green-500 to-emerald-500"
+                            : "bg-linear-to-r from-red-500 to-rose-500"
+                            } ${getWidthClass(stat.amount, Math.max(...categoryStats.map((s) => Math.abs(s.amount))))}`}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </Card>
-          )}
-
-          {/* Parcelas deste mês */}
+          )}          {/* Parcelas deste mês */}
           {installments.length > 0 && (
             <Card className="rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm shadow-xl shadow-slate-200/50 dark:shadow-black/20">
               <div className="p-6 sm:p-8">
@@ -596,7 +593,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                     </div>
                   ))}
                 </div>
-              </CardContent>
+              </div>
             </Card>
           )}
 

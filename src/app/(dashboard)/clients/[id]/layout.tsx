@@ -4,7 +4,6 @@ import GradientPageHeader from "@/components/layout/GradientPageHeader";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { CLIENT_PLAN_LABELS } from "@/lib/prisma-enums";
 import { getSessionProfile } from "@/services/auth/session";
 import { getClientById, listClientsByOrg } from "@/services/repositories/clients";
@@ -81,8 +80,8 @@ export default async function ClientLayout({
     <AppShell>
       <PageLayout centered={false} maxWidth="7xl">
         {/* Header aligned with design system */}
-        <div className="mb-6">
-          <div className="mb-3">
+        <div className="mb-3 sm:mb-4">
+          <div className="mb-2 sm:mb-3">
             <Button variant="outline" size="sm" className="gap-2 rounded-lg" asChild>
               <Link href="/clients" className="flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
@@ -137,9 +136,11 @@ export default async function ClientLayout({
         </div>
 
         {/* Navigation Tabs */}
-        <Card className="p-2 mb-6 border-2 shadow-lg">
-          <TabsNav items={navItems} />
-        </Card>
+        <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0 mb-2 sm:mb-3">
+          <nav className="flex gap-0.5 pb-0.5 no-scrollbar justify-center">
+            <TabsNav items={navItems} />
+          </nav>
+        </div>
 
         {/* Page Content */}
         {children}

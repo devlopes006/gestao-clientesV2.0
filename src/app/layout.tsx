@@ -4,10 +4,18 @@ import PostHogProvider from "@/components/providers/PostHogProvider";
 import ReactQueryProvider from "@/components/providers/ReactQueryProvider";
 import RuntimeDiagnostics from "@/components/RuntimeDiagnostics";
 import { UserProvider } from "@/context/UserContext";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
+
+// Viewport configuration
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+};
 
 // Se você for usar Firebase Auth (frontend)
 

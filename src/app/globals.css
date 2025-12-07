@@ -10,11 +10,29 @@
   :root {
     /* Keep only non-generated runtime tokens here. */
     --radius: 0.75rem;
-    --bg-shell: radial-gradient(circle at 10% 20%, rgba(129, 140, 248, 0.08), transparent 25%),
-      radial-gradient(circle at 90% 10%, rgba(236, 72, 153, 0.08), transparent 25%),
+    --bg-shell:
+      radial-gradient(
+        circle at 10% 20%,
+        rgba(129, 140, 248, 0.08),
+        transparent 25%
+      ),
+      radial-gradient(
+        circle at 90% 10%,
+        rgba(236, 72, 153, 0.08),
+        transparent 25%
+      ),
       linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%);
-    --bg-shell-dark: radial-gradient(circle at 10% 20%, rgba(129, 140, 248, 0.14), transparent 25%),
-      radial-gradient(circle at 90% 10%, rgba(236, 72, 153, 0.12), transparent 25%),
+    --bg-shell-dark:
+      radial-gradient(
+        circle at 10% 20%,
+        rgba(129, 140, 248, 0.14),
+        transparent 25%
+      ),
+      radial-gradient(
+        circle at 90% 10%,
+        rgba(236, 72, 153, 0.12),
+        transparent 25%
+      ),
       linear-gradient(135deg, #020617 0%, #0f172a 50%, #020617 100%);
     --surface: rgba(255, 255, 255, 0.9);
     --surface-strong: rgba(255, 255, 255, 0.98);
@@ -22,8 +40,10 @@
     --surface-strong-dark: rgba(15, 23, 42, 0.95);
     --border-strong: rgba(100, 116, 139, 0.14);
     --border-strong-dark: rgba(51, 65, 85, 0.6);
-    --glow: 0 10px 30px rgba(99, 102, 241, 0.15), 0 10px 50px rgba(59, 130, 246, 0.12);
-    --glow-strong: 0 10px 40px rgba(99, 102, 241, 0.25), 0 20px 60px rgba(14, 165, 233, 0.2);
+    --glow:
+      0 10px 30px rgba(99, 102, 241, 0.15), 0 10px 50px rgba(59, 130, 246, 0.12);
+    --glow-strong:
+      0 10px 40px rgba(99, 102, 241, 0.25), 0 20px 60px rgba(14, 165, 233, 0.2);
     --subtle-text: #64748b;
     --muted-text: #94a3b8;
     /* Generated vars are imported from ../styles/generated-vars.css */
@@ -35,7 +55,13 @@
 
   html,
   body {
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family:
+      'Inter',
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      sans-serif;
     scroll-behavior: smooth;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -206,14 +232,14 @@
     background-image: var(--bg-shell-dark);
   }
 
-  /* Contêiner máximo padronizado */
+  /* Contêiner máximo padronizado - Mobile First */
   .page-shell {
-    @apply max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 w-full;
+    @apply max-w-6xl xl:max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 xl:px-10 w-full;
   }
 
-  /* Painéis e cartões de seção refinados */
+  /* Painéis e cartões de seção refinados - Mobile optimized */
   .surface-panel {
-    @apply rounded-2xl border bg-white/90 dark:bg-slate-900/80 shadow-sm backdrop-blur;
+    @apply rounded-lg sm:rounded-xl lg:rounded-2xl border bg-white/90 dark:bg-slate-900/80 shadow-sm backdrop-blur;
     border-color: var(--border-strong);
     box-shadow: var(--glow);
   }
@@ -223,13 +249,13 @@
     box-shadow: none;
   }
 
-  /* Hierarquia de tipografia */
+  /* Hierarquia de tipografia - Mobile First */
   .section-heading {
-    @apply text-xl sm:text-2xl font-semibold text-slate-900 dark:text-slate-100 tracking-tight leading-tight;
+    @apply text-base sm:text-xl lg:text-2xl font-semibold text-slate-900 dark:text-slate-100 tracking-tight leading-tight;
   }
 
   .section-subtitle {
-    @apply text-sm sm:text-base leading-relaxed;
+    @apply text-xs sm:text-sm lg:text-base leading-relaxed;
     color: var(--subtle-text);
   }
 
@@ -237,15 +263,27 @@
     color: #cbd5f5;
   }
 
-  /* Grid padrão com alturas equilibradas */
+  /* Grid padrão com alturas equilibradas - Mobile First */
   .section-grid {
-    @apply grid gap-4 sm:gap-6 lg:gap-7 auto-rows-[minmax(0,1fr)];
+    @apply grid gap-2 sm:gap-4 lg:gap-6 auto-rows-[minmax(0,1fr)];
   }
 
-  /* Nova malha para cards responsivos */
+  /* Nova malha para cards responsivos - Mobile First */
   .card-grid {
-    @apply grid gap-3 sm:gap-4 md:gap-5;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    @apply grid gap-2 sm:gap-3 lg:gap-4;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  @media (min-width: 640px) {
+    .card-grid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .card-grid {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
   }
 
   /* Malhas utilitárias para páginas complexas */
@@ -281,20 +319,58 @@
   }
 
   .pill {
-    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide;
+    @apply inline-flex items-center rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-xs font-semibold uppercase tracking-wide;
   }
 
-  /* Layout stacks */
+  /* Layout stacks - Mobile First */
   .stack-sm {
-    @apply flex flex-col gap-2.5 sm:gap-3;
+    @apply flex flex-col gap-1.5 sm:gap-2 lg:gap-3;
   }
 
   .stack-md {
-    @apply flex flex-col gap-3 sm:gap-4;
+    @apply flex flex-col gap-2 sm:gap-3 lg:gap-4;
   }
 
   .stack-lg {
-    @apply flex flex-col gap-4 sm:gap-6;
+    @apply flex flex-col gap-3 sm:gap-4 lg:gap-6;
+  }
+
+  /* Mobile utility classes */
+  .mobile-compact {
+    @apply px-2 py-1.5 sm:px-3 sm:py-2 lg:px-4 lg:py-3;
+  }
+
+  .mobile-text {
+    @apply text-xs sm:text-sm lg:text-base;
+  }
+
+  .mobile-heading {
+    @apply text-sm sm:text-base lg:text-lg font-semibold;
+  }
+
+  .mobile-grid-2 {
+    @apply grid grid-cols-2 gap-1.5 sm:gap-2 lg:gap-3;
+  }
+
+  .mobile-grid-auto {
+    @apply grid gap-1.5 sm:gap-2 lg:gap-3;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  @media (min-width: 640px) {
+    .mobile-grid-auto {
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .mobile-grid-auto {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+  }
+
+  .mobile-card {
+    @apply rounded-lg sm:rounded-xl lg:rounded-2xl p-2 sm:p-3 lg:p-4;
   }
 
   /* Controles focados em mobile-first */
@@ -322,5 +398,44 @@
   .muted-label {
     @apply text-xs font-medium uppercase tracking-wide;
     color: var(--muted-text);
+  }
+
+  /* Client Navigation - prevents overflow and ensures proper spacing */
+  .client-nav-wrapper {
+    @apply w-full overflow-x-hidden;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+
+  /* Ensure dropdown content doesn't cause overflow */
+  [data-dropdown-id] {
+    @apply relative;
+  }
+}
+
+/* Utilities layer for navigation */
+@layer utilities {
+  /* Navigation tab safety classes */
+  .nav-tab {
+    @apply flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 border flex-shrink-0 whitespace-nowrap;
+  }
+
+  .nav-tab-active {
+    @apply bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 shadow-sm;
+  }
+
+  .nav-tab-inactive {
+    @apply border-transparent text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800;
+  }
+
+  .nav-tab-destructive {
+    @apply text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20 border-transparent;
   }
 }

@@ -487,24 +487,24 @@ export default function BrandingPage({ clientId, clientName, initialBranding }: 
 
   return (
     <div className={`branding-dynamic page-background`}>
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <div className="max-w-[1600px] mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 space-y-3 sm:space-y-4 lg:space-y-6">
         <style dangerouslySetInnerHTML={{ __html: dynamicCss }} />
-        <header className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-linear-to-br from-pink-500 to-rose-500 rounded-xl shadow-lg">
-              <Lightbulb className="h-6 w-6 text-white" />
+        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="p-1.5 sm:p-2 bg-linear-to-br from-pink-500 to-rose-500 rounded-lg sm:rounded-xl shadow-lg">
+              <Lightbulb className="h-5 sm:h-6 w-5 sm:w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Configuração de Branding</h1>
-              <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Identidade visual e marca</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Branding</h1>
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-medium">Identidade visual</p>
             </div>
           </div>
-          <Button onClick={() => setIsEditing(true)} size="lg" className="rounded-xl font-semibold bg-linear-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white shadow-lg">Editar Branding</Button>
+          <Button onClick={() => setIsEditing(true)} size="sm" className="rounded-lg sm:rounded-xl font-semibold bg-linear-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white shadow-lg whitespace-nowrap">Editar</Button>
         </header>
 
-        <div className="border-2 border-slate-200 dark:border-slate-700 rounded-2xl px-8 py-10 shadow-lg bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+        <div className="border border-sm:border-2 border-slate-200 dark:border-slate-700 rounded-lg sm:rounded-2xl px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-10 shadow-lg bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
           {/** Four column minimal preview layout */}
-          <div className="grid gap-10 xl:gap-16 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 lg:gap-10 xl:gap-16 md:grid-cols-2 xl:grid-cols-3">
             {/* CORES */}
             <div>
               <h3 className="text-2xl font-bold mb-6 text-slate-900 dark:text-white">Cores</h3>

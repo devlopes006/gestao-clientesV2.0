@@ -58,7 +58,7 @@ export function PageLayout({
 
       <div
         className={cn(
-          "relative px-4 py-6 sm:px-6 sm:py-8",
+          "relative px-2 py-2 sm:px-3 sm:py-3 lg:px-4 lg:py-4",
           centered ? "mx-auto" : "",
           innerMax,
           className,

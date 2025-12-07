@@ -343,32 +343,33 @@ export function MeetingsManager({ clientId }: MeetingsManagerProps) {
   return (
     <>
       <div className="page-background">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <div className="max-w-[1600px] mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 space-y-3 sm:space-y-4 lg:space-y-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
             <div>
-              <h1 className="text-3xl font-bold text-gradient-primary mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gradient-primary mb-1 sm:mb-2">
                 Reuniões
               </h1>
-              <p className="text-slate-600 dark:text-slate-400">
-                Agende e gerencie reuniões com o cliente
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                Agende e gerencie reuniões
               </p>
             </div>
             <Button
-              size="lg"
-              className="gap-2"
+              size="sm"
+              className="gap-2 whitespace-nowrap"
               onClick={() => {
                 resetForm();
                 setIsModalOpen(true);
               }}
             >
               <Plus className="h-4 w-4" />
-              Agendar Reunião
+              <span className="hidden sm:inline">Agendar Reunião</span>
+              <span className="sm:hidden">Agendar</span>
             </Button>
           </div>
 
           {/* Stats Cards */}
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-2 sm:gap-3 lg:gap-4 md:grid-cols-3">
             <div className="relative group">
               <div className="absolute -inset-0.5 bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-all duration-200" />
               <div className="relative bg-blue-50/80 backdrop-blur-sm dark:bg-blue-950/30 rounded-2xl p-5 border-2 border-blue-200 dark:border-blue-800 hover:-translate-y-1 transition-all duration-200 shadow-lg">

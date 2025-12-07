@@ -87,11 +87,11 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-      <div className="page-shell py-6 sm:py-8 lg:py-12 space-y-8">
+      <div className="page-shell py-3 sm:py-6 lg:py-8 xl:py-12 space-y-3 sm:space-y-6 lg:space-y-8">
 
         {/* Header Redesigned */}
         <motion.div
-          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-8 sm:p-10 shadow-2xl shadow-indigo-500/25"
+          className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-4 sm:p-6 lg:p-8 xl:p-10 shadow-lg sm:shadow-xl lg:shadow-2xl shadow-indigo-500/25"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -103,22 +103,22 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
           <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
-          <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-3">
+          <div className="relative z-10 flex flex-col gap-3 sm:gap-4 lg:gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-2 sm:space-y-3">
               <motion.div
-                className="inline-flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm px-4 py-2 text-xs font-bold text-white ring-1 ring-white/30 shadow-lg"
+                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-white/20 backdrop-blur-sm px-2.5 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 text-xs font-bold text-white ring-1 ring-white/30 shadow-lg"
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.2 }}
               >
-                <span className="h-2 w-2 rounded-full bg-white animate-pulse shadow-lg shadow-white/50" />
+                <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-white animate-pulse shadow-lg shadow-white/50" />
                 Visão Geral
               </motion.div>
               <div>
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight">
+                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black text-white leading-tight tracking-tight">
                   Painel de Gestão
                 </h1>
-                <p className="text-base sm:text-lg text-white/90 font-medium mt-2">
+                <p className="text-xs sm:text-sm md:text-base lg:text-lg text-white/90 font-medium mt-1 sm:mt-2">
                   Olá, {data.user.name || 'Usuário'}! Aqui está um resumo do seu negócio.
                 </p>
               </div>
@@ -128,13 +128,13 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 }}
             >
-              <div className="flex items-center gap-3 rounded-2xl bg-white/20 backdrop-blur-sm px-6 py-4 ring-1 ring-white/30 shadow-xl">
-                <div className="p-3 rounded-xl bg-white/20 backdrop-blur-sm">
-                  <Calendar className="h-6 w-6 text-white" />
+              <div className="flex items-center gap-2 sm:gap-3 rounded-xl sm:rounded-2xl bg-white/20 backdrop-blur-sm px-3 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4 ring-1 ring-white/30 shadow-lg sm:shadow-xl">
+                <div className="p-1.5 sm:p-2 lg:p-3 rounded-lg sm:rounded-xl bg-white/20 backdrop-blur-sm">
+                  <Calendar className="h-4 w-4 sm:h-5 lg:h-6 text-white" />
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-wider text-white/70 font-bold">Hoje</p>
-                  <p className="text-sm font-bold text-white">
+                  <p className="text-xs sm:text-sm font-bold text-white">
                     {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </p>
                 </div>
@@ -149,26 +149,26 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-5">
             {/* KPI 1 - Total Clientes */}
             <motion.div
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ delay: 0.15, duration: 0.4 }}
-              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 p-6 shadow-xl shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:-translate-y-1"
+              className="group relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 p-3 sm:p-4 lg:p-6 shadow-md sm:shadow-lg lg:shadow-xl shadow-blue-500/25 hover:shadow-xl sm:hover:shadow-2xl hover:shadow-blue-500/40 transition-all duration-300 hover:-translate-y-1"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl translate-x-8 -translate-y-8" />
-              <div className="relative z-10 flex items-start justify-between mb-4">
-                <div className="p-3 rounded-xl bg-white/20 backdrop-blur-sm ring-1 ring-white/30">
-                  <Users className="h-6 w-6 text-white" />
+              <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-white/10 rounded-full blur-2xl translate-x-6 sm:translate-x-8 -translate-y-6 sm:-translate-y-8" />
+              <div className="relative z-10 flex items-start justify-between mb-2 sm:mb-3 lg:mb-4">
+                <div className="p-1.5 sm:p-2 lg:p-3 rounded-lg sm:rounded-xl bg-white/20 backdrop-blur-sm ring-1 ring-white/30">
+                  <Users className="h-4 w-4 sm:h-5 lg:h-6 text-white" />
                 </div>
                 <div className="text-right">
-                  <div className="text-4xl font-black text-white">{totalClients}</div>
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">{totalClients}</div>
                 </div>
               </div>
               <div className="relative z-10">
-                <h3 className="text-sm font-bold text-white/90 uppercase tracking-wide">Total de Clientes</h3>
-                <p className="text-xs text-white/70 mt-1">Base de clientes ativa</p>
+                <h3 className="text-xs sm:text-sm font-bold text-white/90 uppercase tracking-wide">Total de Clientes</h3>
+                <p className="text-xs text-white/70 mt-0.5 sm:mt-1">Base de clientes ativa</p>
               </div>
             </motion.div>
 
@@ -177,20 +177,20 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ delay: 0.25, duration: 0.4 }}
-              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 p-6 shadow-xl shadow-amber-500/25 hover:shadow-2xl hover:shadow-amber-500/40 transition-all duration-300 hover:-translate-y-1"
+              className="group relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 p-3 sm:p-4 lg:p-6 shadow-md sm:shadow-lg lg:shadow-xl shadow-amber-500/25 hover:shadow-xl sm:hover:shadow-2xl hover:shadow-amber-500/40 transition-all duration-300 hover:-translate-y-1"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl translate-x-8 -translate-y-8" />
-              <div className="relative z-10 flex items-start justify-between mb-4">
-                <div className="p-3 rounded-xl bg-white/20 backdrop-blur-sm ring-1 ring-white/30">
-                  <ListTodo className="h-6 w-6 text-white" />
+              <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-white/10 rounded-full blur-2xl translate-x-6 sm:translate-x-8 -translate-y-6 sm:-translate-y-8" />
+              <div className="relative z-10 flex items-start justify-between mb-2 sm:mb-3 lg:mb-4">
+                <div className="p-1.5 sm:p-2 lg:p-3 rounded-lg sm:rounded-xl bg-white/20 backdrop-blur-sm ring-1 ring-white/30">
+                  <ListTodo className="h-4 w-4 sm:h-5 lg:h-6 text-white" />
                 </div>
                 <div className="text-right">
-                  <div className="text-4xl font-black text-white">{totalPendingTasks}</div>
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">{totalPendingTasks}</div>
                 </div>
               </div>
               <div className="relative z-10">
-                <h3 className="text-sm font-bold text-white/90 uppercase tracking-wide">Tarefas Pendentes</h3>
-                <p className="text-xs text-white/70 mt-1">Requerem atenção</p>
+                <h3 className="text-xs sm:text-sm font-bold text-white/90 uppercase tracking-wide">Tarefas Pendentes</h3>
+                <p className="text-xs text-white/70 mt-0.5 sm:mt-1">Requerem atenção</p>
               </div>
             </motion.div>
 
@@ -199,20 +199,20 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ delay: 0.35, duration: 0.4 }}
-              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 p-6 shadow-xl shadow-indigo-500/25 hover:shadow-2xl hover:shadow-indigo-500/40 transition-all duration-300 hover:-translate-y-1"
+              className="group relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 p-3 sm:p-4 lg:p-6 shadow-md sm:shadow-lg lg:shadow-xl shadow-indigo-500/25 hover:shadow-xl sm:hover:shadow-2xl hover:shadow-indigo-500/40 transition-all duration-300 hover:-translate-y-1"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl translate-x-8 -translate-y-8" />
-              <div className="relative z-10 flex items-start justify-between mb-4">
-                <div className="p-3 rounded-xl bg-white/20 backdrop-blur-sm ring-1 ring-white/30">
-                  <Activity className="h-6 w-6 text-white" />
+              <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-white/10 rounded-full blur-2xl translate-x-6 sm:translate-x-8 -translate-y-6 sm:-translate-y-8" />
+              <div className="relative z-10 flex items-start justify-between mb-2 sm:mb-3 lg:mb-4">
+                <div className="p-1.5 sm:p-2 lg:p-3 rounded-lg sm:rounded-xl bg-white/20 backdrop-blur-sm ring-1 ring-white/30">
+                  <Activity className="h-4 w-4 sm:h-5 lg:h-6 text-white" />
                 </div>
                 <div className="text-right">
-                  <div className="text-4xl font-black text-white">{totalInProgressTasks}</div>
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">{totalInProgressTasks}</div>
                 </div>
               </div>
               <div className="relative z-10">
-                <h3 className="text-sm font-bold text-white/90 uppercase tracking-wide">Em Progresso</h3>
-                <p className="text-xs text-white/70 mt-1">Do total de tarefas</p>
+                <h3 className="text-xs sm:text-sm font-bold text-white/90 uppercase tracking-wide">Em Progresso</h3>
+                <p className="text-xs text-white/70 mt-0.5 sm:mt-1">Do total de tarefas</p>
               </div>
             </motion.div>
 
@@ -221,21 +221,21 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ delay: 0.45, duration: 0.4 }}
-              className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 p-6 shadow-xl shadow-emerald-500/25 hover:shadow-2xl hover:shadow-emerald-500/40 transition-all duration-300 hover:-translate-y-1"
+              className="group relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 p-3 sm:p-4 lg:p-6 shadow-md sm:shadow-lg lg:shadow-xl shadow-emerald-500/25 hover:shadow-xl sm:hover:shadow-2xl hover:shadow-emerald-500/40 transition-all duration-300 hover:-translate-y-1"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl translate-x-8 -translate-y-8" />
-              <div className="relative z-10 flex items-start justify-between mb-4">
-                <div className="p-3 rounded-xl bg-white/20 backdrop-blur-sm ring-1 ring-white/30">
-                  <CheckCircle2 className="h-6 w-6 text-white" />
+              <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-white/10 rounded-full blur-2xl translate-x-6 sm:translate-x-8 -translate-y-6 sm:-translate-y-8" />
+              <div className="relative z-10 flex items-start justify-between mb-2 sm:mb-3 lg:mb-4">
+                <div className="p-1.5 sm:p-2 lg:p-3 rounded-lg sm:rounded-xl bg-white/20 backdrop-blur-sm ring-1 ring-white/30">
+                  <CheckCircle2 className="h-4 w-4 sm:h-5 lg:h-6 text-white" />
                 </div>
                 <div className="text-right">
-                  <div className="text-4xl font-black text-white">{totalCompletedTasks}</div>
+                  <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">{totalCompletedTasks}</div>
                 </div>
               </div>
-              <div className="relative z-10 space-y-2">
-                <h3 className="text-sm font-bold text-white/90 uppercase tracking-wide">Concluídas</h3>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-2 bg-white/20 rounded-full overflow-hidden backdrop-blur-sm">
+              <div className="relative z-10 space-y-1 sm:space-y-2">
+                <h3 className="text-xs sm:text-sm font-bold text-white/90 uppercase tracking-wide">Concluídas</h3>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <div className="flex-1 h-1.5 sm:h-2 bg-white/20 rounded-full overflow-hidden backdrop-blur-sm">
                     <motion.div
                       className="h-full bg-white rounded-full shadow-lg"
                       initial={{ width: 0 }}
@@ -253,7 +253,7 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
 
         {/* Grid: Calendário + Notas Redesigned */}
         <motion.div
-          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -261,24 +261,24 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
           {/* Calendário (2/3) */}
           <div className="lg:col-span-2">
             {data.activities && (
-              <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-2xl shadow-slate-900/10">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-3xl" />
+              <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-lg sm:shadow-xl lg:shadow-2xl shadow-slate-900/10">
+                <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full blur-3xl" />
 
-                <div className="relative z-10 p-6 sm:p-8 border-b border-slate-200/50 dark:border-slate-800/50 bg-gradient-to-br from-slate-50/50 to-transparent dark:from-slate-800/30 dark:to-transparent">
+                <div className="relative z-10 p-3 sm:p-4 lg:p-6 xl:p-8 border-b border-slate-200/50 dark:border-slate-800/50 bg-gradient-to-br from-slate-50/50 to-transparent dark:from-slate-800/30 dark:to-transparent">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/25">
-                        <Calendar className="h-6 w-6 text-white" />
+                    <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
+                      <div className="p-1.5 sm:p-2 lg:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-md sm:shadow-lg shadow-blue-500/25">
+                        <Calendar className="h-4 w-4 sm:h-5 lg:h-6 text-white" />
                       </div>
                       <div>
-                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">Calendário de Atividades</h2>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">Acompanhe entregas e compromissos</p>
+                        <h2 className="text-base sm:text-lg lg:text-xl xl:text-2xl font-black text-slate-900 dark:text-white">Calendário de Atividades</h2>
+                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">Acompanhe entregas e compromissos</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="relative z-10 p-6 sm:p-8">
+                <div className="relative z-10 p-3 sm:p-4 lg:p-6 xl:p-8">
                   <MonthlyCalendar
                     key={monthKey}
                     activities={data.activities.map(a => ({

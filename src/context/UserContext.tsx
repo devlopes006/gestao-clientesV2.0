@@ -179,28 +179,49 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       if (!auth || isCheckingRedirect) return;
       isCheckingRedirect = true;
       const wasPendingRedirect = localStorage.getItem("pendingAuthRedirect") === "true";
-      if (DEBUG_AUTH) logger.debug('[UserContext] Iniciando checkRedirectResult', { wasPendingRedirect });
+      const isSafari = /Safari|iPhone|iPad/.test(navigator.userAgent) && !/Chrome|Firefox/.test(navigator.userAgent);
+
+      if (DEBUG_AUTH) logger.debug('[UserContext] Iniciando checkRedirectResult', { wasPendingRedirect, isSafari });
+
+      // Dar tempo extra para Safari processar o redirect
+      if (wasPendingRedirect && isSafari) {
+        if (DEBUG_AUTH) logger.debug('[UserContext] Safari redirect detectado, aguardando 2s antes de processar');
+        await new Promise(r => setTimeout(r, 2000));
+      }
+
       loginTimeout = setTimeout(() => {
         if (DEBUG_AUTH) logger.error('[UserContext] Timeout no login após redirect');
         setLoading(false);
-      }, 10000); // 10 segundos
+      }, 15000); // 15 segundos (aumentado para Safari)
+
       try {
         const result = await getRedirectResult(auth);
-        if (DEBUG_AUTH) logger.debug('[UserContext] getRedirectResult', { result });
+        if (DEBUG_AUTH) logger.debug('[UserContext] getRedirectResult', {
+          hasUser: !!result?.user,
+          userEmail: result?.user?.email,
+          hasCredential: !!result?.credential,
+          result
+        });
+
         if (result?.user) {
+          if (DEBUG_AUTH) logger.debug('[UserContext] Login bem-sucedido via redirect', { email: result.user.email });
           localStorage.removeItem("pendingAuthRedirect");
           const inviteToken = sessionStorage.getItem("pendingInviteToken");
           if (inviteToken) sessionStorage.removeItem("pendingInviteToken");
           await handleAuthResult(result.user, inviteToken);
         } else {
           if (wasPendingRedirect) {
+            if (DEBUG_AUTH) logger.warn('[UserContext] Redirect foi iniciado mas getRedirectResult retornou vazio');
             localStorage.removeItem("pendingAuthRedirect");
             sessionStorage.removeItem("pendingInviteToken");
           }
           setLoading(false);
         }
       } catch (err) {
-        if (DEBUG_AUTH) logger.error('[UserContext] Erro em getRedirectResult', err);
+        if (DEBUG_AUTH) logger.error('[UserContext] Erro em getRedirectResult', {
+          error: err instanceof Error ? err.message : String(err),
+          stack: err instanceof Error ? err.stack : undefined
+        });
         localStorage.removeItem("pendingAuthRedirect");
         sessionStorage.removeItem("pendingInviteToken");
         setLoading(false);
@@ -256,61 +277,82 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       throw new Error("Firebase auth not initialized");
     }
 
-    if (DEBUG_AUTH) logger.debug('UserContext: login', { inviteToken });
+    const userAgent = navigator.userAgent;
+    const isSafari = /Safari|iPhone|iPad/.test(userAgent) && !/Chrome|Firefox/.test(userAgent);
+    const useMobile = isMobileDevice();
+
+    if (DEBUG_AUTH) logger.debug('UserContext: login iniciado', {
+      inviteToken,
+      userAgent,
+      isSafari,
+      useMobile
+    });
 
     // Store invite token in sessionStorage so it's available after redirect
     if (inviteToken) {
-
       sessionStorage.setItem("pendingInviteToken", inviteToken);
     }
 
-    const useMobile = isMobileDevice();
-
+    // Garantir que o provider tem os scopes necessários
+    if (provider) {
+      provider.addScope('profile');
+      provider.addScope('email');
+    }
 
     try {
-      // Mobile: sempre usar redirect (popups não funcionam bem)
-      if (useMobile) {
+      // Estratégia: SEMPRE tentar popup primeiro (funciona melhor na maioria dos casos)
+      // Fallback para redirect apenas se popup falhar
 
-        // Marcar que estamos aguardando um redirect
-        localStorage.setItem("pendingAuthRedirect", "true");
-
-
-        await signInWithRedirect(auth, provider);
-
-        // redirect flow continues in checkRedirectResult
-        return;
-      }
-
-      // Desktop: tentar popup primeiro, fallback para redirect
+      if (DEBUG_AUTH) logger.debug('UserContext: tentando signInWithPopup (estratégia universal)', {
+        isSafari,
+        useMobile
+      });
 
       try {
+        // Tentar popup sempre (mesmo em mobile/Safari)
         const result = await signInWithPopup(auth, provider);
-
+        if (DEBUG_AUTH) logger.debug('UserContext: popup funcionou!', { user: result.user?.email });
         await handleAuthResult(result.user, inviteToken);
-      } catch (e: unknown) {
-        // Fallback para redirect se popup falhar (bloqueado pelo navegador)
-        const code = (e as { code?: string } | null | undefined)?.code || "";
-        const popupIssues = [
+        return;
+      } catch (popupError: unknown) {
+        const code = (popupError as { code?: string } | null | undefined)?.code || "";
+        if (DEBUG_AUTH) logger.warn('UserContext: popup falhou', {
+          code,
+          error: popupError instanceof Error ? popupError.message : String(popupError)
+        });
+
+        // Se popup foi bloqueado, usar redirect
+        const isBlocked = [
           "auth/popup-blocked",
           "auth/cancelled-popup-request",
           "auth/popup-closed-by-user",
-        ];
+          "auth/network-request-failed"
+        ].includes(code);
 
-        if (popupIssues.includes(code)) {
-
-          localStorage.setItem("pendingAuthRedirect", "true");
-          await signInWithRedirect(auth, provider);
-        } else {
-
-          throw e;
+        if (!isBlocked) {
+          // Se não foi problema de bloqueio, relançar o erro
+          throw popupError;
         }
+
+        // Popup foi bloqueado, usar redirect como fallback
+        if (DEBUG_AUTH) logger.debug('UserContext: popup bloqueado, usando redirect como fallback', {
+          isSafari,
+          useMobile
+        });
+
+        localStorage.setItem("pendingAuthRedirect", "true");
+        await signInWithRedirect(auth, provider);
+        // redirect flow continues in checkRedirectResult
       }
     } catch (error) {
-
       // Limpar storage em caso de erro
       localStorage.removeItem("pendingAuthRedirect");
       sessionStorage.removeItem("pendingInviteToken");
 
+      if (DEBUG_AUTH) logger.error('[UserContext] Erro no login Google', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      });
       throw error;
     }
   };

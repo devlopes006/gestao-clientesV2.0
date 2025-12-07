@@ -835,10 +835,10 @@ export function MediaManager({ clientId }: MediaManagerProps) {
           </div>
         )}
 
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <div className="max-w-[1600px] mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 space-y-3 sm:space-y-4 lg:space-y-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {folderHistory.length > 1 && (
                 <Button
                   variant="outline"
@@ -851,15 +851,15 @@ export function MediaManager({ clientId }: MediaManagerProps) {
                 </Button>
               )}
               <div>
-                <h1 className="text-3xl font-bold text-gradient-primary mb-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gradient-primary mb-1 sm:mb-2">
                   Mídias
                 </h1>
-                <p className="text-slate-600 dark:text-slate-400">
-                  Upload e organização de arquivos do cliente
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                  Upload e organização de arquivos
                 </p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-1 sm:gap-2">
               {canCreate && (
                 <>
                   <Button

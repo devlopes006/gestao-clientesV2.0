@@ -239,23 +239,23 @@ export function StrategyManager({
   return (
     <>
       <div className="page-background">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <div className="max-w-[1600px] mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 space-y-3 sm:space-y-4 lg:space-y-6">
           {/* Header */}
-          <header className="space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-linear-to-br from-blue-500 to-purple-500 rounded-xl shadow-lg">
-                <Target className="h-6 w-6 text-white" />
+          <header className="space-y-1 sm:space-y-2">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-1.5 sm:p-2 bg-linear-to-br from-blue-500 to-purple-500 rounded-lg sm:rounded-xl shadow-lg">
+                <Target className="h-5 sm:h-6 w-5 sm:w-6 text-white" />
               </div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
                 Estratégia
               </h1>
             </div>
-            <p className="text-base text-slate-600 dark:text-slate-400 font-medium pl-[52px]">
-              Planejamento estratégico e objetivos do cliente
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-medium pl-10 sm:pl-12">
+              Planejamento e objetivos
             </p>
           </header>
 
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-3 sm:gap-4 lg:gap-6 md:grid-cols-2">
             {([
               "objective",
               "action-plan",

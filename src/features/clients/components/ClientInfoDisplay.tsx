@@ -286,7 +286,7 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
               </Button>
 
               <Dialog open={isEditing} onOpenChange={setIsEditing}>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto md:w-auto">
                   <DialogHeader>
                     <DialogTitle>Editar Informações do Cliente</DialogTitle>
                   </DialogHeader>
@@ -684,7 +684,7 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
           {/* Informações Básicas */}
           <div>
             <h3 className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-3 uppercase tracking-wider">Informações Básicas</h3>
-            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+            <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
               <div className="flex flex-col gap-1">
                 <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Email</p>
                 <p className="text-sm text-slate-900 dark:text-white break-all">{client.email || "Não informado"}</p>
@@ -707,7 +707,7 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
           {/* Informações de Contrato */}
           <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
             <h3 className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-3 uppercase tracking-wider">Contrato</h3>
-            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+            <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
               <div className="flex flex-col gap-1">
                 <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Valor Mensal</p>
                 <p className="text-sm font-semibold text-green-600 dark:text-green-400">

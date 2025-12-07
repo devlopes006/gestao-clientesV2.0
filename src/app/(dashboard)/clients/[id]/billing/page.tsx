@@ -75,91 +75,89 @@ export default function BillingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Faturas do Cliente</h1>
-            <p className="text-slate-600 dark:text-slate-400 mt-1">ID: {clientId || '—'}</p>
-          </div>
-          <div className="space-x-3">
-            <Link href={`/financeiro`}>
-              <Button variant="outline">Ver Sistema Financeiro</Button>
-            </Link>
-          </div>
+    <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Faturas do Cliente</h1>
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-1">ID: {clientId || '—'}</p>
         </div>
-
-        {/* Invoices List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Faturas ({invoices.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {invoices.length === 0 ? (
-              <p className="text-center text-slate-600 py-8">Nenhuma fatura encontrada</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="border-b">
-                    <tr>
-                      <th className="text-left py-2 px-4">Número</th>
-                      <th className="text-left py-2 px-4">Status</th>
-                      <th className="text-left py-2 px-4">Data Emissão</th>
-                      <th className="text-left py-2 px-4">Data Vencimento</th>
-                      <th className="text-right py-2 px-4">Total</th>
-                      <th className="text-left py-2 px-4">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {invoices.map((invoice) => (
-                      <tr key={invoice.id} className="border-b hover:bg-slate-50 dark:hover:bg-slate-800">
-                        <td className="py-3 px-4 font-medium">{invoice.number}</td>
-                        <td className="py-3 px-4">
-                          <Badge className={getStatusColor(invoice.status)}>
-                            {getStatusLabel(invoice.status)}
-                          </Badge>
-                        </td>
-                        <td className="py-3 px-4">{new Date(invoice.issueDate).toLocaleDateString('pt-BR')}</td>
-                        <td className="py-3 px-4">{new Date(invoice.dueDate).toLocaleDateString('pt-BR')}</td>
-                        <td className="py-3 px-4 text-right font-medium">
-                          {new Intl.NumberFormat('pt-BR', {
-                            style: 'currency',
-                            currency: 'BRL',
-                          }).format(invoice.total)}
-                        </td>
-                        <td className="py-3 px-4">
-                          <Link href={`/financeiro`}>
-                            <Button variant="ghost" size="sm">
-                              Detalhes
-                            </Button>
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Info Box */}
-        <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-          <CardHeader>
-            <CardTitle className="text-blue-900 dark:text-blue-100">ℹ️ Sistema Financeiro Modernizado</CardTitle>
-          </CardHeader>
-          <CardContent className="text-blue-800 dark:text-blue-200">
-            <p>Esta página de billing foi migrada para o novo sistema financeiro em <code className="bg-white/50 dark:bg-black/30 px-2 py-1 rounded">/financeiro</code></p>
-            <p className="mt-2">
-              Para gerenciar faturas, despesas, transações e custos, acesse o{' '}
-              <Link href="/app/financeiro" className="underline font-semibold hover:opacity-80">
-                novo sistema financeiro
-              </Link>
-            </p>
-          </CardContent>
-        </Card>
+        <div className="flex gap-2 sm:gap-3">
+          <Link href={`/financeiro`}>
+            <Button variant="outline">Ver Sistema Financeiro</Button>
+          </Link>
+        </div>
       </div>
+
+      {/* Invoices List */}
+      <Card className="overflow-hidden">
+        <CardHeader>
+          <CardTitle>Faturas ({invoices.length})</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0 sm:p-6">
+          {invoices.length === 0 ? (
+            <p className="text-center text-slate-600 py-8 px-4">Nenhuma fatura encontrada</p>
+          ) : (
+            <div className="overflow-x-auto -mx-2 sm:mx-0">
+              <table className="w-full text-[10px] sm:text-xs lg:text-sm">
+                <thead className="border-b">
+                  <tr>
+                    <th className="text-left py-1 sm:py-1.5 px-1 sm:px-2 lg:px-3">Número</th>
+                    <th className="text-left py-1 sm:py-1.5 px-1 sm:px-2 lg:px-3">Status</th>
+                    <th className="text-left py-1 sm:py-1.5 px-1 sm:px-2 lg:px-3 hidden sm:table-cell">Emissão</th>
+                    <th className="text-left py-1 sm:py-1.5 px-1 sm:px-2 lg:px-3 hidden sm:table-cell">Vencimento</th>
+                    <th className="text-right py-1 sm:py-1.5 px-1 sm:px-2 lg:px-3">Total</th>
+                    <th className="text-left py-1 sm:py-1.5 px-1 sm:px-2 lg:px-3 hidden md:table-cell">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invoices.map((invoice) => (
+                    <tr key={invoice.id} className="border-b hover:bg-slate-50 dark:hover:bg-slate-800">
+                      <td className="py-1.5 sm:py-2 px-1 sm:px-2 lg:px-3 font-medium text-[10px] sm:text-xs lg:text-sm truncate max-w-[80px] sm:max-w-none">{invoice.number}</td>
+                      <td className="py-1.5 sm:py-2 px-1 sm:px-2 lg:px-3">
+                        <Badge className={`${getStatusColor(invoice.status)} text-[9px] sm:text-xs px-1 sm:px-1.5 py-0 sm:py-0.5`}>
+                          {getStatusLabel(invoice.status)}
+                        </Badge>
+                      </td>
+                      <td className="py-1.5 sm:py-2 px-1 sm:px-2 lg:px-3 hidden sm:table-cell text-[10px] sm:text-xs lg:text-sm">{new Date(invoice.issueDate).toLocaleDateString('pt-BR')}</td>
+                      <td className="py-1.5 sm:py-2 px-1 sm:px-2 lg:px-3 hidden sm:table-cell text-[10px] sm:text-xs lg:text-sm">{new Date(invoice.dueDate).toLocaleDateString('pt-BR')}</td>
+                      <td className="py-1.5 sm:py-2 px-1 sm:px-2 lg:px-3 text-right font-medium text-[10px] sm:text-xs lg:text-sm">
+                        {new Intl.NumberFormat('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
+                        }).format(invoice.total)}
+                      </td>
+                      <td className="py-1.5 sm:py-2 px-1 sm:px-2 lg:px-3 hidden md:table-cell">
+                        <Link href={`/financeiro`}>
+                          <Button variant="ghost" size="sm" className="text-[10px] sm:text-xs h-6 sm:h-8 px-1.5 sm:px-2">
+                            Detalhes
+                          </Button>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Info Box */}
+      <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+        <CardHeader>
+          <CardTitle className="text-blue-900 dark:text-blue-100">ℹ️ Sistema Financeiro Modernizado</CardTitle>
+        </CardHeader>
+        <CardContent className="text-blue-800 dark:text-blue-200">
+          <p>Esta página de billing foi migrada para o novo sistema financeiro em <code className="bg-white/50 dark:bg-black/30 px-2 py-1 rounded">/financeiro</code></p>
+          <p className="mt-2">
+            Para gerenciar faturas, despesas, transações e custos, acesse o{' '}
+            <Link href="/app/financeiro" className="underline font-semibold hover:opacity-80">
+              novo sistema financeiro
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
     </div>
   )
 }

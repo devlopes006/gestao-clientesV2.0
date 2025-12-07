@@ -89,55 +89,55 @@ function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      className={`rounded-xl p-3 sm:p-4 mb-2 sm:mb-3 shadow-md hover:shadow-xl transition-all duration-200 cursor-move border-2 ${style.bg} ${style.border}${isDragging ? ' opacity-60 scale-95 ring-2 ring-blue-500 shadow-2xl' : ''}`}
+      className={`rounded-lg sm:rounded-xl p-2 sm:p-3 mb-1.5 sm:mb-2 shadow-md hover:shadow-xl transition-all duration-200 cursor-move border ${style.bg} ${style.border}${isDragging ? ' opacity-60 scale-95 ring-2 ring-blue-500 shadow-2xl' : ''}`}
       style={{ zIndex: isDragging ? 50 : undefined }}
     >
       {/* Header com título e ações - Mobile First */}
-      <div className="flex items-start gap-2 sm:gap-3 mb-3">
+      <div className="flex items-start gap-1.5 sm:gap-2 mb-2">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
-            <span className={`w-2 h-2 rounded-full ${style.dot} animate-pulse`} />
-            <h4 className={`font-bold text-xs sm:text-sm line-clamp-2 ${style.text}`}>
+          <div className="flex items-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
+            <span className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${style.dot} animate-pulse flex-shrink-0`} />
+            <h4 className={`font-bold text-[10px] sm:text-xs line-clamp-2 ${style.text}`}>
               {task.title}
             </h4>
           </div>
           {task.description && (
-            <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 mt-1.5 sm:mt-2">
+            <p className="text-[9px] sm:text-xs text-slate-600 dark:text-slate-400 line-clamp-2 mt-1">
               {task.description}
             </p>
           )}
         </div>
-        <div className="flex gap-0.5 sm:gap-1 shrink-0">
+        <div className="flex gap-0.5 shrink-0">
           <button
             type="button"
             aria-label="Editar tarefa"
-            className="p-1.5 sm:p-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors group"
+            className="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors group"
             onClick={e => { e.stopPropagation(); onEdit?.(task); }}
           >
-            <Pencil className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-blue-500 dark:text-blue-400 group-hover:scale-110 transition-transform" />
+            <Pencil className="w-3 h-3 text-blue-500 dark:text-blue-400 group-hover:scale-110 transition-transform" />
           </button>
           <button
             type="button"
             aria-label="Excluir tarefa"
-            className="p-1.5 sm:p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors group"
+            className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors group"
             onClick={e => { e.stopPropagation(); onDelete?.(task.id); }}
           >
-            <Trash2 className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-red-500 dark:text-red-400 group-hover:scale-110 transition-transform" />
+            <Trash2 className="w-3 h-3 text-red-500 dark:text-red-400 group-hover:scale-110 transition-transform" />
           </button>
         </div>
       </div>
 
       {/* Footer com badges - Mobile First */}
-      <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-        <span className={`text-xs px-2 sm:px-2.5 py-1 rounded-full font-semibold border ${style.badge}`}>
+      <div className="flex items-center gap-1 flex-wrap">
+        <span className={`text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-semibold border ${style.badge}`}>
           {task.priority === 'URGENT' ? 'Urgente' : task.priority === 'HIGH' ? 'Alta' : task.priority === 'MEDIUM' ? 'Média' : 'Baixa'}
         </span>
         {task.dueDate && (
-          <span className={`text-xs flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300`}>
-            <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="6" cy="6" r="5" />
+          <span className={`text-[9px] sm:text-xs flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300`}>
+            <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="5" cy="5" r="4" />
             </svg>
-            {task.dueDate}
+            <span className="whitespace-nowrap">{task.dueDate}</span>
           </span>
         )}
       </div>
@@ -204,34 +204,34 @@ function KanbanColumn({ column, tasks, handleEdit, handleDelete }: KanbanColumnP
   return (
     <div ref={setNodeRef} className="h-full flex flex-col">
       <div
-        className={`h-full rounded-2xl shadow-xl border-2 transition-all duration-200 flex flex-col ${style.bg} ${style.border}${isOver ? ' ring-4 ring-blue-400 ring-offset-2 scale-[1.02] shadow-2xl' : ''}`}
+        className={`h-full rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl border transition-all duration-200 flex flex-col ${style.bg} ${style.border}${isOver ? ' ring-2 sm:ring-4 ring-blue-400 ring-offset-1 sm:ring-offset-2 scale-[1.01] sm:scale-[1.02] shadow-xl sm:shadow-2xl' : ''}`}
       >
-        {/* Header da coluna */}
-        <div className={`${style.header ?? style.bg} rounded-t-2xl p-4 border-b-2 ${style.border}`}>
-          <div className="flex items-center justify-between">
-            <h3 className={`font-bold text-base ${style.text} flex items-center gap-2`}>
+        {/* Header da coluna - Mobile First */}
+        <div className={`${style.header ?? style.bg} rounded-t-xl sm:rounded-t-2xl p-2 sm:p-3 lg:p-4 border-b ${style.border}`}>
+          <div className="flex items-center justify-between gap-1 sm:gap-2">
+            <h3 className={`font-bold text-xs sm:text-sm lg:text-base ${style.text} flex items-center gap-1 sm:gap-1.5 truncate`}>
               {column.title}
             </h3>
-            <span className={`text-xs font-bold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full ${style.badge} shadow-sm flex-shrink-0`}>
+            <span className={`text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full ${style.badge} shadow-sm flex-shrink-0`}>
               {tasks.length}
             </span>
           </div>
         </div>
 
         {/* Área de conteúdo - Mobile First */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-4 min-h-[200px] sm:min-h-[300px]">
+        <div className="flex-1 overflow-y-auto p-1.5 sm:p-2 lg:p-3 min-h-[180px] sm:min-h-[220px] lg:min-h-[280px]">
           <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
             {tasks.length === 0 ? (
-              <div className="text-center py-8 sm:py-12 flex flex-col items-center justify-center h-full">
-                <div className={`w-12 sm:w-16 h-12 sm:h-16 mx-auto mb-2 sm:mb-3 rounded-full ${style.bg} border-2 ${style.border} flex items-center justify-center flex-shrink-0`}>
-                  <ListTodo className={`w-6 sm:w-8 h-6 sm:h-8 ${style.text} opacity-30`} />
+              <div className="text-center py-6 sm:py-8 lg:py-12 flex flex-col items-center justify-center h-full">
+                <div className={`w-10 sm:w-12 lg:w-16 h-10 sm:h-12 lg:h-16 mx-auto mb-1.5 sm:mb-2 lg:mb-3 rounded-full ${style.bg} border ${style.border} flex items-center justify-center flex-shrink-0`}>
+                  <ListTodo className={`w-5 sm:w-6 lg:w-8 h-5 sm:h-6 lg:h-8 ${style.text} opacity-30`} />
                 </div>
-                <p className={`text-xs sm:text-sm ${style.text} opacity-60 font-medium`}>
+                <p className={`text-[10px] sm:text-xs lg:text-sm ${style.text} opacity-60 font-medium`}>
                   Nenhuma tarefa
                 </p>
               </div>
             ) : (
-              <div className="space-y-2 sm:space-y-3">
+              <div className="space-y-1.5 sm:space-y-2">
                 {tasks.map((task: Task) => (
                   <TaskCard
                     key={task.id}
@@ -401,16 +401,16 @@ export function TasksPanel({ clientId, initialTasks = [], orgId }: TasksPanelPro
 
   return (
     <div className="page-background min-h-screen">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-4 sm:space-y-6">
+      <div className="max-w-7xl mx-auto px-1 sm:px-2 md:px-3 lg:px-4 py-2 sm:py-3 lg:py-4 space-y-2 sm:space-y-3 lg:space-y-4">
         {/* Header - Mobile First */}
-        <div className="flex flex-col gap-3 sm:gap-4">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gradient-primary">Tarefas</h1>
-            <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">Gerencie as tarefas deste cliente</p>
+        <div className="flex flex-col gap-2 sm:gap-3">
+          <div className="flex flex-col gap-1 sm:gap-2">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gradient-primary">Tarefas</h1>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Gerencie as tarefas deste cliente</p>
           </div>
           <Button
             className="w-full sm:w-auto gap-2 font-semibold"
-            size="lg"
+            size="sm"
             onClick={() => { resetForm(); setIsModalOpen(true) }}
           >
             <Plus className="h-4 w-4" /> Nova Tarefa
@@ -423,16 +423,16 @@ export function TasksPanel({ clientId, initialTasks = [], orgId }: TasksPanelPro
         </div>
 
         {/* Filters - Mobile First */}
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           <TaskFilters statusFilter={statusFilter} setStatusFilter={setStatusFilter} search={search} setSearch={setSearch} />
         </div>
 
         {/* Kanban Board - Mobile Responsive */}
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <div className="w-full overflow-x-auto -mx-3 sm:-mx-4 md:mx-0 px-3 sm:px-4 md:px-0">
-            <div className="inline-flex gap-3 sm:gap-4 lg:gap-6 min-w-min md:w-full md:grid md:grid-cols-2 lg:grid-cols-4 pb-6 pt-2">
+          <div className="w-full overflow-x-auto -mx-1 sm:-mx-2 md:mx-0 px-1 sm:px-2 md:px-0">
+            <div className="inline-flex gap-2 sm:gap-3 lg:gap-4 min-w-min md:w-full md:grid md:grid-cols-2 lg:grid-cols-4 pb-4 pt-1">
               {filteredKanbanTasks.map(col => (
-                <div key={col.id} className="w-[calc(100vw-2rem)] sm:w-[350px] md:w-auto md:min-w-0">
+                <div key={col.id} className="w-[calc(100vw-1rem)] sm:w-[280px] md:w-auto md:min-w-0">
                   <KanbanColumn
                     column={col}
                     tasks={col.tasks}

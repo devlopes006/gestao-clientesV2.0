@@ -367,6 +367,11 @@ export function CreateTransactionModal({
                 {loadingClients && (
                   <div className="px-3 py-2 text-sm text-slate-600">Carregando clientes...</div>
                 )}
+                {loadingClients && (
+                  <div className="py-2 px-3 text-sm text-muted-foreground">
+                    Carregando clientes...
+                  </div>
+                )}
                 {clients.map((client) => (
                   <SelectItem key={client.id} value={client.id}>
                     {client.name} {client.email && `(${client.email})`}

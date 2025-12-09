@@ -1,6 +1,6 @@
 'use client'
 
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatCurrency } from '@/lib/utils'
 import { DollarSign, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
@@ -56,12 +56,12 @@ export function QuickStats() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
         {[...Array(4)].map((_, i) => (
-          <Card key={i} size="sm" className="border-0 shadow-sm">
-            <CardContent className="py-2 sm:py-3">
-              <Skeleton className="h-4 w-20 mb-2" />
-              <Skeleton className="h-6 w-24" />
+          <Card key={i}>
+            <CardContent className="space-y-2 p-4">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-6 w-28" />
             </CardContent>
           </Card>
         ))}
@@ -71,74 +71,56 @@ export function QuickStats() {
 
   if (!data) return null
 
+  const cards = [
+    {
+      title: 'Receitas',
+      icon: <TrendingUp className="h-5 w-5 text-emerald-600" />, 
+      value: formatCurrency(data.totalIncome),
+      helper: undefined,
+    },
+    {
+      title: 'Despesas',
+      icon: <TrendingDown className="h-5 w-5 text-rose-600" />,
+      value: formatCurrency(data.totalExpense),
+      helper:
+        typeof data.pendingExpense === 'number' && data.pendingExpense > 0
+          ? `Pendente: ${formatCurrency(data.pendingExpense)}`
+          : undefined,
+    },
+    {
+      title: 'Lucro',
+      icon: <DollarSign className="h-5 w-5 text-blue-600" />,
+      value: formatCurrency(data.netProfit),
+      helper:
+        typeof data.projectedNetProfit === 'number'
+          ? `Previsto: ${formatCurrency(data.projectedNetProfit)}`
+          : undefined,
+    },
+    {
+      title: 'A receber',
+      icon: <Wallet className="h-5 w-5 text-indigo-600" />,
+      value: formatCurrency(data.totalReceivable),
+      helper:
+        typeof data.cashOnHandMonthly === 'number'
+          ? `Em caixa: ${formatCurrency(data.cashOnHandMonthly)}`
+          : undefined,
+    },
+  ]
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4 md:mb-6 w-full">
-      <Card size="sm" className="border-0 shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
-        <CardContent className="py-2.5 sm:py-2 md:py-3 px-3 sm:px-3 md:px-4">
-          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-            <p className="text-xs sm:text-xs font-medium text-green-700 dark:text-green-400">Receitas</p>
-            <TrendingUp className="h-4 w-4 sm:h-4 sm:w-4 text-green-600" />
-          </div>
-          <p className="text-base sm:text-base md:text-lg font-bold text-green-700">{formatCurrency(data.totalIncome)}</p>
-        </CardContent>
-      </Card>
-
-      <Card size="sm" className="border-0 shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20">
-        <CardContent className="py-2.5 sm:py-2 md:py-3 px-3 sm:px-3 md:px-4">
-          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-            <p className="text-xs sm:text-xs font-medium text-red-700 dark:text-red-400">Despesas</p>
-            <TrendingDown className="h-4 w-4 sm:h-4 sm:w-4 text-red-600" />
-          </div>
-          <p className="text-base sm:text-base md:text-lg font-bold text-red-700">{formatCurrency(data.totalExpense)}</p>
-          {typeof data.pendingExpense === 'number' && data.pendingExpense > 0 && (
-            <p className="text-[10px] sm:text-[11px] text-red-700/70 mt-0.5">Pendente: {formatCurrency(data.pendingExpense)}</p>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card size="sm" className={`border-0 shadow-md hover:shadow-lg transition-shadow ${data.netProfit >= 0
-        ? 'bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20'
-        : 'bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20'
-        }`}>
-        <CardContent className="py-2.5 sm:py-2 md:py-3 px-3 sm:px-3 md:px-4">
-          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-            <p className={`text-xs sm:text-xs font-medium ${data.netProfit >= 0 ? 'text-blue-700 dark:text-blue-400' : 'text-orange-700 dark:text-orange-400'
-              }`}>
-              Lucro
-            </p>
-            <DollarSign className={`h-4 w-4 sm:h-4 sm:w-4 ${data.netProfit >= 0 ? 'text-blue-600' : 'text-orange-600'
-              }`} />
-          </div>
-          <p className={`text-base sm:text-base md:text-lg font-bold ${data.netProfit >= 0 ? 'text-blue-700' : 'text-orange-700'
-            }`}>
-            {formatCurrency(data.netProfit)}
-          </p>
-          {typeof data.projectedNetProfit === 'number' && (
-            <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5">Previsto: {formatCurrency(data.projectedNetProfit)}</p>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card size="sm" className="border-0 shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
-        <CardContent className="py-2.5 sm:py-2 md:py-3 px-3 sm:px-3 md:px-4">
-          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-            <p className="text-xs sm:text-xs font-medium text-purple-700 dark:text-purple-400">A Receber</p>
-            <Wallet className="h-4 w-4 sm:h-4 sm:w-4 text-purple-600" />
-          </div>
-          <p className="text-base sm:text-base md:text-lg font-bold text-purple-700">{formatCurrency(data.totalReceivable)}</p>
-        </CardContent>
-      </Card>
-      {typeof data.cashOnHandMonthly === 'number' && (
-        <Card size="sm" className="border-0 shadow-md hover:shadow-lg transition-shadow bg-gradient-to-br from-slate-50 to-zinc-50 dark:from-slate-950/20 dark:to-zinc-950/20">
-          <CardContent className="py-3 sm:py-2 md:py-3 px-3 sm:px-3 md:px-4">
-            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-              <p className="text-xs sm:text-xs font-medium text-slate-700 dark:text-slate-400">Em Caixa</p>
-              <Wallet className="h-4 w-4 sm:h-4 sm:w-4 text-slate-600" />
-            </div>
-            <p className="text-base sm:text-base md:text-lg font-bold text-slate-700">{formatCurrency(data.cashOnHandMonthly)}</p>
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
+      {cards.map((card) => (
+        <Card key={card.title} className="border bg-card">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">{card.title}</CardTitle>
+            {card.icon}
+          </CardHeader>
+          <CardContent className="space-y-1 pb-4">
+            <p className="text-2xl font-semibold">{card.value}</p>
+            {card.helper && <p className="text-xs text-muted-foreground">{card.helper}</p>}
           </CardContent>
         </Card>
-      )}
+      ))}
     </div>
   )
 }

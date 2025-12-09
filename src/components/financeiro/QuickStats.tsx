@@ -35,7 +35,6 @@ export function QuickStats() {
       if (!response.ok) throw new Error('Erro ao carregar estatísticas')
 
       const result = await response.json()
-      // ApiResponseHandler retorna { data: { financial, invoices, projections } }
       const dashboardData = result.data || result
       setData({
         totalIncome: dashboardData.financial?.totalIncome || 0,
@@ -56,9 +55,9 @@ export function QuickStats() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[...Array(4)].map((_, i) => (
-          <Card key={i}>
+          <Card key={i} className="border bg-white">
             <CardContent className="space-y-2 p-4">
               <Skeleton className="h-4 w-24" />
               <Skeleton className="h-6 w-28" />
@@ -74,13 +73,13 @@ export function QuickStats() {
   const cards = [
     {
       title: 'Receitas',
-      icon: <TrendingUp className="h-5 w-5 text-emerald-600" />, 
+      icon: <TrendingUp className="h-5 w-5 text-emerald-700" />,
       value: formatCurrency(data.totalIncome),
       helper: undefined,
     },
     {
       title: 'Despesas',
-      icon: <TrendingDown className="h-5 w-5 text-rose-600" />,
+      icon: <TrendingDown className="h-5 w-5 text-rose-700" />,
       value: formatCurrency(data.totalExpense),
       helper:
         typeof data.pendingExpense === 'number' && data.pendingExpense > 0
@@ -89,7 +88,7 @@ export function QuickStats() {
     },
     {
       title: 'Lucro',
-      icon: <DollarSign className="h-5 w-5 text-blue-600" />,
+      icon: <DollarSign className="h-5 w-5 text-blue-700" />,
       value: formatCurrency(data.netProfit),
       helper:
         typeof data.projectedNetProfit === 'number'
@@ -98,7 +97,7 @@ export function QuickStats() {
     },
     {
       title: 'A receber',
-      icon: <Wallet className="h-5 w-5 text-indigo-600" />,
+      icon: <Wallet className="h-5 w-5 text-indigo-700" />,
       value: formatCurrency(data.totalReceivable),
       helper:
         typeof data.cashOnHandMonthly === 'number'
@@ -108,16 +107,16 @@ export function QuickStats() {
   ]
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {cards.map((card) => (
-        <Card key={card.title} className="border bg-card">
+        <Card key={card.title} className="border bg-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">{card.title}</CardTitle>
+            <CardTitle className="text-sm font-semibold text-slate-700">{card.title}</CardTitle>
             {card.icon}
           </CardHeader>
           <CardContent className="space-y-1 pb-4">
-            <p className="text-2xl font-semibold">{card.value}</p>
-            {card.helper && <p className="text-xs text-muted-foreground">{card.helper}</p>}
+            <p className="text-2xl font-semibold text-slate-900">{card.value}</p>
+            {card.helper && <p className="text-xs text-slate-600">{card.helper}</p>}
           </CardContent>
         </Card>
       ))}

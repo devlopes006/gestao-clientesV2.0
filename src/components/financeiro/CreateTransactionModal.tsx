@@ -87,12 +87,20 @@ export function CreateTransactionModal({
     try {
       setLoadingClients(true);
       setClientError(null);
-      const response = await fetch('/api/mobile/clients?page=1&limit=100');
+      const response = await fetch('/api/mobile/clients?page=1&limit=150');
       if (!response.ok) throw new Error('Erro ao buscar clientes');
+
       const payload = await response.json();
       const rawClients = Array.isArray(payload)
         ? payload
-        : payload.data?.data || payload.data || payload.clients || [];
+        : payload.data?.data ||
+          payload.data?.clients ||
+          payload.data ||
+          payload.clients ||
+          payload.items ||
+          payload.results ||
+          [];
+
       const normalized = (rawClients as Client[])
         .filter((client): client is Client => Boolean(client?.id && client?.name))
         .map((client) => ({
@@ -101,6 +109,7 @@ export function CreateTransactionModal({
           email: client.email ?? null,
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
+
       setClients(normalized);
     } catch (err) {
       console.error('Erro ao buscar clientes:', err);
@@ -201,13 +210,15 @@ export function CreateTransactionModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Nova Transação</DialogTitle>
-          <DialogDescription>Crie uma nova transação no sistema</DialogDescription>
+      <DialogContent className="max-w-xl border bg-white p-0">
+        <DialogHeader className="border-b px-6 py-4">
+          <DialogTitle className="text-lg font-semibold text-slate-900">Nova transação</DialogTitle>
+          <DialogDescription className="text-sm text-slate-600">
+            Cadastre uma nova movimentação com dados completos para controle.
+          </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -222,7 +233,7 @@ export function CreateTransactionModal({
             </Alert>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="type">Tipo *</Label>
               <Select
@@ -233,11 +244,11 @@ export function CreateTransactionModal({
                 disabled={loading}
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Selecione o tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="INCOME">💰 Receita</SelectItem>
-                  <SelectItem value="EXPENSE">💸 Despesa</SelectItem>
+                  <SelectItem value="INCOME">Receita</SelectItem>
+                  <SelectItem value="EXPENSE">Despesa</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -252,7 +263,7 @@ export function CreateTransactionModal({
                 disabled={loading}
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Escolha um subtipo" />
                 </SelectTrigger>
                 <SelectContent>
                   {(formData.type === 'INCOME' ? INCOME_SUBTYPES : EXPENSE_SUBTYPES).map(
@@ -267,7 +278,7 @@ export function CreateTransactionModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="amount">Valor *</Label>
               <Input
@@ -281,7 +292,6 @@ export function CreateTransactionModal({
                 min="0"
                 disabled={loading}
                 required
-                className="text-lg font-semibold"
               />
             </div>
 
@@ -304,7 +314,7 @@ export function CreateTransactionModal({
             <Textarea
               id="description"
               name="description"
-              placeholder="Digite a descrição da transação"
+              placeholder="Resumo da movimentação"
               value={formData.description}
               onChange={handleInputChange}
               disabled={loading}
@@ -350,10 +360,12 @@ export function CreateTransactionModal({
                 <SelectValue placeholder="Selecione um cliente (opcional)" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="">Sem cliente</SelectItem>
                 {clients.length === 0 && !loadingClients && (
-                  <div className="py-2 px-3 text-sm text-muted-foreground">
-                    Nenhum cliente encontrado
-                  </div>
+                  <div className="px-3 py-2 text-sm text-slate-600">Nenhum cliente encontrado</div>
+                )}
+                {loadingClients && (
+                  <div className="px-3 py-2 text-sm text-slate-600">Carregando clientes...</div>
                 )}
                 {loadingClients && (
                   <div className="py-2 px-3 text-sm text-muted-foreground">
@@ -369,7 +381,7 @@ export function CreateTransactionModal({
             </Select>
           </div>
 
-          <div className="flex gap-3 justify-end pt-4">
+          <div className="flex flex-col gap-2 border-t pt-4 md:flex-row md:justify-end">
             <Button
               type="button"
               variant="outline"
@@ -380,7 +392,7 @@ export function CreateTransactionModal({
             </Button>
             <Button type="submit" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {loading ? 'Criando...' : 'Criar Transação'}
+              {loading ? 'Criando...' : 'Criar transação'}
             </Button>
           </div>
         </form>

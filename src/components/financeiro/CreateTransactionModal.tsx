@@ -74,6 +74,7 @@ export function CreateTransactionModal({
   const [loadingClients, setLoadingClients] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [clientError, setClientError] = useState<string | null>(null);
 
   // Buscar clientes ao abrir modal
   useEffect(() => {
@@ -85,12 +86,25 @@ export function CreateTransactionModal({
   const fetchClients = async () => {
     try {
       setLoadingClients(true);
+      setClientError(null);
       const response = await fetch('/api/mobile/clients?page=1&limit=100');
       if (!response.ok) throw new Error('Erro ao buscar clientes');
-      const data = await response.json();
-      setClients(data.data || []);
+      const payload = await response.json();
+      const rawClients = Array.isArray(payload)
+        ? payload
+        : payload.data?.data || payload.data || payload.clients || [];
+      const normalized = (rawClients as Client[])
+        .filter((client): client is Client => Boolean(client?.id && client?.name))
+        .map((client) => ({
+          id: client.id,
+          name: client.name,
+          email: client.email ?? null,
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+      setClients(normalized);
     } catch (err) {
       console.error('Erro ao buscar clientes:', err);
+      setClientError('Não foi possível carregar a lista de clientes.');
     } finally {
       setLoadingClients(false);
     }
@@ -198,6 +212,13 @@ export function CreateTransactionModal({
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {clientError && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{clientError}</AlertDescription>
             </Alert>
           )}
 
@@ -332,6 +353,11 @@ export function CreateTransactionModal({
                 {clients.length === 0 && !loadingClients && (
                   <div className="py-2 px-3 text-sm text-muted-foreground">
                     Nenhum cliente encontrado
+                  </div>
+                )}
+                {loadingClients && (
+                  <div className="py-2 px-3 text-sm text-muted-foreground">
+                    Carregando clientes...
                   </div>
                 )}
                 {clients.map((client) => (

@@ -55,6 +55,8 @@ export function PremiumCalendar({ initialEvents, monthKey }: PremiumCalendarProp
   const [currentMonthKey, setCurrentMonthKey] = useState(monthKey);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showEventModal, setShowEventModal] = useState(false);
+  const [showDayEventsModal, setShowDayEventsModal] = useState(false);
+  const [selectedDayDate, setSelectedDayDate] = useState<Date | null>(null);
   const [editingEvent, setEditingEvent] = useState<DashboardEvent | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterColor, setFilterColor] = useState<string | null>(null);
@@ -148,6 +150,12 @@ export function PremiumCalendar({ initialEvents, monthKey }: PremiumCalendarProp
     }
 
     setCurrentMonthKey(`${newYear}-${newMonth}`);
+  };
+
+  // Abrir modal para visualizar eventos do dia
+  const openDayEventsModal = (date: Date) => {
+    setSelectedDayDate(date);
+    setShowDayEventsModal(true);
   };
 
   // Abrir modal para criar evento
@@ -270,10 +278,10 @@ export function PremiumCalendar({ initialEvents, monthKey }: PremiumCalendarProp
 
   // Renderizar visualização de mês
   const renderMonthView = () => (
-    <div className="grid grid-cols-7 gap-2">
+    <div className="grid grid-cols-7 gap-1.5">
       {/* Cabeçalho dos dias da semana */}
       {WEEKDAYS.map(day => (
-        <div key={day} className="text-center py-2 text-sm font-semibold text-slate-400 border-b border-slate-700/50">
+        <div key={day} className="text-center py-2 text-xs font-bold text-slate-300 border-b border-slate-700/50 bg-slate-800/30">
           {day}
         </div>
       ))}
@@ -281,7 +289,7 @@ export function PremiumCalendar({ initialEvents, monthKey }: PremiumCalendarProp
       {/* Dias do calendário */}
       {calendarDays.map((date, idx) => {
         if (!date) {
-          return <div key={idx} className="min-h-[120px]" />;
+          return <div key={idx} className="min-h-[80px]" />;
         }
 
         const dayEvents = getEventsForDate(date);
@@ -291,9 +299,9 @@ export function PremiumCalendar({ initialEvents, monthKey }: PremiumCalendarProp
         return (
           <div
             key={idx}
-            onClick={() => openCreateModal(date)}
+            onClick={() => openDayEventsModal(date)}
             className={`
-              min-h-[120px] p-2 rounded-lg border transition-all cursor-pointer
+              min-h-[80px] p-1.5 rounded-lg border transition-all cursor-pointer relative
               ${isCurrentDay
                 ? 'bg-blue-500/10 border-blue-500/50 ring-1 ring-blue-500/30'
                 : 'bg-slate-800/40 border-slate-700/30 hover:border-slate-600 hover:bg-slate-800/60'
@@ -301,19 +309,31 @@ export function PremiumCalendar({ initialEvents, monthKey }: PremiumCalendarProp
               ${isOtherMonth ? 'opacity-40' : ''}
             `}
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className={`text-sm font-bold ${isCurrentDay ? 'text-blue-400' : 'text-white'}`}>
+            <div className="flex items-center justify-between mb-1">
+              <span className={`text-xs font-bold ${isCurrentDay ? 'text-blue-400' : 'text-white'}`}>
                 {date.getDate()}
               </span>
               {dayEvents.length > 0 && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-semibold">
-                  {dayEvents.length}
-                </span>
+                <div className="flex gap-1">
+                  {dayEvents.slice(0, 3).map((evt) => {
+                    const colorObj = EVENT_COLORS.find(c => c.value === evt.color) || EVENT_COLORS[0];
+                    return (
+                      <div
+                        key={evt.id}
+                        className={`w-2 h-2 rounded-full ${colorObj.bg}`}
+                        title={evt.title}
+                      />
+                    );
+                  })}
+                  {dayEvents.length > 3 && (
+                    <span className="text-[9px] text-slate-400 ml-0.5">+{dayEvents.length - 3}</span>
+                  )}
+                </div>
               )}
             </div>
 
-            <div className="space-y-1">
-              {dayEvents.slice(0, 3).map(event => {
+            <div className="space-y-0.5">
+              {dayEvents.slice(0, 2).map(event => {
                 const eventTime = new Date(event.date);
                 const timeStr = `${eventTime.getHours().toString().padStart(2, '0')}:${eventTime.getMinutes().toString().padStart(2, '0')}`;
 
@@ -324,20 +344,20 @@ export function PremiumCalendar({ initialEvents, monthKey }: PremiumCalendarProp
                       e.stopPropagation();
                       openEditModal(event);
                     }}
-                    className={`px-2 py-1 rounded text-[11px] font-medium border transition-all hover:scale-[1.02] ${getColorClass(event.color)}`}
+                    className={`px-1.5 py-0.5 rounded text-[9px] font-medium border transition-all hover:scale-[1.02] ${getColorClass(event.color)}`}
                   >
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 flex-shrink-0" />
-                      <span className="font-mono text-[10px]">{timeStr}</span>
+                    <div className="flex items-center gap-0.5">
+                      <Clock className="w-2.5 h-2.5 flex-shrink-0" />
+                      <span className="font-mono text-[8px]">{timeStr}</span>
                     </div>
-                    <div className="truncate mt-0.5">{event.title}</div>
+                    <div className="truncate text-[9px]">{event.title}</div>
                   </div>
                 );
               })}
 
-              {dayEvents.length > 3 && (
-                <div className="text-[10px] text-slate-400 text-center py-1">
-                  +{dayEvents.length - 3} mais
+              {dayEvents.length > 2 && (
+                <div className="text-[8px] text-slate-400 text-center py-0.5">
+                  +{dayEvents.length - 2} mais
                 </div>
               )}
             </div>
@@ -486,7 +506,7 @@ export function PremiumCalendar({ initialEvents, monthKey }: PremiumCalendarProp
                 <ChevronLeft className="w-5 h-5" />
               </button>
 
-              <h3 className="text-xl font-bold text-white min-w-[180px] text-center">
+              <h3 className="text-2xl font-bold text-white min-w-[220px] text-center">
                 {MONTHS[month - 1]} {year}
               </h3>
 
@@ -690,8 +710,8 @@ export function PremiumCalendar({ initialEvents, monthKey }: PremiumCalendarProp
                       key={c.value}
                       onClick={() => setColor(c.value)}
                       className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${color === c.value
-                          ? `${c.border} ${c.bg}/20 ring-2 ${c.ring}`
-                          : 'border-slate-700/50 hover:border-slate-600'
+                        ? `${c.border} ${c.bg}/20 ring-2 ${c.ring}`
+                        : 'border-slate-700/50 hover:border-slate-600'
                         }`}
                     >
                       <div className={`w-6 h-6 rounded-full ${c.bg}`} />
@@ -746,6 +766,103 @@ export function PremiumCalendar({ initialEvents, monthKey }: PremiumCalendarProp
                   {loading ? 'Salvando...' : editingEvent ? 'Salvar Alterações' : 'Criar Evento'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de visualização de eventos do dia */}
+      {showDayEventsModal && selectedDayDate && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto">
+            {/* Cabeçalho */}
+            <div className="sticky top-0 bg-slate-900 border-b border-slate-700/50 p-6 flex items-center justify-between">
+              <div>
+                <h3 className="text-2xl font-bold text-white">
+                  {selectedDayDate.toLocaleDateString('pt-BR', {
+                    weekday: 'long',
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                  })}
+                </h3>
+                <p className="text-sm text-slate-400 mt-1">
+                  {getEventsForDate(selectedDayDate).length} evento(s)
+                </p>
+              </div>
+              <button
+                onClick={() => setShowDayEventsModal(false)}
+                className="p-2 hover:bg-slate-800 rounded-lg transition-all text-slate-400 hover:text-white"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Lista de eventos */}
+            <div className="p-6 space-y-3">
+              {getEventsForDate(selectedDayDate).length > 0 ? (
+                getEventsForDate(selectedDayDate).map((event) => {
+                  const eventTime = new Date(event.date);
+                  const timeStr = `${eventTime.getHours().toString().padStart(2, '0')}:${eventTime.getMinutes().toString().padStart(2, '0')}`;
+
+                  return (
+                    <div
+                      key={event.id}
+                      className={`p-4 rounded-xl border-2 transition-all hover:scale-[1.02] cursor-pointer ${getColorClass(event.color || 'blue')}`}
+                      onClick={() => {
+                        setShowDayEventsModal(false);
+                        openEditModal(event);
+                      }}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Clock className="w-4 h-4" />
+                            <span className="font-mono text-sm font-semibold">{timeStr}</span>
+                          </div>
+                          <h4 className="font-bold text-lg mb-1">{event.title}</h4>
+                          {event.description && (
+                            <p className="text-sm opacity-90 mt-2">{event.description}</p>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteEvent(event.id);
+                            if (getEventsForDate(selectedDayDate).length === 1) {
+                              setShowDayEventsModal(false);
+                            }
+                          }}
+                          className="p-2 hover:bg-black/20 rounded-lg transition-all"
+                          disabled={loading}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="text-center py-12">
+                  <CalendarIcon className="w-12 h-12 mx-auto text-slate-600 mb-3" />
+                  <p className="text-slate-400">Nenhum evento neste dia</p>
+                </div>
+              )}
+            </div>
+
+            {/* Rodapé com botão de criar */}
+            <div className="sticky bottom-0 bg-slate-900 border-t border-slate-700/50 p-6">
+              <button
+                onClick={() => {
+                  setShowDayEventsModal(false);
+                  openCreateModal(selectedDayDate);
+                }}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl transition-all font-semibold"
+              >
+                <Plus className="w-5 h-5" />
+                Criar Evento Neste Dia
+              </button>
             </div>
           </div>
         </div>

@@ -2,7 +2,8 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { FunctionalNotes } from "@/app/(dashboard)/components/FunctionalNotes";
+import { LuxeCalendar } from "@/app/(dashboard)/components/LuxeCalendar";
+import { LuxeNotes } from "@/app/(dashboard)/components/LuxeNotes";
 import { useActivityFeed } from '@/hooks/useActivityFeed';
 import { useDashboardKPIs } from '@/hooks/useDashboardKPIs';
 import { useFinanceChart } from '@/hooks/useFinanceChart';
@@ -34,7 +35,6 @@ import {
   YAxis
 } from "recharts";
 import styles from './dashboard-new.module.css';
-import { PremiumCalendar } from "@/app/(dashboard)/components/PremiumCalendar";
 
 type Props = {
   initialData: DashboardData;
@@ -144,9 +144,12 @@ function ClientHealthCard({ health }: { health: Record<string, any> }) {
           <span className="text-sm font-bold text-white">{health.completionRate}%</span>
         </div>
       </div>
-      <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+      <div className="w-full h-2 bg-slate-800/80 rounded-full overflow-hidden">
         <div
-          className={`h-full bg-gradient-to-r ${healthColor.bg.replace("from-", "").replace("/20", "")}`}
+          className={`h-full transition-all duration-300 ${health.completionRate >= 80 ? 'bg-emerald-500' :
+            health.completionRate >= 60 ? 'bg-yellow-500' :
+              health.completionRate >= 40 ? 'bg-orange-500' : 'bg-red-500'
+            }`}
           style={{ width: `${health.completionRate}%` }}
         />
       </div>
@@ -168,14 +171,14 @@ function ClientHealthCard({ health }: { health: Record<string, any> }) {
           <p>Concluídas</p>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2 mt-3 text-[11px]">
+      <div className="grid grid-cols-2 gap-2 mt-3">
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2">
-          <p className="text-xs text-slate-400">Satisfação</p>
-          <p className="text-white font-semibold">{health.satisfaction ?? 0}%</p>
+          <p className="text-[10px] text-slate-400 mb-1">Satisfação</p>
+          <p className="text-white font-semibold text-sm">{health.satisfaction ?? 0}%</p>
         </div>
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2">
-          <p className="text-xs text-slate-400">Receita (M)</p>
-          <p className="text-white font-semibold">{health.monthlyRevenue ?? 0}</p>
+          <p className="text-[10px] text-slate-400 mb-1">Receita (M)</p>
+          <p className="text-white font-semibold text-sm">R$ {health.monthlyRevenue ?? 0}</p>
         </div>
       </div>
     </div>
@@ -384,10 +387,23 @@ export function DashboardV2ClientNew({ initialData, initialMonthKey }: Props) {
                 <AreaChart data={financePoints.map(p => ({ month: p.month.substring(0, 3), receitas: p.revenue, despesas: p.expenses }))} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.2} />
                   <XAxis dataKey="month" stroke="#94a3b8" style={{ fontSize: "12px" }} />
-                  <YAxis stroke="#94a3b8" style={{ fontSize: "12px" }} />
-                  <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #ec4899", borderRadius: "8px" }} />
-                  <Area type="monotone" dataKey="receitas" fill="#10b981" stroke="#10b981" fillOpacity={0.3} />
-                  <Area type="monotone" dataKey="despesas" fill="#ef4444" stroke="#ef4444" fillOpacity={0.3} />
+                  <YAxis
+                    stroke="#94a3b8"
+                    style={{ fontSize: "12px" }}
+                    tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: "#0f172a",
+                      border: "1px solid #ec4899",
+                      borderRadius: "8px",
+                      padding: "12px"
+                    }}
+                    labelStyle={{ color: "#f1f5f9", fontWeight: "bold", marginBottom: "8px" }}
+                    formatter={(value: number) => [`R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, '']}
+                  />
+                  <Area type="monotone" dataKey="receitas" name="Receitas" fill="#10b981" stroke="#10b981" fillOpacity={0.3} strokeWidth={2} />
+                  <Area type="monotone" dataKey="despesas" name="Despesas" fill="#ef4444" stroke="#ef4444" fillOpacity={0.3} strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -446,18 +462,18 @@ export function DashboardV2ClientNew({ initialData, initialMonthKey }: Props) {
         </div>
 
         {/* SEÇÃO FUNCIONAL - CALENDÁRIO E NOTAS */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
           {/* Calendário Premium */}
-          <div className="lg:col-span-2 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-2xl p-6 backdrop-blur-lg">
-            <PremiumCalendar
+          <div className="lg:col-span-3">
+            <LuxeCalendar
               initialEvents={(initialData.events as any) || []}
               monthKey={initialMonthKey}
             />
           </div>
 
-          {/* Notas */}
-          <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-2xl p-8 backdrop-blur-lg">
-            <FunctionalNotes
+          {/* Notas Premium */}
+          <div className="lg:col-span-2">
+            <LuxeNotes
               initialNotes={(initialData.notes as any) || []}
             />
           </div>

@@ -27,14 +27,16 @@ const NOTE_COLORS = [
 export function FunctionalNotes({ initialNotes }: FunctionalNotesProps) {
   const [notes, setNotes] = useState<DashboardNote[]>(initialNotes);
   const [showModal, setShowModal] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [color, setColor] = useState('yellow');
   const [loading, setLoading] = useState(false);
   const [draggedNote, setDraggedNote] = useState<string | null>(null);
 
-  // Handle creating note
-  const handleCreateNote = async (): Promise<void> => {
+  // Handle creating/updating note
+  const handleSaveNote = async (): Promise<void> => {
     if (!title.trim() && !content.trim()) {
       alert('Escreva algo na nota');
       return;
@@ -42,30 +44,53 @@ export function FunctionalNotes({ initialNotes }: FunctionalNotesProps) {
 
     setLoading(true);
     try {
-      const newNote = await createDashboardNote({
-        title: title.trim() || content.trim().slice(0, 60),
-        content: content.trim(),
-        color,
-      });
-      setNotes([...notes, newNote]);
+      if (editingId) {
+        // Update existing note
+        const updated = await updateDashboardNote(editingId, {
+          title: title.trim() || content.trim().slice(0, 60),
+          content: content.trim(),
+          color,
+        });
+        setNotes(notes.map(n => n.id === editingId ? updated : n));
+      } else {
+        // Create new note
+        const newNote = await createDashboardNote({
+          title: title.trim() || content.trim().slice(0, 60),
+          content: content.trim(),
+          color,
+        });
+        setNotes([...notes, newNote]);
+      }
+
       setTitle('');
       setContent('');
       setColor('yellow');
       setShowModal(false);
+      setEditingId(null);
     } catch (error) {
-      console.error('Erro ao criar nota:', error);
-      alert('Erro ao criar nota');
+      console.error('Erro ao salvar nota:', error);
+      alert('Erro ao salvar nota');
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle deleting note
+  // Handle opening note for editing
+  const handleEditNote = (note: DashboardNote) => {
+    setEditingId(note.id);
+    setTitle(note.title);
+    setContent(note.content);
+    setColor(note.color || 'yellow');
+    setShowModal(true);
+  };
+
+  // Handle deleting note with confirmation
   const handleDeleteNote = async (noteId: string) => {
     setLoading(true);
     try {
       await deleteDashboardNote(noteId);
       setNotes(notes.filter(n => n.id !== noteId));
+      setDeleteConfirmId(null);
     } catch (error) {
       console.error('Erro ao deletar nota:', error);
       alert('Erro ao deletar nota');
@@ -141,23 +166,33 @@ export function FunctionalNotes({ initialNotes }: FunctionalNotesProps) {
                 onDragStart={() => handleDragStart(note.id)}
                 onDragOver={handleDragOver}
                 onDrop={() => handleDrop(note.id)}
-                className={`bg-gradient-to-br ${colorClass.bg} border-2 ${colorClass.border} rounded-xl p-4 cursor-move group hover:scale-105 transition-transform`}
+                className={`bg-gradient-to-br ${colorClass.bg} border-2 ${colorClass.border} rounded-xl p-4 cursor-move group transition-all hover:shadow-lg hover:shadow-slate-900`}
               >
                 {/* Drag Handle */}
                 <div className="flex items-start justify-between mb-3">
                   <GripVertical className="w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <button
-                    onClick={() => handleDeleteNote(note.id)}
-                    className="p-1 hover:bg-black/20 rounded transition-all opacity-0 group-hover:opacity-100"
-                    disabled={loading}
-                    title="Deletar nota"
-                  >
-                    <Trash2 className="w-4 h-4 text-slate-400" />
-                  </button>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handleEditNote(note)}
+                      className="p-1 hover:bg-black/20 rounded transition-all opacity-0 group-hover:opacity-100"
+                      disabled={loading}
+                      title="Editar nota"
+                    >
+                      <Plus className="w-4 h-4 text-slate-400" />
+                    </button>
+                    <button
+                      onClick={() => setDeleteConfirmId(note.id)}
+                      className="p-1 hover:bg-black/20 rounded transition-all opacity-0 group-hover:opacity-100"
+                      disabled={loading}
+                      title="Deletar nota"
+                    >
+                      <Trash2 className="w-4 h-4 text-slate-400" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Title */}
-                <h3 className="font-bold text-white text-sm mb-2 line-clamp-2">
+                <h3 className={`font-bold text-sm mb-2 line-clamp-2 ${colorClass.text}`}>
                   {note.title}
                 </h3>
 
@@ -188,10 +223,13 @@ export function FunctionalNotes({ initialNotes }: FunctionalNotesProps) {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-white">Nova Nota</h3>
+              <h3 className="text-lg font-bold text-white">
+                {editingId ? 'Editar Nota' : 'Nova Nota'}
+              </h3>
               <button
                 onClick={() => {
                   setShowModal(false);
+                  setEditingId(null);
                   setTitle('');
                   setContent('');
                   setColor('yellow');
@@ -215,6 +253,7 @@ export function FunctionalNotes({ initialNotes }: FunctionalNotesProps) {
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Ex: Revisão do projeto"
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white placeholder-slate-500 focus:border-pink-500 focus:outline-none"
+                  autoFocus
                 />
               </div>
 
@@ -255,6 +294,7 @@ export function FunctionalNotes({ initialNotes }: FunctionalNotesProps) {
                 <button
                   onClick={() => {
                     setShowModal(false);
+                    setEditingId(null);
                     setTitle('');
                     setContent('');
                     setColor('yellow');
@@ -264,13 +304,41 @@ export function FunctionalNotes({ initialNotes }: FunctionalNotesProps) {
                   Cancelar
                 </button>
                 <button
-                  onClick={handleCreateNote}
+                  onClick={handleSaveNote}
                   disabled={loading}
                   className="flex-1 px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg transition-all disabled:opacity-50"
                 >
-                  {loading ? 'Criando...' : 'Criar Nota'}
+                  {loading ? (editingId ? 'Atualizando...' : 'Criando...') : (editingId ? 'Atualizar' : 'Criar Nota')}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-sm">
+            <h3 className="text-lg font-bold text-white mb-4">Deletar Nota?</h3>
+            <p className="text-slate-400 text-sm mb-6">
+              Tem certeza que deseja deletar esta nota? Esta ação não pode ser desfeita.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteConfirmId(null)}
+                className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-all"
+                disabled={loading}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => deleteConfirmId && handleDeleteNote(deleteConfirmId)}
+                disabled={loading}
+                className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all disabled:opacity-50 font-semibold"
+              >
+                {loading ? 'Deletando...' : 'Deletar'}
+              </button>
             </div>
           </div>
         </div>

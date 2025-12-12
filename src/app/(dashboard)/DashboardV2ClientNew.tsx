@@ -86,7 +86,7 @@ function KPICard({
   };
 
   return (
-    <div className={`bg-gradient-to-br ${colorMap[color]} border rounded-2xl p-6 backdrop-blur-lg group hover:scale-105 transition-transform duration-300`}>
+    <div className={`bg-gradient-to-br ${colorMap[color]} border rounded-2xl p-6 backdrop-blur-lg`}>
       <div className="flex items-start justify-between mb-4">
         <div className={`${iconColorMap[color]} p-3 rounded-xl`}>{Icon}</div>
         {trend && (

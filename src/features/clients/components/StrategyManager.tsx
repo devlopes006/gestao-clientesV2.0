@@ -238,22 +238,17 @@ export function StrategyManager({
 
   return (
     <>
-      <div className="page-background">
-        <div className="max-w-[1600px] mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 space-y-3 sm:space-y-4 lg:space-y-6">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="max-w-[1600px] mx-auto space-y-4 sm:space-y-6">
           {/* Header */}
-          <header className="space-y-1 sm:space-y-2">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="p-1.5 sm:p-2 bg-linear-to-br from-blue-500 to-purple-500 rounded-lg sm:rounded-xl shadow-lg">
-                <Target className="h-5 sm:h-6 w-5 sm:w-6 text-white" />
-              </div>
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-                Estratégia
-              </h1>
-            </div>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-medium pl-10 sm:pl-12">
+          <div className="space-y-2">
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 text-transparent bg-clip-text">
+              Estratégia
+            </h1>
+            <p className="text-sm text-slate-400">
               Planejamento e objetivos
             </p>
-          </header>
+          </div>
 
           <div className="grid gap-3 sm:gap-4 lg:gap-6 md:grid-cols-2">
             {([
@@ -266,12 +261,12 @@ export function StrategyManager({
               return (
                 <div
                   key={type}
-                  className="relative group rounded-2xl shadow-lg border-2 border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm p-0 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl"
+                  className="relative group rounded-2xl shadow-lg border border-slate-700/50 bg-slate-900 p-0 overflow-hidden transition-all hover:shadow-xl"
                 >
                   <div className="absolute top-0 right-0 m-5">
                     <Button
-                      size="lg"
-                      className="gap-2 bg-linear-to-r from-blue-600 to-purple-600 text-white shadow-lg hover:scale-105 transition-transform font-semibold"
+                      size="sm"
+                      className="gap-2 bg-blue-600 hover:bg-blue-500 text-white shadow-lg transition-transform"
                       onClick={() => {
                         resetForm(type);
                         setIsModalOpen(true);
@@ -284,11 +279,11 @@ export function StrategyManager({
                   </div>
                   <div className="flex flex-col items-center justify-center pt-12 pb-6 px-6">
                     <div className="mb-5">
-                      <span className="inline-flex items-center justify-center rounded-full bg-linear-to-r from-blue-500 to-purple-500 p-3.5 shadow-lg text-white">
+                      <span className="inline-flex items-center justify-center rounded-full bg-blue-500/20 p-3.5 text-blue-400">
                         {getIconForType(type) && <span className="[&>svg]:h-6 [&>svg]:w-6">{getIconForType(type)}</span>}
                       </span>
                     </div>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
+                    <h3 className="text-xl font-bold text-white mb-4">
                       {getTitleForType(type)}
                     </h3>
                     <div className="w-full">
@@ -305,38 +300,38 @@ export function StrategyManager({
                           {typeStrategies.map((strategy) => (
                             <div
                               key={strategy.id}
-                              className="p-5 rounded-xl bg-white dark:bg-slate-800 shadow-sm border-2 border-slate-200 dark:border-slate-700 hover:shadow-lg hover:border-blue-300 transition-all"
+                              className="p-5 rounded-xl bg-slate-800 shadow-sm border border-slate-700/50 hover:shadow-lg hover:border-blue-500/50 transition-all"
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <div className="flex-1 min-w-0">
-                                  <h4 className="font-bold text-base text-slate-900 dark:text-white truncate">
+                                  <h4 className="font-bold text-base text-white truncate">
                                     {strategy.title}
                                   </h4>
                                   {strategy.description && (
-                                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-1.5 font-medium">
+                                    <p className="text-sm text-slate-400 mt-1.5">
                                       {strategy.description}
                                     </p>
                                   )}
-                                  <p className="text-sm text-slate-500 dark:text-slate-300 mt-2.5 line-clamp-2">
+                                  <p className="text-sm text-slate-300 mt-2.5 line-clamp-2">
                                     {strategy.content}
                                   </p>
                                 </div>
                                 <div className="flex gap-1.5">
                                   <Button
-                                    size="lg"
+                                    size="sm"
                                     variant="ghost"
-                                    className="h-9 w-9 p-0 hover:bg-blue-100 hover:scale-110 transition-transform"
+                                    className="h-8 w-8 p-0 hover:bg-slate-700 text-blue-400 hover:text-blue-300 transition-transform"
                                     onClick={() => handleEdit(strategy)}
                                   >
-                                    <Edit className="h-4 w-4 text-blue-600" />
+                                    <Edit className="h-4 w-4" />
                                   </Button>
                                   <Button
-                                    size="lg"
-                                    className="h-9 w-9 p-0 hover:bg-red-100 hover:scale-110 transition-transform"
+                                    size="sm"
+                                    className="h-8 w-8 p-0 hover:bg-slate-700 text-red-400 hover:text-red-300 transition-transform"
                                     variant="ghost"
                                     onClick={() => handleDelete(strategy.id)}
                                   >
-                                    <Trash2 className="h-4 w-4 text-red-600" />
+                                    <Trash2 className="h-4 w-4" />
                                   </Button>
                                 </div>
                               </div>
@@ -351,145 +346,143 @@ export function StrategyManager({
             })}
           </div>
         </div>
-      </div>
 
-      {/* Toast feedback */}
-      {showToast && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 bg-linear-to-r from-blue-600 to-purple-600 text-white rounded-xl shadow-xl font-semibold animate-fade-in">
-          {showToast}
-        </div>
-      )}
+        {/* Toast feedback */}
+        {showToast && (
+          <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 bg-blue-600 text-white rounded-xl shadow-xl font-semibold animate-fade-in">
+            {showToast}
+          </div>
+        )}
 
-      {isModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          onClick={() => setIsModalOpen(false)}
-        >
+        {isModalOpen && (
           <div
-            className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border-2 border-slate-200 dark:border-slate-700 w-full max-w-2xl max-h-[90vh] overflow-auto m-4 animate-fade-in"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+            onClick={() => setIsModalOpen(false)}
           >
-            <div className="p-0">
-              {/* Header with gradient */}
-              <div className="flex items-center justify-between p-6 border-b-2 border-slate-200 dark:border-slate-700 bg-linear-to-r from-blue-500 to-purple-500">
-                <div>
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <Target className="h-6 w-6" />
-                    {editingStrategy
-                      ? "Editar Estratégia"
-                      : modalType
-                        ? `Nova ${getTitleForType(modalType)}`
-                        : "Nova Estratégia"}
-                  </h2>
-                  <p className="text-sm text-white/90 mt-1.5 font-medium">
-                    Adicione objetivos, planos de ação, definição de público-alvo ou KPIs
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  className="text-white hover:bg-white/20 h-10 w-10 p-0 rounded-full"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-5 p-6">
-                <div className="space-y-2">
-                  <Label htmlFor="type" className="font-semibold text-slate-900 dark:text-white">Tipo</Label>
-                  <Select
-                    value={formData.type}
-                    onValueChange={(value) =>
-                      setFormData({
-                        ...formData,
-                        type: value as Strategy["type"],
-                      })
-                    }
-                    disabled={!!modalType}
-                  >
-                    <SelectTrigger className="border-2 h-11">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="objective">Objetivo</SelectItem>
-                      <SelectItem value="action-plan">Plano de Ação</SelectItem>
-                      <SelectItem value="target-audience">Público-Alvo</SelectItem>
-                      <SelectItem value="kpi">KPI</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="title" className="font-semibold text-slate-900 dark:text-white">Título</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) =>
-                      setFormData({ ...formData, title: e.target.value })
-                    }
-                    required
-                    placeholder={typeHelp[formData.type].title}
-                    className="border-2 h-11"
-                  />
-                  <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mt-1.5">{typeHelp[formData.type].description}</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description" className="font-semibold text-slate-900 dark:text-white">Descrição (opcional)</Label>
-                  <Input
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        description: e.target.value,
-                      })
-                    }
-                    placeholder="Breve descrição complementar"
-                    className="border-2 h-11"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="content" className="font-semibold text-slate-900 dark:text-white">Conteúdo Detalhado</Label>
-                  <Textarea
-                    id="content"
-                    value={formData.content}
-                    onChange={(e) =>
-                      setFormData({ ...formData, content: e.target.value })
-                    }
-                    required
-                    rows={6}
-                    placeholder={typeHelp[formData.type].content}
-                    className="border-2 resize-none"
-                  />
-                  <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mt-1.5">{typeHelp[formData.type].content}</p>
-                </div>
-
-                <div className="flex justify-end gap-3 pt-6 border-t-2 border-slate-200 dark:border-slate-700">
+            <div
+              className="bg-slate-900 rounded-2xl shadow-2xl border border-slate-700/50 w-full max-w-2xl max-h-[90vh] overflow-auto m-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-0">
+                {/* Header with gradient */}
+                <div className="flex items-center justify-between p-6 border-b border-slate-700/50 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20">
+                  <div>
+                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                      <Target className="h-5 w-5" />
+                      {editingStrategy
+                        ? "Editar Estratégia"
+                        : modalType
+                          ? `Nova ${getTitleForType(modalType)}`
+                          : "Nova Estratégia"}
+                    </h2>
+                    <p className="text-sm text-slate-300 mt-1">
+                      Adicione objetivos, planos de ação, definição de público-alvo ou KPIs
+                    </p>
+                  </div>
                   <Button
-                    type="button"
-                    variant="outline"
-                    size="lg"
-                    className="border-2 font-semibold"
+                    variant="ghost"
+                    size="sm"
+                    className="text-white hover:bg-slate-700 h-8 w-8 p-0"
                     onClick={() => setIsModalOpen(false)}
                   >
-                    Cancelar
-                  </Button>
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 font-semibold"
-                  >
-                    {editingStrategy ? "Atualizar" : "Criar"}
+                    <X className="h-4 w-4" />
                   </Button>
                 </div>
-              </form>
+
+                <form onSubmit={handleSubmit} className="space-y-5 p-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="type" className="text-white">Tipo</Label>
+                    <Select
+                      value={formData.type}
+                      onValueChange={(value) =>
+                        setFormData({
+                          ...formData,
+                          type: value as Strategy["type"],
+                        })
+                      }
+                      disabled={!!modalType}
+                    >
+                      <SelectTrigger className="bg-slate-800 border border-slate-700 text-white h-11">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="objective">Objetivo</SelectItem>
+                        <SelectItem value="action-plan">Plano de Ação</SelectItem>
+                        <SelectItem value="target-audience">Público-Alvo</SelectItem>
+                        <SelectItem value="kpi">KPI</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="title" className="text-white">Título</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) =>
+                        setFormData({ ...formData, title: e.target.value })
+                      }
+                      required
+                      placeholder={typeHelp[formData.type].title}
+                      className="bg-slate-800 border border-slate-700 text-white placeholder:text-slate-400 h-11"
+                    />
+                    <p className="text-xs text-slate-400 mt-1">{typeHelp[formData.type].description}</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description" className="text-white">Descrição (opcional)</Label>
+                    <Input
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          description: e.target.value,
+                        })
+                      }
+                      placeholder="Breve descrição complementar"
+                      className="bg-slate-800 border border-slate-700 text-white placeholder:text-slate-400 h-11"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="content" className="text-white">Conteúdo Detalhado</Label>
+                    <Textarea
+                      id="content"
+                      value={formData.content}
+                      onChange={(e) =>
+                        setFormData({ ...formData, content: e.target.value })
+                      }
+                      required
+                      rows={6}
+                      placeholder={typeHelp[formData.type].content}
+                      className="bg-slate-800 border border-slate-700 text-white placeholder:text-slate-400 resize-none"
+                    />
+                    <p className="text-xs text-slate-400 mt-1">{typeHelp[formData.type].content}</p>
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-6 border-t border-slate-700/50">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="bg-slate-800 border-slate-700 text-white hover:bg-slate-700"
+                      onClick={() => setIsModalOpen(false)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="bg-blue-600 hover:bg-blue-500 text-white"
+                    >
+                      {editingStrategy ? "Atualizar" : "Criar"}
+                    </Button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 }

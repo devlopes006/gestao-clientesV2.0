@@ -114,14 +114,16 @@ export function NotificationCenter({
   // Deduplicate notifications by id to prevent React key collisions
   const uniqueNotifications: NotificationItem[] = useMemo(() => {
     const seen = new Set<string>();
-    const deduped = notifications.filter(n => {
+    const deduped = notifications.filter((n) => {
       if (seen.has(n.id)) return false;
       seen.add(n.id);
       return true;
     });
     if (deduped.length !== notifications.length) {
-      // Log collision info (can be replaced with proper logger later)
-      console.warn('[NotificationCenter] Duplicate notification IDs filtered:', notifications.length - deduped.length);
+      console.warn(
+        "[NotificationCenter] Duplicate notification IDs filtered:",
+        notifications.length - deduped.length
+      );
     }
     return deduped;
   }, [notifications]);
@@ -206,14 +208,14 @@ export function NotificationCenter({
             className="fixed inset-0 z-40 cursor-default bg-transparent"
             tabIndex={-1}
             onClick={() => setIsOpen(false)}
-          />
+          ></button>
 
           {/* Painel de notificações */}
           <Card
             role="dialog"
             aria-modal="true"
             aria-label="Notificações"
-            className="absolute right-0 top-12 w-96 max-h-[600px] z-50 shadow-2xl border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col"
+            className="absolute right-0 bottom-12 w-96 max-h-[600px] z-50 shadow-2xl border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col"
           >
             {/* Header */}
             <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
@@ -373,5 +375,5 @@ export function NotificationCenter({
         </>
       )}
     </div>
-  );
+  )
 }

@@ -101,134 +101,88 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
 
   return (
     <ProtectedRoute>
-      <div className="space-y-1 sm:space-y-2 lg:space-y-3">
-        {/* Header do Dashboard
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-            <h1 className="text-3xl font-bold bg-linear-to-r from-slate-900 via-blue-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent mb-2">
-                {client.name}
-              </h1> 
-          <div className="flex flex-wrap items-center gap-2">
-            {/* <Badge
-                  variant={client.status === "active" ? "default" : "secondary"}
-                  className="capitalize"
-                >
-                  {client.status}
-                </Badge> */}
-        {/* {client.plan && (
-                  <Badge variant="outline" className="capitalize">
-                    {client.plan}
-                  </Badge>
-                )} */}
-        {/* {daysActive > 0 && (
-                  // <span className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                  //   <Clock className="h-3 w-3" />
-                  //   Cliente há {daysActive} dias
-                  // </span>
-                )} 
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {canCreateTask && (
-                <Link
-                  href={`/clients/${client.id}/tasks`}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white transition-all hover:shadow-lg hover:scale-105"
-                >
-                  <FolderKanban className="h-4 w-4" /> Nova Tarefa
-                </Link>
-              )}
-              {canManageFinance && (
-                <Link
-                  href={`/clients/${client.id}/billing`}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-linear-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white transition-all hover:shadow-lg hover:scale-105"
-                >
-                  <DollarSign className="h-4 w-4" /> Cobrança
-                </Link>
-              )}
-            </div>
-          </div> /*/}
-
+      <div className="min-h-screen bg-gradient-to-br from-slate-900/95 via-slate-950/98 to-slate-900/95 space-y-1 sm:space-y-2 lg:space-y-3 p-4">
         {/* Grid Principal */}
         <div className="space-y-1.5 sm:space-y-2 lg:space-y-3">
           {/* KPIs Principais */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1 sm:gap-2 lg:gap-3">
             {/* Taxa de Conclusão */}
-            <Card className="group relative overflow-hidden border border-emerald-200/70 dark:border-emerald-800/70 bg-gradient-to-br from-emerald-50/80 to-green-50/70 dark:from-emerald-950/40 dark:to-green-950/30 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-sm sm:shadow-md lg:shadow-lg shadow-emerald-200/50 dark:shadow-black/20 hover:shadow-md sm:hover:shadow-lg lg:hover:shadow-xl hover:shadow-emerald-500/20 transition-all duration-300 backdrop-blur-sm cursor-default min-w-0">
+            <Card className="group relative overflow-hidden border border-green-700/50 dark:border-green-700/50 bg-gradient-to-br from-green-950/40 to-green-950/30 dark:from-green-950/40 dark:to-green-950/30 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-lg shadow-green-900/20 hover:shadow-xl hover:shadow-green-500/20 transition-all duration-300 backdrop-blur-sm cursor-default min-w-0">
               <CardContent className="p-2 sm:p-3 lg:p-4">
                 <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5 lg:mb-2 min-w-0">
-                  <div className="p-1 sm:p-1.5 lg:p-2 bg-emerald-100/80 dark:bg-emerald-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
-                    <CheckCircle2 className="h-4 w-4 sm:h-5 lg:h-6 text-emerald-600 dark:text-emerald-300" />
+                  <div className="p-1 sm:p-1.5 lg:p-2 bg-green-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
+                    <CheckCircle2 className="h-4 w-4 sm:h-5 lg:h-6 text-green-400" />
                   </div>
-                  <div className="text-base sm:text-2xl lg:text-3xl font-bold text-emerald-700 dark:text-emerald-200 truncate">{taskStats.completionRate}%</div>
+                  <div className="text-base sm:text-2xl lg:text-3xl font-bold text-green-300 truncate">{taskStats.completionRate}%</div>
                 </div>
-                <h3 className="text-xs sm:text-sm font-semibold text-emerald-700 dark:text-emerald-300 leading-tight truncate">Taxa de Conclusão</h3>
+                <h3 className="text-xs sm:text-sm font-semibold text-green-200 leading-tight truncate">Taxa de Conclusão</h3>
               </CardContent>
             </Card>
 
             {/* Tarefas Ativas */}
-            <Card className="group relative overflow-hidden border border-blue-200/70 dark:border-blue-800/70 bg-gradient-to-br from-blue-50/80 to-indigo-50/70 dark:from-blue-950/40 dark:to-indigo-950/30 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-sm sm:shadow-md lg:shadow-lg shadow-blue-200/50 dark:shadow-black/20 hover:shadow-md sm:hover:shadow-lg lg:hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 backdrop-blur-sm cursor-default min-w-0">
+            <Card className="group relative overflow-hidden border border-blue-700/50 dark:border-blue-700/50 bg-gradient-to-br from-blue-950/40 to-blue-950/30 dark:from-blue-950/40 dark:to-blue-950/30 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-lg shadow-blue-900/20 hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 backdrop-blur-sm cursor-default min-w-0">
               <CardContent className="p-2 sm:p-3 lg:p-4">
                 <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5 lg:mb-2 min-w-0">
-                  <div className="p-1 sm:p-1.5 lg:p-2 bg-blue-100/80 dark:bg-blue-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
-                    <FolderKanban className="h-4 w-4 sm:h-5 lg:h-6 text-blue-600 dark:text-blue-300" />
+                  <div className="p-1 sm:p-1.5 lg:p-2 bg-blue-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
+                    <FolderKanban className="h-4 w-4 sm:h-5 lg:h-6 text-blue-400" />
                   </div>
-                  <div className="text-base sm:text-2xl lg:text-3xl font-bold text-blue-700 dark:text-blue-200 truncate">{taskStats.total - taskStats.completed}</div>
+                  <div className="text-base sm:text-2xl lg:text-3xl font-bold text-blue-300 truncate">{taskStats.total - taskStats.completed}</div>
                 </div>
-                <h3 className="text-xs sm:text-sm font-semibold text-blue-700 dark:text-blue-300 leading-tight truncate">Tarefas Ativas</h3>
+                <h3 className="text-xs sm:text-sm font-semibold text-blue-200 leading-tight truncate">Tarefas Ativas</h3>
               </CardContent>
             </Card>
 
             {/* Mídias */}
-            <Card className="group relative overflow-hidden border border-purple-200/70 dark:border-purple-800/70 bg-gradient-to-br from-purple-50/80 to-pink-50/70 dark:from-purple-950/40 dark:to-pink-950/30 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-sm sm:shadow-md lg:shadow-lg shadow-purple-200/50 dark:shadow-black/20 hover:shadow-md sm:hover:shadow-lg lg:hover:shadow-xl hover:shadow-purple-500/20 transition-all duration-300 backdrop-blur-sm cursor-default min-w-0">
+            <Card className="group relative overflow-hidden border border-purple-700/50 dark:border-purple-700/50 bg-gradient-to-br from-purple-950/40 to-purple-950/30 dark:from-purple-950/40 dark:to-purple-950/30 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-lg shadow-purple-900/20 hover:shadow-xl hover:shadow-purple-500/20 transition-all duration-300 backdrop-blur-sm cursor-default min-w-0">
               <CardContent className="p-2 sm:p-3 lg:p-4">
                 <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5 lg:mb-2 min-w-0">
-                  <div className="p-1 sm:p-1.5 lg:p-2 bg-purple-100/80 dark:bg-purple-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
-                    <ImageIcon className="h-4 w-4 sm:h-5 lg:h-6 text-purple-600 dark:text-purple-300" />
+                  <div className="p-1 sm:p-1.5 lg:p-2 bg-purple-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
+                    <ImageIcon className="h-4 w-4 sm:h-5 lg:h-6 text-purple-400" />
                   </div>
-                  <div className="text-base sm:text-2xl lg:text-3xl font-bold text-purple-700 dark:text-purple-200 truncate">{mediaStats.total}</div>
+                  <div className="text-base sm:text-2xl lg:text-3xl font-bold text-purple-300 truncate">{mediaStats.total}</div>
                 </div>
-                <h3 className="text-xs sm:text-sm font-semibold text-purple-700 dark:text-purple-300 leading-tight truncate">Total de Mídias</h3>
+                <h3 className="text-xs sm:text-sm font-semibold text-purple-200 leading-tight truncate">Total de Mídias</h3>
               </CardContent>
             </Card>
 
             {/* Reuniões */}
-            <Card className="group relative overflow-hidden border border-amber-200/70 dark:border-amber-800/70 bg-gradient-to-br from-amber-50/85 to-orange-50/75 dark:from-amber-950/40 dark:to-orange-950/30 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-sm sm:shadow-md lg:shadow-lg shadow-amber-200/50 dark:shadow-black/20 hover:shadow-md sm:hover:shadow-lg lg:hover:shadow-xl hover:shadow-amber-500/20 transition-all duration-300 backdrop-blur-sm cursor-default min-w-0">
+            <Card className="group relative overflow-hidden border border-amber-700/50 dark:border-amber-700/50 bg-gradient-to-br from-amber-950/40 to-amber-950/30 dark:from-amber-950/40 dark:to-amber-950/30 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-lg shadow-amber-900/20 hover:shadow-xl hover:shadow-amber-500/20 transition-all duration-300 backdrop-blur-sm cursor-default min-w-0">
               <CardContent className="p-2 sm:p-3 lg:p-4">
                 <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5 lg:mb-2 min-w-0">
-                  <div className="p-1 sm:p-1.5 lg:p-2 bg-amber-100/80 dark:bg-amber-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
-                    <Users className="h-4 w-4 sm:h-5 lg:h-6 text-amber-600 dark:text-amber-200" />
+                  <div className="p-1 sm:p-1.5 lg:p-2 bg-amber-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
+                    <Calendar className="h-4 w-4 sm:h-5 lg:h-6 text-amber-400" />
                   </div>
-                  <span className="text-sm sm:text-2xl lg:text-3xl font-bold text-amber-700 dark:text-amber-100 truncate">
+                  <span className="text-sm sm:text-2xl lg:text-3xl font-bold text-amber-300 truncate">
                     {meetingStats.upcoming}
                   </span>
                 </div>
-                <p className="text-[8px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 leading-tight truncate">Reuniões Agendadas</p>
+                <p className="text-[8px] sm:text-xs font-semibold text-amber-200 leading-tight truncate">Reuniões Agendadas</p>
               </CardContent>
             </Card>
           </div>
 
           {/* Informações do Cliente */}
-          <Card className="border border-slate-200/70 dark:border-slate-800/70 rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-md sm:shadow-lg lg:shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-lg sm:hover:shadow-xl lg:hover:shadow-2xl transition-all duration-300 backdrop-blur-sm">
+          <Card className="border border-slate-700/80 rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-lg shadow-blue-900/20 hover:shadow-xl transition-all duration-300 backdrop-blur-sm bg-gradient-to-br from-slate-900/50 via-slate-950/50 to-slate-900/50">
             <ClientInfoDisplay client={client} canEdit={canEditClient} />
           </Card>
 
           {/* Resumo Executivo */}
           {canManageFinance && (
-            <Card className="border border-slate-200/70 dark:border-slate-800/70 rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-md sm:shadow-lg lg:shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-lg sm:hover:shadow-xl lg:hover:shadow-2xl transition-all duration-300 backdrop-blur-sm">
+            <Card className="border border-slate-700/80 rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-lg shadow-blue-900/20 hover:shadow-xl transition-all duration-300 backdrop-blur-sm bg-gradient-to-br from-slate-900/50 via-slate-950/50 to-slate-900/50">
               <CardHeader className="pb-2 sm:pb-3">
                 <div className="flex items-center gap-1.5 sm:gap-2">
-                  <div className="p-1.5 sm:p-2 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-sm">
-                    <Zap className="h-4 w-4 sm:h-5 text-indigo-600 dark:text-indigo-400" />
+                  <div className="p-1.5 sm:p-2 bg-gradient-to-br from-indigo-950/50 to-purple-950/50 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-sm">
+                    <Zap className="h-4 w-4 sm:h-5 text-indigo-400" />
                   </div>
-                  <CardTitle className="text-sm sm:text-base font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  <CardTitle className="text-sm sm:text-base font-bold text-indigo-300">
                     Resumo Executivo
                   </CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="px-2 sm:px-3 lg:px-4 pb-2 sm:pb-3 lg:pb-4 space-y-2 sm:space-y-3 lg:space-y-4">
                 <div className="grid gap-2 sm:gap-3 lg:gap-4 grid-cols-1 lg:grid-cols-2">
-                  <div className="p-2 sm:p-3 lg:p-4 bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-900/50 rounded-lg sm:rounded-xl border border-slate-200 dark:border-slate-700">
-                    <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wider">
+                  <div className="p-2 sm:p-3 lg:p-4 bg-slate-800/50 rounded-lg sm:rounded-xl border border-slate-700/50">
+                    <p className="text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider">
                       Status do Projeto
                     </p>
                     <div className="flex items-center gap-2">
@@ -242,7 +196,7 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
                               : "bg-red-500"
                           }`}
                       />
-                      <span className="text-sm sm:text-base lg:text-lg font-bold text-slate-900 dark:text-white">
+                      <span className="text-sm sm:text-base lg:text-lg font-bold text-white">
                         {taskStats.completionRate >= 75
                           ? "Excelente"
                           : taskStats.completionRate >= 50
@@ -254,17 +208,17 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
                     </div>
                   </div>
 
-                  <div className="p-2 sm:p-3 lg:p-4 bg-linear-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 rounded-lg sm:rounded-xl border border-emerald-200 dark:border-emerald-800">
-                    <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2 uppercase tracking-wider">
+                  <div className="p-2 sm:p-3 lg:p-4 bg-green-950/40 rounded-lg sm:rounded-xl border border-green-700/50">
+                    <p className="text-xs font-medium text-slate-400 mb-2 uppercase tracking-wider">
                       Saúde Financeira
                     </p>
                     <div className="flex items-center gap-2">
                       {financeStats.balance >= 0 ? (
-                        <TrendingUp className="h-5 w-5 text-emerald-600" />
+                        <TrendingUp className="h-5 w-5 text-green-400" />
                       ) : (
-                        <TrendingDown className="h-5 w-5 text-red-600" />
+                        <TrendingDown className="h-5 w-5 text-red-400" />
                       )}
-                      <span className="text-sm sm:text-base lg:text-lg font-bold text-slate-900 dark:text-white">
+                      <span className="text-sm sm:text-base lg:text-lg font-bold text-white">
                         {financeStats.balance >=
                           (client.contract_value
                             ? Number(client.contract_value) * 0.5
@@ -278,14 +232,14 @@ export default async function ClientInfoPage({ params }: ClientInfoPageProps) {
                   </div>
                 </div>
 
-                <div className="p-2 sm:p-3 lg:p-4 bg-linear-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-purple-950/30 rounded-lg sm:rounded-xl border border-blue-200 dark:border-blue-800">
-                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                <div className="p-2 sm:p-3 lg:p-4 bg-blue-950/40 rounded-lg sm:rounded-xl border border-blue-700/50">
+                  <p className="text-sm text-slate-300 leading-relaxed">
                     Cliente ativo há{" "}
-                    <strong className="text-blue-600 dark:text-blue-400">
+                    <strong className="text-blue-300">
                       {daysActive} dias
                     </strong>{" "}
                     com taxa de conclusão de{" "}
-                    <strong className="text-emerald-600 dark:text-emerald-400">
+                    <strong className="text-green-300">
                       {taskStats.completionRate}%
                     </strong>
                     .

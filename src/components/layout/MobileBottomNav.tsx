@@ -1,11 +1,12 @@
 "use client";
 
+import { NotificationCenter } from "@/components/NotificationCenter";
 import { cn } from "@/lib/utils";
-import { Bell, DollarSign, Home, LayoutDashboard, Plus, Settings, Users } from "lucide-react";
+import { DollarSign, Home, LayoutDashboard, Plus, Settings, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type NavItem = {
   href: string;
@@ -52,8 +53,8 @@ export function MobileBottomNav() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [quickOpen, setQuickOpen] = useState(false);
+  const navRef = useRef<HTMLDivElement | null>(null);
   const [userProfile, setUserProfile] = useState<{ name?: string; avatarUrl?: string } | null>(null);
-  const [alertsCount, setAlertsCount] = useState<number>(0);
 
   // Fetch user role from sidebar-stats API (same as SidebarV3)
   useEffect(() => {
@@ -73,9 +74,20 @@ export function MobileBottomNav() {
       if (res.ok) {
         const data = await res.json();
         if (data?.role) setUserRole(data.role);
-        if (typeof data?.alertsCount === "number") setAlertsCount(data.alertsCount);
       }
     });
+  }, []);
+
+  // Fecha popovers ao clicar fora do dock
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+        setQuickOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Filtrar items baseado no role do usuário
@@ -103,17 +115,17 @@ export function MobileBottomNav() {
   return (
     <nav
       className={cn(
-        // Posicionamento fixo na parte inferior (mobile + desktop)
-        "fixed bottom-3 md:bottom-5 left-1/2 -translate-x-1/2 z-40",
-        // Estilo do container (glass)
-        "rounded-xl border border-slate-200 dark:border-slate-800",
-        "shadow-xl backdrop-blur-md bg-white/85 dark:bg-slate-950/80",
+        "fixed bottom-3 md:bottom-6 left-1/2 -translate-x-1/2 z-40",
+        "rounded-2xl border border-slate-800/70 ring-1 ring-blue-500/10",
+        "shadow-2xl shadow-blue-900/40 backdrop-blur-2xl",
+        "bg-gradient-to-r from-slate-900/85 via-slate-950/85 to-slate-900/75",
       )}
+      ref={navRef}
     >
       <div
         className={cn(
           "flex items-center gap-1.5 sm:gap-2 md:gap-3",
-          "px-2.5 py-1.5 md:px-3 md:py-2",
+          "px-3 py-2 md:px-4 md:py-2.5",
         )}
       >
         {/* Botão de ações rápidas */}
@@ -123,9 +135,10 @@ export function MobileBottomNav() {
           title="Ações rápidas"
           className={cn(
             "flex items-center justify-center",
-            "p-2 rounded-lg transition-all duration-200",
-            "text-slate-600 dark:text-slate-400",
-            "hover:bg-slate-100 dark:hover:bg-slate-800",
+            "p-2 rounded-xl transition-all duration-200",
+            "text-slate-200",
+            "hover:bg-blue-500/10 hover:text-white",
+            "border border-slate-800/60",
           )}
         >
           <span className="flex items-center justify-center">
@@ -143,18 +156,19 @@ export function MobileBottomNav() {
               className={cn(
                 // Layout
                 "flex items-center justify-center",
-                "p-2 sm:p-2.5 rounded-lg transition-all duration-200",
+                "p-2 sm:p-2.5 rounded-xl transition-all duration-200",
                 // Estados
                 isActive
                   ? cn(
-                    "bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30",
-                    "text-blue-700 dark:text-blue-200",
-                    "shadow-md",
+                    "bg-gradient-to-br from-blue-600/30 via-purple-500/25 to-cyan-500/20",
+                    "text-white",
+                    "shadow-[0_10px_30px_-12px_rgba(59,130,246,0.6)]",
                   )
                   : cn(
-                    "text-slate-600 dark:text-slate-400",
-                    "hover:bg-slate-100 dark:hover:bg-slate-800",
-                    "hover:text-slate-900 dark:hover:text-slate-200",
+                    "text-slate-300",
+                    "hover:bg-slate-800/70",
+                    "hover:text-white",
+                    "border border-transparent hover:border-slate-700/80",
                   ),
                 // Transição de cor
                 "hover:transition-colors",
@@ -166,8 +180,8 @@ export function MobileBottomNav() {
                 className={cn(
                   "flex items-center justify-center",
                   isActive
-                    ? "text-blue-600 dark:text-blue-300"
-                    : "text-slate-500 dark:text-slate-400",
+                    ? "text-white"
+                    : "text-slate-300",
                 )}
               >
                 {item.icon}
@@ -176,27 +190,10 @@ export function MobileBottomNav() {
           );
         })}
 
-        {/* Notificações (badge exemplo) */}
-        <Link
-          href="/notifications"
-          aria-label="Notificações"
-          title="Notificações"
-          className={cn(
-            "relative flex items-center justify-center",
-            "p-2 rounded-lg transition-all duration-200",
-            "text-slate-600 dark:text-slate-400",
-            "hover:bg-slate-100 dark:hover:bg-slate-800",
-          )}
-        >
-          <span className="flex items-center justify-center">
-            <Bell className="w-5 h-5" />
-          </span>
-          {alertsCount > 0 && (
-            <span className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full text-[10px] bg-red-500 text-white">
-              {alertsCount}
-            </span>
-          )}
-        </Link>
+        {/* Notificações com popover inline */}
+        <div className="relative">
+          <NotificationCenter variant="compact" />
+        </div>
 
         {/* Botão de perfil */}
         <button
@@ -205,10 +202,10 @@ export function MobileBottomNav() {
           title="Perfil do usuário"
           className={cn(
             "flex items-center justify-center",
-            "p-2 rounded-lg transition-all duration-200",
-            "text-slate-600 dark:text-slate-400",
-            "hover:bg-slate-100 dark:hover:bg-slate-800",
-            "hover:text-slate-900 dark:hover:text-slate-200",
+            "p-2 rounded-xl transition-all duration-200",
+            "text-slate-300",
+            "hover:bg-slate-800/70 hover:text-white",
+            "border border-transparent hover:border-slate-700/80",
           )}
         >
           <span className="flex items-center justify-center">
@@ -236,19 +233,19 @@ export function MobileBottomNav() {
           <div
             className={cn(
               "absolute bottom-16 right-4",
-              "bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800",
-              "rounded-lg shadow-xl p-2 w-44",
+              "bg-slate-950/95 border border-slate-800/80",
+              "rounded-xl shadow-2xl p-2 w-44 backdrop-blur-xl",
             )}
             aria-label="Menu do perfil"
           >
             <ul aria-label="Menu do perfil">
               <li>
-                <Link href="/profile" className="block px-3 py-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
+                <Link href="/profile" className="block px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800/70">
                   Editar perfil
                 </Link>
               </li>
               <li>
-                <Link href="/logout" className="block px-3 py-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
+                <Link href="/logout" className="block px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800/70">
                   Sair
                 </Link>
               </li>
@@ -260,19 +257,19 @@ export function MobileBottomNav() {
           <div
             className={cn(
               "absolute bottom-16 left-4",
-              "bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800",
-              "rounded-lg shadow-xl p-2 w-44",
+              "bg-slate-950/95 border border-slate-800/80",
+              "rounded-xl shadow-2xl p-2 w-44 backdrop-blur-xl",
             )}
             aria-label="Menu de ações rápidas"
           >
             <ul aria-label="Menu de ações rápidas">
               <li>
-                <Link href="/clients/new" className="block px-3 py-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
+                <Link href="/clients/new" className="block px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800/70">
                   Novo cliente
                 </Link>
               </li>
               <li>
-                <Link href="/tasks/new" className="block px-3 py-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
+                <Link href="/tasks/new" className="block px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800/70">
                   Nova tarefa
                 </Link>
               </li>

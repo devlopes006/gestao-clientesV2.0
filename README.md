@@ -71,9 +71,49 @@ src/
 - Corrigido nome do arquivo `tailwind.config.ts` (antes `taliwind.config.ts`).
 - Adicionado tema base de cores brand e limpeza do README.
 - Script robusto de `prisma-generate` pós instalação.
+- **[NEW]** Sistema de componentes reutilizáveis para páginas de cliente (8 componentes prontos para uso).
+
+## 🎨 Sistema de Componentes de Cliente
+
+Novo sistema de componentes para padronizar a interface das páginas de cliente com design moderno, responsivo e acessível.
+
+**Componentes Disponíveis:**
+
+- `ClientPageLayout` - Wrapper principal
+- `ClientCardHeader` - Cabeçalho com navegação
+- `ClientNavigationTabs` - Abas entre seções
+- `ClientKPICard` - Métrica com 9 cores
+- `ClientSectionCard` - Card genérico
+- `TaskItem` - Item de tarefa
+- `MeetingItem` - Item de reunião
+- `FinanceCard` - Card financeiro
+
+**Documentação:**
+
+- 📖 [Quick Start](./docs/QUICK_START_COMPONENTES.md)
+- 📋 [Guia Detalhado](./docs/COMPONENTES_CLIENTE.md)
+- 🗺️ [Visão Geral + Próximos Passos](./docs/SISTEMA_COMPONENTES_CLIENTE_SUMARIO.md)
+- ✅ [Checklist de Validação](./docs/CHECKLIST_COMPONENTES_CLIENTE.md)
+- 💡 [Exemplo Prático](<./src/app/(dashboard)/clients/example-refactored-detail.tsx>)
+
+**Quick Use:**
+
+```tsx
+import { ClientPageLayout, ClientKPICard } from '@/components/clients'
+
+export default function Page() {
+  return (
+    <ClientPageLayout>
+      <ClientKPICard icon={IconComponent} label='Métrica' value='100' />
+    </ClientPageLayout>
+  )
+}
+```
 
 ## 🧪 Próximos Passos Recomendados
 
+- [ ] Refatorar página `/clients/[id]/info` como piloto com novos componentes.
+- [ ] Expandir componentes para outras páginas de cliente (tasks, meetings, finance).
 - [ ] Implementar persistência principal em PostgreSQL usando Prisma (espelhar dados críticos de Firestore).
 - [ ] Adicionar rota API segura para ações server-side com verificação de permissões.
 - [ ] Criar hook `usePermissions(role)` para simplificar checks no frontend.

@@ -156,7 +156,7 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
       )}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-50 h-screen bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col transition-all duration-300",
+          "fixed left-0 top-0 z-50 h-screen bg-slate-950 border-r border-slate-800 shadow-2xl flex flex-col transition-all duration-300",
           "hidden lg:flex",
           collapsed ? "w-20 lg:w-20" : "w-72 lg:w-72",
           isOpen ? "translate-x-0" : "-translate-x-full",
@@ -167,7 +167,7 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
         {/* Header */}
         <div
           className={cn(
-            "border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl",
+            "border-b border-slate-800 bg-slate-950/90 backdrop-blur-xl",
             collapsed
               ? "px-2 pt-4 pb-4 flex flex-col items-center gap-3"
               : "flex items-center gap-2 px-2 sm:px-4 pt-4 sm:pt-5 pb-2 sm:pb-3",
@@ -204,7 +204,7 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-10 w-10 p-0 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  className="h-10 w-10 p-0 rounded-lg hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                   onClick={toggleCollapsed}
                   aria-label="Expandir sidebar"
                   title="Expandir (Ctrl+B)"
@@ -222,12 +222,12 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 w-8 p-0 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  className="h-8 w-8 p-0 rounded-lg hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                   onClick={toggleCollapsed}
                   aria-label="Colapsar sidebar"
                   title="Colapsar (Ctrl+B)"
                 >
-                  <ChevronLeft className="w-4 h-4 text-slate-600 dark:text-slate-200" />
+                  <ChevronLeft className="w-4 h-4 text-slate-200" />
                 </Button>
                 <span className="pointer-events-none absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded bg-slate-900/90 px-2 py-1 text-[10px] text-white opacity-0 group-hover:opacity-100 transition-opacity dark:bg-slate-700/90">
                   Colapsar
@@ -240,7 +240,7 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
         {/* Search */}
         <div
           className={cn(
-            "px-2 py-2 sm:px-4 sm:py-3 border-b border-slate-200 dark:border-slate-800",
+            "px-2 py-2 sm:px-4 sm:py-3 border-b border-slate-800",
             collapsed && "hidden",
           )}
         >
@@ -251,7 +251,7 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
               placeholder="Buscar..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm rounded-lg bg-slate-100 dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-slate-200 placeholder:text-slate-400"
+              className="w-full pl-9 pr-3 py-2 text-sm rounded-lg bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-200 placeholder:text-slate-400"
             />
           </div>
         </div>
@@ -281,8 +281,8 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
                       className={cn(
                         "group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                         active
-                          ? "bg-blue-50 dark:bg-blue-800/40 text-blue-700 dark:text-blue-200 shadow-inner"
-                          : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800",
+                          ? "bg-blue-900/40 text-blue-200 shadow-inner"
+                          : "text-slate-200 hover:bg-slate-800",
                       )}
                     >
                       <span className="w-5 h-5 flex items-center justify-center text-slate-500 dark:text-slate-300 group-hover:text-slate-700 dark:group-hover:text-slate-100">
@@ -313,14 +313,14 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
         <div className={cn("px-2 pb-2 sm:px-4 sm:pb-3 space-y-2 sm:space-y-3")}>
           {!collapsed && (
             <>
-              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 backdrop-blur p-3 text-slate-700 dark:text-slate-200">
+              <div className="rounded-xl border border-slate-800 bg-slate-900/60 backdrop-blur p-3 text-slate-200">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] font-semibold tracking-wide text-slate-500 dark:text-slate-400 uppercase">
+                  <span className="text-[11px] font-semibold tracking-wide text-slate-400 uppercase">
                     Versículo
                   </span>
                   <button
                     onClick={() => setShowVerse((v) => !v)}
-                    className="text-[11px] px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-200"
+                    className="text-[11px] px-2 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200"
                   >
                     {showVerse ? "Ocultar" : "Mostrar"}
                   </button>
@@ -357,7 +357,7 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
         </div>
 
         {/* User footer */}
-        <div className="mt-auto border-t border-slate-200 dark:border-slate-800 p-2 sm:p-3 relative">
+        <div className="mt-auto border-t border-slate-800 p-2 sm:p-3 relative">
           <DropdownMenu
             open={profileOpen}
             onOpenChange={setProfileOpen}
@@ -367,10 +367,10 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
             <DropdownMenuTrigger asChild>
               <button
                 className={cn(
-                  profileOpen && "bg-slate-100 dark:bg-slate-800",
+                  profileOpen && "bg-slate-800",
                   collapsed
-                    ? "mx-auto w-12 h-12 flex items-center justify-center rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
-                    : "w-full flex items-center gap-3 rounded-lg p-2 text-left hover:bg-slate-100 dark:hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors",
+                    ? "mx-auto w-12 h-12 flex items-center justify-center rounded-xl hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors"
+                    : "w-full flex items-center gap-3 rounded-lg p-2 text-left hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors",
                 )}
                 aria-haspopup="menu"
                 title={

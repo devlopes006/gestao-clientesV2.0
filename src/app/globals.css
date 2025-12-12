@@ -438,14 +438,14 @@ a:hover {
   }
 
   .input-surface {
-    @apply w-full rounded-xl border bg-white/90 dark:bg-slate-900/60 backdrop-blur-sm shadow-xs transition-all duration-200;
-    border-color: rgba(148, 163, 184, 0.4);
+    @apply w-full rounded-xl border bg-slate-800 text-white shadow-xs transition-all duration-200;
+    border-color: rgba(71, 85, 105, 0.5);
   }
   .input-surface:focus-visible {
-    @apply ring-2 ring-indigo-500/40 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 border-indigo-400;
+    @apply ring-2 ring-blue-500/40 ring-offset-2 ring-offset-slate-900 border-blue-500/50;
   }
   .input-surface:hover:not(:disabled) {
-    @apply border-indigo-200/80 dark:border-slate-700/80 bg-white dark:bg-slate-900/70;
+    @apply border-slate-600/80 bg-slate-800;
   }
   .input-surface:disabled {
     @apply opacity-60 cursor-not-allowed;

@@ -1,4 +1,4 @@
-import TabsNav from "@/components/common/TabsNav";
+import { ClientDetailNav } from "@/components/clients";
 import AppShell from "@/components/layout/AppShell";
 import GradientPageHeader from "@/components/layout/GradientPageHeader";
 import { PageLayout } from "@/components/layout/PageLayout";
@@ -44,19 +44,20 @@ export default async function ClientLayout({
     notFound();
   }
 
-  // Definir navegação baseada no role
+  // Definir navegação baseada no role com strings de ícones
   const allNavItems = [
-    { href: `/clients/${id}/info`, label: "Informações", icon: "info", roles: ["OWNER", "STAFF", "CLIENT"] },
-    { href: `/clients/${id}/tasks`, label: "Tarefas", icon: "listTodo", roles: ["OWNER", "STAFF"] },
-    { href: `/clients/${id}/media`, label: "Mídias", icon: "image", roles: ["OWNER", "STAFF", "CLIENT"] },
-    { href: `/clients/${id}/strategy`, label: "Estratégia", icon: "lightbulb", roles: ["OWNER", "STAFF"] },
-    { href: `/clients/${id}/branding`, label: "Branding", icon: "briefcase", roles: ["OWNER", "STAFF"] },
-    { href: `/clients/${id}/meetings`, label: "Reuniões", icon: "calendar", roles: ["OWNER", "STAFF", "CLIENT"] },
-    { href: `/clients/${id}/billing`, label: "Cobrança", icon: "briefcase", roles: ["OWNER"] },
+    { href: `/clients/${id}/info`, label: "Informações", icon: "info", description: "Dados do cliente", roles: ["OWNER", "STAFF", "CLIENT"] },
+    { href: `/clients/${id}/tasks`, label: "Tarefas", icon: "listTodo", description: "Gestão de tarefas", roles: ["OWNER", "STAFF"] },
+    { href: `/clients/${id}/media`, label: "Mídias", icon: "image", description: "Galeria de mídia", roles: ["OWNER", "STAFF", "CLIENT"] },
+    { href: `/clients/${id}/strategy`, label: "Estratégia", icon: "lightbulb", description: "Planejamento estratégico", roles: ["OWNER", "STAFF"] },
+    { href: `/clients/${id}/branding`, label: "Branding", icon: "briefcase", description: "Identidade visual", roles: ["OWNER", "STAFF"] },
+    { href: `/clients/${id}/meetings`, label: "Reuniões", icon: "calendar", description: "Agenda e histórico", roles: ["OWNER", "STAFF", "CLIENT"] },
+    { href: `/clients/${id}/billing`, label: "Cobrança", icon: "briefcase", description: "Gestão financeira", roles: ["OWNER"] },
     {
       href: `/clients/${id}/delete`,
       label: "Excluir",
       icon: "trash2",
+      description: "Remover cliente",
       destructive: true,
       roles: ["OWNER"],
     },
@@ -136,10 +137,8 @@ export default async function ClientLayout({
         </div>
 
         {/* Navigation Tabs */}
-        <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0 mb-1.5 sm:mb-2">
-          <nav className="flex gap-0.5 pb-0.5 no-scrollbar justify-center">
-            <TabsNav items={navItems} />
-          </nav>
+        <div className="flex justify-center mb-4 sm:mb-6">
+          <ClientDetailNav items={navItems} clientName={client.name} />
         </div>
 
         {/* Page Content */}

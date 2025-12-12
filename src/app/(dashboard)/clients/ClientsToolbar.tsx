@@ -82,7 +82,10 @@ export default function ClientsToolbar({ uniquePlans, initialQuery, initialStatu
         <Button
           variant="outline"
           size="sm"
-          className={`h-9 rounded-md border-slate-300 bg-white text-sm font-medium ${view === "grid" ? "border-slate-900 text-slate-900" : "text-slate-700"}`}
+          className={`h-9 rounded-md border-slate-700 bg-slate-800 text-sm font-medium ${view === "grid"
+              ? "border-slate-600 bg-slate-700 text-white"
+              : "text-slate-300 hover:bg-slate-700"
+            }`}
           onClick={() => setParam("view", "grid")}
           title="Visualizar em grade"
         >
@@ -92,7 +95,10 @@ export default function ClientsToolbar({ uniquePlans, initialQuery, initialStatu
         <Button
           variant="outline"
           size="sm"
-          className={`h-9 rounded-md border-slate-300 bg-white text-sm font-medium ${view === "list" ? "border-slate-900 text-slate-900" : "text-slate-700"}`}
+          className={`h-9 rounded-md border-slate-700 bg-slate-800 text-sm font-medium ${view === "list"
+              ? "border-slate-600 bg-slate-700 text-white"
+              : "text-slate-300 hover:bg-slate-700"
+            }`}
           onClick={() => setParam("view", "list")}
           title="Visualizar em lista"
         >
@@ -105,7 +111,7 @@ export default function ClientsToolbar({ uniquePlans, initialQuery, initialStatu
         variant="outline"
         size="sm"
         onClick={() => setOpen(true)}
-        className="h-9 rounded-md border-slate-300 bg-white text-sm font-medium text-slate-800"
+        className="h-9 rounded-md border-slate-700 bg-slate-800 text-sm font-medium text-slate-200 hover:bg-slate-700"
       >
         <ListFilter className="h-4 w-4 mr-2" />
         Filtros

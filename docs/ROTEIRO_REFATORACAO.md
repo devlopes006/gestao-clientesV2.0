@@ -9,9 +9,11 @@
 ## 📋 Roadmap de Refatoração
 
 ### Fase 1: Página Piloto (Hoje)
+
 **Objetivo:** Validar o sistema com uma página real
 
 #### 1.1 - Refatorar `/clients/[id]/info`
+
 ```bash
 # 1. Fazer backup (git stash)
 git stash
@@ -35,6 +37,7 @@ git commit -m "refactor(client-info): use new component system"
 ```
 
 #### 1.2 - Validação Visual
+
 - [ ] Verificar se layouts estão alinhados
 - [ ] Conferir espaçamento (sm/lg)
 - [ ] Testar em mobile (DevTools)
@@ -43,6 +46,7 @@ git commit -m "refactor(client-info): use new component system"
 - [ ] Revisar cores e contraste
 
 #### 1.3 - Code Review
+
 - [ ] Limpar imports antigos
 - [ ] Verificar types
 - [ ] Remover commented code
@@ -116,6 +120,7 @@ export default async function Page({ params }: PageProps) {
 ## 📑 Páginas para Refatorar
 
 ### Priority 1 (Esta semana)
+
 1. **`/clients/[id]/info`** ← PILOTO
    - Status: Pronto
    - Complexidade: Média
@@ -135,6 +140,7 @@ export default async function Page({ params }: PageProps) {
    - Ação: Usar ClientSectionCard + MeetingItem
 
 ### Priority 2 (Semana seguinte)
+
 4. **`/clients/[id]/finance`**
    - Status: Pronto
    - Complexidade: Alta
@@ -148,6 +154,7 @@ export default async function Page({ params }: PageProps) {
    - Ação: Usar ClientSectionCard como galeria
 
 ### Priority 3 (Semana seguinte)
+
 6. **`/clients/[id]/strategy`**
    - Status: Pronto
    - Complexidade: Média
@@ -173,6 +180,7 @@ export default async function Page({ params }: PageProps) {
 ### Para cada página:
 
 #### 1. Análise Inicial
+
 ```bash
 # Abrir página atual
 code src/app/(dashboard)/clients/[id]/tasks/page.tsx
@@ -184,6 +192,7 @@ code src/app/(dashboard)/clients/[id]/tasks/page.tsx
 ```
 
 #### 2. Planejamento
+
 ```
 [ ] Quais KPIs mostrar no topo?
 [ ] Que seções criar com ClientSectionCard?
@@ -192,6 +201,7 @@ code src/app/(dashboard)/clients/[id]/tasks/page.tsx
 ```
 
 #### 3. Implementação
+
 ```tsx
 // 1. Manter importações de dados
 import { getClientDashboard } from '@/services/clients/getClientDashboard';
@@ -207,6 +217,7 @@ import { getClientDashboard } from '@/services/clients/getClientDashboard';
 ```
 
 #### 4. Testes
+
 ```bash
 # Testar em desenvolvimento
 pnpm dev
@@ -219,6 +230,7 @@ pnpm dev
 ```
 
 #### 5. Commit
+
 ```bash
 git add src/app/(dashboard)/clients/[id]/tasks/page.tsx
 git commit -m "refactor(client-tasks): use new component system"
@@ -229,19 +241,21 @@ git commit -m "refactor(client-tasks): use new component system"
 ## 💡 Dicas Importantes
 
 ### Mantém o máximo de código existente
+
 ```tsx
 // ✅ BOM: Reutilizar lógica de dados
-const dash = await getClientDashboard(orgId, id);
+const dash = await getClientDashboard(orgId, id)
 const taskStats = {
   total: dash?.counts.tasks.total ?? 0,
   completed: dash?.counts.tasks.done ?? 0,
-};
+}
 
 // ✅ BOM: Usar dados no novo componente
-<ClientKPICard value={taskStats.completed} />
+;<ClientKPICard value={taskStats.completed} />
 ```
 
 ### Não quebra funcionalidade
+
 ```tsx
 // ❌ NÃO FAÇA: Remover actions/handlers
 onClick={() => deleteTask(id)}
@@ -254,6 +268,7 @@ onClick={() => deleteTask(id)}
 ```
 
 ### Testa antes de fazer commit
+
 ```bash
 # 1. Iniciar dev server
 pnpm dev
@@ -269,6 +284,7 @@ pnpm dev
 ## 🎨 Guia de Cores por Página
 
 ### Info Page
+
 ```tsx
 <ClientKPICard color="green" />  // Conclusão
 <ClientKPICard color="blue" />   // Ativas
@@ -277,6 +293,7 @@ pnpm dev
 ```
 
 ### Tasks Page
+
 ```tsx
 <ClientKPICard color="blue" />    // Total
 <ClientKPICard color="green" />   // Completadas
@@ -285,6 +302,7 @@ pnpm dev
 ```
 
 ### Finance Page
+
 ```tsx
 <FinanceCard type="income" />     // Receitas
 <FinanceCard type="expense" />    // Despesas
@@ -293,6 +311,7 @@ pnpm dev
 ```
 
 ### Meetings Page
+
 ```tsx
 <ClientKPICard color="amber" />   // Próximas
 <ClientKPICard color="emerald" /> // Passadas
@@ -304,12 +323,14 @@ pnpm dev
 ## ⚡ Troubleshooting Comum
 
 ### Problema: "Component not found"
+
 ```
 Solução: Verificar imports em index.ts
 import { ClientKPICard } from '@/components/clients';
 ```
 
 ### Problema: "Type error"
+
 ```
 Solução: Verificar props interface
 <ClientKPICard
@@ -321,12 +342,14 @@ Solução: Verificar props interface
 ```
 
 ### Problema: "Styling quebrado"
+
 ```
 Solução: Verificar se Tailwind está sendo compilado
 pnpm build:next
 ```
 
 ### Problema: "Dados não aparecem"
+
 ```
 Solução: Verificar se dados estão sendo passados
 console.log(data) // Debug

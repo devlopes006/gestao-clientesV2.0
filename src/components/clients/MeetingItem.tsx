@@ -47,13 +47,13 @@ export function MeetingItem({
       className="group border border-slate-700/50 bg-gradient-to-br from-slate-900/40 to-slate-950/40 rounded-lg sm:rounded-xl p-2.5 sm:p-3 lg:p-4 hover:border-slate-600/80 hover:bg-slate-900/50 transition-all duration-200 cursor-pointer"
     >
       <div className="flex items-start justify-between gap-2 sm:gap-3 mb-2 sm:mb-3">
-        <h3 className="text-sm sm:text-base font-semibold text-slate-50 group-hover:text-blue-300 transition-colors flex-1 truncate">
+        <h3 className="text-sm sm:text-base font-semibold text-white group-hover:text-blue-300 transition-colors flex-1 truncate">
           {title}
         </h3>
       </div>
 
       <div className="space-y-1.5 sm:space-y-2 mb-2 sm:mb-3">
-        <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-300">
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-400">
           <Calendar className="h-4 w-4 flex-shrink-0 text-slate-400" />
           <span>{date} • {time}</span>
           {duration && <span className="text-slate-400">({duration})</span>}

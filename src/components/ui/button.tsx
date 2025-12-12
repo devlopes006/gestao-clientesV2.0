@@ -24,13 +24,13 @@ const buttonVariants = cva(
         warning:
           "bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 text-white shadow-amber-500/25 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 focus-visible:ring-amber-400/60",
         secondary:
-          "bg-white/85 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800/70 text-slate-900 dark:text-slate-100 shadow-sm hover:border-indigo-200 hover:-translate-y-0.5 hover:shadow-lg",
+          "bg-slate-800 border border-slate-700 text-white shadow-sm hover:border-blue-500/50 hover:bg-slate-750 hover:-translate-y-0.5 hover:shadow-lg",
         outline:
-          "border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white hover:bg-white/70 dark:hover:bg-slate-900/60 hover:-translate-y-0.5",
+          "border border-slate-700 bg-slate-800/50 text-white hover:bg-slate-800 hover:border-slate-600 hover:-translate-y-0.5",
         ghost:
-          "text-slate-700 dark:text-slate-200 hover:bg-slate-100/70 dark:hover:bg-slate-800/70",
+          "text-slate-200 hover:bg-slate-800",
         subtle:
-          "bg-slate-100/80 dark:bg-slate-800/70 text-slate-900 dark:text-slate-100 border border-slate-200/80 dark:border-slate-700/70 hover:-translate-y-0.5",
+          "bg-slate-800 text-white border border-slate-700 hover:bg-slate-750 hover:-translate-y-0.5",
         link:
           "text-indigo-600 dark:text-indigo-300 underline underline-offset-4 hover:text-indigo-500 dark:hover:text-indigo-200 shadow-none",
       },

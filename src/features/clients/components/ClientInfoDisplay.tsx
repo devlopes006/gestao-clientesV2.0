@@ -268,10 +268,10 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-              <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <div className="p-2 bg-blue-500/20 rounded-lg">
+              <FileText className="h-5 w-5 text-blue-400" />
             </div>
-            <CardTitle className="text-base">Informações do Cliente</CardTitle>
+            <CardTitle className="text-base text-white">Informações do Cliente</CardTitle>
           </div>
           {canEdit && (
             <>
@@ -286,22 +286,22 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
               </Button>
 
               <Dialog open={isEditing} onOpenChange={setIsEditing}>
-                <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto md:w-auto">
+                <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto md:w-auto !bg-slate-900 border-slate-700">
                   <DialogHeader>
-                    <DialogTitle>Editar Informações do Cliente</DialogTitle>
+                    <DialogTitle className="text-white">Editar Informações do Cliente</DialogTitle>
                   </DialogHeader>
 
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Informações Básicas */}
                     <div className="space-y-4">
-                      <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                        <BadgeCheck className="w-4 h-4" />
+                      <h3 className="text-sm font-semibold text-slate-400 flex items-center gap-2">
+                        <BadgeCheck className="w-4 h-4 text-blue-400" />
                         Informações Básicas
                       </h3>
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-2">
-                          <Label htmlFor="name" className="flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-muted-foreground" />
+                          <Label htmlFor="name" className="flex items-center gap-2 text-slate-300">
+                            <FileText className="w-4 h-4 text-blue-400" />
                             Nome *
                           </Label>
                           <Input
@@ -316,8 +316,8 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="email" className="flex items-center gap-2">
-                            <Mail className="w-4 h-4 text-muted-foreground" />
+                          <Label htmlFor="email" className="flex items-center gap-2 text-slate-300">
+                            <Mail className="w-4 h-4 text-blue-400" />
                             E-mail
                           </Label>
                           <Input
@@ -332,8 +332,8 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="phone" className="flex items-center gap-2">
-                            <Phone className="w-4 h-4 text-muted-foreground" />
+                          <Label htmlFor="phone" className="flex items-center gap-2 text-slate-300">
+                            <Phone className="w-4 h-4 text-blue-400" />
                             Telefone
                           </Label>
                           <Input
@@ -355,13 +355,13 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
 
                     {/* Configurações */}
                     <div className="space-y-4">
-                      <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                        <Layers className="w-4 h-4" />
+                      <h3 className="text-sm font-semibold text-slate-400 flex items-center gap-2">
+                        <Layers className="w-4 h-4 text-purple-400" />
                         Configurações
                       </h3>
                       <div className="grid gap-4 sm:grid-cols-3">
                         <div className="space-y-2">
-                          <Label htmlFor="status">Status *</Label>
+                          <Label htmlFor="status" className="text-slate-300">Status *</Label>
                           <Select
                             value={formData.status}
                             onValueChange={(value: ClientStatus) =>
@@ -382,7 +382,7 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="plan">Plano</Label>
+                          <Label htmlFor="plan" className="text-slate-300">Plano</Label>
                           <Select
                             value={formData.plan}
                             onValueChange={(value) =>
@@ -401,7 +401,7 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="mainChannel">Canal Principal</Label>
+                          <Label htmlFor="mainChannel" className="text-slate-300">Canal Principal</Label>
                           <Select
                             value={formData.mainChannel}
                             onValueChange={(value) =>
@@ -423,14 +423,14 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
 
                     {/* Instagram */}
                     <div className="space-y-4">
-                      <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                        <Share2 className="w-4 h-4" />
+                      <h3 className="text-sm font-semibold text-slate-400 flex items-center gap-2">
+                        <Share2 className="w-4 h-4 text-pink-400" />
                         Instagram
                       </h3>
                       <div className="space-y-3">
                         {formData.instagramUsername ? (
-                          <div className="p-3 border rounded-lg bg-green-50 dark:bg-green-950/20">
-                            <p className="text-sm text-green-700 dark:text-green-400">
+                          <div className="p-3 border border-green-500/30 rounded-lg bg-green-500/10">
+                            <p className="text-sm text-green-400">
                               ✓ Conectado: @{formData.instagramUsername}
                             </p>
                           </div>
@@ -452,13 +452,13 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
 
                     {/* Contrato */}
                     <div className="space-y-4">
-                      <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
+                      <h3 className="text-sm font-semibold text-slate-400 flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-amber-400" />
                         Contrato
                       </h3>
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-2">
-                          <Label htmlFor="contractStart">Data de Início</Label>
+                          <Label htmlFor="contractStart" className="text-slate-300">Data de Início</Label>
                           <Input
                             id="contractStart"
                             type="date"
@@ -473,7 +473,7 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="contractEnd">Data de Término</Label>
+                          <Label htmlFor="contractEnd" className="text-slate-300">Data de Término</Label>
                           <Input
                             id="contractEnd"
                             type="date"
@@ -491,14 +491,14 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
 
                     {/* Informações Financeiras */}
                     <div className="space-y-4">
-                      <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                        <DollarSign className="w-4 h-4" />
+                      <h3 className="text-sm font-semibold text-slate-400 flex items-center gap-2">
+                        <DollarSign className="w-4 h-4 text-emerald-400" />
                         Informações Financeiras
                       </h3>
 
                       <div className="space-y-4">
                         {/* Pagamento Parcelado Toggle */}
-                        <div className="flex items-center gap-3 p-4 border rounded-lg bg-muted/50">
+                        <div className="flex items-center gap-3 p-4 border border-slate-700/50 rounded-lg bg-slate-800/50">
                           <input
                             title="checkbox"
                             type="checkbox"
@@ -512,7 +512,7 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                             }
                             className="w-4 h-4"
                           />
-                          <Label htmlFor="isInstallment" className="cursor-pointer font-medium">
+                          <Label htmlFor="isInstallment" className="cursor-pointer font-medium text-slate-300">
                             Pagamento Parcelado
                           </Label>
                         </div>
@@ -521,8 +521,8 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                           // Pagamento Recorrente Mensal
                           <div className="grid gap-4 sm:grid-cols-2">
                             <div className="space-y-2">
-                              <Label htmlFor="paymentDay" className="flex items-center gap-2">
-                                <Calendar className="w-4 h-4 text-muted-foreground" />
+                              <Label htmlFor="paymentDay" className="flex items-center gap-2 text-slate-300">
+                                <Calendar className="w-4 h-4 text-emerald-400" />
                                 Dia de Vencimento
                               </Label>
                               <Select
@@ -545,8 +545,8 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                             </div>
 
                             <div className="space-y-2">
-                              <Label htmlFor="contractValue" className="flex items-center gap-2">
-                                <CreditCard className="w-4 h-4 text-muted-foreground" />
+                              <Label htmlFor="contractValue" className="flex items-center gap-2 text-slate-300">
+                                <CreditCard className="w-4 h-4 text-emerald-400" />
                                 Valor Mensal
                               </Label>
                               <Input
@@ -569,8 +569,8 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                           <div className="space-y-4">
                             <div className="grid gap-4 sm:grid-cols-2">
                               <div className="space-y-2">
-                                <Label htmlFor="installmentCount" className="flex items-center gap-2">
-                                  <Hash className="w-4 h-4 text-muted-foreground" />
+                                <Label htmlFor="installmentCount" className="flex items-center gap-2 text-slate-300">
+                                  <Hash className="w-4 h-4 text-emerald-400" />
                                   Número de Parcelas
                                 </Label>
                                 <Input
@@ -589,8 +589,8 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                               </div>
 
                               <div className="space-y-2">
-                                <Label htmlFor="installmentValue" className="flex items-center gap-2">
-                                  <CreditCard className="w-4 h-4 text-muted-foreground" />
+                                <Label htmlFor="installmentValue" className="flex items-center gap-2 text-slate-300">
+                                  <CreditCard className="w-4 h-4 text-emerald-400" />
                                   Valor da Parcela
                                 </Label>
                                 <Input
@@ -613,8 +613,8 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                             </div>
 
                             <div className="space-y-2">
-                              <Label className="flex items-center gap-2">
-                                <Calendar className="w-4 h-4 text-muted-foreground" />
+                              <Label className="flex items-center gap-2 text-slate-300">
+                                <Calendar className="w-4 h-4 text-emerald-400" />
                                 Dias de Vencimento das Parcelas
                               </Label>
                               <div className="grid grid-cols-7 gap-2">
@@ -644,7 +644,7 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                                   );
                                 })}
                               </div>
-                              <p className="text-xs text-muted-foreground mt-2">
+                              <p className="text-xs text-slate-500 mt-2">
                                 Selecionados:{" "}
                                 {formData.installmentPaymentDays.length > 0
                                   ? formData.installmentPaymentDays.join(", ")
@@ -657,7 +657,7 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center justify-end gap-3 pt-4 border-t">
+                    <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-700/50">
                       <Button
                         type="button"
                         variant="outline"
@@ -683,50 +683,50 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
         <div className="space-y-4">
           {/* Informações Básicas */}
           <div>
-            <h3 className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-3 uppercase tracking-wider">Informações Básicas</h3>
+            <h3 className="text-xs font-semibold text-slate-500 mb-3 uppercase tracking-wider">Informações Básicas</h3>
             <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
               <div className="flex flex-col gap-1">
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Email</p>
-                <p className="text-sm text-slate-900 dark:text-white break-all">{client.email || "Não informado"}</p>
+                <p className="text-xs font-medium text-slate-400">Email</p>
+                <p className="text-sm text-white break-all">{client.email || "Não informado"}</p>
               </div>
               <div className="flex flex-col gap-1">
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Telefone</p>
-                <p className="text-sm text-slate-900 dark:text-white">{client.phone || "Não informado"}</p>
+                <p className="text-xs font-medium text-slate-400">Telefone</p>
+                <p className="text-sm text-white">{client.phone || "Não informado"}</p>
               </div>
               <div className="flex flex-col gap-1">
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Plano</p>
-                <p className="text-sm text-slate-900 dark:text-white">{client.plan ? CLIENT_PLAN_LABELS[client.plan as ClientPlan] : "Não definido"}</p>
+                <p className="text-xs font-medium text-slate-400">Plano</p>
+                <p className="text-sm text-white">{client.plan ? CLIENT_PLAN_LABELS[client.plan as ClientPlan] : "Não definido"}</p>
               </div>
               <div className="flex flex-col gap-1">
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Canal Principal</p>
-                <p className="text-sm text-slate-900 dark:text-white">{client.main_channel ? SOCIAL_CHANNEL_LABELS[client.main_channel as SocialChannel] : "Não definido"}</p>
+                <p className="text-xs font-medium text-slate-400">Canal Principal</p>
+                <p className="text-sm text-white">{client.main_channel ? SOCIAL_CHANNEL_LABELS[client.main_channel as SocialChannel] : "Não definido"}</p>
               </div>
             </div>
           </div>
 
           {/* Informações de Contrato */}
-          <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
-            <h3 className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-3 uppercase tracking-wider">Contrato</h3>
+          <div className="pt-3 border-t border-slate-700/50">
+            <h3 className="text-xs font-semibold text-slate-500 mb-3 uppercase tracking-wider">Contrato</h3>
             <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
               <div className="flex flex-col gap-1">
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Valor Mensal</p>
-                <p className="text-sm font-semibold text-green-600 dark:text-green-400">
+                <p className="text-xs font-medium text-slate-400">Valor Mensal</p>
+                <p className="text-sm font-semibold text-green-400">
                   {client.contract_value ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(client.contract_value) : "Não definido"}
                 </p>
               </div>
               <div className="flex flex-col gap-1">
-                <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Tipo de Pagamento</p>
-                <p className="text-sm text-slate-900 dark:text-white">{client.is_installment ? "Parcelado" : "Mensal"}</p>
+                <p className="text-xs font-medium text-slate-400">Tipo de Pagamento</p>
+                <p className="text-sm text-white">{client.is_installment ? "Parcelado" : "Mensal"}</p>
               </div>
               {client.is_installment ? (
                 <>
                   <div className="flex flex-col gap-1">
-                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Nº de Parcelas</p>
-                    <p className="text-sm text-slate-900 dark:text-white">{client.installment_count || "Não definido"}</p>
+                    <p className="text-xs font-medium text-slate-400">Nº de Parcelas</p>
+                    <p className="text-sm text-white">{client.installment_count || "Não definido"}</p>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Dias de Pagamento</p>
-                    <p className="text-sm text-slate-900 dark:text-white">
+                    <p className="text-xs font-medium text-slate-400">Dias de Pagamento</p>
+                    <p className="text-sm text-white">
                       {client.installment_payment_days && client.installment_payment_days.length > 0
                         ? client.installment_payment_days.map((d: number) => `Dia ${d}`).join(", ")
                         : client.payment_day ? `Dia ${client.payment_day}` : "Não definido"}
@@ -735,8 +735,8 @@ export function ClientInfoDisplay({ client, canEdit }: ClientInfoDisplayProps) {
                 </>
               ) : (
                 <div className="flex flex-col gap-1">
-                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Dia de Pagamento</p>
-                  <p className="text-sm text-slate-900 dark:text-white">{client.payment_day ? `Dia ${client.payment_day}` : "Não definido"}</p>
+                  <p className="text-xs font-medium text-slate-400">Dia de Pagamento</p>
+                  <p className="text-sm text-white">{client.payment_day ? `Dia ${client.payment_day}` : "Não definido"}</p>
                 </div>
               )}
             </div>

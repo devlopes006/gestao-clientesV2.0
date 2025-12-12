@@ -1,6 +1,5 @@
 import { ClientsPageClient } from "@/app/(dashboard)/clients/ClientsPageClient";
 import ClientsToolbar from "@/app/(dashboard)/clients/ClientsToolbar";
-import { GenerateInvoiceButton } from "@/components/GenerateInvoiceButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { can } from "@/lib/permissions";
@@ -11,7 +10,7 @@ import { listClientsByOrg } from "@/services/repositories/clients";
 import { CLIENT_STATUS_LABELS } from "@/types/enums";
 import type { AppClient } from "@/types/tables";
 import type { ClientPlan, SocialChannel } from "@prisma/client";
-import { ArrowUpRight, Building2, Plus, TrendingUp, Users } from "lucide-react";
+import { Building2, Clock, Plus, TrendingUp, Users } from "lucide-react";
 import Link from "next/link";
 
 export const revalidate = 60;
@@ -97,19 +96,19 @@ export default async function ClientsPage({ searchParams }: PageProps) {
 
   return (
     <ClientsPageClient>
-      <main className="min-h-screen bg-gradient-to-br from-slate-900/95 via-slate-950/98 to-slate-900/95 space-y-1 sm:space-y-2 lg:space-y-3 p-4">
-        <div className="space-y-1.5 sm:space-y-2 lg:space-y-3">
+      <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 space-y-6 p-6">
+        <div className="space-y-6">
           {/* Header */}
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Gestão</p>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-50">Meus Clientes</h1>
-              <p className="text-xs sm:text-sm text-slate-400 mt-1">Visualize e gerencie todos os seus clientes</p>
+              <h1 className="text-4xl lg:text-5xl font-bold text-white mt-2">Meus Clientes</h1>
+              <p className="text-sm text-slate-400 mt-2">Visualize e gerencie todos os seus clientes</p>
             </div>
             {canCreateClient && (
-              <Button asChild className="h-10 sm:h-11 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold shadow-lg hover:shadow-xl transition-all">
-                <Link href="/clients/new" className="flex items-center gap-2">
-                  <Plus className="h-4 w-4 sm:h-5" />
+              <Button asChild className="h-11 rounded-lg bg-gradient-to-r from-blue-500/80 to-blue-600/80 hover:from-blue-600/80 hover:to-blue-700/80 text-white font-semibold shadow-lg hover:shadow-xl transition-all">
+                <Link href="/clients/new" className="flex items-center justify-center gap-2">
+                  <Plus className="h-5 w-5" />
                   Novo cliente
                 </Link>
               </Button>
@@ -117,54 +116,46 @@ export default async function ClientsPage({ searchParams }: PageProps) {
           </div>
 
           {/* KPI Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-1 sm:gap-2 lg:gap-3">
-            <Card className="group relative overflow-hidden border border-blue-700/50 bg-gradient-to-br from-blue-950/40 to-blue-950/30 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-lg shadow-blue-900/20 hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 backdrop-blur-sm cursor-default min-w-0">
-              <CardContent className="p-2 sm:p-3 lg:p-4">
-                <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5 lg:mb-2 min-w-0">
-                  <div className="p-1 sm:p-1.5 lg:p-2 bg-blue-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
-                    <Users className="h-4 w-4 sm:h-5 lg:h-6 text-blue-400" />
-                  </div>
-                  <div className="text-base sm:text-2xl lg:text-3xl font-bold text-blue-300 truncate">{total}</div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30 rounded-2xl p-6 backdrop-blur-lg group">
+              <div className="flex items-start justify-between mb-4">
+                <div className="bg-blue-500/20 p-3 rounded-xl group-hover:scale-105 transition-transform">
+                  <Users className="h-6 w-6 text-blue-400" />
                 </div>
-                <h3 className="text-xs sm:text-sm font-semibold text-blue-200 leading-tight truncate">Total de Clientes</h3>
-              </CardContent>
-            </Card>
+              </div>
+              <p className="text-slate-400 text-sm font-medium mb-1">Total de Clientes</p>
+              <h3 className="text-2xl font-bold text-white">{total}</h3>
+            </div>
 
-            <Card className="group relative overflow-hidden border border-green-700/50 bg-gradient-to-br from-green-950/40 to-green-950/30 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-lg shadow-green-900/20 hover:shadow-xl hover:shadow-green-500/20 transition-all duration-300 backdrop-blur-sm cursor-default min-w-0">
-              <CardContent className="p-2 sm:p-3 lg:p-4">
-                <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5 lg:mb-2 min-w-0">
-                  <div className="p-1 sm:p-1.5 lg:p-2 bg-green-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
-                    <TrendingUp className="h-4 w-4 sm:h-5 lg:h-6 text-green-400" />
-                  </div>
-                  <div className="text-base sm:text-2xl lg:text-3xl font-bold text-green-300 truncate">{activeCount}</div>
+            <div className="bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 border border-emerald-500/30 rounded-2xl p-6 backdrop-blur-lg group">
+              <div className="flex items-start justify-between mb-4">
+                <div className="bg-emerald-500/20 p-3 rounded-xl group-hover:scale-105 transition-transform">
+                  <TrendingUp className="h-6 w-6 text-emerald-400" />
                 </div>
-                <h3 className="text-xs sm:text-sm font-semibold text-green-200 leading-tight truncate">Ativos</h3>
-              </CardContent>
-            </Card>
+              </div>
+              <p className="text-slate-400 text-sm font-medium mb-1">Clientes Ativos</p>
+              <h3 className="text-2xl font-bold text-white">{activeCount}</h3>
+            </div>
 
-            <Card className="group relative overflow-hidden border border-amber-700/50 bg-gradient-to-br from-amber-950/40 to-amber-950/30 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-lg shadow-amber-900/20 hover:shadow-xl hover:shadow-amber-500/20 transition-all duration-300 backdrop-blur-sm cursor-default min-w-0">
-              <CardContent className="p-2 sm:p-3 lg:p-4">
-                <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5 lg:mb-2 min-w-0">
-                  <div className="p-1 sm:p-1.5 lg:p-2 bg-amber-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
-                    <ArrowUpRight className="h-4 w-4 sm:h-5 lg:h-6 text-amber-400" />
-                  </div>
-                  <div className="text-base sm:text-2xl lg:text-3xl font-bold text-amber-300 truncate">{pausedCount}</div>
+            <div className="bg-gradient-to-br from-orange-500/20 to-orange-600/10 border border-orange-500/30 rounded-2xl p-6 backdrop-blur-lg group">
+              <div className="flex items-start justify-between mb-4">
+                <div className="bg-orange-500/20 p-3 rounded-xl group-hover:scale-105 transition-transform">
+                  <Clock className="h-6 w-6 text-orange-400" />
                 </div>
-                <h3 className="text-xs sm:text-sm font-semibold text-amber-200 leading-tight truncate">Pausados</h3>
-              </CardContent>
-            </Card>
+              </div>
+              <p className="text-slate-400 text-sm font-medium mb-1">Clientes Pausados</p>
+              <h3 className="text-2xl font-bold text-white">{pausedCount}</h3>
+            </div>
 
-            <Card className="group relative overflow-hidden border border-red-700/50 bg-gradient-to-br from-red-950/40 to-red-950/30 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-lg shadow-red-900/20 hover:shadow-xl hover:shadow-red-500/20 transition-all duration-300 backdrop-blur-sm cursor-default min-w-0">
-              <CardContent className="p-2 sm:p-3 lg:p-4">
-                <div className="flex items-center gap-1.5 sm:gap-2 mb-1 sm:mb-1.5 lg:mb-2 min-w-0">
-                  <div className="p-1 sm:p-1.5 lg:p-2 bg-red-900/40 rounded sm:rounded-lg group-hover:scale-105 transition-transform shadow-sm flex-shrink-0">
-                    <Building2 className="h-4 w-4 sm:h-5 lg:h-6 text-red-400" />
-                  </div>
-                  <div className="text-base sm:text-2xl lg:text-3xl font-bold text-red-300 truncate">{closedCount}</div>
+            <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/30 rounded-2xl p-6 backdrop-blur-lg group">
+              <div className="flex items-start justify-between mb-4">
+                <div className="bg-purple-500/20 p-3 rounded-xl group-hover:scale-105 transition-transform">
+                  <Building2 className="h-6 w-6 text-purple-400" />
                 </div>
-                <h3 className="text-xs sm:text-sm font-semibold text-red-200 leading-tight truncate">Encerrados</h3>
-              </CardContent>
-            </Card>
+              </div>
+              <p className="text-slate-400 text-sm font-medium mb-1">Clientes Encerrados</p>
+              <h3 className="text-2xl font-bold text-white">{closedCount}</h3>
+            </div>
           </div>
 
           {/* Toolbar */}
@@ -178,15 +169,15 @@ export default async function ClientsPage({ searchParams }: PageProps) {
 
           {/* Clients Grid */}
           {!clients.length ? (
-            <Card className="border-dashed border-slate-700/50 bg-gradient-to-br from-slate-900/40 to-slate-900/30 rounded-lg sm:rounded-xl lg:rounded-2xl">
-              <CardContent className="p-8 sm:p-12 text-center">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-slate-700/50 bg-slate-800/40">
-                  <Users className="h-7 w-7 text-slate-500" />
+            <Card className="border border-slate-700/50 bg-gradient-to-br from-slate-900/50 to-slate-900/30 rounded-2xl">
+              <CardContent className="p-12 text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-700/50 bg-slate-800/40">
+                  <Users className="h-8 w-8 text-slate-500" />
                 </div>
-                <p className="font-semibold text-slate-200 text-lg">{query || status || plan ? "Nenhum cliente encontrado" : "Nenhum cliente cadastrado ainda"}</p>
+                <p className="font-semibold text-slate-100 text-lg">{query || status || plan ? "Nenhum cliente encontrado" : "Nenhum cliente cadastrado ainda"}</p>
                 <p className="text-sm text-slate-400 mt-2">{query || status || plan ? "Ajuste os filtros ou limpe a busca." : "Crie o primeiro cliente para começar."}</p>
                 {canCreateClient && !(query || status || plan) && (
-                  <Button asChild className="mt-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold">
+                  <Button asChild className="mt-6 bg-gradient-to-r from-blue-500/80 to-blue-600/80 hover:from-blue-600/80 hover:to-blue-700/80 text-white font-semibold">
                     <Link href="/clients/new" className="flex items-center gap-2">
                       <Plus className="h-4 w-4" />
                       Adicionar cliente
@@ -196,44 +187,52 @@ export default async function ClientsPage({ searchParams }: PageProps) {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {clients.map((client) => (
                 <Link key={client.id} href={`/clients/${client.id}/info`}>
-                  <Card className={`group relative overflow-hidden border ${getStatusColor(client.status)} rounded-lg sm:rounded-xl lg:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm cursor-pointer h-full hover:scale-105`}>
-                    <CardContent className="p-3 sm:p-4 lg:p-5 flex flex-col h-full">
-                      <div className="flex items-start justify-between gap-2 mb-3">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-slate-50 text-sm sm:text-base truncate group-hover:text-white transition">{client.name}</h3>
-                          <p className="text-xs sm:text-sm text-slate-400 truncate mt-0.5">{client.email || "Sem email"}</p>
-                        </div>
-                        <span className="text-xs font-medium px-2 py-1 rounded-full bg-slate-800/60 text-slate-300 flex-shrink-0">
-                          {getStatusLabel(client.status)}
+                  <div className="bg-gradient-to-br from-slate-900/50 to-slate-950/30 border border-slate-700/50 rounded-xl p-5 hover:border-slate-600/80 transition-all group cursor-pointer">
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-white font-semibold text-sm truncate group-hover:text-blue-400 transition">{client.name}</h3>
+                        <p className="text-xs text-slate-400 truncate mt-1">{client.email || "Sem email"}</p>
+                      </div>
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ml-2 ${client.status === "active" ? "bg-emerald-500/20" :
+                        client.status === "paused" ? "bg-amber-500/20" :
+                          "bg-red-500/20"
+                        }`}>
+                        <span className={`text-xs font-bold ${client.status === "active" ? "text-emerald-400" :
+                          client.status === "paused" ? "text-amber-400" :
+                            "text-red-400"
+                          }`}>
+                          {client.status === "active" ? "✓" : client.status === "paused" ? "⏸" : "✕"}
                         </span>
                       </div>
+                    </div>
 
-                      <div className="space-y-1.5 flex-1 text-xs">
-                        <div className="flex justify-between text-slate-400">
-                          <span>Plano:</span>
-                          <span className="text-slate-200 font-medium">{client.plan ? CLIENT_PLAN_LABELS[client.plan as ClientPlan] : "—"}</span>
-                        </div>
-                        <div className="flex justify-between text-slate-400">
-                          <span>Canal:</span>
-                          <span className="text-slate-200 font-medium">{client.main_channel ? SOCIAL_CHANNEL_LABELS[client.main_channel as SocialChannel] : "—"}</span>
-                        </div>
-                        <div className="flex justify-between text-slate-400 pt-1 border-t border-slate-700/50">
-                          <span>Criado em:</span>
-                          <span className="text-slate-200">{formatDate(client.created_at)}</span>
-                        </div>
+                    {/* Info grid */}
+                    <div className="grid grid-cols-2 gap-3 mb-4 pb-4 border-b border-slate-700/30">
+                      <div className="bg-slate-800/40 rounded-lg p-2.5">
+                        <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">Plano</p>
+                        <p className="text-white font-semibold text-xs mt-1">{client.plan ? CLIENT_PLAN_LABELS[client.plan as ClientPlan] : "—"}</p>
                       </div>
+                      <div className="bg-slate-800/40 rounded-lg p-2.5">
+                        <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">Canal</p>
+                        <p className="text-white font-semibold text-xs mt-1">{client.main_channel ? SOCIAL_CHANNEL_LABELS[client.main_channel as SocialChannel] : "—"}</p>
+                      </div>
+                    </div>
 
-                      <div className="flex gap-2 mt-4 pt-3 border-t border-slate-700/50">
-                        <Button asChild variant="outline" size="sm" className="flex-1 h-8 rounded-md text-xs bg-slate-800/60 border-slate-700/50 text-slate-200 hover:bg-slate-700/80">
-                          <span>Ver Detalhes</span>
-                        </Button>
-                        <GenerateInvoiceButton clientId={client.id} />
-                      </div>
-                    </CardContent>
-                  </Card>
+                    {/* Date */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400">Desde {formatDate(client.created_at)}</span>
+                      <span className={`text-[10px] font-semibold px-2 py-1 rounded-md border ${client.status === "active" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" :
+                        client.status === "paused" ? "bg-amber-500/10 text-amber-400 border-amber-500/30" :
+                          "bg-red-500/10 text-red-400 border-red-500/30"
+                        }`}>
+                        {getStatusLabel(client.status)}
+                      </span>
+                    </div>
+                  </div>
                 </Link>
               ))}
             </div>

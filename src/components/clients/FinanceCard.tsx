@@ -78,7 +78,7 @@ export function FinanceCard({
         {label}
       </p>
 
-      <h3 className="text-lg sm:text-2xl lg:text-3xl font-bold text-slate-50 group-hover:text-blue-300 transition-colors">
+      <h3 className="text-lg sm:text-2xl lg:text-3xl font-bold text-white group-hover:text-blue-300 transition-colors">
         {currency} {amount}
       </h3>
 

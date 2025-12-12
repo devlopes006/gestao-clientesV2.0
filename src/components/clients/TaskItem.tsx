@@ -40,7 +40,7 @@ export function TaskItem({ id, title, description, status, dueDate, assignee, pr
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm sm:text-base font-semibold text-slate-50 group-hover:text-blue-300 transition-colors truncate">
+          <h3 className="text-sm sm:text-base font-semibold text-white group-hover:text-blue-300 transition-colors truncate">
             {title}
           </h3>
           {description && (

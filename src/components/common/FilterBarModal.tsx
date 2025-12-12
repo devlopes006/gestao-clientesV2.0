@@ -60,8 +60,8 @@ export function FilterBarModal({ filters, open, setOpen, onSubmit, onClear, subm
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-md p-6 rounded-xl">
-        <DialogTitle className="mb-4 text-lg font-bold text-center">Filtros avançados</DialogTitle>
+      <DialogContent className="max-w-md p-6 rounded-xl !bg-slate-900/95 !border-slate-700">
+        <DialogTitle className="mb-4 text-lg font-bold text-center text-white">Filtros avançados</DialogTitle>
         <form onSubmit={handleSubmit} className="space-y-4">
           {filters.map((filter) => {
             const value = formState[filter.name] ?? searchParams?.get(filter.name) ?? "";
@@ -74,7 +74,7 @@ export function FilterBarModal({ filters, open, setOpen, onSubmit, onClear, subm
                   value={value}
                   onChange={(e) => handleChange(filter.name, e.target.value)}
                   placeholder={filter.placeholder}
-                  className={filter.className ?? "w-full rounded-lg border px-4 py-3 text-base"}
+                  className={filter.className ?? "w-full rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-base text-white placeholder:text-slate-500"}
                   aria-label={filter.label || filter.placeholder}
                 />
               );
@@ -87,7 +87,7 @@ export function FilterBarModal({ filters, open, setOpen, onSubmit, onClear, subm
                   value={value}
                   onChange={(e) => handleChange(filter.name, e.target.value)}
                   aria-label={filter.label || filter.placeholder}
-                  className="w-full h-12 rounded-lg border px-4 py-3 text-base"
+                  className="w-full h-12 rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-base text-white"
                 >
                   {filter.options.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -106,7 +106,7 @@ export function FilterBarModal({ filters, open, setOpen, onSubmit, onClear, subm
                   value={value}
                   onChange={(e) => handleChange(filter.name, e.target.value)}
                   placeholder={filter.placeholder}
-                  className={filter.className ?? "w-full h-12 rounded-lg px-4 py-3 text-base"}
+                  className={filter.className ?? "w-full h-12 rounded-lg border border-slate-700 bg-slate-800 px-4 py-3 text-base text-white"}
                   aria-label={filter.label || filter.placeholder}
                 />
               );
@@ -114,17 +114,17 @@ export function FilterBarModal({ filters, open, setOpen, onSubmit, onClear, subm
             return null;
           })}
           <div className="flex gap-2 justify-end mt-4">
-            <Button type="button" variant="outline" onClick={handleClear}>
+            <Button type="button" variant="outline" onClick={handleClear} className="bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700">
               Limpar
             </Button>
-            <Button type="submit" variant="default">
+            <Button type="submit" variant="default" className="bg-blue-600 hover:bg-blue-700 text-white">
               {submitLabel}
             </Button>
           </div>
         </form>
         <button
           onClick={() => setOpen(false)}
-          className="absolute top-4 right-4 p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+          className="absolute top-4 right-4 p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-white"
           aria-label="Fechar"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

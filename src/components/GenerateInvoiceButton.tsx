@@ -22,8 +22,8 @@ export function GenerateInvoiceButton({ clientId, onSuccess }: { clientId: strin
   }
 
   return (
-    <Button type="button" size="sm" onClick={handleClick} disabled={loading}>
-      {loading ? "Gerando..." : "Gerar fatura do mês"}
+    <Button type="button" size="sm" onClick={handleClick} disabled={loading} className="bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700 flex-1 h-8 rounded-md text-xs">
+      {loading ? "Gerando..." : "Gerar fatura"}
     </Button>
   );
 }

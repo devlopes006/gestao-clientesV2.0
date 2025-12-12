@@ -1,5 +1,6 @@
 // Layout Components
 export { ClientCardHeader } from './ClientCardHeader'
+export { ClientDetailNav } from './ClientDetailNav'
 export { ClientNavigationTabs } from './ClientNavigationTabs'
 export { ClientPageLayout } from './ClientPageLayout'
 

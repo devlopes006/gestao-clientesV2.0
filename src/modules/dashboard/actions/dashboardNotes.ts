@@ -99,7 +99,7 @@ export async function updateDashboardNote(
     data: {
       ...(safeTitle !== undefined && { title: safeTitle }),
       ...(contentSanitized !== undefined && { content: contentSanitized }),
-      ...(data.color && { color: data.color }),
+      ...(data.color !== undefined && { color: data.color }),
       ...(data.position !== undefined && { position: data.position }),
     },
   })

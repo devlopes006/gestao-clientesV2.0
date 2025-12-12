@@ -78,9 +78,9 @@ export function FunctionalNotes({ initialNotes }: FunctionalNotesProps) {
   // Handle opening note for editing
   const handleEditNote = (note: DashboardNote) => {
     setEditingId(note.id);
-    setTitle(note.title);
-    setContent(note.content);
-    setColor(note.color || 'yellow');
+    setTitle(note.title ?? '');
+    setContent(note.content ?? '');
+    setColor(note.color ?? 'yellow');
     setShowModal(true);
   };
 
@@ -249,7 +249,7 @@ export function FunctionalNotes({ initialNotes }: FunctionalNotesProps) {
                 </label>
                 <input
                   type="text"
-                  value={title}
+                  value={title ?? ''}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Ex: Revisão do projeto"
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 text-white placeholder-slate-500 focus:border-pink-500 focus:outline-none"
@@ -263,7 +263,7 @@ export function FunctionalNotes({ initialNotes }: FunctionalNotesProps) {
                   Conteúdo
                 </label>
                 <textarea
-                  value={content}
+                  value={content ?? ''}
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="O que você precisa lembrar?"
                   rows={5}

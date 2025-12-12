@@ -2,8 +2,11 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { FunctionalCalendar } from "@/app/(dashboard)/components/FunctionalCalendar";
 import { FunctionalNotes } from "@/app/(dashboard)/components/FunctionalNotes";
+import { useActivityFeed } from '@/hooks/useActivityFeed';
+import { useDashboardKPIs } from '@/hooks/useDashboardKPIs';
+import { useFinanceChart } from '@/hooks/useFinanceChart';
+import { useMeetingsUpcoming } from '@/hooks/useMeetingsUpcoming';
 import { DashboardData } from "@/modules/dashboard/domain/schema";
 import {
   Activity,
@@ -17,24 +20,21 @@ import {
   Clock,
   Flame,
   Plus,
-  Target,
   TrendingUp,
-  Users,
+  Users
 } from "lucide-react";
 import React, { useMemo } from "react";
 import {
   Area,
   AreaChart,
-  Bar,
-  BarChart,
   CartesianGrid,
-  Cell,
   ResponsiveContainer,
   Tooltip,
   XAxis,
-  YAxis,
+  YAxis
 } from "recharts";
 import styles from './dashboard-new.module.css';
+import { PremiumCalendar } from "@/app/(dashboard)/components/PremiumCalendar";
 
 type Props = {
   initialData: DashboardData;
@@ -50,6 +50,9 @@ const STATUS_COLORS: Record<string, string> = {
   DONE: "#10b981",
   CANCELLED: "#6b7280",
 };
+
+// Simple reminder type (local-only for now)
+// Lembretes locais removidos
 
 // KPI Card - Header executivo
 function KPICard({
@@ -131,7 +134,7 @@ function ClientHealthCard({ health }: { health: Record<string, any> }) {
   const healthColor = getHealthColor(health.completionRate);
 
   return (
-    <div className={`bg-gradient-to-br ${healthColor.bg} to-slate-900/20 border border-slate-700/50 rounded-xl p-4 hover:scale-105 transition-transform`}>
+    <div className={`bg-gradient-to-br ${healthColor.bg} to-slate-900/20 border border-slate-700/50 rounded-xl p-4`}>
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <h4 className="text-white font-semibold text-sm">{health.clientName}</h4>
@@ -147,20 +150,32 @@ function ClientHealthCard({ health }: { health: Record<string, any> }) {
           style={{ width: `${health.completionRate}%` }}
         />
       </div>
-      <div className="grid grid-cols-3 gap-2 mt-3 text-[10px] text-slate-400">
+      <div className="grid grid-cols-4 gap-2 mt-3 text-[11px] text-slate-300">
         <div className="text-center">
           <p className="font-semibold text-white">{health.tasksPending}</p>
           <p>Pendentes</p>
         </div>
         <div className="text-center">
+          <p className="font-semibold text-white">{health.tasksInProgress}</p>
+          <p>Em Progresso</p>
+        </div>
+        <div className="text-center">
+          <p className={`font-semibold ${health.tasksOverdue > 0 ? "text-red-400" : "text-emerald-400"}`}>{health.tasksOverdue}</p>
+          <p>Atrasadas</p>
+        </div>
+        <div className="text-center">
           <p className="font-semibold text-white">{health.tasksCompleted}</p>
           <p>Concluídas</p>
         </div>
-        <div className="text-center">
-          <p className={`font-semibold ${health.tasksOverdue > 0 ? "text-red-400" : "text-emerald-400"}`}>
-            {health.tasksOverdue}
-          </p>
-          <p>Atrasadas</p>
+      </div>
+      <div className="grid grid-cols-2 gap-2 mt-3 text-[11px]">
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2">
+          <p className="text-xs text-slate-400">Satisfação</p>
+          <p className="text-white font-semibold">{health.satisfaction ?? 0}%</p>
+        </div>
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2">
+          <p className="text-xs text-slate-400">Receita (M)</p>
+          <p className="text-white font-semibold">{health.monthlyRevenue ?? 0}</p>
         </div>
       </div>
     </div>
@@ -214,6 +229,11 @@ function ActivityTimeline({ activities }: { activities: Array<Record<string, any
 }
 
 export function DashboardV2ClientNew({ initialData, initialMonthKey }: Props) {
+  const kpis = useDashboardKPIs(initialData)
+  const financePoints = useFinanceChart(initialData)
+  const meetings = useMeetingsUpcoming(initialData)
+  const activities = useActivityFeed(initialData)
+  // Reminders removidos
 
   const stats = useMemo(() => {
     const clients = initialData.clients?.length ?? 0;
@@ -276,13 +296,13 @@ export function DashboardV2ClientNew({ initialData, initialMonthKey }: Props) {
           <KPICard
             icon={<Users className="w-6 h-6" />}
             label="Clientes Ativos"
-            value={stats.clients}
+            value={kpis.clientsActive}
             color="blue"
           />
           <KPICard
             icon={<CheckCircle2 className="w-6 h-6" />}
             label="Taxa de Conclusão"
-            value={`${stats.completionRate}%`}
+            value={`${(kpis.tasksDone / (kpis.tasksTodo + kpis.tasksInProgress + kpis.tasksReview + kpis.tasksDone || 1) * 100).toFixed(0)}%`}
             trend="up"
             trendLabel="+5%"
             color="emerald"
@@ -306,7 +326,7 @@ export function DashboardV2ClientNew({ initialData, initialMonthKey }: Props) {
           <KPICard
             icon={<TrendingUp className="w-6 h-6" />}
             label="Total de Tarefas"
-            value={stats.tasks}
+            value={kpis.tasksTodo + kpis.tasksInProgress + kpis.tasksReview + kpis.tasksDone}
             color="purple"
           />
         </section>
@@ -352,7 +372,7 @@ export function DashboardV2ClientNew({ initialData, initialMonthKey }: Props) {
             </div>
           </div>
 
-          {/* COLUNA CENTRAL E DIREITA - GRÁFICOS E SAÚDE */}
+          {/* COLUNA CENTRAL E DIREITA - GRÁFICO FINANCEIRO */}
           <div className="lg:col-span-2 space-y-6">
             {/* Financeiro */}
             <div className="bg-gradient-to-br from-slate-900/50 via-slate-950/50 to-slate-950/30 border border-slate-700/50 rounded-2xl p-6 backdrop-blur-lg">
@@ -360,8 +380,8 @@ export function DashboardV2ClientNew({ initialData, initialMonthKey }: Props) {
                 <TrendingUp className="w-5 h-5 text-yellow-400" />
                 Receitas vs Despesas
               </h2>
-              <ResponsiveContainer width="100%" height={250}>
-                <AreaChart data={chartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart data={financePoints.map(p => ({ month: p.month.substring(0, 3), receitas: p.revenue, despesas: p.expenses }))} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.2} />
                   <XAxis dataKey="month" stroke="#94a3b8" style={{ fontSize: "12px" }} />
                   <YAxis stroke="#94a3b8" style={{ fontSize: "12px" }} />
@@ -372,26 +392,7 @@ export function DashboardV2ClientNew({ initialData, initialMonthKey }: Props) {
               </ResponsiveContainer>
             </div>
 
-            {/* Status das Tarefas */}
-            <div className="bg-gradient-to-br from-slate-900/50 via-slate-950/50 to-slate-950/30 border border-slate-700/50 rounded-2xl p-6 backdrop-blur-lg">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-4">
-                <Target className="w-5 h-5 text-purple-400" />
-                Status das Tarefas
-              </h2>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={tasksByStatus} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.2} />
-                  <XAxis dataKey="name" stroke="#94a3b8" style={{ fontSize: "12px" }} />
-                  <YAxis stroke="#94a3b8" style={{ fontSize: "12px" }} />
-                  <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #ec4899", borderRadius: "8px" }} />
-                  <Bar dataKey="value" radius={[8, 8, 0, 0]}>
-                    {tasksByStatus.map((entry) => (
-                      <Cell key={entry.status} fill={STATUS_COLORS[entry.status as keyof typeof STATUS_COLORS]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            {/* Card de status de tarefas removido */}
           </div>
         </div>
 
@@ -446,16 +447,16 @@ export function DashboardV2ClientNew({ initialData, initialMonthKey }: Props) {
 
         {/* SEÇÃO FUNCIONAL - CALENDÁRIO E NOTAS */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          {/* Calendário */}
+          {/* Calendário Premium */}
           <div className="lg:col-span-2 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-2xl p-6 backdrop-blur-lg">
-            <FunctionalCalendar
+            <PremiumCalendar
               initialEvents={(initialData.events as any) || []}
               monthKey={initialMonthKey}
             />
           </div>
 
           {/* Notas */}
-          <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-2xl p-6 backdrop-blur-lg">
+          <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-2xl p-8 backdrop-blur-lg">
             <FunctionalNotes
               initialNotes={(initialData.notes as any) || []}
             />

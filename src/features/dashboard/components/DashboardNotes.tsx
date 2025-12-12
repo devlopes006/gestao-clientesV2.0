@@ -1,33 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  createDashboardNote,
-  deleteDashboardNote,
-  updateDashboardNote,
-} from "@/modules/dashboard/actions/dashboardNotes";
-import { AlertCircle, Edit, Loader2, Plus, StickyNote, Trash2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { createDashboardNote, deleteDashboardNote, updateDashboardNote } from "@/modules/dashboard/actions/dashboardNotes";
+import { Edit, GripVertical, Loader2, Plus, Search, StickyNote, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface Note {
@@ -40,12 +20,15 @@ interface Note {
   updatedAt: Date;
 }
 
-const colorOptions = [
-  { value: "yellow", label: "Amarelo", bg: "bg-yellow-100", border: "border-yellow-300", text: "text-yellow-900" },
-  { value: "blue", label: "Azul", bg: "bg-blue-100", border: "border-blue-300", text: "text-blue-900" },
-  { value: "green", label: "Verde", bg: "bg-green-100", border: "border-green-300", text: "text-green-900" },
-  { value: "pink", label: "Rosa", bg: "bg-pink-100", border: "border-pink-300", text: "text-pink-900" },
-  { value: "purple", label: "Roxo", bg: "bg-purple-100", border: "border-purple-300", text: "text-purple-900" },
+type ColorValue = "yellow" | "blue" | "green" | "pink" | "purple";
+type FilterColor = ColorValue | "all";
+
+const colorOptions: { value: ColorValue; label: string }[] = [
+  { value: "yellow", label: "Amarelo" },
+  { value: "blue", label: "Azul" },
+  { value: "green", label: "Verde" },
+  { value: "pink", label: "Rosa" },
+  { value: "purple", label: "Roxo" },
 ];
 
 interface DashboardNotesProps {
@@ -53,379 +36,304 @@ interface DashboardNotesProps {
 }
 
 export function DashboardNotes({ initialNotes = [] }: DashboardNotesProps) {
-  const [notes, setNotes] = useState<Note[]>(initialNotes);
   const router = useRouter();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingNote, setEditingNote] = useState<Note | null>(null);
-  const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-    color: "yellow",
-  });
-  const [submitting, setSubmitting] = useState(false);
+  const [notes, setNotes] = useState<Note[]>(initialNotes);
+  const [query, setQuery] = useState("");
+  const [filterColor, setFilterColor] = useState<FilterColor>("all");
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [validationError, setValidationError] = useState<string>("");
+  const [formOpen, setFormOpen] = useState<null | "create" | "edit">(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState<{ title: string; description: string; color: string }>({ title: "", description: "", color: "yellow" });
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Sync local state with server data
   useEffect(() => {
     setNotes(initialNotes);
   }, [initialNotes]);
 
-  const handleOpenDialog = (note?: Note) => {
-    setValidationError("");
-    if (note) {
-      setEditingNote(note);
-      setFormData({
-        title: note.title || "",
-        content: note.content || "",
-        color: note.color || "yellow",
-      });
-    } else {
-      setEditingNote(null);
-      setFormData({
-        title: "",
-        content: "",
-        color: "yellow",
-      });
-    }
-    setDialogOpen(true);
+  const filteredNotes = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return notes
+      .filter((n) => (filterColor === "all" ? true : n.color === filterColor))
+      .filter((n) => (q ? n.title?.toLowerCase().includes(q) || n.content?.toLowerCase().includes(q) : true))
+      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+  }, [notes, query, filterColor]);
+
+  const startCreate = () => {
+    setForm({ title: "", description: "", color: filterColor === "all" ? "yellow" : (filterColor as string) });
+    setEditingId(null);
+    setFormOpen("create");
+    setErrorMsg(null);
   };
 
-  const validateForm = () => {
-    const trimmedTitle = formData.title.trim();
-    const trimmedContent = formData.content.trim();
+  const startEdit = (n: Note) => {
+    setEditingId(n.id);
+    setForm({ title: n.title || "", description: n.content || "", color: n.color || "yellow" });
+    setFormOpen("edit");
+    setErrorMsg(null);
+  };
 
-    if (!trimmedContent) {
-      setValidationError("O conteúdo da nota é obrigatório");
+  const closeForm = () => {
+    setFormOpen(null);
+    setEditingId(null);
+    setErrorMsg(null);
+  };
+
+  const validate = () => {
+    const t = form.title.trim();
+    const d = form.description.trim();
+    if (!t) {
+      setErrorMsg("Título é obrigatório");
       return false;
     }
-
-    if (trimmedContent.length > 1000) {
-      setValidationError("O conteúdo não pode ter mais de 1000 caracteres");
+    if (!d) {
+      setErrorMsg("Descrição é obrigatória");
       return false;
     }
-
-    if (trimmedTitle.length > 100) {
-      setValidationError("O título não pode ter mais de 100 caracteres");
+    if (t.length > 100) {
+      setErrorMsg("Título deve ter até 100 caracteres");
       return false;
     }
-
-    setValidationError("");
+    if (d.length > 2000) {
+      setErrorMsg("Descrição deve ter até 2000 caracteres");
+      return false;
+    }
+    setErrorMsg(null);
     return true;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+  const submitForm = async () => {
+    if (!validate()) return;
     setSubmitting(true);
-    const toastId = toast.loading(
-      editingNote ? "Atualizando nota..." : "Criando nota..."
-    );
-
+    const toastId = toast.loading(formOpen === "edit" ? "Atualizando nota..." : "Criando nota...");
     try {
-      const trimmedData = {
-        title: formData.title.trim(),
-        content: formData.content.trim(),
-        color: formData.color,
-      };
-
-      if (editingNote) {
-        const updatedNote = await updateDashboardNote(editingNote.id, trimmedData);
-        toast.success("Nota atualizada com sucesso!", { id: toastId });
-
-        // Update local state optimistically
-        setNotes(prev =>
-          prev.map(n => n.id === updatedNote.id ? {
-            ...n,
-            title: updatedNote.title,
-            content: updatedNote.content,
-            color: updatedNote.color || 'yellow',
-            updatedAt: updatedNote.updatedAt
-          } : n)
-        );
+      if (formOpen === "edit" && editingId) {
+        const updated = await updateDashboardNote(editingId, { title: form.title.trim(), content: form.description.trim(), color: form.color });
+        setNotes((prev) => prev.map((n) => (n.id === editingId ? ({ ...n, ...updated } as Note) : n)));
+        toast.success("Nota atualizada", { id: toastId });
       } else {
-        const newNote = await createDashboardNote(trimmedData);
-        toast.success("Nota criada com sucesso!", { id: toastId });
-
-        // Update local state optimistically
-        setNotes(prev => [...prev, {
-          id: newNote.id,
-          title: newNote.title,
-          content: newNote.content,
-          color: newNote.color || 'yellow',
-          position: newNote.position,
-          createdAt: newNote.createdAt,
-          updatedAt: newNote.updatedAt
-        }]);
+        const created = await createDashboardNote({ title: form.title.trim(), content: form.description.trim(), color: form.color });
+        setNotes((prev) => [{ ...created }, ...prev]);
+        toast.success("Nota criada", { id: toastId });
       }
-
-      setDialogOpen(false);
-      setFormData({ title: "", content: "", color: "yellow" });
-      setEditingNote(null);
-
-      // Refresh to ensure sync with server
       router.refresh();
-    } catch (error) {
-      console.error("Erro ao salvar nota:", error);
-      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
-      toast.error(`Erro ao salvar nota: ${errorMessage}`, { id: toastId });
+      closeForm();
+    } catch {
+      toast.error("Falha ao salvar nota", { id: toastId });
     } finally {
       setSubmitting(false);
     }
   };
 
+  const handleCreate = () => startCreate();
+
   const handleDelete = async (id: string) => {
     if (!confirm("Deseja realmente excluir esta nota?")) return;
-
     setDeleting(id);
     const toastId = toast.loading("Excluindo nota...");
-
     try {
       await deleteDashboardNote(id);
-      toast.success("Nota excluída com sucesso!", { id: toastId });
-
-      // Update local state optimistically
-      setNotes(prev => prev.filter(n => n.id !== id));
-
-      // Refresh to ensure sync with server
-      router.refresh();
-    } catch (error) {
-      console.error("Erro ao excluir nota:", error);
-      const errorMessage = error instanceof Error ? error.message : "Erro desconhecido";
-      toast.error(`Erro ao excluir nota: ${errorMessage}`, { id: toastId });
+      setNotes((prev) => prev.filter((n) => n.id !== id));
+      toast.success("Nota excluída", { id: toastId });
+    } catch {
+      toast.error("Erro ao excluir nota", { id: toastId });
     } finally {
       setDeleting(null);
     }
   };
 
-  const getColorClasses = (color: string) => {
-    const colorOption = colorOptions.find((c) => c.value === color);
-    return colorOption || colorOptions[0];
+  // Drag & drop reordering
+  const dragId = useRef<string | null>(null);
+  const onDragStart = (id: string) => (e: React.DragEvent) => {
+    dragId.current = id;
+    e.dataTransfer.effectAllowed = "move";
+  };
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+  const onDrop = (targetId: string) => async (e: React.DragEvent) => {
+    e.preventDefault();
+    const sourceId = dragId.current;
+    dragId.current = null;
+    if (!sourceId || sourceId === targetId) return;
+    let newOrder: Note[] = [];
+    setNotes((prev) => {
+      const srcIdx = prev.findIndex((n) => n.id === sourceId);
+      const tgtIdx = prev.findIndex((n) => n.id === targetId);
+      if (srcIdx < 0 || tgtIdx < 0) return prev;
+      const copy = [...prev];
+      const [item] = copy.splice(srcIdx, 1);
+      copy.splice(tgtIdx, 0, item);
+      newOrder = copy.map((n, idx) => ({ ...n, position: idx }));
+      return newOrder;
+    });
+    try {
+      for (let i = 0; i < newOrder.length; i++) {
+        const n = newOrder[i];
+        await updateDashboardNote(n.id, { position: i });
+      }
+      router.refresh();
+    } catch {
+      toast.error("Falha ao reordenar notas");
+    }
+  };
+
+  const getGradient = (color: string) => {
+    const gradients: Record<string, string> = {
+      yellow: "bg-yellow-50 dark:bg-yellow-900/20",
+      blue: "bg-blue-50 dark:bg-blue-900/20",
+      green: "bg-green-50 dark:bg-green-900/20",
+      pink: "bg-pink-50 dark:bg-pink-900/20",
+      purple: "bg-purple-50 dark:bg-purple-900/20",
+    };
+    return gradients[color] || gradients.yellow;
+  };
+
+  const getAccent = (color: string) => {
+    const accents: Record<string, string> = {
+      yellow: "bg-yellow-300 dark:bg-yellow-500",
+      blue: "bg-blue-300 dark:bg-blue-500",
+      green: "bg-green-300 dark:bg-green-500",
+      pink: "bg-pink-300 dark:bg-pink-500",
+      purple: "bg-purple-300 dark:bg-purple-500",
+    };
+    return accents[color] || accents.yellow;
   };
 
   return (
-    <>
-      <Card variant="elevated" hover className="h-full flex flex-col border border-slate-200/80 dark:border-slate-800/70">
-        <CardHeader className="shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-300 ring-1 ring-amber-100 dark:ring-amber-500/30">
-                <StickyNote className="h-4 w-4 sm:h-5 sm:w-5" />
-              </div>
-              <div>
-                {/* <CardTitle className="text-base sm:text-lg">Notas Rápidas</CardTitle> */}
-                <p className="text-xs text-slate-500 dark:text-slate-400">Organize lembretes curtos e ideias em um só lugar</p>
-              </div>
-              <Button
-                size="sm"
-                onClick={() => handleOpenDialog()}
-                className="gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Nova</span>
-              </Button>
-            </div>
-
+    <Card className="h-full border border-slate-200 dark:border-slate-800">
+      {/* Toolbar */}
+      <div className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 px-3 py-2 w-full sm:w-[280px]">
+            <Search className="w-4 h-4 text-slate-500" />
+            <input className="bg-transparent outline-none text-sm flex-1" placeholder="Buscar notas..." value={query} onChange={(e) => setQuery(e.target.value)} />
           </div>
-        </CardHeader>
-        <CardContent className="flex-1 overflow-y-auto">
-          {notes.length === 0 ? (
-            <div className="text-center py-8">
-              <StickyNote className="w-16 h-16 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
-              <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
-                Nenhuma nota criada
-              </p>
-              <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
-                Organize suas ideias e lembretes aqui
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-3">
-              {notes.map((note) => {
-                const colorClasses = getColorClasses(note.color);
-                const displayTitle = (note.title || '').trim().length > 0
-                  ? (note.title || '').trim()
-                  : (() => {
-                    const firstLine = (note.content || '').split('\n')[0].trim()
-                    return firstLine.length > 0 ? firstLine.slice(0, 60) : 'Sem título'
-                  })()
-                const isDeleting = deleting === note.id;
+          <Select value={filterColor} onValueChange={(v) => setFilterColor(v as FilterColor)}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Cor" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              {colorOptions.map((c) => (
+                <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <Button size="sm" className="gap-2" onClick={handleCreate} disabled={submitting && formOpen === "create"}>
+          {submitting && formOpen === "create" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+          Nova
+        </Button>
+      </div>
 
-                const gradients: Record<string, string> = {
-                  yellow: 'from-yellow-100 via-amber-50 to-yellow-100 dark:from-yellow-900/30 dark:via-amber-900/20 dark:to-yellow-900/30 border-yellow-300/50 dark:border-yellow-700/50 shadow-yellow-500/10',
-                  blue: 'from-blue-100 via-cyan-50 to-blue-100 dark:from-blue-900/30 dark:via-cyan-900/20 dark:to-blue-900/30 border-blue-300/50 dark:border-blue-700/50 shadow-blue-500/10',
-                  green: 'from-green-100 via-emerald-50 to-green-100 dark:from-green-900/30 dark:via-emerald-900/20 dark:to-green-900/30 border-green-300/50 dark:border-green-700/50 shadow-green-500/10',
-                  pink: 'from-pink-100 via-rose-50 to-pink-100 dark:from-pink-900/30 dark:via-rose-900/20 dark:to-pink-900/30 border-pink-300/50 dark:border-pink-700/50 shadow-pink-500/10',
-                  purple: 'from-purple-100 via-fuchsia-50 to-purple-100 dark:from-purple-900/30 dark:via-fuchsia-900/20 dark:to-purple-900/30 border-purple-300/50 dark:border-purple-700/50 shadow-purple-500/10',
-                };
-                const gradient = gradients[note.color] || gradients.yellow;
-
-                return (
-                  <div
-                    key={note.id}
-                    className={`group relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br ${gradient} border hover:shadow-lg transition-all duration-300 ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}
-                  >
-                    {isDeleting && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-slate-900/50 rounded-2xl backdrop-blur-sm">
-                        <Loader2 className="h-6 w-6 animate-spin text-slate-600 dark:text-slate-400" />
-                      </div>
-                    )}
-                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-200 flex gap-1">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleOpenDialog(note)}
-                        className="h-8 w-8 p-0 rounded-xl bg-white/80 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-900 shadow-sm"
-                        disabled={isDeleting}
-                        aria-label="Editar nota"
-                      >
-                        <Edit className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleDelete(note.id)}
-                        className="h-8 w-8 p-0 rounded-xl bg-white/80 dark:bg-slate-900/80 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/50 shadow-sm"
-                        disabled={isDeleting}
-                        aria-label="Excluir nota"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                    <h4 className="font-black text-sm mb-2 pr-20 wrap-break-word text-slate-900 dark:text-white">
-                      {displayTitle}
-                    </h4>
-                    <p className="text-xs whitespace-pre-wrap wrap-break-word text-slate-700 dark:text-slate-300 leading-relaxed">
-                      {note.content}
-                    </p>
-                    <p className="text-[10px] mt-3 font-semibold text-slate-500 dark:text-slate-500">
-                      {new Date(note.updatedAt).toLocaleDateString("pt-BR", {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric'
-                      })}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <StickyNote className="h-5 w-5 text-yellow-600" />
-              {editingNote ? "Editar Nota" : "Nova Nota"}
-            </DialogTitle>
-            <DialogDescription>
-              {editingNote
-                ? "Atualize o conteúdo da sua nota"
-                : "Crie uma nota rápida para organizar suas ideias"}
-            </DialogDescription>
-          </DialogHeader>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {validationError && (
-              <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm">
-                <AlertCircle className="h-4 w-4 shrink-0" />
-                <span>{validationError}</span>
-              </div>
-            )}
-
+      {/* Form (Create/Edit) with live preview */}
+      {formOpen && (
+        <div className="px-3 pb-3">
+          {errorMsg && <div className="mb-2 text-sm text-red-600">{errorMsg}</div>}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="title">
-                Título <span className="text-xs text-muted-foreground">(opcional)</span>
-              </Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => {
-                  setFormData({ ...formData, title: e.target.value });
-                  setValidationError("");
-                }}
-                placeholder="Ex: Ideias, Tarefas, Lembretes..."
-                maxLength={100}
-                disabled={submitting}
-              />
-              <p className="text-xs text-muted-foreground">
-                {formData.title.length}/100 caracteres
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="color">Cor</Label>
-              <Select
-                value={formData.color}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, color: value })
-                }
-                disabled={submitting}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
+              <Input aria-label="Título" placeholder="Título da nota" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} maxLength={100} />
+              <textarea aria-label="Descrição" placeholder="Descrição da nota" className="w-full text-sm rounded-md border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 p-2 min-h-[100px]" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+              <Select value={form.color} onValueChange={(v) => setForm({ ...form, color: v })}>
+                <SelectTrigger className="w-[180px]"><SelectValue placeholder="Cor" /></SelectTrigger>
                 <SelectContent>
-                  {colorOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      <div className="flex items-center gap-2">
-                        <div className={`w-4 h-4 rounded ${option.bg} ${option.border} border`} />
-                        {option.label}
-                      </div>
-                    </SelectItem>
+                  {colorOptions.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={submitForm} disabled={submitting}>{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Salvar</Button>
+                <Button size="sm" variant="outline" onClick={closeForm}>Cancelar</Button>
+              </div>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="content">
-                Conteúdo <span className="text-red-500">*</span>
-              </Label>
-              <Textarea
-                id="content"
-                value={formData.content}
-                onChange={(e) => {
-                  setFormData({ ...formData, content: e.target.value });
-                  setValidationError("");
-                }}
-                placeholder="Digite o conteúdo da nota..."
-                rows={6}
-                maxLength={1000}
-                disabled={submitting}
-                className="resize-none"
-              />
-              <p className="text-xs text-muted-foreground">
-                {formData.content.length}/1000 caracteres
-              </p>
+            <div className={`rounded-xl border border-slate-200 dark:border-slate-800 p-3 bg-gradient-to-br ${getGradient(form.color)} resize-y`}>
+              <div className="font-semibold text-sm text-slate-900 dark:text-white mb-1">{form.title || "Prévia da nota"}</div>
+              <div className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{form.description || "A descrição aparecerá aqui."}</div>
             </div>
+          </div>
+        </div>
+      )}
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setDialogOpen(false);
-                  setValidationError("");
-                }}
-                disabled={submitting}
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={submitting || !formData.content.trim()}>
-                {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {editingNote ? "Atualizar" : "Criar Nota"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </>
+      {/* Grid */}
+      <div className="p-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
+        {/* Left: cards grid (2 cols on large) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:col-span-2">
+          {filteredNotes.length === 0 ? (
+            <div className="text-center py-8 col-span-full">
+              <StickyNote className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+              <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Nenhuma nota encontrada</p>
+            </div>
+          ) : (
+            filteredNotes.map((note) => {
+              const isDeleting = deleting === note.id;
+              return (
+                <div
+                  key={note.id}
+                  draggable
+                  onDragStart={onDragStart(note.id)}
+                  onDragOver={onDragOver}
+                  onDrop={onDrop(note.id)}
+                  className={`group relative overflow-hidden rounded-xl ${getGradient(note.color)} border border-slate-200 dark:border-slate-800 p-3 hover:shadow-md transition-all ${isDeleting ? "opacity-50 pointer-events-none" : ""} resize-y`}
+                >
+                  <div className={`absolute left-0 top-0 h-full w-1 ${getAccent(note.color)}`} />
+                  <div className="absolute top-2 left-2 text-slate-400">
+                    <GripVertical className="w-4 h-4" />
+                  </div>
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => startEdit(note)} disabled={isDeleting} aria-label="Editar">
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleDelete(note.id)} disabled={isDeleting} aria-label="Excluir">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  <div className="text-left w-full">
+                    <div className="font-semibold text-sm text-slate-900 dark:text-white mb-1">{note.title?.trim() || (note.content?.split('\n')[0] ?? "Sem título")}</div>
+                    <div className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">{note.content}</div>
+                    <div className="text-[10px] mt-2 text-slate-500">Atualizada {new Date(note.updatedAt).toLocaleDateString("pt-BR")}</div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* Right: side panel editor */}
+        <div className="lg:col-span-1">
+          {formOpen && (
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 p-3">
+              {errorMsg && <div className="mb-2 text-sm text-red-600">{errorMsg}</div>}
+              <div className="space-y-2">
+                <Input aria-label="Título" placeholder="Título da nota" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} maxLength={100} />
+                <textarea aria-label="Descrição" placeholder="Descrição da nota" className="w-full text-sm rounded-md border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 p-2 min-h-[140px]" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+                <div className="flex items-center gap-2">
+                  <Select value={form.color} onValueChange={(v) => setForm({ ...form, color: v })}>
+                    <SelectTrigger className="w-[160px]"><SelectValue placeholder="Cor" /></SelectTrigger>
+                    <SelectContent>
+                      {colorOptions.map((c) => (
+                        <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <div className={`flex-1 rounded-lg p-2 border bg-gradient-to-br ${getGradient(form.color)} border-slate-200 dark:border-slate-800`}>
+                    <div className="text-[11px] text-slate-600 dark:text-slate-300">Prévia</div>
+                    <div className="font-medium text-sm text-slate-900 dark:text-white">{form.title || "Título"}</div>
+                    <div className="text-xs text-slate-700 dark:text-slate-300">{form.description || "Descrição..."}</div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={submitForm} disabled={submitting}>{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Salvar</Button>
+                  <Button size="sm" variant="outline" onClick={closeForm}>Cancelar</Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </Card>
   );
 }

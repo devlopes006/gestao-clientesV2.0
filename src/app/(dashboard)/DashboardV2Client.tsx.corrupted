@@ -1,0 +1,420 @@
+"use client";
+
+import { MonthlyCalendar } from '@/features/dashboard/components/MonthlyCalendar';
+import { useAssignees } from '@/features/tasks/hooks/useAssignees';
+import { DashboardData } from '@/modules/dashboard/domain/schema';
+import { Activity, AlertCircle, Calendar as CalendarIcon, CheckCircle, Flame, LineChart as LineChartIcon, NotebookPen, Search, Target, TrendingUp, Users, Zap } from 'lucide-react';
+import Link from "next/link";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  Line,
+  Pie,
+  PieChart,
+  LineChart as RLineChart,
+  Tooltip as RTooltip,
+  ResponsiveContainer,
+  XAxis,
+  YAxis
+} from 'recharts';
+import styles from './dashboard.module.css';
+
+type Props = { initialData: DashboardData; initialMonthKey: string; role?: string; orgId?: string };
+
+function InsightCard({ title, description, icon, badge, badgeColor = 'blue' }: { title: string; description: string; icon: React.ReactNode; badge?: string; badgeColor?: string }) {
+  return (
+    <div className="group relative rounded-2xl bg-gradient-to-br from-slate-900/40 via-slate-950/50 to-slate-950/60 dark:from-slate-900/60 dark:via-slate-950/70 dark:to-slate-950/80 border border-pink-500/30 dark:border-pink-500/20 p-4 hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300 overflow-hidden backdrop-blur-lg">
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/20 rounded-full blur-2xl" />
+      </div>
+      <div className="relative">
+        <div className="flex items-start gap-3">
+          <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-pink-500/30 to-pink-600/20 flex items-center justify-center text-pink-400 group-hover:scale-110 transition-transform">
+            {icon}
+          </div>
+          {badge && <span className={`text-xs font-bold px-2 py-1 rounded-full text-white ${badgeColor === 'red' ? 'bg-gradient-to-r from-red-500 to-pink-500' : badgeColor === 'emerald' ? 'bg-gradient-to-r from-emerald-500 to-teal-500' : 'bg-gradient-to-r from-pink-500 to-pink-600'}`}>{badge}</span>}
+        </div>
+        <h3 className="text-sm font-bold text-white mt-3">{title}</h3>
+        <p className="text-xs text-slate-400 mt-1">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+// Sidebar removido conforme solicitação
+
+
+// Remove mocks, usaremos dados reais do backend
+
+export function DashboardV2Client({ initialData, role, orgId }: Props) {
+  const [commandOpen, setCommandOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  <h3 className="text-xs font-bold text-white">Por Cliente</h3>
+  {/* Dock global é renderizado pelo layout */ }
+      </div >
+    <BarChart data={tasksPerClient.slice(0, 5)} margin={{ left: 0, right: 0, top: 5, bottom: 20 }}>
+      <XAxis dataKey="name" tick={{ fontSize: 9 }} angle={-45} textAnchor="end" height={40} />
+      <Bar dataKey="total" fill="#10b981" radius={[4, 4, 0, 0]} />
+    </BarChart>
+                  </ResponsiveContainer >
+                </div >
+              </div >
+            </div >
+          </div >
+
+    {/* Coluna Direita - Tarefas */ }
+    < div className = "col-span-3 flex flex-col gap-3 overflow-hidden" >
+      {/* Tarefas Pendentes */ }
+      < div className = "flex-1 rounded-lg bg-slate-900/60 border border-pink-500/20 p-3 overflow-hidden flex flex-col" >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-3.5 w-3.5 text-amber-400" />
+                  <h3 className="text-xs font-bold text-white">Pendentes</h3>
+                </div>
+                <span className="text-[10px] text-amber-400 font-bold">{pendingTasks.length}</span>
+              </div>
+              <div className="flex-1 overflow-auto space-y-1.5">
+                {pendingTasks.slice(0, 8).map((t) => (
+                  <div key={t.id} className="p-2 rounded bg-slate-800/40 border border-amber-400/20 hover:border-amber-400/40 transition-all">
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-1.5 w-1.5 rounded-full bg-amber-400 flex-shrink-0" />
+                      <p className="text-[10px] text-white line-clamp-1 flex-1">{t.title}</p>
+                    </div>
+                    <p className="text-[9px] text-slate-400 mt-0.5">{t.dueDate ? new Date(t.dueDate).toLocaleDateString('pt-BR') : 'Sem data'}</p>
+                  </div>
+                ))}
+              </div>
+            </div >
+
+    {/* Tarefas Urgentes */ }
+    < div className = "flex-1 rounded-lg bg-slate-900/60 border border-pink-500/20 p-3 overflow-hidden flex flex-col" >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Flame className="h-3.5 w-3.5 text-red-400" />
+                  <h3 className="text-xs font-bold text-white">Urgentes</h3>
+                </div>
+                <span className="text-[10px] text-red-400 font-bold">{urgentTasks.length}</span>
+              </div>
+              <div className="flex-1 overflow-auto space-y-1.5">
+                {urgentTasks.slice(0, 8).map((t) => (
+                  <div key={t.id} className="p-2 rounded bg-slate-800/40 border border-red-400/20 hover:border-red-400/40 transition-all">
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0 animate-pulse" />
+                      <p className="text-[10px] text-white line-clamp-1 flex-1">{t.title}</p>
+                    </div>
+                    <p className="text-[9px] text-slate-400 mt-0.5">{t.dueDate ? new Date(t.dueDate).toLocaleDateString('pt-BR') : 'Sem data'}</p>
+                  </div>
+                ))}
+              </div>
+            </div >
+          </div >
+        </div >
+      </div >
+
+    {/* Seção de Insights Dinâmicos - Compacta */ }
+    < div className = "mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150 fill-mode-both" >
+        <div className="flex items-center gap-2 mb-3">
+          <Zap className="h-4 w-4 text-pink-500" />
+          <h2 className="text-base font-bold text-white">Insights & Recomendações</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          {urgentCount > 0 && (
+            <InsightCard
+              icon={<Flame className="h-5 w-5" />}
+              title="Tarefas Urgentes"
+              description={`Você tem ${urgentCount} tarefas urgentes que precisam de atenção imediata`}
+              badge="Urgente"
+              badgeColor="red"
+            />
+          )}
+          {openTasks > 10 && (
+            <InsightCard
+              icon={<Target className="h-5 w-5" />}
+              title="Carga de Trabalho"
+              description={`${openTasks} tarefas em aberto. Considere delegar ou priorizar.`}
+              badge="Alto"
+              badgeColor="red"
+            />
+          )}
+          {receitaTrend && receitaTrend > 0 && (
+            <InsightCard
+              icon={<TrendingUp className="h-5 w-5" />}
+              title="Receita em Alta"
+              description={`Crescimento de ${Math.abs(receitaTrend).toFixed(1)}% comparado ao mês anterior`}
+              badge="Positivo"
+              badgeColor="emerald"
+            />
+          )}
+          <InsightCard
+            icon={<Users className="h-5 w-5" />}
+            title="Equipe Ativa"
+            description={`${totalClients} clientes ativos sendo gerenciados`}
+            badge="Premium"
+            badgeColor="blue"
+          />
+        </div>
+      </div >
+
+    {/* Notas e Tarefas - Grid Compacto */ }
+    < div className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 fill-mode-both" >
+      {/* Bloco de Notas - Compacto */ }
+      < section className = "lg:col-span-2 rounded-2xl border border-pink-500/25 bg-gradient-to-br from-slate-900/40 via-slate-950/50 to-slate-950/60 backdrop-blur-lg p-5 shadow-sm hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300" >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-pink-500/30 to-pink-600/20 flex items-center justify-center">
+              <NotebookPen className="h-4 w-4 text-pink-400" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-white">Anotações</h2>
+              <p className="text-[10px] text-slate-400">Notas rápidas</p>
+            </div>
+          </div>
+        </div>
+
+  {/* Notas Grid */ }
+  <div className="space-y-2">
+    {(data.notes ?? []).slice(0, 3).map((note, idx) => (
+      <div key={idx} className="group p-3 rounded-lg bg-gradient-to-br from-slate-800/40 to-slate-800/20 border border-pink-500/20 hover:border-pink-500/40 hover:shadow-md transition-all cursor-pointer">
+        <div className="flex items-start gap-2">
+          <div className="h-1.5 w-1.5 rounded-full bg-pink-500 mt-1 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] font-bold text-white line-clamp-1">{(note.content?.split('\n')[0] || 'Nota sem título').substring(0, 40)}</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">{new Date(note.updatedAt || note.createdAt).toLocaleDateString('pt-BR')}</p>
+          </div>
+        </div>
+      </div>
+    ))}
+    {(data.notes ?? []).length === 0 && (
+      <div className="text-center py-4 text-slate-500">
+        <p className="text-[11px]">Nenhuma nota ainda</p>
+      </div>
+    )}
+  </div>
+
+  {
+    (data.notes ?? []).length > 0 && (
+      <button className="w-full mt-3 px-2 py-1.5 rounded-lg bg-gradient-to-r from-pink-500/20 to-pink-600/10 hover:from-pink-500/30 hover:to-pink-600/20 border border-pink-500/20 text-pink-400 text-[11px] font-semibold transition-all">+ Ver todas ({(data.notes ?? []).length})</button>
+    )
+  }
+        </section >
+
+    {/* Tarefas - Compacto */ }
+    < section className = "lg:col-span-4 rounded-2xl border border-pink-500/25 bg-gradient-to-br from-slate-900/40 via-slate-950/50 to-slate-950/60 backdrop-blur-lg p-5 shadow-sm hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300" >
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${tasksTab === 'pendentes' ? 'bg-gradient-to-br from-amber-500/30 to-amber-600/20' : 'bg-gradient-to-br from-red-500/30 to-red-600/20'}`}>
+            <AlertCircle className={`h-4 w-4 ${tasksTab === 'pendentes' ? 'text-amber-400' : 'text-red-400'}`} />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-white">{tasksTab === 'pendentes' ? 'Pendentes' : 'Urgentes'}</h2>
+            <p className="text-[10px] text-slate-400">{tasksTab === 'pendentes' ? 'Tarefas aguardando ação' : 'Ação imediata necessária'}</p>
+          </div>
+        </div>
+        <div className="inline-flex rounded-lg border border-pink-500/20 bg-slate-800/30 overflow-hidden backdrop-blur-sm">
+          <button
+            className={`px-3 py-2 text-xs font-semibold transition-all rounded ${tasksTab === 'pendentes' ? 'bg-gradient-to-r from-pink-500/30 to-pink-600/20 border border-pink-500/30 text-pink-400 shadow-sm' : 'text-slate-400 hover:text-pink-400 border border-transparent'}`}
+            onClick={() => setTasksTab('pendentes')}
+          >Pendentes ({pendingTasks.length})</button>
+          <button
+            className={`px-3 py-2 text-xs font-semibold transition-all rounded ${tasksTab === 'urgentes' ? 'bg-gradient-to-r from-pink-500/30 to-pink-600/20 border border-pink-500/30 text-pink-400 shadow-sm' : 'text-slate-400 hover:text-pink-400 border border-transparent'}`}
+            onClick={() => setTasksTab('urgentes')}
+          >Urgentes ({urgentTasks.length})</button>
+        </div>
+      </div>
+
+  {/* Tasks List - Compacta */ }
+  <div className="space-y-2 max-h-64 overflow-auto pr-2">
+    {loading ? (
+      Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="h-10 rounded-lg bg-gradient-to-r from-slate-800/40 to-slate-800/20 animate-pulse" />
+      ))
+    ) : tasksTab === 'pendentes' ? (
+      pendingTasks.length > 0 ? (
+        <div className="space-y-2">
+          {pendingTasks.slice(0, 5).map((t) => (
+            <div key={t.id} className="group relative p-3 rounded-lg bg-gradient-to-r from-slate-800/40 to-slate-800/20 border border-amber-400/30 hover:border-amber-400/50 hover:shadow-lg hover:shadow-amber-400/10 transition-all cursor-pointer">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-amber-400 flex-shrink-0 group-hover:scale-125 transition-transform" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-semibold text-white line-clamp-1">{t.title}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="text-[10px] text-slate-400">{typeof t.client === 'object' && t.client !== null ? t.client.name : t.client || 'Sem cliente'}</span>
+                    <span className="text-[10px] text-amber-400">•</span>
+                    <span className="text-[10px] text-amber-400">{t.dueDate ? new Date(t.dueDate).toLocaleDateString('pt-BR') : 'Sem data'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-8 text-slate-400">
+          <CheckCircle className="h-6 w-6 mx-auto mb-2 opacity-50" />
+          <p className="text-[11px] font-medium text-white">Sem tarefas pendentes</p>
+          <p className="text-[10px] mt-1">Você está em dia! 🎉</p>
+        </div>
+      )
+    ) : (
+      urgentTasks.length > 0 ? (
+        <div className="space-y-2">
+          {urgentTasks.slice(0, 5).map((t) => (
+            <div key={t.id} className="group relative p-3 rounded-lg bg-gradient-to-r from-slate-800/40 to-slate-800/20 border border-red-400/30 hover:border-red-400/50 hover:shadow-lg hover:shadow-red-400/10 transition-all cursor-pointer">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-red-500 flex-shrink-0 animate-pulse group-hover:scale-125 transition-transform" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-bold text-white line-clamp-1">{t.title}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="text-[10px] text-slate-400">
+                      {typeof t.client === 'object' && t.client !== null
+                        ? t.client.name
+                        : t.client || 'Sem cliente'}
+                    </span>
+                    <span className="text-[10px] text-red-400">•</span>
+                    <span className="text-[10px] text-red-400">{t.dueDate ? new Date(t.dueDate).toLocaleDateString('pt-BR') : 'Sem data'}</span>
+                  </div>
+                </div>
+                <Flame className="h-3 w-3 text-red-400 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-8 text-slate-400">
+          <CheckCircle className="h-6 w-6 mx-auto mb-2 opacity-50" />
+          <p className="text-[11px] font-medium text-white">Sem tarefas urgentes</p>
+          <p className="text-[10px] mt-1">Tudo sob controle! ✨</p>
+        </div>
+      )
+    )}
+  </div>
+        </section >
+      </div >
+
+    {/* Seção de gráficos - Layout compacto 6 colunas */ }
+    < div className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both" >
+      {/* Receitas por período - 4 colunas */ }
+      < section className = "lg:col-span-4 rounded-2xl border border-pink-500/25 bg-gradient-to-br from-slate-900/40 via-slate-950/50 to-slate-950/60 backdrop-blur-lg p-4 hover:border-pink-500/50 hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300" >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-yellow-500/30 to-yellow-600/20 flex items-center justify-center">
+                <TrendingUp className="h-4 w-4 text-yellow-400" />
+              </div>
+              <h2 className="text-base font-bold text-white">Receitas por Período</h2>
+            </div>
+            <div className="text-[11px] text-slate-400">Total: {totalReceitas.toLocaleString('pt-BR')}</div>
+          </div>
+          <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <RLineChart data={finSeries} margin={{ left: 8, right: 8, top: 8, bottom: 8 }}>
+                <defs>
+                  <linearGradient id="gradReceitas" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#ec4899" stopOpacity={0.9} />
+                    <stop offset="100%" stopColor="#f472b6" stopOpacity={0.9} />
+                  </linearGradient>
+                  <linearGradient id="gradSaldo" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#22c55e" stopOpacity={0.9} />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity={0.9} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#94a3b8' }} />
+                <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
+                <RTooltip contentStyle={{ background: '#0f172a', border: '1px solid #ec4899', color: '#f8fafc', borderRadius: '8px' }} />
+                <Line type="monotone" dataKey="receitas" stroke="url(#gradReceitas)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="saldo" stroke="url(#gradSaldo)" strokeWidth={2} dot={false} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+              </RLineChart>
+            </ResponsiveContainer>
+          </div>
+        </section >
+
+    {/* Distribuição por Prioridade - 2 colunas */ }
+    < section className = "lg:col-span-2 rounded-2xl border border-pink-500/25 bg-gradient-to-br from-slate-900/40 via-slate-950/50 to-slate-950/60 backdrop-blur-lg p-4 hover:border-pink-500/50 hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300" >
+          <div className="flex items-center gap-2 mb-3">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500/30 to-purple-600/20 flex items-center justify-center">
+              <Target className="h-4 w-4 text-purple-400" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-white">Prioridades</h2>
+              <p className="text-[10px] text-slate-400">Distribuição</p>
+            </div>
+          </div>
+          <div className="h-40">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={tasksByPriority} dataKey="value" nameKey="name" innerRadius={30} outerRadius={55} paddingAngle={2}>
+                  {tasksByPriority.map((entry) => (
+                    <Cell key={entry.name} fill={PRIORITY_COLORS[entry.name]} />
+                  ))}
+                </Pie>
+                <RTooltip contentStyle={{ background: '#0f172a', border: '1px solid #ec4899', color: '#f8fafc', borderRadius: '8px' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-2 grid grid-cols-2 gap-1.5">
+            {tasksByPriority.map((item) => (
+              <div key={item.name} className="flex items-center gap-1.5">
+                <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: PRIORITY_COLORS[item.name] }} />
+                <span className="text-[10px] font-medium text-slate-300">{item.name} ({item.value})</span>
+              </div>
+            ))}
+          </div>
+        </section >
+
+    {/* Tarefas por Cliente - 3 colunas */ }
+    < section className = "lg:col-span-3 rounded-2xl border border-pink-500/25 bg-gradient-to-br from-slate-900/40 via-slate-950/50 to-slate-950/60 backdrop-blur-lg p-4 hover:border-pink-500/50 hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300" >
+          <div className="flex items-center gap-2 mb-3">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-500/30 to-emerald-600/20 flex items-center justify-center">
+              <Activity className="h-4 w-4 text-emerald-400" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-white">Tarefas por Cliente</h2>
+              <p className="text-[10px] text-slate-400">Carga de trabalho</p>
+            </div>
+          </div>
+          <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={tasksPerClient} margin={{ left: 8, right: 8, top: 8, bottom: 35 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
+                <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#94a3b8' }} interval={0} angle={-45} textAnchor="end" height={60} />
+                <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} />
+                <Bar dataKey="total" fill="#10b981" radius={[6, 6, 0, 0]} animationDuration={800} />
+                <RTooltip contentStyle={{ background: '#0f172a', border: '1px solid #ec4899', color: '#f8fafc', borderRadius: '8px' }} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </section >
+
+    {/* Atividades Recentes - 3 colunas */ }
+    < section className = "lg:col-span-3 rounded-2xl border border-pink-500/25 bg-gradient-to-br from-slate-900/40 via-slate-950/50 to-slate-950/60 backdrop-blur-lg p-4 hover:border-pink-500/50 hover:shadow-xl hover:shadow-pink-500/10 transition-all duration-300" >
+          <div className="flex items-center gap-2 mb-3">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-pink-500/30 to-pink-600/20 flex items-center justify-center">
+              <LineChartIcon className="h-4 w-4 text-pink-400" />
+            </div>
+            <h2 className="text-base font-bold text-white">Atividades Recentes</h2>
+          </div>
+          <ul className="space-y-2 max-h-48 overflow-auto pr-1">
+            {(data.activities ?? []).slice(0, 5).map((a) => (
+              <li key={a.id} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800/40 border border-slate-700/50 hover:border-pink-500/30 transition-colors">
+                <span className="h-2 w-2 rounded-full bg-pink-500" />
+                <span className="text-[11px] truncate flex-1 text-slate-300">{a.title}</span>
+                <span className="text-[10px] text-slate-500">{new Date(a.date).toLocaleDateString('pt-BR')}</span>
+              </li>
+            ))}
+          </ul>
+        </section >
+      </div >
+    </div >
+
+    {/* Dock global é renderizado pelo layout; nenhuma barra de topo aqui */ }
+      </div >
+    </div >
+  );
+}
+
+export default DashboardV2Client;

@@ -1,8 +1,6 @@
 "use client";
 
-import AppSidebar from "@/components/app-sidebar";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useUser } from "@/context/UserContext";
 import { usePathname } from "next/navigation";
 import React from "react";
@@ -22,16 +20,12 @@ export default function AppLayoutClient({
   // Also hide sidebar explicitly on the login page
   if (!user || pathname === "/login") return <>{children}</>;
 
-  // Authenticated: render with sidebar pattern
-  // Wrap in a flex container so `SidebarInset`'s flex-1 works as intended
+  // Authenticated: render with global bottom dock (no sidebar)
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex relative pb-20 sm:pb-0">
-        <AppSidebar />
-        <SidebarInset>{children}</SidebarInset>
-      </div>
-      {/* Mobile Bottom Navigation */}
+    <div className="min-h-screen flex flex-col relative pb-20 sm:pb-0">
+      <main className="flex-1">{children}</main>
+      {/* Global Bottom Navigation (Dock) */}
       <MobileBottomNav />
-    </SidebarProvider>
+    </div>
   );
 }

@@ -3,7 +3,7 @@ import { getDashboardData } from '@/modules/dashboard/actions/getDashboardData'
 import { getSessionProfile } from '@/services/auth/session'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { DashboardClient } from './DashboardClient'
+import DashboardV2ClientNew from './DashboardV2ClientNew'
 
 export const metadata: Metadata = {
   title: 'Painel de Gestão',
@@ -30,5 +30,5 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   }
   const monthKey = params?.month || getCurrentMonthKey();
   const data = await getDashboardData(monthKey);
-  return <DashboardClient initialData={data} initialMonthKey={monthKey} role={session.role} />;
+  return <DashboardV2ClientNew initialData={data} initialMonthKey={monthKey} role={session.role ?? undefined} orgId={session.orgId} />;
 }

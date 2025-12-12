@@ -8,6 +8,8 @@ import {
   updateTaskSchema,
 } from '@/lib/validations'
 import { getSessionProfile } from '@/services/auth/session'
+import { sendTaskAssignmentEmail } from '@/services/email/resend'
+import { sendSmtpMail } from '@/services/email/smtp'
 import { NextRequest, NextResponse } from 'next/server'
 import { ZodError } from 'zod'
 
@@ -174,6 +176,93 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       },
     })
 
+    // Envia email para o responsável, se houver
+    if (sanitized.assignee) {
+      try {
+        const assigneeUser = await prisma.user.findUnique({
+          where: { id: sanitized.assignee },
+          select: { email: true, name: true },
+        })
+        const org = await prisma.org.findUnique({
+          where: { id: orgId },
+          select: {
+            name: true,
+            owner: { select: { name: true, email: true } },
+          },
+        })
+        const clientName = client?.name || null
+        const assignerName = user.name || user.email
+        const baseUrl =
+          process.env.NEXT_PUBLIC_APP_URL ||
+          process.env.APP_BASE_URL ||
+          'http://localhost:3000'
+        const taskLink = `${baseUrl}/clients/${clientId}?tab=tasks`
+
+        if (assigneeUser?.email) {
+          // Tenta Resend, se não disponível, usa SMTP
+          let sent = false
+          try {
+            const result = await sendTaskAssignmentEmail({
+              to: assigneeUser.email,
+              assigneeName: assigneeUser.name,
+              assignerName,
+              taskTitle: task.title,
+              clientName,
+              orgName: org?.name || null,
+              dueDate: task.dueDate,
+              taskLink,
+            })
+            sent = !result.skipped
+          } catch (err) {
+            sent = false
+          }
+          if (!sent) {
+            // SMTP fallback
+            const subject = `[Tarefa atribuída] ${task.title}`
+            const safeAssignee = assigneeUser.name || 'Você'
+            const safeAssigner = assignerName || 'Gestão de Clientes'
+            const safeOrg = org?.name || 'sua organização'
+            const safeClient = clientName ? ` • Cliente: ${clientName}` : ''
+            const dueText = task.dueDate
+              ? `Prazo: ${task.dueDate.toLocaleDateString('pt-BR')}`
+              : ''
+            const html = `
+              <html>
+                <body style="margin:0;padding:24px;background:#0b1220;font-family:Inter,system-ui,-apple-system,Segoe UI,Arial;color:#e2e8f0;">
+                  <div style="max-width:640px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid #1f2937;box-shadow:0 18px 60px rgba(0,0,0,0.35);background:linear-gradient(135deg,#0f172a 0%,#0b1220 40%,#111827 100%);">
+                    <div style="padding:18px 20px;border-bottom:1px solid #1f2937;background:linear-gradient(135deg,#111827,#0b1220);">
+                      <p style="margin:0;font-size:13px;color:#94a3b8;letter-spacing:0.3px;">${safeOrg}</p>
+                      <h1 style="margin:6px 0 0 0;font-size:20px;color:#f8fafc;">${safeAssignee}, você recebeu uma nova tarefa</h1>
+                    </div>
+                    <div style="padding:22px 24px;">
+                      <p style="margin:0 0 10px 0;font-size:15px;color:#e2e8f0;line-height:1.5;"><strong style="color:#93c5fd;">Tarefa:</strong> ${task.title}</p>
+                      ${clientName ? `<p style=\"margin:0 0 8px 0;font-size:14px;color:#cbd5e1;line-height:1.5;\"><strong style=\\"color:#93c5fd;\">Cliente:</strong> ${clientName}</p>` : ''}
+                      ${dueText ? `<p style=\"margin:0 0 12px 0;font-size:14px;color:#cbd5e1;line-height:1.5;\"><strong style=\\"color:#93c5fd;\">Prazo:</strong> ${dueText.replace('Prazo: ', '')}</p>` : ''}
+                      <p style="margin:0 0 16px 0;font-size:14px;color:#cbd5e1;">Atribuída por <strong style="color:#f8fafc;">${safeAssigner}</strong>.</p>
+                      <a href="${taskLink}" style="display:inline-block;padding:12px 18px;background:#3b82f6;color:#fff;text-decoration:none;border-radius:12px;font-weight:700;box-shadow:0 10px 35px rgba(59,130,246,0.35);">Ver tarefa</a>
+                      <p style="margin:16px 0 0 0;font-size:12px;color:#94a3b8;line-height:1.5;">Se o botão não funcionar, copie e cole este link no navegador:<br/><span style="color:#60a5fa;word-break:break-all;">${taskLink}</span></p>
+                    </div>
+                  </div>
+                </body>
+              </html>
+            `
+            const text = `${safeAssignee}, você recebeu uma nova tarefa: ${task.title} ${safeClient}\n${dueText}\nAtribuída por: ${safeAssigner}\n${taskLink}`
+            await sendSmtpMail({
+              to: assigneeUser.email,
+              subject,
+              html,
+              text,
+              from: org?.owner?.email
+                ? `${org.owner.name || 'Owner'} <${org.owner.email}>`
+                : undefined,
+            })
+          }
+        }
+      } catch (err) {
+        console.warn('[task assignment email] falhou', err)
+      }
+    }
+
     return NextResponse.json(task)
   } catch (error) {
     if (error instanceof ZodError) {
@@ -256,6 +345,96 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         }),
       },
     })
+
+    // Se mudou/definiu responsável, enviar email
+    if (sanitized.assignee) {
+      try {
+        const assigneeUser = await prisma.user.findUnique({
+          where: { id: sanitized.assignee },
+          select: { email: true, name: true },
+        })
+        const client = await prisma.client.findFirst({
+          where: { id: clientId, orgId },
+          select: { name: true },
+        })
+        const org = await prisma.org.findUnique({
+          where: { id: orgId },
+          select: {
+            name: true,
+            owner: { select: { name: true, email: true } },
+          },
+        })
+        const assignerName = user?.name || user?.email
+        const baseUrl =
+          process.env.NEXT_PUBLIC_APP_URL ||
+          process.env.APP_BASE_URL ||
+          'http://localhost:3000'
+        const taskLink = `${baseUrl}/clients/${clientId}?tab=tasks`
+
+        if (assigneeUser?.email) {
+          // Tenta Resend, se não disponível, usa SMTP
+          let sent = false
+          try {
+            const result = await sendTaskAssignmentEmail({
+              to: assigneeUser.email,
+              assigneeName: assigneeUser.name,
+              assignerName,
+              taskTitle: updated.title,
+              clientName: client?.name || null,
+              orgName: org?.name || null,
+              dueDate: updated.dueDate,
+              taskLink,
+            })
+            sent = !result.skipped
+          } catch (err) {
+            sent = false
+          }
+          if (!sent) {
+            // SMTP fallback
+            const subject = `[Tarefa atribuída] ${updated.title}`
+            const safeAssignee = assigneeUser.name || 'Você'
+            const safeAssigner = assignerName || 'Gestão de Clientes'
+            const safeOrg = org?.name || 'sua organização'
+            const safeClient = client?.name ? ` • Cliente: ${client.name}` : ''
+            const dueText = updated.dueDate
+              ? `Prazo: ${updated.dueDate.toLocaleDateString('pt-BR')}`
+              : ''
+            const html = `
+              <html>
+                <body style="margin:0;padding:24px;background:#0b1220;font-family:Inter,system-ui,-apple-system,Segoe UI,Arial;color:#e2e8f0;">
+                  <div style="max-width:640px;margin:0 auto;border-radius:16px;overflow:hidden;border:1px solid #1f2937;box-shadow:0 18px 60px rgba(0,0,0,0.35);background:linear-gradient(135deg,#0f172a 0%,#0b1220 40%,#111827 100%);">
+                    <div style="padding:18px 20px;border-bottom:1px solid #1f2937;background:linear-gradient(135deg,#111827,#0b1220);">
+                      <p style="margin:0;font-size:13px;color:#94a3b8;letter-spacing:0.3px;">${safeOrg}</p>
+                      <h1 style="margin:6px 0 0 0;font-size:20px;color:#f8fafc;">${safeAssignee}, você recebeu uma nova tarefa</h1>
+                    </div>
+                    <div style="padding:22px 24px;">
+                      <p style="margin:0 0 10px 0;font-size:15px;color:#e2e8f0;line-height:1.5;"><strong style="color:#93c5fd;">Tarefa:</strong> ${updated.title}</p>
+                      ${client?.name ? `<p style=\"margin:0 0 8px 0;font-size:14px;color:#cbd5e1;line-height:1.5;\"><strong style=\\"color:#93c5fd;\">Cliente:</strong> ${client.name}</p>` : ''}
+                      ${dueText ? `<p style=\"margin:0 0 12px 0;font-size:14px;color:#cbd5e1;line-height:1.5;\"><strong style=\\"color:#93c5fd;\">Prazo:</strong> ${dueText.replace('Prazo: ', '')}</p>` : ''}
+                      <p style="margin:0 0 16px 0;font-size:14px;color:#cbd5e1;">Atribuída por <strong style="color:#f8fafc;">${safeAssigner}</strong>.</p>
+                      <a href="${taskLink}" style="display:inline-block;padding:12px 18px;background:#3b82f6;color:#fff;text-decoration:none;border-radius:12px;font-weight:700;box-shadow:0 10px 35px rgba(59,130,246,0.35);">Ver tarefa</a>
+                      <p style="margin:16px 0 0 0;font-size:12px;color:#94a3b8;line-height:1.5;">Se o botão não funcionar, copie e cole este link no navegador:<br/><span style="color:#60a5fa;word-break:break-all;">${taskLink}</span></p>
+                    </div>
+                  </div>
+                </body>
+              </html>
+            `
+            const text = `${safeAssignee}, você recebeu uma nova tarefa: ${updated.title} ${safeClient}\n${dueText}\nAtribuída por: ${safeAssigner}\n${taskLink}`
+            await sendSmtpMail({
+              to: assigneeUser.email,
+              subject,
+              html,
+              text,
+              from: org?.owner?.email
+                ? `${org.owner.name || 'Owner'} <${org.owner.email}>`
+                : undefined,
+            })
+          }
+        }
+      } catch (err) {
+        console.warn('[task assignment email] falhou', err)
+      }
+    }
 
     return NextResponse.json(updated)
   } catch (error) {

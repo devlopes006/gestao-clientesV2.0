@@ -204,8 +204,8 @@ export function LuxeCalendar({ initialEvents, monthKey }: LuxeCalendarProps) {
       <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-md border border-slate-700/30 rounded-xl p-3 shadow-xl">
         {/* Weekdays */}
         <div className="grid grid-cols-7 gap-1 mb-2">
-          {WEEKDAYS.map(day => (
-            <div key={day} className="text-center text-[10px] font-semibold text-slate-400 py-1">
+          {WEEKDAYS.map((day, idx) => (
+            <div key={`weekday-${idx}`} className="text-center text-[10px] font-semibold text-slate-400 py-1">
               {day}
             </div>
           ))}

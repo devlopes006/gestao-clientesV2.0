@@ -10,12 +10,12 @@ export type ActivityItem = {
 
 export function useActivityFeed(initial?: DashboardData): ActivityItem[] {
   return useMemo(() => {
-    const items = initial?.activity?.recent ?? []
+    const items = initial?.activities ?? []
     return items.map((a: any, idx: number) => ({
       id: String(a.id ?? idx),
       type: a.type ?? 'update',
       title: a.title ?? 'Atualização',
-      time: a.time ?? '',
+      time: new Date(a.date).toLocaleDateString('pt-BR') ?? '',
     }))
   }, [initial])
 }

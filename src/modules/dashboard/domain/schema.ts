@@ -90,7 +90,10 @@ export const MetricsSchema = z.object({
 
 export const NoteSchema = z.object({
   id: z.string(),
+  title: z.string().optional(),
   content: z.string(),
+  color: z.string().optional(),
+  position: z.number().optional(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date().optional(),
 })

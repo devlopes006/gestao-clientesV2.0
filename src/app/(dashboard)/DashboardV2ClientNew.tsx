@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { LuxeCalendar } from "@/app/(dashboard)/components/LuxeCalendar";
+import { LuxeCalendarV2 } from "@/app/(dashboard)/components/LuxeCalendarV2";
 import { LuxeNotes } from "@/app/(dashboard)/components/LuxeNotes";
 import { useActivityFeed } from '@/hooks/useActivityFeed';
 import { useDashboardKPIs } from '@/hooks/useDashboardKPIs';
@@ -132,15 +132,16 @@ function ClientHealthCard({ health }: { health: Record<string, any> }) {
   };
 
   const healthColor = getHealthColor(health.completionRate);
+  const daysLabel = health.daysActive === 1 ? "1 dia" : `${health.daysActive} dias`;
 
   return (
-    <div className={`bg-gradient-to-br ${healthColor.bg} to-slate-900/20 border border-slate-700/50 rounded-xl p-4`}>
+    <div className={`bg-gradient-to-br ${healthColor.bg} to-slate-900/20 border border-slate-700/50 rounded-xl p-4 hover:border-slate-600/80 transition-all`}>
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <h4 className="text-white font-semibold text-sm">{health.clientName}</h4>
+          <h4 className="text-white font-semibold text-sm truncate">{health.clientName}</h4>
           <p className={`text-xs font-medium ${healthColor.text} mt-1`}>{healthColor.label} desempenho</p>
         </div>
-        <div className="w-12 h-12 rounded-full bg-slate-800/50 flex items-center justify-center">
+        <div className="w-12 h-12 rounded-full bg-slate-800/50 flex items-center justify-center flex-shrink-0">
           <span className="text-sm font-bold text-white">{health.completionRate}%</span>
         </div>
       </div>
@@ -153,32 +154,32 @@ function ClientHealthCard({ health }: { health: Record<string, any> }) {
           style={{ width: `${health.completionRate}%` }}
         />
       </div>
-      <div className="grid grid-cols-4 gap-2 mt-3 text-[11px] text-slate-300">
-        <div className="text-center">
-          <p className="font-semibold text-white">{health.tasksPending}</p>
-          <p>Pendentes</p>
+      <div className="grid grid-cols-2 gap-3 mt-3">
+        <div className="bg-slate-800/40 rounded-lg p-2">
+          <p className="text-[10px] text-slate-400">Tarefas Totais</p>
+          <p className="text-white font-bold text-sm">{health.tasksTotal}</p>
         </div>
-        <div className="text-center">
-          <p className="font-semibold text-white">{health.tasksInProgress}</p>
-          <p>Em Progresso</p>
-        </div>
-        <div className="text-center">
-          <p className={`font-semibold ${health.tasksOverdue > 0 ? "text-red-400" : "text-emerald-400"}`}>{health.tasksOverdue}</p>
-          <p>Atrasadas</p>
-        </div>
-        <div className="text-center">
-          <p className="font-semibold text-white">{health.tasksCompleted}</p>
-          <p>Concluídas</p>
+        <div className="bg-slate-800/40 rounded-lg p-2">
+          <p className="text-[10px] text-slate-400">Concluídas</p>
+          <p className="text-emerald-400 font-bold text-sm">{health.tasksCompleted}</p>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-2 mt-3">
-        <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2">
-          <p className="text-[10px] text-slate-400 mb-1">Satisfação</p>
-          <p className="text-white font-semibold text-sm">{health.satisfaction ?? 0}%</p>
+      <div className="grid grid-cols-4 gap-1.5 mt-2.5 text-[10px] text-slate-400">
+        <div className="text-center">
+          <p className="font-semibold text-slate-300">{health.tasksPending}</p>
+          <p>Pend.</p>
         </div>
-        <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-2">
-          <p className="text-[10px] text-slate-400 mb-1">Receita (M)</p>
-          <p className="text-white font-semibold text-sm">R$ {health.monthlyRevenue ?? 0}</p>
+        <div className="text-center">
+          <p className="font-semibold text-slate-300">{health.tasksInProgress || 0}</p>
+          <p>Prog.</p>
+        </div>
+        <div className={`text-center ${health.tasksOverdue > 0 ? 'text-red-400' : 'text-slate-400'}`}>
+          <p className="font-semibold">{health.tasksOverdue}</p>
+          <p>Atras.</p>
+        </div>
+        <div className="text-center">
+          <p className="font-semibold text-slate-300">{daysLabel.split(' ')[0]}</p>
+          <p>Dias</p>
         </div>
       </div>
     </div>
@@ -412,6 +413,59 @@ export function DashboardV2ClientNew({ initialData, initialMonthKey }: Props) {
           </div>
         </div>
 
+        {/* RESUMO FINANCEIRO */}
+        <section className="mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Total de Receitas */}
+            <div className="bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 border border-emerald-500/30 rounded-2xl p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400 mb-1">Receitas Totais</p>
+                  <p className="text-3xl font-bold text-emerald-400">
+                    R$ {(initialData?.financialData?.reduce((acc, d) => acc + (d.receitas || 0), 0) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                  </p>
+                  <p className="text-xs text-emerald-400/60 mt-1">Últimos 6 meses</p>
+                </div>
+                <div className="bg-emerald-500/20 p-4 rounded-xl">
+                  <TrendingUp className="w-8 h-8 text-emerald-400" />
+                </div>
+              </div>
+            </div>
+
+            {/* Total de Despesas */}
+            <div className="bg-gradient-to-br from-red-500/20 to-red-600/10 border border-red-500/30 rounded-2xl p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400 mb-1">Despesas Totais</p>
+                  <p className="text-3xl font-bold text-red-400">
+                    R$ {(initialData?.financialData?.reduce((acc, d) => acc + (d.despesas || 0), 0) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                  </p>
+                  <p className="text-xs text-red-400/60 mt-1">Últimos 6 meses</p>
+                </div>
+                <div className="bg-red-500/20 p-4 rounded-xl">
+                  <AlertCircle className="w-8 h-8 text-red-400" />
+                </div>
+              </div>
+            </div>
+
+            {/* Saldo Líquido */}
+            <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30 rounded-2xl p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400 mb-1">Saldo Líquido</p>
+                  <p className="text-3xl font-bold text-blue-400">
+                    R$ {(initialData?.financialData?.reduce((acc, d) => acc + (d.saldo || 0), 0) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                  </p>
+                  <p className="text-xs text-blue-400/60 mt-1">Receitas - Despesas</p>
+                </div>
+                <div className="bg-blue-500/20 p-4 rounded-xl">
+                  <Award className="w-8 h-8 text-blue-400" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* SAÚDE DOS CLIENTES */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-6">
@@ -465,9 +519,11 @@ export function DashboardV2ClientNew({ initialData, initialMonthKey }: Props) {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
           {/* Calendário Premium */}
           <div className="lg:col-span-3">
-            <LuxeCalendar
+            <LuxeCalendarV2
               initialEvents={(initialData.events as any) || []}
               monthKey={initialMonthKey}
+              tasks={initialData.tasks || []}
+              meetings={initialData.activities?.filter(a => a.type === 'meeting') || []}
             />
           </div>
 

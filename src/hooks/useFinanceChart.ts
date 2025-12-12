@@ -5,11 +5,11 @@ export type FinancePoint = { month: string; revenue: number; expenses: number }
 
 export function useFinanceChart(initial?: DashboardData): FinancePoint[] {
   return useMemo(() => {
-    const series = initial?.finance?.series ?? []
+    const series = initial?.financialData ?? []
     return series.map((p: any) => ({
       month: p.month ?? '—',
-      revenue: p.revenue ?? 0,
-      expenses: p.expenses ?? 0,
+      revenue: p.receitas ?? 0,
+      expenses: p.despesas ?? 0,
     }))
   }, [initial])
 }

@@ -74,6 +74,20 @@ export async function GET(req: NextRequest) {
     // Buscar notificações dinâmicas (tarefas, reuniões, pagamentos)
     const dynamicNotifications = await getDynamicNotifications(orgId)
 
+    // Normalizar estado de leitura das notificações dinâmicas usando marcadores já persistidos
+    const dynamicIds = dynamicNotifications.map((n) => n.id)
+    const dynamicReadStates = dynamicIds.length
+      ? await prisma.notification.findMany({
+          where: { userId: appUserId, orgId, id: { in: dynamicIds } },
+          select: { id: true, read: true },
+        })
+      : []
+    const dynamicReadMap = new Map(dynamicReadStates.map((n) => [n.id, n.read]))
+    const normalizedDynamic = dynamicNotifications.map((n) => ({
+      ...n,
+      unread: dynamicReadMap.has(n.id) ? !dynamicReadMap.get(n.id)! : n.unread,
+    }))
+
     // Combinar notificações
     const allNotifications = [
       ...persistedNotifications.map((n) => ({
@@ -88,7 +102,7 @@ export async function GET(req: NextRequest) {
         clientId: n.clientId || '',
         createdAt: n.createdAt,
       })),
-      ...dynamicNotifications,
+      ...normalizedDynamic,
     ]
 
     // Ordenar por data
@@ -97,14 +111,16 @@ export async function GET(req: NextRequest) {
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     )
 
-    const unreadCount =
-      (await prisma.notification.count({
-        where: {
-          userId: appUserId,
-          orgId,
-          read: false,
-        },
-      })) + dynamicNotifications.filter((n) => n.unread).length
+    // Calcula unreadCount com base em notificações persistidas não lidas + dinâmicas normalizadas não lidas
+    const persistedUnread = await prisma.notification.count({
+      where: {
+        userId: appUserId,
+        orgId,
+        read: false,
+      },
+    })
+    const dynamicUnread = normalizedDynamic.filter((n) => n.unread).length
+    const unreadCount = persistedUnread + dynamicUnread
 
     const res = NextResponse.json({
       notifications: allNotifications.slice(0, limit),

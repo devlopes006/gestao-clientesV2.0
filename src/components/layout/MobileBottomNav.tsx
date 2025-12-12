@@ -1,6 +1,7 @@
 "use client";
 
 import { NotificationCenter } from "@/components/NotificationCenter";
+import { useUser } from "@/context/UserContext";
 import { cn } from "@/lib/utils";
 import { DollarSign, Home, LayoutDashboard, Plus, Settings, Users } from "lucide-react";
 import Image from "next/image";
@@ -55,6 +56,16 @@ export function MobileBottomNav() {
   const [quickOpen, setQuickOpen] = useState(false);
   const navRef = useRef<HTMLDivElement | null>(null);
   const [userProfile, setUserProfile] = useState<{ name?: string; avatarUrl?: string } | null>(null);
+  const { logout } = useUser();
+
+  const handleLogout = async () => {
+    setMenuOpen(false);
+    try {
+      await logout();
+    } catch {
+      // fallback handled inside logout
+    }
+  };
 
   // Fetch user role from sidebar-stats API (same as SidebarV3)
   useEffect(() => {
@@ -245,9 +256,12 @@ export function MobileBottomNav() {
                 </Link>
               </li>
               <li>
-                <Link href="/logout" className="block px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800/70">
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-3 py-2 rounded-lg text-slate-200 hover:bg-slate-800/70"
+                >
                   Sair
-                </Link>
+                </button>
               </li>
             </ul>
           </div>

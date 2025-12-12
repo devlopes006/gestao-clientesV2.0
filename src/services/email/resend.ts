@@ -110,6 +110,83 @@ export async function sendInviteEmail(
   }
 }
 
+export type TaskAssignmentEmailParams = {
+  to: string;
+  assigneeName?: string | null;
+  assignerName?: string | null;
+  taskTitle: string;
+  clientName?: string | null;
+  orgName?: string | null;
+  dueDate?: Date | null;
+  taskLink?: string | null;
+};
+
+export async function sendTaskAssignmentEmail(
+  params: TaskAssignmentEmailParams,
+): Promise<{ skipped: boolean; id?: string }> {
+  if (!client) {
+    console.warn("[Resend] RESEND_API_KEY not set; skipping task assignment email");
+    return { skipped: true };
+  }
+
+  const {
+    to,
+    assigneeName,
+    assignerName,
+    taskTitle,
+    clientName,
+    orgName,
+    dueDate,
+    taskLink,
+  } = params;
+
+  const subject = `[Tarefa atribuída] ${taskTitle}`;
+  const safeAssignee = assigneeName || "Você";
+  const safeAssigner = assignerName || "Gestão de Clientes";
+  const safeOrg = orgName || "sua organização";
+  const safeClient = clientName ? ` • Cliente: ${clientName}` : "";
+  const dueText = dueDate ? `Prazo: ${dueDate.toLocaleDateString("pt-BR")}` : "";
+  const link = taskLink || `${appBaseUrl}`;
+
+  const html = `
+    <html>
+      <body style="font-family: Inter, system-ui, -apple-system, Segoe UI, Arial; background:#0b1220; color:#e5e7eb; padding:24px;">
+        <div style="max-width:640px;margin:0 auto;padding:24px;border:1px solid #1f2937;border-radius:14px;background:linear-gradient(145deg,#0f172a,#111827);">
+          <p style="margin:0 0 12px 0;font-size:14px;color:#9ca3af;">${safeOrg}</p>
+          <h1 style="margin:0 0 12px 0;font-size:20px;color:#f8fafc;">${safeAssignee}, uma nova tarefa foi atribuída a você</h1>
+          <p style="margin:0 0 8px 0;font-size:15px;color:#e5e7eb;"><strong>Tarefa:</strong> ${taskTitle}</p>
+          ${clientName ? `<p style="margin:0 0 8px 0;font-size:14px;color:#cbd5e1;"><strong>Cliente:</strong> ${clientName}</p>` : ""}
+          ${dueText ? `<p style=\"margin:0 0 12px 0;font-size:14px;color:#cbd5e1;\">${dueText}</p>` : ""}
+          <p style="margin:0 0 16px 0;font-size:14px;color:#cbd5e1;">Atribuída por <strong>${safeAssigner}</strong>.</p>
+          <a href="${link}" style="display:inline-block;padding:12px 18px;background:#3b82f6;color:#fff;text-decoration:none;border-radius:10px;font-weight:600;">Ver tarefa</a>
+          <p style="margin:16px 0 0 0;font-size:13px;color:#94a3b8;">Se o botão não funcionar, acesse: <a href="${link}" style="color:#60a5fa;">${link}</a></p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const text = `${safeAssignee}, você recebeu uma nova tarefa: ${taskTitle} ${safeClient}\n${dueText}\nAtribuída por: ${safeAssigner}\n${link}`;
+
+  const result = await client.emails.send({
+    from: fromEmail,
+    to,
+    subject,
+    html,
+    text,
+  });
+
+  try {
+    type ResendResponseShape = { id?: string } | { data?: { id?: string } | null };
+    const res = result as ResendResponseShape;
+    let id: string | undefined;
+    if ("id" in res && typeof res.id === "string") id = res.id;
+    else if ("data" in res && res.data && typeof res.data.id === "string") id = res.data.id;
+    return { skipped: false, id };
+  } catch {
+    return { skipped: false };
+  }
+}
+
 // Using string renderer with internal HTML escaper
 
 export async function sendTestEmail(

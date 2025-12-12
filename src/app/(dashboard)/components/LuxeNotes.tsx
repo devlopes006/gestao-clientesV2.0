@@ -129,7 +129,7 @@ export function LuxeNotes({ initialNotes }: LuxeNotesProps) {
 
       {/* Grid de Notas */}
       {sortedNotes.length > 0 ? (
-        <div className="grid grid-cols-2 gap-2 max-h-[340px] overflow-y-auto pr-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[360px] overflow-y-auto pr-2">
           {sortedNotes.map((note) => {
             const colorObj = NOTE_COLORS.find(c => c.value === note.color) || NOTE_COLORS[0];
 
@@ -137,20 +137,23 @@ export function LuxeNotes({ initialNotes }: LuxeNotesProps) {
               <div
                 key={note.id}
                 onClick={() => openEditModal(note)}
-                className={`group relative p-3 rounded-xl border-2 transition-all duration-200 cursor-pointer hover:scale-105 hover:shadow-xl ${colorObj.light} ${colorObj.border} bg-gradient-to-br from-slate-800/40 to-slate-900/40 backdrop-blur-sm`}
+                className={`group relative p-4 rounded-2xl border transition-all duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-2xl ${colorObj.light} ${colorObj.border} bg-gradient-to-br from-slate-800/50 to-slate-900/70 backdrop-blur-md`}
               >
-                {/* Barra de cor no topo */}
-                <div className={`absolute top-0 left-0 right-0 h-1 ${colorObj.bg} rounded-t-lg`} />
+                {/* Barra de cor e selo */}
+                <div className="flex items-center justify-between mb-2">
+                  <div className={`h-1.5 w-16 rounded-full ${colorObj.bg}`} />
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${colorObj.light} ${colorObj.border} text-white/90`}>Nota</span>
+                </div>
 
                 {/* Conteúdo */}
-                <div className="mt-1 space-y-1.5">
+                <div className="mt-1 space-y-2">
                   {note.title && (
-                    <h4 className="text-xs font-bold text-white line-clamp-2 leading-tight">
+                    <h4 className="text-sm font-bold text-white line-clamp-2 leading-tight">
                       {note.title}
                     </h4>
                   )}
                   {note.content && (
-                    <p className="text-[11px] text-slate-300 line-clamp-3 leading-relaxed">
+                    <p className="text-[12px] text-slate-300 line-clamp-4 leading-relaxed">
                       {note.content}
                     </p>
                   )}
@@ -162,14 +165,15 @@ export function LuxeNotes({ initialNotes }: LuxeNotesProps) {
                     e.stopPropagation();
                     handleDeleteNote(note.id);
                   }}
-                  className="absolute top-2 right-2 p-1 opacity-0 group-hover:opacity-100 transition-all bg-red-500/20 hover:bg-red-500/40 rounded-lg"
+                  className="absolute top-2 right-2 p-1.5 opacity-0 group-hover:opacity-100 transition-all bg-red-500/20 hover:bg-red-500/40 rounded-lg shadow"
+                  aria-label="Deletar nota"
                   disabled={loading}
                 >
-                  <Trash2 className="w-3 h-3 text-red-400" />
+                  <Trash2 className="w-3.5 h-3.5 text-red-300" />
                 </button>
 
                 {/* Data */}
-                <p className="text-[9px] text-slate-400 mt-2 pt-2 border-t border-slate-600/20">
+                <p className="text-[10px] text-slate-400 mt-3 pt-2 border-t border-slate-600/20">
                   {new Date(note.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
                 </p>
               </div>
@@ -181,7 +185,7 @@ export function LuxeNotes({ initialNotes }: LuxeNotesProps) {
           <p className="text-sm text-slate-400 mb-3">Nenhuma nota ainda</p>
           <button
             onClick={openCreateModal}
-            className="px-3 py-1.5 bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/30 text-yellow-300 rounded-lg text-xs font-semibold transition-all"
+            className="px-3 py-1.5 bg-gradient-to-r from-yellow-500/20 to-yellow-400/20 hover:from-yellow-500/30 hover:to-yellow-400/30 border border-yellow-500/30 text-yellow-300 rounded-lg text-xs font-semibold transition-all"
           >
             Criar primeira nota
           </button>
@@ -197,7 +201,7 @@ export function LuxeNotes({ initialNotes }: LuxeNotesProps) {
                 <h3 className="text-xl font-bold text-white">
                   {editingNote ? 'Editar' : 'Nova'} Nota
                 </h3>
-                <button onClick={closeModal} className="p-1 hover:bg-slate-800 rounded-lg">
+                <button onClick={closeModal} className="p-1 hover:bg-slate-800 rounded-lg" aria-label="Fechar">
                   <X className="w-5 h-5 text-slate-400" />
                 </button>
               </div>
@@ -229,6 +233,7 @@ export function LuxeNotes({ initialNotes }: LuxeNotesProps) {
                       key={c.value}
                       onClick={() => setColor(c.value)}
                       className={`h-8 rounded-lg border-2 transition-all ${color === c.value ? `${c.border} ring-2 ring-offset-2 ring-offset-slate-900` : 'border-slate-700'} ${c.bg}`}
+                      aria-label={`Selecionar cor ${c.name}`}
                     />
                   ))}
                 </div>

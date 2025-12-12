@@ -20,7 +20,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface NotificationCenterProps {
   variant?: "default" | "compact" | "pill";
@@ -88,6 +88,7 @@ export function NotificationCenter({
 }: NotificationCenterProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [filter, setFilter] = useState<"all" | "unread">("all");
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const {
     notifications,
@@ -111,6 +112,34 @@ export function NotificationCenter({
 
   const baseUnread = unreadCount > 9 ? "9+" : unreadCount;
 
+  // Fecha o popover ao clicar fora ou pressionar Esc (mesmo padrão do menu de perfil)
+  useEffect(() => {
+    const handlePointerDown = (event: MouseEvent | TouchEvent) => {
+      if (
+        isOpen &&
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("touchstart", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("touchstart", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
+
   // Deduplicate notifications by id to prevent React key collisions
   const uniqueNotifications: NotificationItem[] = useMemo(() => {
     const seen = new Set<string>();
@@ -129,22 +158,22 @@ export function NotificationCenter({
   }, [notifications]);
   const renderButton = () => {
     const baseBtn =
-      "relative flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500";
+      "relative flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70";
     const baseColors =
-      "bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800";
+      "bg-slate-900/80 border border-slate-700/70 text-slate-200 hover:border-blue-500/40 hover:text-white shadow-[0_10px_40px_-24px_rgba(59,130,246,0.6)]";
     if (variant === "compact") {
       return (
         <Button
           variant="ghost"
           size="icon"
-          className={cn(baseBtn, baseColors, "h-10 w-10 rounded-xl")}
+          className={cn(baseBtn, baseColors, "h-10 w-10 rounded-xl backdrop-blur-md")}
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Notificações"
           title="Notificações"
         >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 h-4 min-w-4 px-0.5 rounded-full bg-red-600 text-[10px] leading-none text-white flex items-center justify-center font-semibold shadow ring-1 ring-white/50 dark:ring-red-900/60">
+            <span className="absolute top-1 right-1 h-4 min-w-4 px-1 rounded-full bg-rose-500 text-[10px] leading-none text-white flex items-center justify-center font-semibold shadow ring-1 ring-white/50 dark:ring-red-900/60">
               {baseUnread}
             </span>
           )}
@@ -195,184 +224,199 @@ export function NotificationCenter({
   };
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative", className)} ref={containerRef}>
       {renderButton()}
 
       {/* Dropdown */}
       {isOpen && (
-        <>
-          {/* Overlay para fechar o painel ao clicar fora */}
-          <button
-            type="button"
-            aria-label="Fechar notificações"
-            className="fixed inset-0 z-40 cursor-default bg-transparent"
-            tabIndex={-1}
-            onClick={() => setIsOpen(false)}
-          ></button>
-
-          {/* Painel de notificações */}
-          <Card
-            role="dialog"
-            aria-modal="true"
-            aria-label="Notificações"
-            className="absolute right-0 bottom-12 w-96 max-h-[600px] z-50 shadow-2xl border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col"
-          >
-            {/* Header */}
-            <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-lg flex items-center gap-2">
-                  <Bell className="h-5 w-5" />
-                  Notificações
-                </h3>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  aria-label="Fechar painel de notificações"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-
-              {/* Filtros */}
-              <div className="flex gap-2">
-                <Button
-                  variant={filter === "all" ? "default" : "outline"}
-                  size="sm"
-                  aria-pressed={filter === "all"}
-                  onClick={() => setFilter("all")}
-                  className="flex-1"
-                >
-                  Todas
-                </Button>
-                <Button
-                  variant={filter === "unread" ? "default" : "outline"}
-                  size="sm"
-                  aria-pressed={filter === "unread"}
-                  onClick={() => setFilter("unread")}
-                  className="flex-1"
-                >
-                  Não lidas ({unreadCount})
-                </Button>
-              </div>
-
-              {/* Marcar todas como lidas */}
-              {unreadCount > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={markAllAsRead}
-                  disabled={actionLoading}
-                  className="w-full mt-2 text-xs"
-                  aria-label="Marcar todas como lidas"
-                >
-                  <CheckCheck className="h-3 w-3 mr-1" />
-                  Marcar todas como lidas
-                </Button>
-              )}
+        <Card
+          role="dialog"
+          aria-modal="true"
+          aria-label="Notificações"
+          className={cn(
+            "absolute right-0 bottom-14 w-[360px] max-w-[90vw] max-h-[560px] z-50 overflow-hidden flex flex-col",
+            "bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 backdrop-blur-xl",
+            "border border-blue-500/20 rounded-2xl",
+            "shadow-[0_20px_60px_-10px_rgba(59,130,246,0.3)]"
+          )}
+          style={{
+            scrollbarWidth: 'thin',
+            scrollbarColor: 'rgba(59,130,246,0.3) transparent',
+          } as any}
+        >
+          {/* Header */}
+          <div className="p-4 border-b border-blue-500/10 bg-gradient-to-r from-slate-900/80 to-slate-900/40 backdrop-blur-sm">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold text-lg flex items-center gap-2 text-white">
+                <Bell className="h-5 w-5 text-blue-400" />
+                Notificações
+              </h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors"
+                aria-label="Fechar painel de notificações"
+                onClick={() => setIsOpen(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
 
-            {/* Lista de notificações */}
-            <div className="flex-1 overflow-y-auto">
-              {isLoading ? (
-                <div className="flex items-center justify-center p-8">
-                  <Spinner size="md" variant="primary" />
-                </div>
-              ) : notifications.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-8 text-center text-slate-500 dark:text-slate-400">
-                  <AlertCircle className="h-12 w-12 mb-2 opacity-30" />
-                  <p className="text-sm">
-                    {filter === "unread"
-                      ? "Nenhuma notificação não lida"
-                      : "Nenhuma notificação"}
-                  </p>
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-200 dark:divide-slate-700">
-                  {uniqueNotifications.map((notification: NotificationItem) => (
-                    <div
-                      key={notification.id}
-                      className={cn(
-                        "p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors",
-                        notification.unread && "bg-blue-50/50 dark:bg-blue-950/10"
-                      )}
-                    >
-                      <div className="flex gap-3">
-                        <NotificationIcon
-                          type={notification.type}
-                          priority={notification.priority}
-                        />
-                        <div className="flex-1 min-w-0">
-                          {notification.link ? (
-                            <Link
-                              href={notification.link}
-                              onClick={() => {
-                                handleNotificationClick(notification);
-                                setIsOpen(false);
-                              }}
-                              className="block"
-                              tabIndex={0}
-                              aria-label={notification.title}
-                            >
-                              <h4 className="font-medium text-sm text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400">
-                                {notification.title}
-                              </h4>
-                              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 line-clamp-2">
-                                {notification.message}
-                              </p>
-                              <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
-                                {notification.time}
-                              </p>
-                            </Link>
-                          ) : (
-                            <>
-                              <h4 className="font-medium text-sm text-slate-900 dark:text-white">
-                                {notification.title}
-                              </h4>
-                              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 line-clamp-2">
-                                {notification.message}
-                              </p>
-                              <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
-                                {notification.time}
-                              </p>
-                            </>
-                          )}
-                          <div className="flex items-center gap-2 mt-2">
-                            {notification.unread && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => markAsRead(notification.id)}
-                                disabled={actionLoading}
-                                className="h-6 text-xs px-2"
-                                aria-label={`Marcar '${notification.title}' como lida`}
-                              >
-                                <Check className="h-3 w-3 mr-1" />
-                                Marcar lida
-                              </Button>
-                            )}
+            {/* Filtros */}
+            <div className="flex gap-2 text-sm">
+              <Button
+                variant={filter === "all" ? "default" : "outline"}
+                size="sm"
+                aria-pressed={filter === "all"}
+                onClick={() => setFilter("all")}
+                className={cn(
+                  "flex-1 font-medium transition-all",
+                  filter === "all"
+                    ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/30 hover:from-blue-500 hover:to-blue-400"
+                    : "border border-slate-700/50 text-slate-300 hover:border-blue-500/40 hover:text-white hover:bg-slate-800/40",
+                )}
+              >
+                Todas
+              </Button>
+              <Button
+                variant={filter === "unread" ? "default" : "outline"}
+                size="sm"
+                aria-pressed={filter === "unread"}
+                onClick={() => setFilter("unread")}
+                className={cn(
+                  "flex-1 font-medium transition-all",
+                  filter === "unread"
+                    ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/30 hover:from-blue-500 hover:to-blue-400"
+                    : "border border-slate-700/50 text-slate-300 hover:border-blue-500/40 hover:text-white hover:bg-slate-800/40",
+                )}
+              >
+                Não lidas ({unreadCount})
+              </Button>
+            </div>
+
+            {/* Marcar todas como lidas */}
+            {unreadCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={markAllAsRead}
+                disabled={actionLoading}
+                className="w-full mt-2 text-xs text-blue-200 hover:text-white hover:bg-blue-500/15 transition-colors"
+                aria-label="Marcar todas como lidas"
+              >
+                <CheckCheck className="h-3 w-3 mr-1" />
+                Marcar todas como lidas
+              </Button>
+            )}
+          </div>
+
+          {/* Lista de notificações */}
+          <div
+            className="flex-1 overflow-y-auto bg-gradient-to-b from-slate-950/40 via-slate-900/20 to-slate-950/40"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'rgba(59,130,246,0.4) rgba(15,23,42,0.3)',
+            } as any}
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center p-8">
+                <Spinner size="md" variant="primary" />
+              </div>
+            ) : notifications.length === 0 ? (
+              <div className="flex flex-col items-center justify-center p-8 text-center text-slate-400">
+                <AlertCircle className="h-12 w-12 mb-2 opacity-40 text-blue-300" />
+                <p className="text-sm font-medium">
+                  {filter === "unread"
+                    ? "Nenhuma notificação não lida"
+                    : "Nenhuma notificação"}
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-800/50">
+                {uniqueNotifications.map((notification: NotificationItem) => (
+                  <div
+                    key={notification.id}
+                    className={cn(
+                      "p-4 transition-all duration-200",
+                      notification.unread
+                        ? "bg-gradient-to-r from-blue-600/8 to-cyan-600/5 hover:from-blue-500/15 hover:to-cyan-500/10 border-l-3 border-blue-500/60"
+                        : "hover:bg-slate-800/40",
+                    )}
+                  >
+                    <div className="flex gap-3">
+                      <NotificationIcon
+                        type={notification.type}
+                        priority={notification.priority}
+                      />
+                      <div className="flex-1 min-w-0">
+                        {notification.link ? (
+                          <Link
+                            href={notification.link}
+                            onClick={() => {
+                              handleNotificationClick(notification);
+                              setIsOpen(false);
+                            }}
+                            className="block"
+                            tabIndex={0}
+                            aria-label={notification.title}
+                          >
+                            <h4 className="font-semibold text-sm text-white hover:text-blue-300 transition-colors">
+                              {notification.title}
+                            </h4>
+                            <p className="text-xs text-slate-300 mt-0.5 line-clamp-2 leading-relaxed">
+                              {notification.message}
+                            </p>
+                            <p className="text-[11px] text-slate-500 mt-1.5 font-medium">
+                              {notification.time}
+                            </p>
+                          </Link>
+                        ) : (
+                          <>
+                            <h4 className="font-semibold text-sm text-white">
+                              {notification.title}
+                            </h4>
+                            <p className="text-xs text-slate-300 mt-0.5 line-clamp-2 leading-relaxed">
+                              {notification.message}
+                            </p>
+                            <p className="text-[11px] text-slate-500 mt-1.5 font-medium">
+                              {notification.time}
+                            </p>
+                          </>
+                        )}
+                        <div className="flex items-center gap-2 mt-3">
+                          {notification.unread && (
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => deleteNotification(notification.id)}
+                              onClick={() => markAsRead(notification.id)}
                               disabled={actionLoading}
-                              className="h-6 text-xs px-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
-                              aria-label={`Excluir '${notification.title}'`}
+                              className="h-7 text-xs px-2 text-blue-300 hover:text-white hover:bg-blue-500/25 transition-colors font-medium"
+                              aria-label={`Marcar '${notification.title}' como lida`}
                             >
-                              <Trash2 className="h-3 w-3 mr-1" />
-                              Excluir
+                              <Check className="h-3 w-3 mr-1" />
+                              Marcar lida
                             </Button>
-                          </div>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteNotification(notification.id)}
+                            disabled={actionLoading}
+                            className="h-7 text-xs px-2 text-red-300 hover:text-red-100 hover:bg-red-500/20 transition-colors font-medium"
+                            aria-label={`Excluir '${notification.title}'`}
+                          >
+                            <Trash2 className="h-3 w-3 mr-1" />
+                            Excluir
+                          </Button>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Card>
-        </>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </Card>
       )}
     </div>
   )

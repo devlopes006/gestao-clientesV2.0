@@ -14,24 +14,33 @@ export type DashboardKPIs = {
 
 export function useDashboardKPIs(initial?: DashboardData): DashboardKPIs {
   return useMemo(() => {
-    const revenue = initial?.finance?.summary?.revenueTotal ?? 0
-    const expenses = initial?.finance?.summary?.expensesTotal ?? 0
+    const revenue =
+      initial?.financialData?.reduce(
+        (sum, item) => sum + (item.receitas || 0),
+        0
+      ) ?? 0
+    const expenses =
+      initial?.financialData?.reduce(
+        (sum, item) => sum + (item.despesas || 0),
+        0
+      ) ?? 0
     const net = revenue - expenses
-    const tasks = initial?.tasks?.summary ?? {
-      TODO: 0,
-      IN_PROGRESS: 0,
-      REVIEW: 0,
-      DONE: 0,
+    const tasks = initial?.tasks ?? []
+    const taskCounts = {
+      TODO: tasks.filter((t) => t.status === 'TODO').length,
+      IN_PROGRESS: tasks.filter((t) => t.status === 'IN_PROGRESS').length,
+      REVIEW: tasks.filter((t) => t.status === 'REVIEW').length,
+      DONE: tasks.filter((t) => t.status === 'DONE').length,
     }
-    const clientsActive = initial?.clients?.activeCount ?? 0
+    const clientsActive = initial?.clients?.length ?? 0
     return {
       revenueTotal: revenue,
       expensesTotal: expenses,
       netIncome: net,
-      tasksTodo: tasks.TODO ?? 0,
-      tasksInProgress: tasks.IN_PROGRESS ?? 0,
-      tasksReview: tasks.REVIEW ?? 0,
-      tasksDone: tasks.DONE ?? 0,
+      tasksTodo: taskCounts.TODO,
+      tasksInProgress: taskCounts.IN_PROGRESS,
+      tasksReview: taskCounts.REVIEW,
+      tasksDone: taskCounts.DONE,
       clientsActive,
     }
   }, [initial])

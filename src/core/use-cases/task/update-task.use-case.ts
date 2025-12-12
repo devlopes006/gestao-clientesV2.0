@@ -44,6 +44,7 @@ export class UpdateTaskUseCase {
       task.updatePriority(validated.priority)
     }
 
+    // Suporta tanto assignee (string uuid) quanto assigneeId (novo campo)
     if (validated.assignee !== undefined) {
       task.updateAssignee(validated.assignee || undefined)
     }

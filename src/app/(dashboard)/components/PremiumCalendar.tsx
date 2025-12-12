@@ -176,7 +176,7 @@ export function PremiumCalendar({ initialEvents, monthKey }: PremiumCalendarProp
     setEditingEvent(event);
     setTitle(event.title);
     setDescription(event.description || '');
-    setColor(event.color);
+    setColor(event.color || 'blue');
 
     const eventDate = new Date(event.date);
     const hours = eventDate.getHours().toString().padStart(2, '0');
@@ -344,7 +344,7 @@ export function PremiumCalendar({ initialEvents, monthKey }: PremiumCalendarProp
                       e.stopPropagation();
                       openEditModal(event);
                     }}
-                    className={`px-1.5 py-0.5 rounded text-[9px] font-medium border transition-all hover:scale-[1.02] ${getColorClass(event.color)}`}
+                    className={`px-1.5 py-0.5 rounded text-[9px] font-medium border transition-all hover:scale-[1.02] ${getColorClass(event.color || 'blue')}`}
                   >
                     <div className="flex items-center gap-0.5">
                       <Clock className="w-2.5 h-2.5 flex-shrink-0" />
@@ -392,7 +392,7 @@ export function PremiumCalendar({ initialEvents, monthKey }: PremiumCalendarProp
                   <div
                     key={event.id}
                     onClick={() => openEditModal(event)}
-                    className={`p-3 rounded-lg border cursor-pointer transition-all hover:scale-[1.02] ${getColorClass(event.color)}`}
+                    className={`p-3 rounded-lg border cursor-pointer transition-all hover:scale-[1.02] ${getColorClass(event.color || 'blue')}`}
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <Clock className="w-4 h-4" />
@@ -457,7 +457,7 @@ export function PremiumCalendar({ initialEvents, monthKey }: PremiumCalendarProp
           return (
             <div
               key={event.id}
-              className={`p-4 rounded-xl border-2 transition-all hover:scale-[1.01] cursor-pointer ${getColorClass(event.color)}`}
+              className={`p-4 rounded-xl border-2 transition-all hover:scale-[1.01] cursor-pointer ${getColorClass(event.color || 'blue')}`}
               onClick={() => openEditModal(event)}
             >
               <div className="flex items-start justify-between gap-3">

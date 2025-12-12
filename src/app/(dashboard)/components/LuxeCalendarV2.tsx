@@ -122,7 +122,7 @@ export function LuxeCalendarV2({ initialEvents, monthKey, tasks = [], meetings =
     setEditingEvent(event);
     setTitle(event.title);
     setDescription(event.description || '');
-    setColor(event.color);
+    setColor(event.color || 'blue');
     const eventDate = new Date(event.date);
     const hours = eventDate.getHours().toString().padStart(2, '0');
     const minutes = eventDate.getMinutes().toString().padStart(2, '0');
@@ -147,17 +147,17 @@ export function LuxeCalendarV2({ initialEvents, monthKey, tasks = [], meetings =
       if (editingEvent) {
         const updated = await updateDashboardEvent(editingEvent.id, {
           title: title.trim(),
-          description: description.trim() || null,
+          description: description.trim() || undefined,
           date: eventDate,
-          color,
+          color: (color || 'blue') as string,
         });
         setEvents(events.map(e => e.id === editingEvent.id ? updated : e));
       } else {
         const newEvent = await createDashboardEvent({
           title: title.trim(),
-          description: description.trim() || null,
+          description: description.trim() || undefined,
           date: eventDate,
-          color,
+          color: (color || 'blue') as string,
         });
         setEvents([...events, newEvent]);
       }
@@ -253,10 +253,8 @@ export function LuxeCalendarV2({ initialEvents, monthKey, tasks = [], meetings =
               <button
                 key={idx}
                 onClick={() => {
-                  if (totalActivities > 0) {
-                    setSelectedDayDate(date);
-                    setShowDayModal(true);
-                  }
+                  setSelectedDayDate(date);
+                  setShowDayModal(true);
                 }}
                 className={`
                   aspect-square rounded-lg border transition-all duration-200 p-1.5 flex flex-col items-start justify-between relative group
@@ -274,25 +272,22 @@ export function LuxeCalendarV2({ initialEvents, monthKey, tasks = [], meetings =
                   {date.getDate()}
                 </span>
 
-                {/* Badges de atividades */}
+                {/* Badges Premium de atividades */}
                 {totalActivities > 0 && (
-                  <div className="flex flex-col gap-0.5 w-full">
+                  <div className="mt-auto w-full flex items-center gap-1">
                     {dayEvents.length > 0 && (
-                      <div className="flex items-center gap-1">
-                        <div className="w-1 h-1 rounded-full bg-cyan-400" />
-                        <span className="text-[8px] text-cyan-300 font-semibold">{dayEvents.length}</span>
+                      <div className="px-1.5 py-0.5 rounded-full text-[8px] font-semibold bg-gradient-to-r from-cyan-500/30 to-cyan-400/20 border border-cyan-400/40 text-cyan-200 shadow-sm hover:from-cyan-500/40 hover:to-cyan-400/30 transition-all" title={`${dayEvents.length} evento(s)`}>
+                        E {dayEvents.length}
                       </div>
                     )}
                     {dayTasks.length > 0 && (
-                      <div className="flex items-center gap-1">
-                        <div className="w-1 h-1 rounded-full bg-yellow-400" />
-                        <span className="text-[8px] text-yellow-300 font-semibold">{dayTasks.length}</span>
+                      <div className="px-1.5 py-0.5 rounded-full text-[8px] font-semibold bg-gradient-to-r from-yellow-500/30 to-yellow-400/20 border border-yellow-400/40 text-yellow-200 shadow-sm hover:from-yellow-500/40 hover:to-yellow-400/30 transition-all" title={`${dayTasks.length} tarefa(s)`}>
+                        T {dayTasks.length}
                       </div>
                     )}
                     {dayMeetings.length > 0 && (
-                      <div className="flex items-center gap-1">
-                        <div className="w-1 h-1 rounded-full bg-pink-400" />
-                        <span className="text-[8px] text-pink-300 font-semibold">{dayMeetings.length}</span>
+                      <div className="px-1.5 py-0.5 rounded-full text-[8px] font-semibold bg-gradient-to-r from-pink-500/30 to-pink-400/20 border border-pink-400/40 text-pink-200 shadow-sm hover:from-pink-500/40 hover:to-pink-400/30 transition-all" title={`${dayMeetings.length} reunião(ões)`}>
+                        R {dayMeetings.length}
                       </div>
                     )}
                   </div>
@@ -306,231 +301,231 @@ export function LuxeCalendarV2({ initialEvents, monthKey, tasks = [], meetings =
             );
           })}
         </div>
-      </div>
 
-      {/* Modal do Dia - Atividades */}
-      {showDayModal && selectedDayDate && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-700/50 rounded-2xl w-full max-w-md shadow-2xl">
-            <div className="p-6 border-b border-slate-700/30 flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-bold text-white">
-                  {selectedDayDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-                </h3>
-              </div>
-              <button
-                onClick={() => setShowDayModal(false)}
-                aria-label="Fechar"
-                className="p-1 hover:bg-slate-800 rounded-lg"
-              >
-                <X className="w-5 h-5 text-slate-400" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4 max-h-[400px] overflow-y-auto">
-              {/* Eventos */}
-              {getEventsForDate(selectedDayDate).length > 0 && (
-                <div className="space-y-3">
-                  <h4 className="text-sm font-bold text-cyan-300 flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    Eventos
-                  </h4>
-                  {getEventsForDate(selectedDayDate).map(evt => (
-                    <div
-                      key={evt.id}
-                      className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 group hover:bg-cyan-500/20 cursor-pointer transition-all"
-                      onClick={() => {
-                        openEditModal(evt);
-                        setShowDayModal(false);
-                      }}
-                    >
-                      <div className="flex items-start justify-between mb-1">
-                        <p className="text-sm font-semibold text-white">{evt.title}</p>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteEvent(evt.id);
-                            setShowDayModal(false);
-                          }}
-                          aria-label="Deletar evento"
-                          className="opacity-0 group-hover:opacity-100 transition-all p-1 hover:bg-red-500/20 rounded"
-                        >
-                          <Trash2 className="w-3.5 h-3.5 text-red-400" />
-                        </button>
-                      </div>
-                      {evt.description && (
-                        <p className="text-xs text-slate-400 mb-1">{evt.description}</p>
-                      )}
-                      <p className="text-[10px] text-slate-500">
-                        {new Date(evt.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
-                  ))}
+        {/* Modal do Dia - Atividades */}
+        {showDayModal && selectedDayDate && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-700/50 rounded-2xl w-full max-w-md shadow-2xl">
+              <div className="p-6 border-b border-slate-700/30 flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-white">
+                    {selectedDayDate.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                  </h3>
                 </div>
-              )}
-
-              {/* Tarefas */}
-              {getTasksForDate(selectedDayDate).length > 0 && (
-                <div className="space-y-3">
-                  <h4 className="text-sm font-bold text-yellow-300 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4" />
-                    Tarefas
-                  </h4>
-                  {getTasksForDate(selectedDayDate).map(task => (
-                    <div key={task.id} className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
-                      <p className="text-sm font-semibold text-white mb-1">{task.title}</p>
-                      <p className="text-[10px] text-yellow-300 font-semibold">
-                        {task.priority === 'URGENT' ? '🔴 Urgente' : task.priority === 'HIGH' ? '🟠 Alta' : task.priority === 'MEDIUM' ? '🟡 Média' : '🟢 Baixa'}
-                      </p>
-                      {task.client?.name && (
-                        <p className="text-[10px] text-slate-400 mt-1">{task.client.name}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Reuniões */}
-              {getMeetingsForDate(selectedDayDate).length > 0 && (
-                <div className="space-y-3">
-                  <h4 className="text-sm font-bold text-pink-300 flex items-center gap-2">
-                    <Users className="w-4 h-4" />
-                    Reuniões
-                  </h4>
-                  {getMeetingsForDate(selectedDayDate).map(meeting => (
-                    <div key={meeting.id} className="bg-pink-500/10 border border-pink-500/20 rounded-lg p-3">
-                      <p className="text-sm font-semibold text-white mb-1">{meeting.title}</p>
-                      <p className="text-[10px] text-pink-300">
-                        {new Date(meeting.startTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                      {meeting.client?.name && (
-                        <p className="text-[10px] text-slate-400 mt-1">{meeting.client.name}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {getEventsForDate(selectedDayDate).length === 0 && getTasksForDate(selectedDayDate).length === 0 && getMeetingsForDate(selectedDayDate).length === 0 && (
-                <div className="text-center py-6">
-                  <p className="text-sm text-slate-400">Nenhuma atividade neste dia</p>
-                </div>
-              )}
-            </div>
-
-            <div className="p-6 border-t border-slate-700/30 flex gap-3">
-              <button
-                onClick={() => {
-                  openCreateModal(selectedDayDate);
-                  setShowDayModal(false);
-                }}
-                className="flex-1 px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 rounded-lg text-sm font-semibold transition-all"
-              >
-                <Plus className="w-3.5 h-3.5 inline mr-1" />
-                Novo Evento
-              </button>
-              <button
-                onClick={() => setShowDayModal(false)}
-                className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-semibold transition-all"
-              >
-                Fechar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de Evento */}
-      {showEventModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-700/50 rounded-2xl w-full max-w-md shadow-2xl">
-            <div className="p-6 border-b border-slate-700/30">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xl font-bold text-white">
-                  {editingEvent ? 'Editar' : 'Novo'} Evento
-                </h3>
-                <button 
-                  onClick={closeEventModal}
+                <button
+                  onClick={() => setShowDayModal(false)}
                   aria-label="Fechar"
                   className="p-1 hover:bg-slate-800 rounded-lg"
                 >
                   <X className="w-5 h-5 text-slate-400" />
                 </button>
               </div>
-            </div>
 
-            <div className="p-6 space-y-4">
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Título do evento"
-                className="w-full bg-slate-800/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none transition-all"
-                autoFocus
-              />
+              <div className="p-6 space-y-4 max-h-[400px] overflow-y-auto">
+                {/* Eventos */}
+                {getEventsForDate(selectedDayDate).length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-bold text-cyan-300 flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      Eventos
+                    </h4>
+                    {getEventsForDate(selectedDayDate).map(evt => (
+                      <div
+                        key={evt.id}
+                        className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 group hover:bg-cyan-500/20 cursor-pointer transition-all"
+                        onClick={() => {
+                          openEditModal(evt);
+                          setShowDayModal(false);
+                        }}
+                      >
+                        <div className="flex items-start justify-between mb-1">
+                          <p className="text-sm font-semibold text-white">{evt.title}</p>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteEvent(evt.id);
+                              setShowDayModal(false);
+                            }}
+                            aria-label="Deletar evento"
+                            className="opacity-0 group-hover:opacity-100 transition-all p-1 hover:bg-red-500/20 rounded"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                          </button>
+                        </div>
+                        {evt.description && (
+                          <p className="text-xs text-slate-400 mb-1">{evt.description}</p>
+                        )}
+                        <p className="text-[10px] text-slate-500">
+                          {new Date(evt.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Descrição (opcional)"
-                rows={3}
-                className="w-full bg-slate-800/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none resize-none transition-all"
-              />
+                {/* Tarefas */}
+                {getTasksForDate(selectedDayDate).length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-bold text-yellow-300 flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4" />
+                      Tarefas
+                    </h4>
+                    {getTasksForDate(selectedDayDate).map(task => (
+                      <div key={task.id} className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
+                        <p className="text-sm font-semibold text-white mb-1">{task.title}</p>
+                        <p className="text-[10px] text-yellow-300 font-semibold">
+                          {task.priority === 'URGENT' ? '🔴 Urgente' : task.priority === 'HIGH' ? '🟠 Alta' : task.priority === 'MEDIUM' ? '🟡 Média' : '🟢 Baixa'}
+                        </p>
+                        {task.client?.name && (
+                          <p className="text-[10px] text-slate-400 mt-1">{task.client.name}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-              <input
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                aria-label="Horário do evento"
-                className="w-full bg-slate-800/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none transition-all"
-              />
+                {/* Reuniões */}
+                {getMeetingsForDate(selectedDayDate).length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-bold text-pink-300 flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      Reuniões
+                    </h4>
+                    {getMeetingsForDate(selectedDayDate).map(meeting => (
+                      <div key={meeting.id} className="bg-pink-500/10 border border-pink-500/20 rounded-lg p-3">
+                        <p className="text-sm font-semibold text-white mb-1">{meeting.title}</p>
+                        <p className="text-[10px] text-pink-300">
+                          {new Date(meeting.startTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                        {meeting.client?.name && (
+                          <p className="text-[10px] text-slate-400 mt-1">{meeting.client.name}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-              <div>
-                <label className="text-xs font-semibold text-slate-300 mb-2 block">Cor</label>
-                <div className="grid grid-cols-4 gap-2">
-                  {EVENT_COLORS.map(c => (
-                    <button
-                      key={c.value}
-                      onClick={() => setColor(c.value)}
-                      aria-label={`Selecionar cor ${c.value}`}
-                      className={`h-8 rounded-lg border-2 transition-all ${color === c.value ? `${c.border} ring-2 ring-offset-2 ring-offset-slate-900` : 'border-slate-700'} ${c.bg}`}
-                    />
-                  ))}
-                </div>
+                {getEventsForDate(selectedDayDate).length === 0 && getTasksForDate(selectedDayDate).length === 0 && getMeetingsForDate(selectedDayDate).length === 0 && (
+                  <div className="text-center py-6">
+                    <p className="text-sm text-slate-400">Nenhuma atividade neste dia</p>
+                  </div>
+                )}
               </div>
-            </div>
 
-            <div className="p-6 border-t border-slate-700/30 flex items-center gap-3">
-              {editingEvent && (
+              <div className="p-6 border-t border-slate-700/30 flex gap-3">
                 <button
                   onClick={() => {
-                    handleDeleteEvent(editingEvent.id);
-                    closeEventModal();
+                    openCreateModal(selectedDayDate);
+                    setShowDayModal(false);
                   }}
-                  disabled={loading}
-                  className="px-3 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg text-xs font-semibold transition-all disabled:opacity-50"
+                  className="flex-1 px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 rounded-lg text-sm font-semibold transition-all"
                 >
-                  Deletar
+                  <Plus className="w-3.5 h-3.5 inline mr-1" />
+                  Novo Evento
                 </button>
-              )}
-              <div className="flex-1" />
-              <button
-                onClick={closeEventModal}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold transition-all"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleSaveEvent}
-                disabled={loading || !title.trim()}
-                className="px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 rounded-lg text-xs font-semibold transition-all disabled:opacity-50"
-              >
-                {loading ? 'Salvando...' : editingEvent ? 'Salvar' : 'Criar'}
-              </button>
+                <button
+                  onClick={() => setShowDayModal(false)}
+                  className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-semibold transition-all"
+                >
+                  Fechar
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Modal de Evento */}
+        {showEventModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-700/50 rounded-2xl w-full max-w-md shadow-2xl">
+              <div className="p-6 border-b border-slate-700/30">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-white">
+                    {editingEvent ? 'Editar' : 'Novo'} Evento
+                  </h3>
+                  <button
+                    onClick={closeEventModal}
+                    aria-label="Fechar"
+                    className="p-1 hover:bg-slate-800 rounded-lg"
+                  >
+                    <X className="w-5 h-5 text-slate-400" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Título do evento"
+                  className="w-full bg-slate-800/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none transition-all"
+                  autoFocus
+                />
+
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Descrição (opcional)"
+                  rows={3}
+                  className="w-full bg-slate-800/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none resize-none transition-all"
+                />
+
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  aria-label="Horário do evento"
+                  className="w-full bg-slate-800/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-white focus:border-blue-500 focus:outline-none transition-all"
+                />
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 mb-2 block">Cor</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {EVENT_COLORS.map(c => (
+                      <button
+                        key={c.value}
+                        onClick={() => setColor(c.value)}
+                        aria-label={`Selecionar cor ${c.value}`}
+                        className={`h-8 rounded-lg border-2 transition-all ${color === c.value ? `${c.border} ring-2 ring-offset-2 ring-offset-slate-900` : 'border-slate-700'} ${c.bg}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-slate-700/30 flex items-center gap-3">
+                {editingEvent && (
+                  <button
+                    onClick={() => {
+                      handleDeleteEvent(editingEvent.id);
+                      closeEventModal();
+                    }}
+                    disabled={loading}
+                    className="px-3 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg text-xs font-semibold transition-all disabled:opacity-50"
+                  >
+                    Deletar
+                  </button>
+                )}
+                <div className="flex-1" />
+                <button
+                  onClick={closeEventModal}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSaveEvent}
+                  disabled={loading || !title.trim()}
+                  className="px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 rounded-lg text-xs font-semibold transition-all disabled:opacity-50"
+                >
+                  {loading ? 'Salvando...' : editingEvent ? 'Salvar' : 'Criar'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

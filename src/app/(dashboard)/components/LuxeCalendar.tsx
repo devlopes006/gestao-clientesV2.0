@@ -93,7 +93,7 @@ export function LuxeCalendar({ initialEvents, monthKey }: LuxeCalendarProps) {
     setEditingEvent(event);
     setTitle(event.title);
     setDescription(event.description || '');
-    setColor(event.color);
+    setColor(event.color || 'blue');
     const eventDate = new Date(event.date);
     const hours = eventDate.getHours().toString().padStart(2, '0');
     const minutes = eventDate.getMinutes().toString().padStart(2, '0');
@@ -306,6 +306,8 @@ export function LuxeCalendar({ initialEvents, monthKey }: LuxeCalendarProps) {
                         <p className="text-sm font-semibold text-white truncate">{event.title}</p>
                       </div>
                       <button
+                        type="button"
+                        title="Deletar evento"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDeleteEvent(event.id);

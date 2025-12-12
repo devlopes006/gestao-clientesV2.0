@@ -14,7 +14,10 @@ type Props = {
 
 export default function AuthCard({ isLogging, loading, hasInvite, error, onLogin, onSignOutForInvite }: Props) {
   return (
-    <aside className={`auth-card-wrapper mx-auto w-full ${styles.authCard} ${styles.minimalWrapper}`} aria-labelledby="login-heading">
+    <aside
+      className={`auth-card-wrapper mx-auto w-full ${styles.authCard} ${styles.minimalWrapper} text-slate-100`}
+      aria-labelledby="login-heading"
+    >
       <div className="text-center">
         <div className={styles.logo} aria-hidden>
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

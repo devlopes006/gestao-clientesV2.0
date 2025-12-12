@@ -110,7 +110,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex h-screen w-full items-center justify-center ">
         <div className="flex flex-col items-center gap-3 text-gray-600 animate-pulse">
-          <div className="h-8 w-8 rounded-full border-4 border-t-transparent border-gray-400 animate-spin" />
+          <div className="h-8 w-8 rounded-full border-4 border-t-transparent  animate-spin" />
           <p className="text-sm">
             {loading ? "Carregando..." : "Verificando conta..."}
           </p>

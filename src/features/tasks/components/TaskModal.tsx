@@ -24,15 +24,15 @@ export function TaskModal({ open, onClose, editing, orgId, form, setForm, onSubm
   const { assignees, loading: loadingAssignees } = useAssignees(orgId);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-auto border-2 border-slate-200 dark:border-slate-700" onClick={(e) => e.stopPropagation()}>
-        {/* Header com gradiente */}
-        <div className="relative p-6 bg-linear-to-r from-blue-600 to-purple-600 rounded-t-2xl">
-          <div className="absolute inset-0 bg-linear-to-r from-blue-600 to-purple-600 opacity-90 rounded-t-2xl" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={onClose}>
+      <div className="relative bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-auto border border-slate-700/50" onClick={(e) => e.stopPropagation()}>
+        {/* Header com gradiente escuro */}
+        <div className="relative p-6 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 rounded-t-2xl border-b border-slate-700/50">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 rounded-t-2xl" />
           <div className="relative flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-white/20 backdrop-blur-sm rounded-lg">
-                <Sparkles className="h-5 w-5 text-white" />
+              <div className="p-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/10">
+                <Sparkles className="h-5 w-5 text-white" aria-hidden />
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-white">{editing ? 'Editar Tarefa' : 'Nova Tarefa'}</h2>
@@ -40,7 +40,7 @@ export function TaskModal({ open, onClose, editing, orgId, form, setForm, onSubm
               </div>
             </div>
             <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 shrink-0" onClick={onClose}>
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5" aria-hidden />
             </Button>
           </div>
         </div>
@@ -48,38 +48,38 @@ export function TaskModal({ open, onClose, editing, orgId, form, setForm, onSubm
         {/* Form */}
         <form onSubmit={onSubmit} className="p-6 space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="title" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Título da Tarefa *</Label>
+            <Label htmlFor="title" className="text-sm font-semibold text-slate-200">Título da Tarefa *</Label>
             <Input
               id="title"
               required
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
               placeholder="Ex: Criar landing page"
-              className="border-2 border-slate-200 dark:border-slate-700"
+              className="border border-slate-700 bg-slate-800 text-white placeholder:text-slate-400 focus:border-blue-500"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Descrição</Label>
+            <Label htmlFor="description" className="text-sm font-semibold text-slate-200">Descrição</Label>
             <Textarea
               id="description"
               rows={4}
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               placeholder="Detalhes sobre a tarefa..."
-              className="border-2 border-slate-200 dark:border-slate-700 resize-none"
+              className="border border-slate-700 bg-slate-800 text-white placeholder:text-slate-400 focus:border-blue-500 resize-none"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="assignee" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Responsável</Label>
+            <Label htmlFor="assignee" className="text-sm font-semibold text-slate-200">Responsável</Label>
             {loadingAssignees ? (
-              <div className="border-2 border-slate-200 dark:border-slate-700 rounded-md p-2 text-slate-500 text-sm">
+              <div className="border border-slate-700 rounded-md p-2 text-slate-400 text-sm bg-slate-800">
                 Carregando responsáveis...
               </div>
             ) : assignees.length > 0 ? (
               <Select value={form.assignee || "none"} onValueChange={(value) => setForm({ ...form, assignee: value === "none" ? "" : value })}>
-                <SelectTrigger className="border-2 border-slate-200 dark:border-slate-700">
+                <SelectTrigger className="border border-slate-700 bg-slate-900 text-white">
                   <SelectValue placeholder="Selecione um responsável" />
                 </SelectTrigger>
                 <SelectContent>
@@ -97,7 +97,7 @@ export function TaskModal({ open, onClose, editing, orgId, form, setForm, onSubm
                 </SelectContent>
               </Select>
             ) : (
-              <div className="border-2 border-slate-200 dark:border-slate-700 rounded-md p-2 text-slate-500 text-sm">
+              <div className="border border-slate-700 rounded-md p-2 text-slate-400 text-sm bg-slate-800">
                 Nenhum responsável cadastrado
               </div>
             )}
@@ -105,9 +105,9 @@ export function TaskModal({ open, onClose, editing, orgId, form, setForm, onSubm
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="status" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Status *</Label>
+              <Label htmlFor="status" className="text-sm font-semibold text-slate-200">Status *</Label>
               <Select value={form.status} onValueChange={(value) => setForm({ ...form, status: value as TaskStatus })}>
-                <SelectTrigger className="border-2 border-slate-200 dark:border-slate-700">
+                <SelectTrigger className="border border-slate-700 bg-slate-800 text-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -119,9 +119,9 @@ export function TaskModal({ open, onClose, editing, orgId, form, setForm, onSubm
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="priority" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Prioridade *</Label>
+              <Label htmlFor="priority" className="text-sm font-semibold text-slate-200">Prioridade *</Label>
               <Select value={form.priority} onValueChange={(value) => setForm({ ...form, priority: value as TaskPriority })}>
-                <SelectTrigger className="border-2 border-slate-200 dark:border-slate-700">
+                <SelectTrigger className="border border-slate-700 bg-slate-800 text-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -133,22 +133,22 @@ export function TaskModal({ open, onClose, editing, orgId, form, setForm, onSubm
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="dueDate" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Prazo</Label>
+              <Label htmlFor="dueDate" className="text-sm font-semibold text-slate-200">Prazo</Label>
               <Input
                 id="dueDate"
                 type="date"
                 value={form.dueDate}
                 onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
-                className="border-2 border-slate-200 dark:border-slate-700"
+                className="border border-slate-700 bg-slate-800 text-white focus:border-blue-500"
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t-2 border-slate-200 dark:border-slate-700">
-            <Button type="button" variant="outline" onClick={onClose} size="lg">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50">
+            <Button type="button" variant="outline" onClick={onClose} size="lg" className="bg-slate-800 border-slate-700 text-white hover:bg-slate-700">
               Cancelar
             </Button>
-            <Button type="submit" size="lg">
+            <Button type="submit" size="lg" className="bg-blue-600 hover:bg-blue-500 text-white border border-blue-500/60 shadow">
               {editing ? 'Atualizar Tarefa' : 'Criar Tarefa'}
             </Button>
           </div>

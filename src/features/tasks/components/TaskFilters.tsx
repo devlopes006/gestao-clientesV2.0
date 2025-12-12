@@ -13,7 +13,7 @@ interface TaskFiltersProps {
 
 export function TaskFilters({ statusFilter, setStatusFilter, search, setSearch }: TaskFiltersProps) {
   return (
-    <div className="flex flex-col md:flex-row gap-4 md:items-center justify-between p-4 rounded-xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border-2 border-slate-200 dark:border-slate-700 shadow-lg">
+    <div className="flex flex-col md:flex-row gap-4 md:items-center justify-between p-4 sm:p-6 rounded-xl bg-slate-900 border border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
       <div className="flex gap-2 flex-wrap">
         {(['all', 'TODO', 'IN_PROGRESS', 'DONE'] as const).map(s => (
           <Button
@@ -32,7 +32,7 @@ export function TaskFilters({ statusFilter, setStatusFilter, search, setSearch }
           placeholder="Buscar tarefas..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-10 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700"
+          className="pl-10 bg-slate-800 border border-slate-700 text-white placeholder:text-slate-400 focus:border-blue-500"
         />
       </div>
     </div>

@@ -46,39 +46,39 @@ function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
   // Cores sofisticadas por status
   const statusStyles: Record<TaskStatus, StatusStyle> = {
     'TODO': {
-      bg: 'bg-linear-to-br from-white via-amber-50/50 to-yellow-50 dark:from-slate-900 dark:via-amber-950/30 dark:to-yellow-950/30',
-      border: 'border-amber-200 dark:border-amber-800',
-      text: 'text-amber-900 dark:text-amber-100',
+      bg: 'bg-slate-900',
+      border: 'border-amber-500/30',
+      text: 'text-white',
       dot: 'bg-amber-400',
-      badge: 'bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700'
+      badge: 'bg-amber-500/20 text-amber-300 border-amber-500/30'
     },
     'IN_PROGRESS': {
-      bg: 'bg-linear-to-br from-white via-blue-50/50 to-indigo-50 dark:from-slate-900 dark:via-blue-950/30 dark:to-indigo-950/30',
-      border: 'border-blue-200 dark:border-blue-800',
-      text: 'text-blue-900 dark:text-blue-100',
+      bg: 'bg-slate-900',
+      border: 'border-blue-500/30',
+      text: 'text-white',
       dot: 'bg-blue-400',
-      badge: 'bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700'
+      badge: 'bg-blue-500/20 text-blue-300 border-blue-500/30'
     },
     'DONE': {
-      bg: 'bg-linear-to-br from-white via-emerald-50/50 to-green-50 dark:from-slate-900 dark:via-emerald-950/30 dark:to-green-950/30',
-      border: 'border-emerald-200 dark:border-emerald-800',
-      text: 'text-emerald-900 dark:text-emerald-100',
+      bg: 'bg-slate-900',
+      border: 'border-emerald-500/30',
+      text: 'text-white',
       dot: 'bg-emerald-400',
-      badge: 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
+      badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
     },
     'REVIEW': {
-      bg: 'bg-linear-to-br from-white via-purple-50/50 to-violet-50 dark:from-slate-900 dark:via-purple-950/30 dark:to-violet-950/30',
-      border: 'border-purple-200 dark:border-purple-800',
-      text: 'text-purple-900 dark:text-purple-100',
+      bg: 'bg-slate-900',
+      border: 'border-purple-500/30',
+      text: 'text-white',
       dot: 'bg-purple-400',
-      badge: 'bg-purple-100 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700'
+      badge: 'bg-purple-500/20 text-purple-300 border-purple-500/30'
     },
     'CANCELLED': {
-      bg: 'bg-linear-to-br from-white via-gray-50/50 to-slate-50 dark:from-slate-900 dark:via-gray-950/30 dark:to-slate-950/30',
-      border: 'border-gray-200 dark:border-gray-800',
-      text: 'text-gray-900 dark:text-gray-100',
-      dot: 'bg-gray-400',
-      badge: 'bg-gray-100 dark:bg-gray-950/50 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-700'
+      bg: 'bg-slate-900',
+      border: 'border-slate-700/50',
+      text: 'text-slate-300',
+      dot: 'bg-slate-400',
+      badge: 'bg-slate-500/20 text-slate-300 border-slate-500/30'
     },
   };
 
@@ -89,7 +89,7 @@ function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      className={`rounded-lg sm:rounded-xl p-2 sm:p-3 mb-1.5 sm:mb-2 shadow-md hover:shadow-xl transition-all duration-200 cursor-move border ${style.bg} ${style.border}${isDragging ? ' opacity-60 scale-95 ring-2 ring-blue-500 shadow-2xl' : ''}`}
+      className={`rounded-lg sm:rounded-xl p-2 sm:p-3 mb-1.5 sm:mb-2 shadow-md hover:shadow-xl transition-all duration-200 cursor-move border ${style.bg} ${style.border}${isDragging ? ' opacity-80 scale-95 ring-2 ring-blue-500 shadow-2xl' : ''}`}
       style={{ zIndex: isDragging ? 50 : undefined }}
     >
       {/* Header com título e ações - Mobile First */}
@@ -102,7 +102,7 @@ function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
             </h4>
           </div>
           {task.description && (
-            <p className="text-[9px] sm:text-xs text-slate-600 dark:text-slate-400 line-clamp-2 mt-1">
+            <p className="text-[9px] sm:text-xs text-slate-300 line-clamp-2 mt-1">
               {task.description}
             </p>
           )}
@@ -111,7 +111,7 @@ function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
           <button
             type="button"
             aria-label="Editar tarefa"
-            className="p-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors group"
+            className="p-1 rounded hover:bg-blue-900/60 transition-colors group"
             onClick={e => { e.stopPropagation(); onEdit?.(task); }}
           >
             <Pencil className="w-3 h-3 text-blue-500 dark:text-blue-400 group-hover:scale-110 transition-transform" />
@@ -119,7 +119,7 @@ function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
           <button
             type="button"
             aria-label="Excluir tarefa"
-            className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors group"
+            className="p-1 rounded hover:bg-red-900/60 transition-colors group"
             onClick={e => { e.stopPropagation(); onDelete?.(task.id); }}
           >
             <Trash2 className="w-3 h-3 text-red-500 dark:text-red-400 group-hover:scale-110 transition-transform" />
@@ -133,7 +133,7 @@ function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
           {task.priority === 'URGENT' ? 'Urgente' : task.priority === 'HIGH' ? 'Alta' : task.priority === 'MEDIUM' ? 'Média' : 'Baixa'}
         </span>
         {task.dueDate && (
-          <span className={`text-[9px] sm:text-xs flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300`}>
+          <span className={`text-[9px] sm:text-xs flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-slate-800 text-slate-200`}>
             <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="5" cy="5" r="4" />
             </svg>
@@ -158,44 +158,44 @@ function KanbanColumn({ column, tasks, handleEdit, handleDelete }: KanbanColumnP
   // Estilos sofisticados por coluna
   const columnStyles: Record<TaskStatus, StatusStyle> = {
     'TODO': {
-      bg: 'bg-linear-to-b from-amber-50/80 to-yellow-50/50 dark:from-amber-950/20 dark:to-yellow-950/10',
-      border: 'border-amber-200 dark:border-amber-800',
-      header: 'bg-linear-to-r from-amber-100 to-yellow-100 dark:from-amber-900/50 dark:to-yellow-900/50',
-      text: 'text-amber-900 dark:text-amber-100',
+      bg: 'bg-slate-900/50',
+      border: 'border-amber-500/30',
+      header: 'bg-gradient-to-r from-amber-500/20 to-amber-600/10',
+      text: 'text-white',
       dot: 'bg-amber-400',
-      badge: 'bg-amber-200 dark:bg-amber-800 text-amber-900 dark:text-amber-100'
+      badge: 'bg-amber-500/20 text-amber-300 border-amber-500/30'
     },
     'IN_PROGRESS': {
-      bg: 'bg-linear-to-b from-blue-50/80 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/10',
-      border: 'border-blue-200 dark:border-blue-800',
-      header: 'bg-linear-to-r from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50',
-      text: 'text-blue-900 dark:text-blue-100',
+      bg: 'bg-slate-900/50',
+      border: 'border-blue-500/30',
+      header: 'bg-gradient-to-r from-blue-500/20 to-blue-600/10',
+      text: 'text-white',
       dot: 'bg-blue-400',
-      badge: 'bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100'
+      badge: 'bg-blue-500/20 text-blue-300 border-blue-500/30'
     },
     'REVIEW': {
-      bg: 'bg-linear-to-b from-purple-50/80 to-violet-50/50 dark:from-purple-950/20 dark:to-violet-950/10',
-      border: 'border-purple-200 dark:border-purple-800',
-      header: 'bg-linear-to-r from-purple-100 to-violet-100 dark:from-purple-900/50 dark:to-violet-900/50',
-      text: 'text-purple-900 dark:text-purple-100',
+      bg: 'bg-slate-900/50',
+      border: 'border-purple-500/30',
+      header: 'bg-gradient-to-r from-purple-500/20 to-purple-600/10',
+      text: 'text-white',
       dot: 'bg-purple-400',
-      badge: 'bg-purple-200 dark:bg-purple-800 text-purple-900 dark:text-purple-100'
+      badge: 'bg-purple-500/20 text-purple-300 border-purple-500/30'
     },
     'DONE': {
-      bg: 'bg-linear-to-b from-emerald-50/80 to-green-50/50 dark:from-emerald-950/20 dark:to-green-950/10',
-      border: 'border-emerald-200 dark:border-emerald-800',
-      header: 'bg-linear-to-r from-emerald-100 to-green-100 dark:from-emerald-900/50 dark:to-green-900/50',
-      text: 'text-emerald-900 dark:text-emerald-100',
+      bg: 'bg-slate-900/50',
+      border: 'border-emerald-500/30',
+      header: 'bg-gradient-to-r from-emerald-500/20 to-emerald-600/10',
+      text: 'text-white',
       dot: 'bg-emerald-400',
-      badge: 'bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-100'
+      badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
     },
     'CANCELLED': {
-      bg: 'bg-linear-to-b from-gray-50/80 to-slate-50/50 dark:from-gray-950/20 dark:to-slate-950/10',
-      border: 'border-gray-200 dark:border-gray-800',
-      header: 'bg-linear-to-r from-gray-100 to-slate-100 dark:from-gray-900/50 dark:to-slate-900/50',
-      text: 'text-gray-900 dark:text-gray-100',
-      dot: 'bg-gray-400',
-      badge: 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+      bg: 'bg-slate-900/50',
+      border: 'border-slate-700/50',
+      header: 'bg-gradient-to-r from-slate-800/50 to-slate-700/30',
+      text: 'text-slate-300',
+      dot: 'bg-slate-400',
+      badge: 'bg-slate-500/20 text-slate-300 border-slate-500/30'
     },
   };
 
@@ -204,7 +204,7 @@ function KanbanColumn({ column, tasks, handleEdit, handleDelete }: KanbanColumnP
   return (
     <div ref={setNodeRef} className="h-full flex flex-col">
       <div
-        className={`h-full rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl border transition-all duration-200 flex flex-col ${style.bg} ${style.border}${isOver ? ' ring-2 sm:ring-4 ring-blue-400 ring-offset-1 sm:ring-offset-2 scale-[1.01] sm:scale-[1.02] shadow-xl sm:shadow-2xl' : ''}`}
+        className={`h-full rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl border transition-all duration-200 flex flex-col ${style.bg} ${style.border}${isOver ? ' ring-2 sm:ring-4 ring-blue-400 ring-offset-1 sm:ring-offset-2 ring-offset-slate-950 scale-[1.01] sm:scale-[1.02] shadow-xl sm:shadow-2xl' : ''}`}
       >
         {/* Header da coluna - Mobile First */}
         <div className={`${style.header ?? style.bg} rounded-t-xl sm:rounded-t-2xl p-2 sm:p-3 lg:p-4 border-b ${style.border}`}>
@@ -378,19 +378,19 @@ export function TasksPanel({ clientId, initialTasks = [], orgId }: TasksPanelPro
       <div className="page-background">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div role="alert" aria-live="polite">
-            <div className="flex items-start gap-3 rounded-xl border-2 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30 p-6 shadow-lg">
-              <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0" />
+            <div className="flex items-start gap-3 rounded-xl border border-red-800 bg-red-950 p-6 shadow-lg">
+              <AlertCircle className="h-5 w-5 text-red-300 shrink-0" />
               <div className="space-y-1">
-                <p className="text-sm font-medium text-red-800 dark:text-red-300">Erro ao carregar tarefas</p>
-                <p className="text-xs text-red-700 dark:text-red-400">
+                <p className="text-sm font-medium text-red-100">Erro ao carregar tarefas</p>
+                <p className="text-xs text-red-200">
                   {error.message} {error.status ? `(status ${error.status})` : ''}
                 </p>
                 {(error.body && typeof error.body === 'object') ? (
-                  <pre className="mt-2 max-h-40 overflow-auto text-xs text-red-600 dark:text-red-400 bg-red-100/70 dark:bg-red-900/30 p-2 rounded">
+                  <pre className="mt-2 max-h-40 overflow-auto text-xs text-red-200 bg-red-900 p-2 rounded border border-red-800">
                     {JSON.stringify(error.body as Record<string, unknown>, null, 2)}
                   </pre>
                 ) : null}
-                <Button size="sm" variant="outline" onClick={() => refetch()} className="mt-2">Tentar novamente</Button>
+                <Button size="sm" variant="outline" onClick={() => refetch()} className="mt-2 bg-red-950 border-red-800 text-red-100 hover:bg-red-900">Tentar novamente</Button>
               </div>
             </div>
           </div>
@@ -400,17 +400,17 @@ export function TasksPanel({ clientId, initialTasks = [], orgId }: TasksPanelPro
   }
 
   return (
-    <div className="page-background min-h-screen">
-      <div className="max-w-7xl mx-auto px-1 sm:px-2 md:px-3 lg:px-4 py-2 sm:py-3 lg:py-4 space-y-2 sm:space-y-3 lg:space-y-4">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* Header - Mobile First */}
-        <div className="flex flex-col gap-2 sm:gap-3">
-          <div className="flex flex-col gap-1 sm:gap-2">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gradient-primary">Tarefas</h1>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Gerencie as tarefas deste cliente</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 text-transparent bg-clip-text">Tarefas</h1>
+            <p className="text-sm text-slate-400">Gerencie as tarefas deste cliente</p>
           </div>
           <Button
-            className="w-full sm:w-auto gap-2 font-semibold"
-            size="sm"
+            className="w-full sm:w-auto gap-2 font-semibold bg-blue-600 hover:bg-blue-500 text-white"
+            size="default"
             onClick={() => { resetForm(); setIsModalOpen(true) }}
           >
             <Plus className="h-4 w-4" /> Nova Tarefa

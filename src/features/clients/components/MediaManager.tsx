@@ -817,7 +817,7 @@ export function MediaManager({ clientId }: MediaManagerProps) {
   return (
     <>
       <div
-        className="page-background"
+        className="space-y-4 sm:space-y-6 relative"
         onDragEnter={handleDragEnter}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -827,44 +827,44 @@ export function MediaManager({ clientId }: MediaManagerProps) {
         {dragOver && canCreate && (
           <div className="absolute inset-0 z-40 bg-blue-500/20 backdrop-blur-sm border-4 border-dashed border-blue-500 rounded-lg flex items-center justify-center pointer-events-none">
             <div className="text-center">
-              <Upload className="h-16 w-16 mx-auto mb-4 text-blue-600" />
-              <p className="text-xl font-semibold text-blue-900 dark:text-blue-100">
+              <Upload className="h-16 w-16 mx-auto mb-4 text-blue-400" />
+              <p className="text-xl font-semibold text-blue-100">
                 Solte os arquivos aqui para upload
               </p>
             </div>
           </div>
         )}
 
-        <div className="max-w-[1600px] mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 space-y-3 sm:space-y-4 lg:space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Header */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
-            <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex items-center gap-3">
               {folderHistory.length > 1 && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={navigateBack}
-                  className="gap-2"
+                  className="gap-2 bg-slate-800 border-slate-700 text-white hover:bg-slate-700"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   Voltar
                 </Button>
               )}
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-gradient-primary mb-1 sm:mb-2">
+                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 text-transparent bg-clip-text">
                   Mídias
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                <p className="text-sm text-slate-400">
                   Upload e organização de arquivos
                 </p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-1 sm:gap-2">
+            <div className="flex flex-wrap gap-2">
               {canCreate && (
                 <>
                   <Button
                     variant="outline"
-                    className="gap-2"
+                    className="gap-2 bg-slate-800 border-slate-700 text-white hover:bg-slate-700"
                     onClick={() => {
                       resetFolderForm();
                       setIsFolderModalOpen(true);
@@ -873,8 +873,7 @@ export function MediaManager({ clientId }: MediaManagerProps) {
                     <FolderPlus className="h-4 w-4" /> Nova Pasta
                   </Button>
                   <Button
-                    size="lg"
-                    className="gap-2"
+                    className="gap-2 bg-blue-600 hover:bg-blue-500 text-white"
                     onClick={() => {
                       resetUploadForm();
                       setIsUploadModalOpen(true);
@@ -939,93 +938,207 @@ export function MediaManager({ clientId }: MediaManagerProps) {
           </div>
 
           {/* Main Card */}
-          <div className="relative">
-            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-20 pointer-events-none" />
-            <Card className="relative bg-white/90 backdrop-blur-md dark:bg-slate-900/90 border-2 border-slate-200/70 dark:border-slate-800/70 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl transition-all duration-300">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3 text-slate-900 dark:text-white">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-linear-to-tr from-blue-600 to-purple-600 rounded-lg blur-md opacity-30" />
-                    <div className="relative w-10 h-10 bg-linear-to-tr from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shrink-0">
-                      <ImageIcon className="h-5 w-5 text-white" />
-                    </div>
-                  </div>
-                  <span>Biblioteca de Mídias</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Input
-                  placeholder="Buscar por nome, descrição ou tags..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="md:w-96 bg-white/50 dark:bg-slate-800/50"
-                />
+          <Card className="bg-slate-900 border border-slate-700/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-white">
+                <div className="p-2 bg-blue-500/20 rounded-lg">
+                  <ImageIcon className="h-5 w-5 text-blue-400" />
+                </div>
+                <span>Biblioteca de Mídias</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Input
+                placeholder="Buscar por nome, descrição ou tags..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="md:w-96 bg-slate-800 border border-slate-700 text-white placeholder:text-slate-400 focus:border-blue-500"
+              />
 
-                {/* Pastas */}
-                {visibleFolders.length > 0 && (
-                  <div className="space-y-2">
-                    <h3 className="text-xs font-medium text-slate-500 uppercase">
-                      Pastas
-                    </h3>
-                    <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                      {visibleFolders.map((folder) => (
-                        <div
-                          key={folder.id}
-                          draggable={canUpdate}
-                          onDragStart={(e) => handleDragStartFolder(e, folder.id)}
-                          onDragOver={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            if (dragOverFolder !== folder.id) {
-                              setDragOverFolder(folder.id);
-                            }
-                          }}
-                          onDragLeave={(e) => {
-                            e.stopPropagation();
-                            const rect = e.currentTarget.getBoundingClientRect();
-                            const x = e.clientX;
-                            const y = e.clientY;
-                            if (x < rect.left || x >= rect.right || y < rect.top || y >= rect.bottom) {
-                              setDragOverFolder(null);
-                            }
-                          }}
-                          onDrop={(e) => handleDropOnFolder(e, folder.id)}
-                          className={`group relative border rounded-lg p-4 transition-all cursor-pointer ${dragOverFolder === folder.id
-                            ? "bg-blue-100 dark:bg-blue-900/30 border-blue-500 border-2 scale-105 shadow-lg"
-                            : "bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700"
-                            }`}
-                          onClick={() => navigateToFolder(folder.id)}
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <Folder className="h-5 w-5 text-amber-600" />
-                                <span className="font-medium text-sm text-slate-900 dark:text-slate-100 truncate">
-                                  {folder.name}
+              {/* Pastas */}
+              {visibleFolders.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="text-xs font-medium text-slate-500 uppercase">
+                    Pastas
+                  </h3>
+                  <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                    {visibleFolders.map((folder) => (
+                      <div
+                        key={folder.id}
+                        draggable={canUpdate}
+                        onDragStart={(e) => handleDragStartFolder(e, folder.id)}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (dragOverFolder !== folder.id) {
+                            setDragOverFolder(folder.id);
+                          }
+                        }}
+                        onDragLeave={(e) => {
+                          e.stopPropagation();
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          const x = e.clientX;
+                          const y = e.clientY;
+                          if (x < rect.left || x >= rect.right || y < rect.top || y >= rect.bottom) {
+                            setDragOverFolder(null);
+                          }
+                        }}
+                        onDrop={(e) => handleDropOnFolder(e, folder.id)}
+                        className={`group relative border rounded-lg p-4 transition-all cursor-pointer ${dragOverFolder === folder.id
+                          ? "bg-blue-900/30 border-blue-500 border-2 scale-105 shadow-lg"
+                          : "bg-slate-800 hover:bg-slate-700 border-slate-700/50"
+                          }`}
+                        onClick={() => navigateToFolder(folder.id)}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Folder className="h-5 w-5 text-amber-600" />
+                              <span className="font-medium text-sm text-white truncate">
+                                {folder.name}
+                              </span>
+                            </div>
+                            {folder.description && (
+                              <p className="text-xs text-slate-400 line-clamp-1">
+                                {folder.description}
+                              </p>
+                            )}
+                            <p className="text-xs text-slate-400 mt-1">
+                              {folder._count?.media || 0} arquivo(s),{" "}
+                              {folder._count?.children || 0} pasta(s)
+                            </p>
+                          </div>
+                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {canUpdate && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0"
+                                aria-label={`Editar pasta ${folder.name}`}
+                                title="Editar pasta"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditFolder(folder);
+                                }}
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                            )}
+                            {canDelete && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
+                                aria-label={`Excluir pasta ${folder.name}`}
+                                title="Excluir pasta"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteFolder(folder.id);
+                                }}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Arquivos */}
+              {(mediaLoading || foldersLoading) && (
+                <div className="flex items-center justify-center py-12">
+                  <div className="flex flex-col items-center gap-3">
+                    <Spinner size="lg" variant="primary" />
+                    <p className="text-sm text-slate-500">
+                      Carregando arquivos...
+                    </p>
+                  </div>
+                </div>
+              )}
+              {(mediaError || foldersError) && (
+                <div className="text-sm text-red-600">Falha ao carregar</div>
+              )}
+
+              {filtered.length === 0 && !mediaLoading && (
+                <div className="text-center py-12 text-slate-500">
+                  <File className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="font-medium">Nenhum arquivo nesta pasta</p>
+                  <p className="text-sm mt-1">
+                    Faça upload de imagens, vídeos ou documentos
+                  </p>
+                </div>
+              )}
+
+              {filtered.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="text-xs font-medium text-slate-500 uppercase">
+                    Arquivos
+                  </h3>
+                  <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                    {filtered.map((item) => (
+                      <div
+                        key={item.id}
+                        draggable={canUpdate}
+                        onDragStart={(e) => handleDragStartItem(e, item.id)}
+                        className="group relative border border-slate-700/50 rounded-lg overflow-hidden bg-slate-800 hover:bg-slate-700 transition-all hover:shadow-lg"
+                      >
+                        {/* Preview thumbnail */}
+                        {item.type === "image" && (item.thumbUrl || item.url) && (
+                          <div
+                            className="w-full h-32 bg-slate-100 cursor-pointer relative"
+                            onClick={() => setPreviewItem(item)}
+                          >
+                            <Image
+                              src={item.thumbUrl || item.url || ""}
+                              alt={item.title}
+                              fill
+                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
+                              className="object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                              <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          </div>
+                        )}
+                        {item.type === "video" && (
+                          <div
+                            className="w-full h-32 bg-slate-900 cursor-pointer flex items-center justify-center relative"
+                            onClick={() => setPreviewItem(item)}
+                          >
+                            <Play className="h-12 w-12 text-white" />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                          </div>
+                        )}
+
+                        <div className="p-3">
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 mb-1 text-xs text-slate-600">
+                                {iconFor(item.type)}
+                                <span>
+                                  {item.type === "image"
+                                    ? "Imagem"
+                                    : item.type === "video"
+                                      ? "Vídeo"
+                                      : "Documento"}
                                 </span>
                               </div>
-                              {folder.description && (
-                                <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-1">
-                                  {folder.description}
-                                </p>
-                              )}
-                              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                {folder._count?.media || 0} arquivo(s),{" "}
-                                {folder._count?.children || 0} pasta(s)
-                              </p>
+                              <h4 className="font-medium text-sm text-white truncate">
+                                {item.title}
+                              </h4>
                             </div>
-                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex gap-1">
                               {canUpdate && (
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  className="h-6 w-6 p-0"
-                                  aria-label={`Editar pasta ${folder.name}`}
-                                  title="Editar pasta"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEditFolder(folder);
-                                  }}
+                                  className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
+                                  aria-label={`Editar ${item.title}`}
+                                  title="Editar arquivo"
+                                  onClick={() => handleEditItem(item)}
                                 >
                                   <Edit className="h-3 w-3" />
                                 </Button>
@@ -1034,646 +1147,526 @@ export function MediaManager({ clientId }: MediaManagerProps) {
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
-                                  aria-label={`Excluir pasta ${folder.name}`}
-                                  title="Excluir pasta"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteFolder(folder.id);
-                                  }}
+                                  className="h-6 w-6 p-0 text-red-600 hover:text-red-700 opacity-0 group-hover:opacity-100"
+                                  aria-label={`Excluir ${item.title}`}
+                                  title="Excluir arquivo"
+                                  onClick={() => handleDeleteItem(item.id)}
                                 >
                                   <Trash2 className="h-3 w-3" />
                                 </Button>
                               )}
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
-                {/* Arquivos */}
-                {(mediaLoading || foldersLoading) && (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="flex flex-col items-center gap-3">
-                      <Spinner size="lg" variant="primary" />
-                      <p className="text-sm text-slate-500">
-                        Carregando arquivos...
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {(mediaError || foldersError) && (
-                  <div className="text-sm text-red-600">Falha ao carregar</div>
-                )}
-
-                {filtered.length === 0 && !mediaLoading && (
-                  <div className="text-center py-12 text-slate-500">
-                    <File className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p className="font-medium">Nenhum arquivo nesta pasta</p>
-                    <p className="text-sm mt-1">
-                      Faça upload de imagens, vídeos ou documentos
-                    </p>
-                  </div>
-                )}
-
-                {filtered.length > 0 && (
-                  <div className="space-y-2">
-                    <h3 className="text-xs font-medium text-slate-500 uppercase">
-                      Arquivos
-                    </h3>
-                    <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                      {filtered.map((item) => (
-                        <div
-                          key={item.id}
-                          draggable={canUpdate}
-                          onDragStart={(e) => handleDragStartItem(e, item.id)}
-                          className="group relative border rounded-lg overflow-hidden bg-white hover:bg-slate-50 transition-all hover:shadow-md"
-                        >
-                          {/* Preview thumbnail */}
-                          {item.type === "image" && (item.thumbUrl || item.url) && (
-                            <div
-                              className="w-full h-32 bg-slate-100 cursor-pointer relative"
-                              onClick={() => setPreviewItem(item)}
-                            >
-                              <Image
-                                src={item.thumbUrl || item.url || ""}
-                                alt={item.title}
-                                fill
-                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
-                                className="object-cover"
-                              />
-                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
-                              </div>
-                            </div>
-                          )}
-                          {item.type === "video" && (
-                            <div
-                              className="w-full h-32 bg-slate-900 cursor-pointer flex items-center justify-center relative"
-                              onClick={() => setPreviewItem(item)}
-                            >
-                              <Play className="h-12 w-12 text-white" />
-                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-                            </div>
+                          {item.description && (
+                            <p className="text-xs text-slate-300 mb-2 line-clamp-2">
+                              {item.description}
+                            </p>
                           )}
 
-                          <div className="p-3">
-                            <div className="flex items-start justify-between gap-2 mb-2">
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2 mb-1 text-xs text-slate-600">
-                                  {iconFor(item.type)}
-                                  <span>
-                                    {item.type === "image"
-                                      ? "Imagem"
-                                      : item.type === "video"
-                                        ? "Vídeo"
-                                        : "Documento"}
-                                  </span>
-                                </div>
-                                <h4 className="font-medium text-sm text-slate-900 truncate">
-                                  {item.title}
-                                </h4>
-                              </div>
-                              <div className="flex gap-1">
-                                {canUpdate && (
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
-                                    aria-label={`Editar ${item.title}`}
-                                    title="Editar arquivo"
-                                    onClick={() => handleEditItem(item)}
-                                  >
-                                    <Edit className="h-3 w-3" />
-                                  </Button>
-                                )}
-                                {canDelete && (
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="h-6 w-6 p-0 text-red-600 hover:text-red-700 opacity-0 group-hover:opacity-100"
-                                    aria-label={`Excluir ${item.title}`}
-                                    title="Excluir arquivo"
-                                    onClick={() => handleDeleteItem(item.id)}
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
-                                )}
-                              </div>
-                            </div>
-
-                            {item.description && (
-                              <p className="text-xs text-slate-600 mb-2 line-clamp-2">
-                                {item.description}
-                              </p>
-                            )}
-
-                            {item.tags && item.tags.length > 0 && (
-                              <div className="flex flex-wrap gap-1 mb-2">
-                                {item.tags.slice(0, 3).map((tag) => (
-                                  <Badge
-                                    key={tag}
-                                    variant="secondary"
-                                    className="text-xs"
-                                  >
-                                    {tag}
-                                  </Badge>
-                                ))}
-                                {item.tags.length > 3 && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    +{item.tags.length - 3}
-                                  </Badge>
-                                )}
-                              </div>
-                            )}
-
-                            <div className="flex items-center justify-between text-xs text-slate-500">
-                              {item.fileSize && (
-                                <span>{(item.fileSize / 1024).toFixed(1)} KB</span>
-                              )}
-                              {item.url && (
-                                <a
-                                  href={item.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-600 hover:underline inline-flex items-center gap-1"
-                                  onClick={(e) => e.stopPropagation()}
+                          {item.tags && item.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-2">
+                              {item.tags.slice(0, 3).map((tag) => (
+                                <Badge
+                                  key={tag}
+                                  variant="secondary"
+                                  className="text-xs"
                                 >
-                                  <Download className="h-3 w-3" />
-                                  Download
-                                </a>
+                                  {tag}
+                                </Badge>
+                              ))}
+                              {item.tags.length > 3 && (
+                                <Badge variant="secondary" className="text-xs">
+                                  +{item.tags.length - 3}
+                                </Badge>
                               )}
                             </div>
+                          )}
+
+                          <div className="flex items-center justify-between text-xs text-slate-500">
+                            {item.fileSize && (
+                              <span>{(item.fileSize / 1024).toFixed(1)} KB</span>
+                            )}
+                            {item.url && (
+                              <a
+                                href={item.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:underline inline-flex items-center gap-1"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Download className="h-3 w-3" />
+                                Download
+                              </a>
+                            )}
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
-          {/* Modal Nova/Editar Pasta */}
-          {isFolderModalOpen && (
+        {/* Modal Nova/Editar Pasta */}
+        {isFolderModalOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            role="dialog"
+            aria-modal="true"
+            onClick={() => setIsFolderModalOpen(false)}
+          >
             <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-              role="dialog"
-              aria-modal="true"
-              onClick={() => setIsFolderModalOpen(false)}
+              className="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-md m-4"
+              onClick={(e) => e.stopPropagation()}
             >
-              <div
-                className="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-md m-4"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="p-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 id="folder-modal-title" className="text-xl font-semibold">
-                      {editingFolder ? "Editar Pasta" : "Nova Pasta"}
-                    </h2>
+              <div className="p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 id="folder-modal-title" className="text-xl font-semibold">
+                    {editingFolder ? "Editar Pasta" : "Nova Pasta"}
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsFolderModalOpen(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <form onSubmit={handleCreateFolder} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="folder-name">Nome</Label>
+                    <Input
+                      id="folder-name"
+                      required
+                      value={folderForm.name}
+                      onChange={(e) =>
+                        setFolderForm({ ...folderForm, name: e.target.value })
+                      }
+                      placeholder="Ex: Campanhas 2024"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="folder-desc">Descrição (opcional)</Label>
+                    <Textarea
+                      id="folder-desc"
+                      rows={2}
+                      value={folderForm.description}
+                      onChange={(e) =>
+                        setFolderForm({
+                          ...folderForm,
+                          description: e.target.value,
+                        })
+                      }
+                      placeholder="Breve descrição"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2 pt-2">
                     <Button
-                      variant="ghost"
-                      size="sm"
+                      type="button"
+                      variant="outline"
                       onClick={() => setIsFolderModalOpen(false)}
                     >
-                      <X className="h-4 w-4" />
+                      Cancelar
+                    </Button>
+                    <Button type="submit">
+                      {editingFolder ? "Salvar" : "Criar"}
                     </Button>
                   </div>
-                  <form onSubmit={handleCreateFolder} className="space-y-4">
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal Upload/Editar */}
+        {isUploadModalOpen && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 overflow-y-auto"
+            role="dialog"
+            aria-modal="true"
+            onClick={() => !uploading && setIsUploadModalOpen(false)}
+          >
+            <div
+              className="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-2xl m-4 my-8"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                <div className="flex items-center justify-between">
+                  <h2 id="upload-modal-title" className="text-xl font-semibold">
+                    {editingItem
+                      ? "Editar Mídia"
+                      : uploadForm.files.length > 1
+                        ? `Upload de ${uploadForm.files.length} Arquivos`
+                        : "Upload de Arquivo"}
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={uploading}
+                    onClick={() => setIsUploadModalOpen(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <form
+                  onSubmit={editingItem ? handleUpdateItem : handleUpload}
+                  className="space-y-4"
+                >
+                  {!editingItem && (
                     <div className="space-y-2">
-                      <Label htmlFor="folder-name">Nome</Label>
-                      <Input
-                        id="folder-name"
+                      <Label htmlFor="file-upload">
+                        Arquivos {uploadForm.files.length > 0 && `(${uploadForm.files.length})`}
+                      </Label>
+                      <input
+                        ref={fileInputRef}
+                        id="file-upload"
+                        type="file"
+                        multiple
                         required
-                        value={folderForm.name}
-                        onChange={(e) =>
-                          setFolderForm({ ...folderForm, name: e.target.value })
-                        }
-                        placeholder="Ex: Campanhas 2024"
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files || []);
+                          setUploadForm({
+                            ...uploadForm,
+                            files,
+                            title: files.length === 1 ? files[0].name : "",
+                          });
+                        }}
+                        accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv"
+                        className="hidden"
+                        aria-label="Selecionar arquivos para upload"
                       />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="folder-desc">Descrição (opcional)</Label>
-                      <Textarea
-                        id="folder-desc"
-                        rows={2}
-                        value={folderForm.description}
-                        onChange={(e) =>
-                          setFolderForm({
-                            ...folderForm,
-                            description: e.target.value,
-                          })
-                        }
-                        placeholder="Breve descrição"
-                      />
-                    </div>
-                    <div className="flex justify-end gap-2 pt-2">
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => setIsFolderModalOpen(false)}
+                        className="w-full"
+                        onClick={() => fileInputRef.current?.click()}
                       >
-                        Cancelar
+                        <Upload className="h-4 w-4 mr-2" />
+                        Selecionar Arquivos
                       </Button>
-                      <Button type="submit">
-                        {editingFolder ? "Salvar" : "Criar"}
-                      </Button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Modal Upload/Editar */}
-          {isUploadModalOpen && (
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 overflow-y-auto"
-              role="dialog"
-              aria-modal="true"
-              onClick={() => !uploading && setIsUploadModalOpen(false)}
-            >
-              <div
-                className="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-2xl m-4 my-8"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
-                  <div className="flex items-center justify-between">
-                    <h2 id="upload-modal-title" className="text-xl font-semibold">
-                      {editingItem
-                        ? "Editar Mídia"
-                        : uploadForm.files.length > 1
-                          ? `Upload de ${uploadForm.files.length} Arquivos`
-                          : "Upload de Arquivo"}
-                    </h2>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      disabled={uploading}
-                      onClick={() => setIsUploadModalOpen(false)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  <form
-                    onSubmit={editingItem ? handleUpdateItem : handleUpload}
-                    className="space-y-4"
-                  >
-                    {!editingItem && (
-                      <div className="space-y-2">
-                        <Label htmlFor="file-upload">
-                          Arquivos {uploadForm.files.length > 0 && `(${uploadForm.files.length})`}
-                        </Label>
-                        <input
-                          ref={fileInputRef}
-                          id="file-upload"
-                          type="file"
-                          multiple
-                          required
-                          onChange={(e) => {
-                            const files = Array.from(e.target.files || []);
-                            setUploadForm({
-                              ...uploadForm,
-                              files,
-                              title: files.length === 1 ? files[0].name : "",
-                            });
-                          }}
-                          accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv"
-                          className="hidden"
-                          aria-label="Selecionar arquivos para upload"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-full"
-                          onClick={() => fileInputRef.current?.click()}
-                        >
-                          <Upload className="h-4 w-4 mr-2" />
-                          Selecionar Arquivos
-                        </Button>
-                        {uploadForm.files.length > 0 && (
-                          <div className="space-y-1 max-h-32 overflow-y-auto border rounded-lg p-2">
-                            {uploadForm.files.map((file, idx) => (
-                              <div
-                                key={idx}
-                                className="text-xs text-slate-600 flex justify-between items-center py-1"
-                              >
-                                <span className="truncate flex-1">
-                                  {file.name}
-                                </span>
-                                <span className="text-slate-400 ml-2">
-                                  {(file.size / 1024).toFixed(1)} KB
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {uploadForm.files.length === 1 && !editingItem && (
-                      <div className="space-y-2">
-                        <Label htmlFor="title">Título</Label>
-                        <Input
-                          id="title"
-                          value={uploadForm.title}
-                          onChange={(e) =>
-                            setUploadForm({
-                              ...uploadForm,
-                              title: e.target.value,
-                            })
-                          }
-                          placeholder="Nome do arquivo"
-                        />
-                      </div>
-                    )}
-
-                    {editingItem && (
-                      <div className="space-y-2">
-                        <Label htmlFor="title">Título</Label>
-                        <Input
-                          id="title"
-                          required
-                          value={uploadForm.title}
-                          onChange={(e) =>
-                            setUploadForm({
-                              ...uploadForm,
-                              title: e.target.value,
-                            })
-                          }
-                          placeholder="Nome do arquivo"
-                        />
-                      </div>
-                    )}
-
-                    <div className="space-y-2">
-                      <Label htmlFor="desc">Descrição (opcional)</Label>
-                      <Textarea
-                        id="desc"
-                        rows={3}
-                        value={uploadForm.description}
-                        onChange={(e) =>
-                          setUploadForm({
-                            ...uploadForm,
-                            description: e.target.value,
-                          })
-                        }
-                        placeholder="Breve descrição"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="tags">Tags</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id="tags"
-                          value={uploadForm.tagInput}
-                          onChange={(e) =>
-                            setUploadForm({
-                              ...uploadForm,
-                              tagInput: e.target.value,
-                            })
-                          }
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault();
-                              handleAddTag();
-                            }
-                          }}
-                          placeholder="Adicionar tag..."
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={handleAddTag}
-                        >
-                          <Tag className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      {uploadForm.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {uploadForm.tags.map((tag) => (
-                            <Badge
-                              key={tag}
-                              variant="secondary"
-                              className="cursor-pointer"
-                              onClick={() => handleRemoveTag(tag)}
+                      {uploadForm.files.length > 0 && (
+                        <div className="space-y-1 max-h-32 overflow-y-auto border rounded-lg p-2">
+                          {uploadForm.files.map((file, idx) => (
+                            <div
+                              key={idx}
+                              className="text-xs text-slate-600 flex justify-between items-center py-1"
                             >
-                              {tag}
-                              <X className="h-3 w-3 ml-1" />
-                            </Badge>
+                              <span className="truncate flex-1">
+                                {file.name}
+                              </span>
+                              <span className="text-slate-400 ml-2">
+                                {(file.size / 1024).toFixed(1)} KB
+                              </span>
+                            </div>
                           ))}
                         </div>
                       )}
                     </div>
+                  )}
 
-                    {uploading && uploadProgress.length > 0 && (
-                      <div className="space-y-2">
-                        <Label>Progresso do Upload</Label>
-                        {uploadProgress.map((prog) => (
-                          <div key={prog.fileName} className="space-y-1">
-                            <div className="flex justify-between text-xs text-slate-600">
-                              <span className="truncate">{prog.fileName}</span>
-                              <span>
-                                {((prog.progress / prog.total) * 100).toFixed(0)}%
-                              </span>
-                            </div>
-                            <Progress
-                              value={(prog.progress / prog.total) * 100}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="flex justify-end gap-2 pt-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        disabled={uploading}
-                        onClick={() => setIsUploadModalOpen(false)}
-                      >
-                        Cancelar
-                      </Button>
-                      <Button
-                        type="submit"
-                        disabled={
-                          uploading || (!editingItem && uploadForm.files.length === 0)
+                  {uploadForm.files.length === 1 && !editingItem && (
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Título</Label>
+                      <Input
+                        id="title"
+                        value={uploadForm.title}
+                        onChange={(e) =>
+                          setUploadForm({
+                            ...uploadForm,
+                            title: e.target.value,
+                          })
                         }
-                      >
-                        {uploading && (
-                          <Spinner size="sm" />
-                        )}
-                        {uploading
-                          ? "Enviando..."
-                          : editingItem
-                            ? "Salvar"
-                            : "Upload"}
-                      </Button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Modal Preview - Fullscreen melhorado */}
-          {previewItem && (
-            <div
-              className="fixed inset-0 z-50 bg-black"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="preview-title"
-            >
-              {/* Header com controles */}
-              <div className="absolute top-0 left-0 right-0 z-20 bg-linear-to-b from-black/80 to-transparent p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <h3 id="preview-title" className="font-semibold text-lg text-white truncate">
-                      {previewItem.title}
-                    </h3>
-                    {previewItem.description && (
-                      <p className="text-sm text-slate-300 truncate">
-                        {previewItem.description}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex gap-2 ml-4">
-                    {previewItem.url && (
-                      <a
-                        href={previewItem.url}
-                        download
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors flex items-center gap-2"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Download className="h-4 w-4" />
-                        Download
-                      </a>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="bg-white/10 hover:bg-white/20 text-white"
-                      onClick={() => setPreviewItem(null)}
-                      aria-label="Fechar preview"
-                    >
-                      <X className="h-5 w-5" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Conteúdo principal - clicável para fechar */}
-              <div
-                className="absolute inset-0 flex items-center justify-center p-4 pt-24 pb-20"
-                onClick={() => setPreviewItem(null)}
-              >
-                <div
-                  className="relative w-full h-full flex items-center justify-center"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {previewItem.type === "image" && previewItem.url && (
-                    <div className="relative w-full h-full">
-                      <Image
-                        src={previewItem.url}
-                        alt={previewItem.title}
-                        fill
-                        sizes="100vw"
-                        className="object-contain rounded-lg shadow-2xl cursor-zoom-in"
-                        onClick={() => {
-                          window.open(previewItem.url!, '_blank');
-                        }}
+                        placeholder="Nome do arquivo"
                       />
                     </div>
                   )}
 
-                  {previewItem.type === "video" && previewItem.url && (
-                    <video
-                      src={previewItem.url}
-                      controls
-                      className="max-w-full max-h-full rounded-lg shadow-2xl"
-                      autoPlay
-                      onClick={(e) => e.stopPropagation()}
-                    />
+                  {editingItem && (
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Título</Label>
+                      <Input
+                        id="title"
+                        required
+                        value={uploadForm.title}
+                        onChange={(e) =>
+                          setUploadForm({
+                            ...uploadForm,
+                            title: e.target.value,
+                          })
+                        }
+                        placeholder="Nome do arquivo"
+                      />
+                    </div>
                   )}
 
-                  {previewItem.type === "document" && previewItem.url && (
-                    previewItem.mimeType === 'application/pdf' ? (
-                      <div className="w-full h-full flex flex-col">
-                        <iframe
-                          src={previewItem.url}
-                          title={previewItem.title}
-                          className="flex-1 w-full h-full rounded-lg bg-white"
-                          sandbox="allow-scripts allow-same-origin allow-downloads"
-                        />
-                        <div className="mt-2 flex justify-end">
-                          <a
-                            href={previewItem.url}
-                            download
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+                  <div className="space-y-2">
+                    <Label htmlFor="desc">Descrição (opcional)</Label>
+                    <Textarea
+                      id="desc"
+                      rows={3}
+                      value={uploadForm.description}
+                      onChange={(e) =>
+                        setUploadForm({
+                          ...uploadForm,
+                          description: e.target.value,
+                        })
+                      }
+                      placeholder="Breve descrição"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="tags">Tags</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="tags"
+                        value={uploadForm.tagInput}
+                        onChange={(e) =>
+                          setUploadForm({
+                            ...uploadForm,
+                            tagInput: e.target.value,
+                          })
+                        }
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleAddTag();
+                          }
+                        }}
+                        placeholder="Adicionar tag..."
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleAddTag}
+                      >
+                        <Tag className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {uploadForm.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {uploadForm.tags.map((tag) => (
+                          <Badge
+                            key={tag}
+                            variant="secondary"
+                            className="cursor-pointer"
+                            onClick={() => handleRemoveTag(tag)}
                           >
-                            <Download className="h-4 w-4" />
-                            Baixar PDF
-                          </a>
-                        </div>
+                            {tag}
+                            <X className="h-3 w-3 ml-1" />
+                          </Badge>
+                        ))}
                       </div>
-                    ) : (
-                      <div className="bg-slate-900 rounded-lg p-8 text-center max-w-md">
-                        <FileText className="h-20 w-20 mx-auto mb-4 text-slate-400" />
-                        <p className="text-white mb-4">Preview não disponível para este tipo de arquivo</p>
+                    )}
+                  </div>
+
+                  {uploading && uploadProgress.length > 0 && (
+                    <div className="space-y-2">
+                      <Label>Progresso do Upload</Label>
+                      {uploadProgress.map((prog) => (
+                        <div key={prog.fileName} className="space-y-1">
+                          <div className="flex justify-between text-xs text-slate-600">
+                            <span className="truncate">{prog.fileName}</span>
+                            <span>
+                              {((prog.progress / prog.total) * 100).toFixed(0)}%
+                            </span>
+                          </div>
+                          <Progress
+                            value={(prog.progress / prog.total) * 100}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex justify-end gap-2 pt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={uploading}
+                      onClick={() => setIsUploadModalOpen(false)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={
+                        uploading || (!editingItem && uploadForm.files.length === 0)
+                      }
+                    >
+                      {uploading && (
+                        <Spinner size="sm" />
+                      )}
+                      {uploading
+                        ? "Enviando..."
+                        : editingItem
+                          ? "Salvar"
+                          : "Upload"}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal Preview - Fullscreen melhorado */}
+        {previewItem && (
+          <div
+            className="fixed inset-0 z-50 bg-black"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="preview-title"
+          >
+            {/* Header com controles */}
+            <div className="absolute top-0 left-0 right-0 z-20 bg-linear-to-b from-black/80 to-transparent p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <h3 id="preview-title" className="font-semibold text-lg text-white truncate">
+                    {previewItem.title}
+                  </h3>
+                  {previewItem.description && (
+                    <p className="text-sm text-slate-300 truncate">
+                      {previewItem.description}
+                    </p>
+                  )}
+                </div>
+                <div className="flex gap-2 ml-4">
+                  {previewItem.url && (
+                    <a
+                      href={previewItem.url}
+                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors flex items-center gap-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Download className="h-4 w-4" />
+                      Download
+                    </a>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="bg-white/10 hover:bg-white/20 text-white"
+                    onClick={() => setPreviewItem(null)}
+                    aria-label="Fechar preview"
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Conteúdo principal - clicável para fechar */}
+            <div
+              className="absolute inset-0 flex items-center justify-center p-4 pt-24 pb-20"
+              onClick={() => setPreviewItem(null)}
+            >
+              <div
+                className="relative w-full h-full flex items-center justify-center"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {previewItem.type === "image" && previewItem.url && (
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={previewItem.url}
+                      alt={previewItem.title}
+                      fill
+                      sizes="100vw"
+                      className="object-contain rounded-lg shadow-2xl cursor-zoom-in"
+                      onClick={() => {
+                        window.open(previewItem.url!, '_blank');
+                      }}
+                    />
+                  </div>
+                )}
+
+                {previewItem.type === "video" && previewItem.url && (
+                  <video
+                    src={previewItem.url}
+                    controls
+                    className="max-w-full max-h-full rounded-lg shadow-2xl"
+                    autoPlay
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                )}
+
+                {previewItem.type === "document" && previewItem.url && (
+                  previewItem.mimeType === 'application/pdf' ? (
+                    <div className="w-full h-full flex flex-col">
+                      <iframe
+                        src={previewItem.url}
+                        title={previewItem.title}
+                        className="flex-1 w-full h-full rounded-lg bg-white"
+                        sandbox="allow-scripts allow-same-origin allow-downloads"
+                      />
+                      <div className="mt-2 flex justify-end">
                         <a
                           href={previewItem.url}
                           download
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+                          className="inline-flex items-center gap-2 px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
                         >
                           <Download className="h-4 w-4" />
-                          Baixar Arquivo
+                          Baixar PDF
                         </a>
                       </div>
-                    )
-                  )}
-                </div>
-              </div>
-
-              {/* Footer com metadata */}
-              <div className="absolute bottom-0 left-0 right-0 z-20 bg-linear-to-t from-black/80 to-transparent p-4">
-                <div className="flex flex-wrap items-center gap-3 text-sm text-slate-300">
-                  {previewItem.fileSize && (
-                    <span className="flex items-center gap-1">
-                      <File className="h-4 w-4" />
-                      {(previewItem.fileSize / 1024 / 1024).toFixed(2)} MB
-                    </span>
-                  )}
-                  {previewItem.mimeType && (
-                    <span className="flex items-center gap-1">
-                      {iconFor(previewItem.type)}
-                      {previewItem.mimeType}
-                    </span>
-                  )}
-                  {previewItem.tags && previewItem.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {previewItem.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary" className="bg-white/20 text-white border-0">
-                          <Tag className="h-3 w-3 mr-1" />
-                          {tag}
-                        </Badge>
-                      ))}
                     </div>
-                  )}
-                </div>
+                  ) : (
+                    <div className="bg-slate-900 rounded-lg p-8 text-center max-w-md">
+                      <FileText className="h-20 w-20 mx-auto mb-4 text-slate-400" />
+                      <p className="text-white mb-4">Preview não disponível para este tipo de arquivo</p>
+                      <a
+                        href={previewItem.url}
+                        download
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+                      >
+                        <Download className="h-4 w-4" />
+                        Baixar Arquivo
+                      </a>
+                    </div>
+                  )
+                )}
               </div>
             </div>
-          )}
-        </div>
+
+            {/* Footer com metadata */}
+            <div className="absolute bottom-0 left-0 right-0 z-20 bg-linear-to-t from-black/80 to-transparent p-4">
+              <div className="flex flex-wrap items-center gap-3 text-sm text-slate-300">
+                {previewItem.fileSize && (
+                  <span className="flex items-center gap-1">
+                    <File className="h-4 w-4" />
+                    {(previewItem.fileSize / 1024 / 1024).toFixed(2)} MB
+                  </span>
+                )}
+                {previewItem.mimeType && (
+                  <span className="flex items-center gap-1">
+                    {iconFor(previewItem.type)}
+                    {previewItem.mimeType}
+                  </span>
+                )}
+                {previewItem.tags && previewItem.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {previewItem.tags.map((tag) => (
+                      <Badge key={tag} variant="secondary" className="bg-white/20 text-white border-0">
+                        <Tag className="h-3 w-3 mr-1" />
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

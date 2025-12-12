@@ -50,7 +50,7 @@ export default function AppShell({ children }: AppShellProps) {
 
   // Layout fixo: Sidebar nunca rola, main ocupa todo espaço e rola
   return (
-    <div className="flex-1 min-h-0 text-foreground flex overflow-hidden transition-colors">
+    <div className="flex-1 min-h-screen text-foreground flex overflow-hidden transition-colors bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       {/* Notificações globais flutuantes */}
       {/* <GlobalNotifications /> */}
       <main className="flex-1 min-h-0 overflow-y-auto">

@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface ClientPageLayoutProps {
+export interface ClientPageLayoutProps {
   children: React.ReactNode;
   className?: string;
 }

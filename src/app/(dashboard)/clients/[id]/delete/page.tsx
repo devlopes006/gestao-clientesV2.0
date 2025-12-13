@@ -59,9 +59,9 @@ export default function ClientDeletePage({ params }: ClientDeletePageProps) {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-[400px] bg-slate-900">
         <div className="text-center">
-          <p className="text-slate-600">Carregando...</p>
+          <p className="text-slate-300">Carregando...</p>
         </div>
       </div>
     );
@@ -70,20 +70,21 @@ export default function ClientDeletePage({ params }: ClientDeletePageProps) {
   if (!canDelete) {
     return (
       <div className="max-w-2xl">
-        <Card className="border-red-200 bg-red-50">
+        <Card className="bg-slate-900 border border-slate-700/50 rounded-2xl shadow-lg">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-red-700">
-              <ShieldX className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-white">
+              <ShieldX className="h-5 w-5 text-red-400" />
               Acesso Negado
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-slate-700 mb-4">
+            <p className="text-sm text-slate-300 mb-4">
               Você não tem permissão para excluir clientes. Apenas proprietários (OWNER) podem realizar esta ação.
             </p>
             <Button
               variant="outline"
               onClick={() => router.back()}
+              className="bg-slate-800 border border-slate-700/50 text-white hover:bg-slate-700"
             >
               Voltar
             </Button>
@@ -94,50 +95,46 @@ export default function ClientDeletePage({ params }: ClientDeletePageProps) {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl">
-      <div>
-        <h2 className="text-2xl font-semibold text-red-600">Zona de Perigo</h2>
-        <p className="text-sm text-slate-500 mt-1">
+    <div className="space-y-6 max-w-2xl mx-auto bg-slate-900 min-h-screen p-4 sm:p-6 rounded-2xl">
+      <div className="rounded-2xl border border-slate-700/50 bg-slate-900/80 backdrop-blur-sm px-4 sm:px-6 py-4 sm:py-5 shadow-lg text-center">
+        <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">Zona de Perigo</h2>
+        <p className="text-sm sm:text-base text-slate-200 mt-1">
           Ações irreversíveis que afetam permanentemente este cliente
         </p>
       </div>
 
-      <Card className="border-red-200 bg-red-50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-red-700">
-            <AlertTriangle className="h-5 w-5" />
+      <Card className="bg-slate-900 border border-slate-700/50 rounded-2xl shadow-lg">
+        <CardHeader className="text-center">
+          <CardTitle className="flex items-center justify-center gap-2 text-white">
+            <AlertTriangle className="h-5 w-5 text-red-400" />
             Excluir Cliente
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2 text-sm text-slate-700">
-            <p className="font-medium">
+          <div className="space-y-2 text-sm sm:text-base text-slate-200">
+            <p className="font-semibold text-slate-100">
               Esta ação NÃO pode ser desfeita. Será excluído permanentemente:
             </p>
             <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>Todas as informações do cliente</li>
-              <li>Tarefas associadas</li>
-              <li>Mídias e arquivos</li>
-              <li>Histórico financeiro</li>
-              <li>Relatórios e documentos</li>
-              <li>Reuniões agendadas</li>
+              <li className="text-slate-300">Todas as informações do cliente</li>
+              <li className="text-slate-300">Tarefas associadas</li>
+              <li className="text-slate-300">Mídias e arquivos</li>
+              <li className="text-slate-300">Histórico financeiro</li>
+              <li className="text-slate-300">Relatórios e documentos</li>
+              <li className="text-slate-300">Reuniões agendadas</li>
             </ul>
           </div>
 
-          <div className="pt-4 border-t border-red-200">
-            <p className="text-sm text-slate-700 mb-3">
-              Para confirmar, digite{" "}
-              <strong className="font-mono bg-white px-2 py-1 rounded">
-                EXCLUIR
-              </strong>{" "}
-              no campo abaixo:
+          <div className="pt-4 border-t border-slate-700/50">
+            <p className="text-sm sm:text-base text-slate-200 mb-3">
+              Para confirmar, digite <strong className="font-mono bg-slate-800 px-2 py-1 rounded border border-slate-700/50 text-white">EXCLUIR</strong> no campo abaixo:
             </p>
             <Input
               type="text"
               value={confirmation}
               onChange={(e) => setConfirmation(e.target.value.toUpperCase())}
               placeholder="Digite EXCLUIR"
-              className="mb-4 border-red-300 focus:ring-red-500"
+              className="mb-4 bg-slate-800 border border-slate-700/50 text-white placeholder:text-slate-300"
             />
 
             <div className="flex gap-3">
@@ -145,13 +142,14 @@ export default function ClientDeletePage({ params }: ClientDeletePageProps) {
                 variant="outline"
                 onClick={() => router.back()}
                 disabled={loading}
+                className="bg-slate-800 border border-slate-700/50 text-white hover:bg-slate-700"
               >
                 Cancelar
               </Button>
               <Button
                 onClick={handleDelete}
                 disabled={confirmation !== "EXCLUIR" || loading}
-                className="bg-red-600 hover:bg-red-700 text-white gap-2"
+                className="bg-red-600 hover:bg-red-500 text-white gap-2 rounded-2xl"
               >
                 <Trash2 className="h-4 w-4" />
                 {loading ? "Excluindo..." : "Excluir Permanentemente"}
@@ -161,16 +159,11 @@ export default function ClientDeletePage({ params }: ClientDeletePageProps) {
         </CardContent>
       </Card>
 
-      <Card className="bg-slate-50 border-slate-200">
-        <CardContent className="pt-6">
-          <h3 className="font-medium text-slate-900 mb-2">
-            Alternativas à exclusão:
-          </h3>
-          <ul className="text-sm text-slate-600 space-y-1">
-            <li>
-              • Alterar o status do cliente para &quot;Encerrado&quot; ou
-              &quot;Pausado&quot;
-            </li>
+      <Card className="bg-slate-900 border border-slate-700/50 rounded-2xl shadow-lg">
+        <CardContent className="pt-6 text-center">
+          <h3 className="font-semibold text-white mb-2">Alternativas à exclusão:</h3>
+          <ul className="text-sm sm:text-base text-slate-200 space-y-1">
+            <li>• Alterar o status do cliente para "Encerrado" ou "Pausado"</li>
             <li>• Arquivar o cliente (funcionalidade futura)</li>
             <li>• Exportar dados antes de excluir</li>
           </ul>

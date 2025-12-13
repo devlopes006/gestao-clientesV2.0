@@ -486,28 +486,28 @@ export default function BrandingPage({ clientId, clientName, initialBranding }: 
   }, [isEditing]);
 
   return (
-    <div className={`branding-dynamic page-background`}>
+    <div className={`branding-dynamic bg-slate-900 min-h-screen`}>
       <div className="max-w-[1600px] mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 space-y-3 sm:space-y-4 lg:space-y-6">
         <style dangerouslySetInnerHTML={{ __html: dynamicCss }} />
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="p-1.5 sm:p-2 bg-linear-to-br from-pink-500 to-rose-500 rounded-lg sm:rounded-xl shadow-lg">
+            <div className="p-1.5 sm:p-2 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-600 rounded-lg sm:rounded-xl shadow-lg">
               <Lightbulb className="h-5 sm:h-6 w-5 sm:w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Branding</h1>
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-medium">Identidade visual</p>
+              <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">Branding</h1>
+              <p className="text-xs sm:text-sm text-slate-300 font-medium">Identidade visual</p>
             </div>
           </div>
-          <Button onClick={() => setIsEditing(true)} size="sm" className="rounded-lg sm:rounded-xl font-semibold bg-linear-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white shadow-lg whitespace-nowrap">Editar</Button>
+          <Button onClick={() => setIsEditing(true)} size="sm" className="rounded-lg sm:rounded-xl font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-lg whitespace-nowrap">Editar</Button>
         </header>
 
-        <div className="border border-sm:border-2 border-slate-200 dark:border-slate-700 rounded-lg sm:rounded-2xl px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-10 shadow-lg bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+        <div className="border border-slate-700/50 rounded-2xl px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-10 shadow-lg bg-slate-900">
           {/** Four column minimal preview layout */}
           <div className="grid gap-4 sm:gap-6 lg:gap-10 xl:gap-16 md:grid-cols-2 xl:grid-cols-3">
             {/* CORES */}
             <div>
-              <h3 className="text-2xl font-bold mb-6 text-slate-900 dark:text-white">Cores</h3>
+              <h3 className="text-2xl font-bold mb-6 text-white">Cores</h3>
               <div className="flex items-end gap-4 flex-wrap mb-4" role="list">
                 {palette.map((c, i) => (
                   <div
@@ -527,17 +527,17 @@ export default function BrandingPage({ clientId, clientName, initialBranding }: 
                       aria-label={`Copiar cor ${c}`}
                       className={`h-40 w-14 rounded-[28px] shadow-md palette-swatch-${i} ring-offset-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition-transform group-hover:-translate-y-2 active:scale-95 border-2 border-slate-200/60`}
                     />
-                    <span className="text-xs font-mono font-semibold text-slate-700 dark:text-slate-300 select-none">{c}</span>
+                    <span className="text-xs font-mono font-semibold text-slate-300 select-none">{c}</span>
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Clique para copiar. Arraste para reordenar.</p>
+              <p className="text-xs text-slate-400 font-medium">Clique para copiar. Arraste para reordenar.</p>
             </div>
             {/* TIPOGRAFIA */}
             <div>
-              <h3 className="text-2xl font-bold mb-6 text-slate-900 dark:text-white">Tipografia</h3>
+              <h3 className="text-2xl font-bold mb-6 text-white">Tipografia</h3>
               <div className="flex flex-col gap-4" role="list">
-                {fonts.length === 0 && <div className="text-sm text-slate-600 dark:text-slate-400 font-medium">Nenhuma fonte adicionada.</div>}
+                {fonts.length === 0 && <div className="text-sm text-slate-400 font-medium">Nenhuma fonte adicionada.</div>}
                 {fonts.map((f, idx) => (
                   <div
                     key={f.name}
@@ -549,23 +549,23 @@ export default function BrandingPage({ clientId, clientName, initialBranding }: 
                     onDrop={(e) => onFontDrop(e, idx)}
                     aria-label={`Reordenar fonte ${f.name}`}
                   >
-                    <div className={`text-2xl font-bold tracking-wide ${idx === 0 ? 'text-rose-500' : idx === 1 ? 'text-slate-600 dark:text-slate-300' : 'text-slate-700 dark:text-slate-400'}`}>{f.name.toLowerCase()}</div>
-                    {idx === 0 && <div className="text-sm uppercase text-rose-300 font-medium tracking-wider">hero</div>}
-                    {idx === 1 && <div className="text-sm text-slate-500 tracking-wide">corpo</div>}
+                    <div className={`text-2xl font-bold tracking-wide ${idx === 0 ? 'text-blue-400' : idx === 1 ? 'text-slate-300' : 'text-slate-400'}`}>{f.name.toLowerCase()}</div>
+                    {idx === 0 && <div className="text-sm uppercase text-blue-300 font-medium tracking-wider">hero</div>}
+                    {idx === 1 && <div className="text-sm text-slate-400 tracking-wide">corpo</div>}
                     {idx > 1 && <div className="text-xs text-slate-400">extra</div>}
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Arraste as fontes para definir prioridade.</p>
+              <p className="text-xs text-slate-400 font-medium">Arraste as fontes para definir prioridade.</p>
             </div>
             {/* LOGOMARCA */}
             <div>
-              <h3 className="text-2xl font-bold mb-6 text-slate-900 dark:text-white">Logomarca</h3>
-              <div className="aspect-square w-full max-w-[260px] bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl shadow-md flex items-center justify-center overflow-hidden">
+              <h3 className="text-2xl font-bold mb-6 text-white">Logomarca</h3>
+              <div className="aspect-square w-full max-w-[260px] bg-slate-800 border border-slate-700/50 rounded-xl shadow-md flex items-center justify-center overflow-hidden">
                 {logoUrl ? (
                   <Image src={logoUrl} alt="logo" width={240} height={160} className="w-auto h-auto max-h-40 object-contain" style={{ height: 'auto' }} sizes="240px" />
                 ) : (
-                  <div className="text-sm text-slate-500 dark:text-slate-400 font-medium">Sem logo</div>
+                  <div className="text-sm text-slate-400 font-medium">Sem logo</div>
                 )}
               </div>
             </div>
@@ -576,9 +576,9 @@ export default function BrandingPage({ clientId, clientName, initialBranding }: 
 
       {/* Editing modal */}
       {isEditing && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center p-6 overflow-auto" onClick={() => setIsEditing(false)}>
-          <div ref={modalRef} className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-6xl shadow-2xl border-2 border-slate-200 dark:border-slate-700" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="branding-modal-title">
-            <div className="flex items-center justify-between p-6 border-b-2 border-slate-200 dark:border-slate-700 bg-linear-to-r from-pink-500 to-rose-500">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-start justify-center p-6 overflow-auto" onClick={() => setIsEditing(false)}>
+          <div ref={modalRef} className="bg-slate-900 rounded-2xl w-full max-w-6xl shadow-2xl border border-slate-700/50" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="branding-modal-title">
+            <div className="flex items-center justify-between p-6 border-b border-slate-700/50 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600">
               <h3 id="branding-modal-title" className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
                 <Lightbulb className="h-6 w-6" />
                 Editar Branding
@@ -587,7 +587,7 @@ export default function BrandingPage({ clientId, clientName, initialBranding }: 
                 <Button ref={initialFocusRef} data-focus onClick={handleSave} size="lg" className="saveBtnDynamic text-white rounded-xl px-6 font-semibold shadow-lg" disabled={saving} aria-busy={saving ? 'true' : 'false'}>
                   {saving ? 'Salvando...' : 'Salvar'}
                 </Button>
-                <Button variant="outline" size="lg" className="border-2 border-white/30 text-white hover:bg-white/20 rounded-xl font-semibold" onClick={() => {
+                <Button variant="outline" size="lg" className="bg-slate-800 border border-slate-700/50 text-white hover:bg-slate-700 rounded-xl font-semibold" onClick={() => {
                   const data = { logo: logoUrl ?? null, palette, fonts: fonts.map((f) => f.name) };
                   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
                   const url = URL.createObjectURL(blob);
@@ -606,15 +606,15 @@ export default function BrandingPage({ clientId, clientName, initialBranding }: 
               <div className="space-y-8">
                 <section className="space-y-4">
                   <header className="flex items-center justify-between">
-                    <label htmlFor="branding-uploader" className="text-sm font-bold text-slate-900 dark:text-white">Logo</label>
+                    <label htmlFor="branding-uploader" className="text-sm font-bold text-white">Logo</label>
                     {logoUrl && (
                       <div className="flex gap-2">
-                        <button type="button" onClick={handleReplaceLogo} title="Substituir logo" className="text-xs px-3 py-1.5 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-semibold transition-colors">Substituir</button>
-                        <button type="button" onClick={handleRemoveLogo} title="Remover logo" className="text-xs px-3 py-1.5 text-red-600 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 font-semibold transition-colors">Remover</button>
+                        <button type="button" onClick={handleReplaceLogo} title="Substituir logo" className="text-xs px-3 py-1.5 bg-slate-800 border border-slate-700/50 rounded-lg hover:bg-slate-700 text-white font-semibold transition-colors">Substituir</button>
+                        <button type="button" onClick={handleRemoveLogo} title="Remover logo" className="text-xs px-3 py-1.5 text-red-400 bg-slate-800 border border-slate-700/50 rounded-lg hover:bg-red-950 font-semibold transition-colors">Remover</button>
                       </div>
                     )}
                   </header>
-                  <div className="border-2 border-slate-200 dark:border-slate-700 rounded-xl p-4 bg-slate-50/50 dark:bg-slate-800/50">
+                  <div className="border border-slate-700/50 rounded-xl p-4 bg-slate-800/50">
                     <Uploader
                       clientId={clientId}
                       onColorsExtracted={(colors) => {
@@ -630,7 +630,7 @@ export default function BrandingPage({ clientId, clientName, initialBranding }: 
                     />
                     {logoUrl && (
                       <div className="mt-4 flex justify-center">
-                        <div className="w-40 h-40 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-xl shadow-md flex items-center justify-center overflow-hidden">
+                        <div className="w-40 h-40 bg-slate-900 border border-slate-700/50 rounded-xl shadow-md flex items-center justify-center overflow-hidden">
                           <Image src={logoUrl} alt="logo-preview" width={160} height={160} className="object-contain w-full h-full" sizes="160px" />
                         </div>
                       </div>
@@ -639,15 +639,15 @@ export default function BrandingPage({ clientId, clientName, initialBranding }: 
                 </section>
                 <section className="space-y-4">
                   <header>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-1">Cores</h4>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Adicione, reordene e copie suas cores.</p>
+                    <h4 className="text-sm font-bold text-white mb-1">Cores</h4>
+                    <p className="text-xs text-slate-400 font-medium">Adicione, reordene e copie suas cores.</p>
                   </header>
                   <div className="flex items-center gap-3 flex-wrap">
-                    <input title="Escolher cor" aria-label="Escolher cor" type="color" value={colorToAdd} onChange={(e) => setColorToAdd(e.target.value)} className="w-12 h-12 p-0 border-2 border-slate-200 rounded-xl cursor-pointer" />
-                    <input title="Hex da cor" aria-label="Hex da cor" type="text" value={colorToAdd} onChange={(e) => setColorToAdd(e.target.value)} placeholder="#rrggbb" className="h-12 px-3 border-2 border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium" />
-                    <Button onClick={() => addColor(colorToAdd)} size="lg" className="font-semibold">Adicionar</Button>
+                    <input title="Escolher cor" aria-label="Escolher cor" type="color" value={colorToAdd} onChange={(e) => setColorToAdd(e.target.value)} className="w-12 h-12 p-0 border border-slate-700/50 rounded-xl cursor-pointer bg-slate-900" />
+                    <input title="Hex da cor" aria-label="Hex da cor" type="text" value={colorToAdd} onChange={(e) => setColorToAdd(e.target.value)} placeholder="#rrggbb" className="h-12 px-3 border border-slate-700/50 rounded-lg text-sm font-medium bg-slate-800 text-white placeholder:text-slate-400" />
+                    <Button onClick={() => addColor(colorToAdd)} size="lg" className="font-semibold bg-blue-600 hover:bg-blue-500 text-white">Adicionar</Button>
                     {logoUrl && (
-                      <Button variant="outline" size="lg" className="border-2 font-semibold" disabled={extractingColors} onClick={handleManualExtract}>
+                      <Button variant="outline" size="lg" className="bg-slate-800 border border-slate-700/50 text-white hover:bg-slate-700 font-semibold" disabled={extractingColors} onClick={handleManualExtract}>
                         {extractingColors ? 'Extraindo...' : 'Gerar da Logo'}
                       </Button>
                     )}
@@ -660,20 +660,20 @@ export default function BrandingPage({ clientId, clientName, initialBranding }: 
                         aria-grabbed="false"
                       >
                         <div
-                          className={`h-32 w-10 rounded-xl shadow-md palette-swatch-${i} cursor-pointer active:scale-95 transition-transform border-2 border-slate-200/60`}
+                          className={`h-32 w-10 rounded-xl shadow-md palette-swatch-${i} cursor-pointer active:scale-95 transition-transform border border-slate-700/50`}
                           onClick={() => copyToClipboard(c, 'Cor')}
                           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); copyToClipboard(c, 'Cor') } }}
                           role="button"
                           tabIndex={0}
                           aria-label={`Copiar cor ${c}`}
                         />
-                        <div className="text-xs flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                        <div className="text-xs flex items-center gap-2 text-slate-300">
                           <span className="font-mono font-semibold select-none">{c}</span>
-                          <button type="button" onClick={() => moveColorLeft(i)} title="Mover esquerda" className="text-xs px-1.5 py-0.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded font-bold">◀</button>
-                          <button type="button" onClick={() => moveColorRight(i)} title="Mover direita" className="text-xs px-1.5 py-0.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded font-bold">▶</button>
-                          <button type="button" onClick={() => removeColor(i)} title="Remover cor" className="text-xs px-1.5 py-0.5 text-red-600 hover:bg-red-100 dark:hover:bg-red-950 rounded font-bold">✕</button>
+                          <button type="button" onClick={() => moveColorLeft(i)} title="Mover esquerda" className="text-xs px-1.5 py-0.5 hover:bg-slate-800 rounded font-bold">◀</button>
+                          <button type="button" onClick={() => moveColorRight(i)} title="Mover direita" className="text-xs px-1.5 py-0.5 hover:bg-slate-800 rounded font-bold">▶</button>
+                          <button type="button" onClick={() => removeColor(i)} title="Remover cor" className="text-xs px-1.5 py-0.5 text-red-400 hover:bg-red-950 rounded font-bold">✕</button>
                         </div>
-                        <span className="text-xs text-slate-500 dark:text-slate-400 font-medium opacity-0 group-hover:opacity-100 transition">Clique para copiar</span>
+                        <span className="text-xs text-slate-400 font-medium opacity-0 group-hover:opacity-100 transition">Clique para copiar</span>
                       </div>
                     ))}
                   </div>
@@ -682,8 +682,8 @@ export default function BrandingPage({ clientId, clientName, initialBranding }: 
               <div className="space-y-8">
                 <section className="space-y-4">
                   <header>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-1">Tipografias</h4>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 font-medium">Busque pelo nome da fonte e adicione à coleção.</p>
+                    <h4 className="text-sm font-bold text-white mb-1">Tipografias</h4>
+                    <p className="text-xs text-slate-400 font-medium">Busque pelo nome da fonte e adicione à coleção.</p>
                   </header>
                   <div className="flex gap-3">
                     <div className="flex-1">
@@ -693,38 +693,38 @@ export default function BrandingPage({ clientId, clientName, initialBranding }: 
                         onSelect={(v) => { setFontInput(v); handleAddFont(); }}
                       />
                     </div>
-                    <Button variant="outline" size="lg" className="border-2 font-semibold" onClick={handleAddFont}>Adicionar</Button>
+                    <Button variant="outline" size="lg" className="bg-slate-800 border border-slate-700/50 text-white hover:bg-slate-700 font-semibold" onClick={handleAddFont}>Adicionar</Button>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
                     {fonts.length === 0 && (
-                      <div className="col-span-full border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 bg-slate-50 dark:bg-slate-800 text-sm text-slate-600 dark:text-slate-400 font-medium">Nenhuma tipografia adicionada. Use o campo acima para adicionar fontes (ex.: Inter, Roboto).</div>
+                      <div className="col-span-full border border-dashed border-slate-700/50 rounded-xl p-6 bg-slate-800 text-sm text-slate-400 font-medium">Nenhuma tipografia adicionada. Use o campo acima para adicionar fontes (ex.: Inter, Roboto).</div>
                     )}
                     {fonts.map((f) => {
                       const cname = `brand-font-${sanitizeName(f.name)}`;
                       return (
                         <div
                           key={f.name}
-                          className={`relative border-2 border-slate-200 dark:border-slate-700 rounded-xl p-4 bg-white dark:bg-slate-800 shadow-sm hover:shadow-lg hover:border-blue-300 transition-all ${cname}`}
+                          className={`relative border border-slate-700/50 rounded-xl p-4 bg-slate-800 shadow-sm hover:shadow-lg hover:border-blue-500 transition-all ${cname}`}
                           aria-grabbed="false"
                         >
                           <div className="flex items-start justify-between mb-3 gap-3">
                             <div className="space-y-1">
-                              <div className="font-bold text-sm text-slate-900 dark:text-white">{f.name}</div>
+                              <div className="font-bold text-sm text-white">{f.name}</div>
                               <div className={`text-xl leading-snug font-semibold ${cname}`}>Aa Bb Cc</div>
                               <div className="mt-1">
-                                <span className={`inline-flex items-center gap-2 text-xs font-semibold ${f.loaded ? 'text-emerald-600' : 'text-slate-500'}`}>
-                                  <span className={`h-2 w-2 rounded-full ${f.loaded ? 'bg-emerald-500' : 'bg-slate-300'}`} />
+                                <span className={`inline-flex items-center gap-2 text-xs font-semibold ${f.loaded ? 'text-emerald-500' : 'text-slate-500'}`}>
+                                  <span className={`h-2 w-2 rounded-full ${f.loaded ? 'bg-emerald-500' : 'bg-slate-700'}`} />
                                   {f.loaded ? 'Carregada' : 'Carregando'}
                                 </span>
                               </div>
                             </div>
                             <div className="flex flex-col items-end gap-1">
-                              <button aria-label={`Mover ${f.name} para cima`} title="Mover para cima" type="button" onClick={() => moveFontUp(f.name)} className="text-xs px-2 py-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 font-bold">▲</button>
-                              <button aria-label={`Mover ${f.name} para baixo`} title="Mover para baixo" type="button" onClick={() => moveFontDown(f.name)} className="text-xs px-2 py-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 font-bold">▼</button>
-                              <button aria-label={`Remover ${f.name}`} type="button" onClick={() => handleRemoveFont(f.name)} className="text-xs text-red-600 hover:bg-red-100 dark:hover:bg-red-950 rounded px-2 py-1 font-bold">Remover</button>
+                              <button aria-label={`Mover ${f.name} para cima`} title="Mover para cima" type="button" onClick={() => moveFontUp(f.name)} className="text-xs px-2 py-1 rounded-md hover:bg-slate-700 font-bold text-white">▲</button>
+                              <button aria-label={`Mover ${f.name} para baixo`} title="Mover para baixo" type="button" onClick={() => moveFontDown(f.name)} className="text-xs px-2 py-1 rounded-md hover:bg-slate-700 font-bold text-white">▼</button>
+                              <button aria-label={`Remover ${f.name}`} type="button" onClick={() => handleRemoveFont(f.name)} className="text-xs text-red-400 hover:bg-red-950 rounded px-2 py-1 font-bold">Remover</button>
                             </div>
                           </div>
-                          <div className={`text-sm font-medium ${primaryFontClass}`}>{sampleText}</div>
+                          <div className={`text-sm font-medium text-slate-300 ${primaryFontClass}`}>{sampleText}</div>
                         </div>
                       );
                     })}
@@ -738,13 +738,13 @@ export default function BrandingPage({ clientId, clientName, initialBranding }: 
 
       {/* confirmation modal */}
       {fontToRemove && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50" onClick={cancelRemoveFont}>
-          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-md shadow-2xl border-2 border-slate-200 dark:border-slate-700" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold mb-3 text-slate-900 dark:text-white">Remover tipografia</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Tem certeza que deseja remover a tipografia <strong className="text-slate-900 dark:text-white">{fontToRemove}</strong>?</p>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50" onClick={cancelRemoveFont}>
+          <div className="bg-slate-900 rounded-2xl p-6 w-full max-w-md shadow-2xl border border-slate-700/50" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold mb-3 text-white">Remover tipografia</h3>
+            <p className="text-sm text-slate-400 font-medium">Tem certeza que deseja remover a tipografia <strong className="text-white">{fontToRemove}</strong>?</p>
             <div className="mt-6 flex justify-end gap-3">
-              <Button variant="outline" size="lg" className="border-2 font-semibold" onClick={cancelRemoveFont}>Cancelar</Button>
-              <Button size="lg" className="bg-red-600 hover:bg-red-700 text-white font-semibold" onClick={confirmRemoveFont}>Remover</Button>
+              <Button variant="outline" size="lg" className="bg-slate-800 border border-slate-700/50 text-white hover:bg-slate-700 font-semibold" onClick={cancelRemoveFont}>Cancelar</Button>
+              <Button size="lg" className="bg-red-600 hover:bg-red-500 text-white font-semibold" onClick={confirmRemoveFont}>Remover</Button>
             </div>
           </div>
         </div>

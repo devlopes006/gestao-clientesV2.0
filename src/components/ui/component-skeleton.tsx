@@ -21,7 +21,7 @@ export function BrandingSkeleton() {
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-lg border border-slate-700/50 bg-gradient-to-br from-slate-900/50 to-slate-950/30 p-4 shadow-md"
+              className="rounded-lg border border-slate-700/50 bg-slate-900/50 p-4 shadow-md"
             >
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
@@ -76,7 +76,7 @@ export function InstagramGridSkeleton() {
         {Array.from({ length: 12 }).map((_, i) => (
           <div
             key={i}
-            className="aspect-square rounded-lg border border-slate-700/50 bg-gradient-to-br from-slate-900/50 to-slate-950/30 overflow-hidden shadow-md"
+            className="aspect-square rounded-lg border border-slate-700/50 bg-slate-900/50 overflow-hidden shadow-md"
           >
             <Skeleton className="h-full w-full" />
           </div>
@@ -97,7 +97,7 @@ export function FinanceManagerSkeleton() {
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-lg border border-slate-700/50 bg-gradient-to-br from-slate-900/50 to-slate-950/30 p-4 shadow-md"
+            className="rounded-lg border border-slate-700/50 bg-slate-900/50 p-4 shadow-md"
           >
             <div className="space-y-3">
               <div className="flex items-center justify-between">

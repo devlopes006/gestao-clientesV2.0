@@ -1,5 +1,6 @@
 "use client";
 
+import { FullPageLoader } from "@/components/ui/page-loader";
 import { useUser } from "@/context/UserContext";
 import { db } from "@/lib/firebase";
 import { logger } from "@/lib/logger";
@@ -105,18 +106,9 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     };
   }, [user, loading, router]);
 
-  // Mostra loading enquanto verifica
+  // Mostra loading enquanto verifica — usar FullPageLoader para visual consistente
   if (loading || checking) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center ">
-        <div className="flex flex-col items-center gap-3 text-gray-600 animate-pulse">
-          <div className="h-8 w-8 rounded-full border-4 border-t-transparent  animate-spin" />
-          <p className="text-sm">
-            {loading ? "Carregando..." : "Verificando conta..."}
-          </p>
-        </div>
-      </div>
-    );
+    return <FullPageLoader message={loading ? "Entrando no painel..." : "Verificando conta..."} />;
   }
 
   // Caso não tenha usuário após loading (previne render prematuro)

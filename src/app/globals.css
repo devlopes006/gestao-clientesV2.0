@@ -22,13 +22,27 @@
       'Liberation Sans',
       sans-serif;
     font-size: 16px;
-    background: #fff !important;
-    color: #222;
+    background: var(--bg-shell-dark);
+    color: var(--foreground, #e6eef8);
     min-height: 100vh;
     line-height: 1.5;
     letter-spacing: -0.01em;
     transition: background 0.3s;
   }
+}
+
+/* Defensive override: convert any `bg-white` utilities to dark backgrounds
+   This prevents any remaining explicit `bg-white` classes from showing white
+   backgrounds across the app when a fully dark UI is required. */
+[class*='bg-white'] {
+  background-image: none !important;
+  background-color: rgba(15, 23, 42, 0.95) !important; /* slate-900-like */
+}
+
+/* Also target common white-ish utility combinations (e.g., bg-white/xx) */
+[class*='bg-white/'] {
+  background-image: none !important;
+  background-color: rgba(15, 23, 42, 0.95) !important;
 }
 
 *,
@@ -253,7 +267,7 @@ a:hover {
   }
 
   .surface-panel {
-    @apply rounded-lg sm:rounded-xl lg:rounded-2xl border bg-white/90 dark:bg-slate-900/80 shadow-sm backdrop-blur;
+    @apply rounded-lg sm:rounded-xl lg:rounded-2xl border bg-slate-900/80 shadow-sm backdrop-blur;
     border-color: var(--border-strong);
     box-shadow: var(--glow);
   }
@@ -288,20 +302,20 @@ a:hover {
   }
 
   .ds-panel {
-    @apply rounded-2xl border bg-white/90 dark:bg-slate-900/80 shadow-soft backdrop-blur;
-    border-color: rgba(148, 163, 184, 0.3);
+    @apply rounded-2xl border bg-slate-900/80 shadow-soft backdrop-blur;
+    border-color: rgba(71, 85, 105, 0.6);
   }
   .dark .ds-panel {
     border-color: rgba(71, 85, 105, 0.6);
   }
 
   .ds-card {
-    @apply rounded-2xl border bg-white/90 dark:bg-slate-900/80 shadow-soft backdrop-blur p-4 sm:p-5 lg:p-6 transition-base;
-    border-color: rgba(148, 163, 184, 0.28);
+    @apply rounded-2xl border bg-slate-900/80 shadow-soft backdrop-blur p-4 sm:p-5 lg:p-6 transition-base;
+    border-color: rgba(71, 85, 105, 0.6);
   }
   .ds-card-strong {
-    @apply rounded-2xl border bg-white/95 dark:bg-slate-900/90 shadow-strong backdrop-blur-lg p-4 sm:p-5 lg:p-6 transition-base;
-    border-color: rgba(148, 163, 184, 0.34);
+    @apply rounded-2xl border bg-slate-900/90 shadow-strong backdrop-blur-lg p-4 sm:p-5 lg:p-6 transition-base;
+    border-color: rgba(71, 85, 105, 0.7);
   }
   .ds-card--interactive {
     @apply cursor-pointer transition-base;
@@ -316,8 +330,8 @@ a:hover {
     box-shadow: var(--glow);
   }
   .ds-card--bordered {
-    @apply bg-gradient-to-br from-white/90 to-slate-50/80 dark:from-slate-900/75 dark:to-slate-900/60;
-    border-color: rgba(148, 163, 184, 0.35);
+    @apply bg-gradient-to-br from-slate-900/75 to-slate-900/60;
+    border-color: rgba(71, 85, 105, 0.6);
   }
 
   .ds-section {
@@ -377,7 +391,7 @@ a:hover {
     @apply text-sm text-slate-600 dark:text-slate-400;
   }
   .ds-badge {
-    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200/80 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700/70;
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold bg-slate-800 text-slate-200 border border-slate-700/70;
   }
 
   .section-heading {

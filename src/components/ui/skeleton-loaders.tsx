@@ -25,7 +25,7 @@ export function Skeleton({
   const baseClass = cn(
     variants[variant],
     animated && 'animate-pulse',
-    'bg-gradient-to-r from-slate-200 to-slate-100 dark:from-slate-800 dark:to-slate-700',
+    'bg-gradient-to-r from-slate-700/50 to-slate-800/50',
     className
   )
 
@@ -44,7 +44,7 @@ export function Skeleton({
 
 export function MetricCardSkeleton() {
   return (
-    <div className="rounded-xl border-2 border-border/50 shadow-lg bg-background p-6 space-y-3">
+    <div className="rounded-xl border border-slate-700/50 shadow-lg bg-slate-900/50 p-6 space-y-3">
       <div className="flex items-start justify-between">
         <div className="space-y-2 flex-1">
           <Skeleton className="h-4 w-20" />
@@ -62,7 +62,7 @@ export function TableSkeleton({ rows = 5 }: { rows?: number }) {
   return (
     <div className="space-y-3">
       {/* Header */}
-      <div className="grid grid-cols-4 gap-4 pb-3 border-b">
+      <div className="grid grid-cols-4 gap-4 pb-3 border-b border-slate-700/50">
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="h-4 w-full" />
         ))}
@@ -91,7 +91,7 @@ export function CardGridSkeleton({ columns = 4, count = 4 }: { columns?: number;
 
 export function ChartSkeleton() {
   return (
-    <div className="rounded-xl border-2 border-border/50 shadow-lg bg-background p-6 space-y-4">
+    <div className="rounded-xl border border-slate-700/50 shadow-lg bg-slate-900/50 p-6 space-y-4">
       <Skeleton className="h-6 w-40" />
       <div className="space-y-2">
         {Array.from({ length: 6 }).map((_, i) => (

@@ -8,7 +8,7 @@ export function Skeleton({ className }: SkeletonProps) {
   return (
     <div
       className={cn(
-        "animate-pulse rounded-lg bg-gradient-to-r from-slate-700/50 to-slate-800/50 dark:from-slate-700/40 dark:to-slate-800/40",
+        "animate-pulse rounded-lg bg-gradient-to-r from-slate-700/50 to-slate-800/50",
         className,
       )}
       aria-live="polite"
@@ -57,7 +57,7 @@ export function CardSkeleton() {
 
 export function DashboardSkeleton() {
   return (
-    <div className="relative min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-100 dark:from-slate-950 dark:via-blue-950/20 dark:to-slate-900 overflow-hidden">
+    <div className="relative min-h-screen bg-linear-to-br from-slate-950 via-blue-950/20 to-slate-900 overflow-hidden">
       {/* Animated background blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob" />
@@ -80,7 +80,7 @@ export function DashboardSkeleton() {
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="relative overflow-hidden rounded-2xl border border-white/20 bg-white/50 backdrop-blur-xl p-6 shadow-lg dark:border-slate-800/50 dark:bg-slate-900/50"
+              className="relative overflow-hidden rounded-2xl border border-slate-700/50 bg-slate-900/50 backdrop-blur-xl p-6 shadow-lg"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -101,7 +101,7 @@ export function DashboardSkeleton() {
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
             {/* Chart Card */}
-            <div className="rounded-3xl border border-white/20 bg-white/50 backdrop-blur-xl p-8 shadow-lg dark:border-slate-800/50 dark:bg-slate-900/50">
+            <div className="rounded-3xl border border-slate-700/50 bg-slate-900/50 backdrop-blur-xl p-8 shadow-lg">
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <Skeleton className="h-7 w-48 rounded-lg" />
@@ -112,7 +112,7 @@ export function DashboardSkeleton() {
             </div>
 
             {/* Recent Activity */}
-            <div className="rounded-3xl border border-white/20 bg-white/50 backdrop-blur-xl p-8 shadow-lg dark:border-slate-800/50 dark:bg-slate-900/50">
+            <div className="rounded-3xl border border-slate-700/50 bg-slate-900/50 backdrop-blur-xl p-8 shadow-lg">
               <Skeleton className="h-6 w-40 rounded-lg mb-6" />
               <div className="space-y-4">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -132,13 +132,13 @@ export function DashboardSkeleton() {
           {/* Sidebar Skeleton */}
           <div className="space-y-6">
             {/* Calendar Widget */}
-            <div className="rounded-3xl border border-white/20 bg-white/50 backdrop-blur-xl p-6 shadow-lg dark:border-slate-800/50 dark:bg-slate-900/50">
+            <div className="rounded-3xl border border-slate-700/50 bg-slate-900/50 backdrop-blur-xl p-6 shadow-lg">
               <Skeleton className="h-6 w-32 rounded-lg mb-4" />
               <Skeleton className="h-64 w-full rounded-2xl" />
             </div>
 
             {/* Quick Actions */}
-            <div className="rounded-3xl border border-white/20 bg-white/50 backdrop-blur-xl p-6 shadow-lg dark:border-slate-800/50 dark:bg-slate-900/50">
+            <div className="rounded-3xl border border-slate-700/50 bg-slate-900/50 backdrop-blur-xl p-6 shadow-lg">
               <Skeleton className="h-6 w-36 rounded-lg mb-4" />
               <div className="space-y-3">
                 {Array.from({ length: 4 }).map((_, i) => (
@@ -228,7 +228,7 @@ export function MediaGridSkeleton({ items = 12 }: { items?: number }) {
       {Array.from({ length: items }).map((_, i) => (
         <div
           key={i}
-          className="aspect-square rounded-lg border border-slate-200 bg-white p-2 dark:border-slate-800 dark:bg-slate-950"
+          className="aspect-square rounded-lg border border-slate-700/50 bg-slate-900 p-2"
         >
           <Skeleton className="h-full w-full rounded-md" />
         </div>
@@ -242,7 +242,7 @@ export function MediaGridSkeleton({ items = 12 }: { items?: number }) {
  */
 export function ClientsGridSkeleton({ items = 9 }: { items?: number }) {
   return (
-    <div className="relative min-h-screen bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-100 dark:from-slate-950 dark:via-blue-950/20 dark:to-slate-900">
+    <div className="relative min-h-screen bg-linear-to-br from-slate-950 via-blue-950/20 to-slate-900">
       <div className="relative space-y-10 p-8">
         {/* Header skeleton */}
         <div className="space-y-6">
@@ -269,7 +269,7 @@ export function ClientsGridSkeleton({ items = 9 }: { items?: number }) {
           {Array.from({ length: items }).map((_, i) => (
             <div
               key={i}
-              className="group relative overflow-hidden rounded-3xl border border-white/20 bg-white/50 backdrop-blur-xl p-6 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 dark:border-slate-800/50 dark:bg-slate-900/50"
+              className="group relative overflow-hidden rounded-3xl border border-slate-700/50 bg-slate-900/50 backdrop-blur-xl p-6 shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
             >
               <div className="space-y-4">
                 <div className="flex items-start justify-between">

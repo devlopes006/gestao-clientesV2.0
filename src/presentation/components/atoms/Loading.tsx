@@ -16,7 +16,7 @@ export function Skeleton({
 }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn('animate-pulse rounded-md bg-muted', className)}
+      className={cn('animate-pulse rounded-md bg-gradient-to-r from-slate-700/50 to-slate-800/50', className)}
       {...props}
     />
   )
@@ -40,7 +40,7 @@ export function Spinner({
 
   return (
     <Loader2
-      className={cn('animate-spin text-muted-foreground', sizeClasses[size], className)}
+      className={cn('animate-spin text-slate-300', sizeClasses[size], className)}
     />
   )
 }
@@ -58,12 +58,12 @@ export function LoadingOverlay({
   return (
     <div
       className={cn(
-        'absolute inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-background/80 backdrop-blur-sm',
+        'absolute inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-slate-900/80 backdrop-blur-sm',
         className
       )}
     >
       <Spinner size="lg" />
-      {message && <p className="text-sm text-muted-foreground">{message}</p>}
+      {message && <p className="text-sm text-slate-300">{message}</p>}
     </div>
   )
 }
@@ -73,7 +73,7 @@ export function LoadingOverlay({
  */
 export function CardSkeleton() {
   return (
-    <div className="rounded-lg border bg-card p-6 shadow-sm">
+    <div className="rounded-lg border border-slate-700/50 bg-slate-900/50 p-6 shadow-sm">
       <Skeleton className="mb-2 h-5 w-3/4" />
       <Skeleton className="mb-4 h-4 w-1/2" />
       <div className="space-y-2">

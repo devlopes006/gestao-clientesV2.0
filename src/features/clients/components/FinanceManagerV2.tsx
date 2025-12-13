@@ -262,21 +262,17 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
 
   return (
     <>
-      <div className="page-background">
+      <div className="bg-slate-900 min-h-screen">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
           {/* Header */}
           <header className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-linear-to-br from-emerald-500 to-teal-500 rounded-xl shadow-lg">
+              <div className="p-2.5 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-600 rounded-xl shadow-lg">
                 <DollarSign className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-                  Gestão Financeira
-                </h1>
-                <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">
-                  Controle completo de receitas e despesas
-                </p>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">Gestão Financeira</h1>
+                <p className="text-sm text-slate-300 font-medium">Controle completo de receitas e despesas</p>
               </div>
             </div>
             <Button
@@ -285,7 +281,7 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                 setIsModalOpen(true);
               }}
               size="lg"
-              className="gap-2 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg font-semibold"
+              className="gap-2 bg-blue-600 hover:bg-blue-500 text-white shadow-lg font-semibold"
             >
               <Plus className="h-4 w-4" />
               Nova Transação
@@ -294,56 +290,53 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
 
           {/* Stats Cards */}
           <div className="grid gap-4 md:grid-cols-3">
-            <Card className="relative overflow-hidden border-2 border-green-200/60 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+            <Card className="relative overflow-hidden border border-slate-700/50 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-slate-900">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-bold text-slate-900 dark:text-white">
+                <CardTitle className="text-sm font-bold text-white">
                   Receita Total
                 </CardTitle>
-                <div className="h-12 w-12 rounded-full bg-linear-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-md">
+                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-green-600 to-emerald-600 flex items-center justify-center shadow-md">
                   <TrendingUp className="h-6 w-6 text-white" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                <div className="text-3xl font-bold text-emerald-400">
                   {formatCurrency(totals.income)}
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mt-2">
+                <p className="text-xs text-slate-400 font-medium mt-2">
                   Total de entradas
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="relative overflow-hidden border-2 border-red-200/60 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+            <Card className="relative overflow-hidden border border-slate-700/50 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-slate-900">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-bold text-slate-900 dark:text-white">
+                <CardTitle className="text-sm font-bold text-white">
                   Despesas
                 </CardTitle>
-                <div className="h-12 w-12 rounded-full bg-linear-to-br from-red-500 to-rose-500 flex items-center justify-center shadow-md">
+                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-red-600 to-rose-600 flex items-center justify-center shadow-md">
                   <TrendingDown className="h-6 w-6 text-white" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-red-600 dark:text-red-400">
+                <div className="text-3xl font-bold text-rose-400">
                   {formatCurrency(totals.expense)}
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mt-2">
+                <p className="text-xs text-slate-400 font-medium mt-2">
                   Total de saídas
                 </p>
               </CardContent>
             </Card>
 
             <Card
-              className={`relative overflow-hidden border-2 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm ${totals.balance >= 0
-                ? "border-blue-200/60"
-                : "border-orange-200/60"
-                }`}
+              className={`relative overflow-hidden border shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-slate-900 border-slate-700/50`}
             >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-bold text-slate-900 dark:text-white">
+                <CardTitle className="text-sm font-bold text-white">
                   Saldo
                 </CardTitle>
                 <div
-                  className={`h-12 w-12 rounded-full flex items-center justify-center shadow-md ${totals.balance >= 0 ? "bg-linear-to-br from-blue-500 to-purple-500" : "bg-linear-to-br from-orange-500 to-red-500"
+                  className={`h-12 w-12 rounded-full flex items-center justify-center shadow-md ${totals.balance >= 0 ? "bg-gradient-to-br from-blue-600 to-purple-600" : "bg-gradient-to-br from-orange-600 to-red-600"
                     }`}
                 >
                   <DollarSign
@@ -353,12 +346,12 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
               </CardHeader>
               <CardContent>
                 <div
-                  className={`text-3xl font-bold ${totals.balance >= 0 ? "text-blue-600 dark:text-blue-400" : "text-orange-600 dark:text-orange-400"
+                  className={`text-3xl font-bold ${totals.balance >= 0 ? "text-blue-400" : "text-orange-400"
                     }`}
                 >
                   {formatCurrency(totals.balance)}
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 font-medium mt-2">
+                <p className="text-xs text-slate-400 font-medium mt-2">
                   {totals.balance >= 0 ? "Balanço positivo" : "Balanço negativo"}
                 </p>
               </CardContent>
@@ -366,12 +359,12 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
           </div>
 
           {/* Filters */}
-          <Card className="border-2 shadow-lg bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+          <Card className="border border-slate-700/50 shadow-lg bg-slate-900">
             <CardContent className="pt-6">
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex items-center gap-2">
                   <Filter className="h-5 w-5 text-slate-500" />
-                  <span className="text-sm font-bold text-slate-900 dark:text-white">
+                  <span className="text-sm font-bold text-white">
                     Filtros:
                   </span>
                 </div>
@@ -380,7 +373,7 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                     variant={filter === "all" ? "default" : "outline"}
                     size="lg"
                     onClick={() => setFilter("all")}
-                    className="text-xs font-semibold border-2"
+                    className="text-xs font-semibold bg-slate-800 border border-slate-700/50 text-white hover:bg-slate-700"
                   >
                     Todas
                   </Button>
@@ -388,7 +381,7 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                     variant={filter === "income" ? "default" : "outline"}
                     size="lg"
                     onClick={() => setFilter("income")}
-                    className="text-xs gap-1.5 font-semibold border-2"
+                    className="text-xs gap-1.5 font-semibold bg-slate-800 border border-slate-700/50 text-white hover:bg-slate-700"
                   >
                     <ArrowUpCircle className="h-3 w-3" />
                     Receitas
@@ -397,7 +390,7 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                     variant={filter === "expense" ? "default" : "outline"}
                     size="lg"
                     onClick={() => setFilter("expense")}
-                    className="text-xs gap-1.5 font-semibold border-2"
+                    className="text-xs gap-1.5 font-semibold bg-slate-800 border border-slate-700/50 text-white hover:bg-slate-700"
                   >
                     <ArrowDownCircle className="h-3 w-3" />
                     Despesas
@@ -409,14 +402,14 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                     type="month"
                     value={dateFilter}
                     onChange={(e) => setDateFilter(e.target.value)}
-                    className="w-40 h-10 text-xs border-2 font-medium"
+                    className="w-40 h-10 text-xs border font-medium bg-slate-800 border-slate-700/50 text-white"
                   />
                   {dateFilter && (
                     <Button
                       variant="ghost"
                       size="lg"
                       onClick={() => setDateFilter("")}
-                      className="h-10 w-10 p-0 hover:bg-red-100 hover:text-red-600"
+                      className="h-10 w-10 p-0 text-white hover:bg-white/20"
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -427,23 +420,23 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
           </Card>
 
           {/* Transactions List */}
-          <Card className="border-2 shadow-lg bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
+          <Card className="border border-slate-700/50 shadow-lg bg-slate-900">
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-linear-to-br from-slate-600 to-slate-700 rounded-xl shadow-md">
+                <div className="p-2 bg-gradient-to-br from-blue-600 via-purple-600 to-blue-600 rounded-xl shadow-md">
                   <FileText className="h-5 w-5 text-white" />
                 </div>
-                <CardTitle className="font-bold">Histórico de Transações</CardTitle>
+                <CardTitle className="font-bold text-white">Histórico de Transações</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
               {filteredFinances.length === 0 ? (
                 <div className="text-center py-14">
-                  <div className="p-5 bg-linear-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-full mb-5 shadow-inner inline-flex">
-                    <DollarSign className="h-12 w-12 text-slate-500" />
+                  <div className="p-5 bg-slate-800 rounded-full mb-5 shadow-inner inline-flex border border-slate-700/50">
+                    <DollarSign className="h-12 w-12 text-slate-400" />
                   </div>
-                  <p className="font-bold text-slate-900 dark:text-white text-base">Nenhuma transação encontrada</p>
-                  <p className="text-sm mt-2 text-slate-600 dark:text-slate-400 font-medium">
+                  <p className="font-bold text-white text-base">Nenhuma transação encontrada</p>
+                  <p className="text-sm mt-2 text-slate-400 font-medium">
                     {filter !== "all" || dateFilter
                       ? "Tente ajustar os filtros"
                       : "Comece adicionando uma transação"}
@@ -454,16 +447,16 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                   {filteredFinances.map((finance) => (
                     <div
                       key={finance.id}
-                      className={`flex items-center justify-between p-5 rounded-xl border-2 transition-all hover:shadow-lg hover:-translate-y-0.5 ${finance.type === "income"
-                        ? "border-green-200 bg-green-50/50 dark:bg-green-950/20 hover:border-green-400"
-                        : "border-red-200 bg-red-50/50 dark:bg-red-950/20 hover:border-red-400"
+                      className={`flex items-center justify-between p-5 rounded-xl border transition-all hover:shadow-lg hover:-translate-y-0.5 ${finance.type === "income"
+                        ? "border-emerald-600 bg-slate-800 hover:border-emerald-500"
+                        : "border-rose-600 bg-slate-800 hover:border-rose-500"
                         }`}
                     >
                       <div className="flex items-center gap-4 flex-1">
                         <div
                           className={`h-14 w-14 rounded-full flex items-center justify-center shadow-md ${finance.type === "income"
-                            ? "bg-linear-to-br from-green-500 to-emerald-500"
-                            : "bg-linear-to-br from-red-500 to-rose-500"
+                            ? "bg-gradient-to-br from-green-600 to-emerald-600"
+                            : "bg-gradient-to-br from-red-600 to-rose-600"
                             }`}
                         >
                           {finance.type === "income" ? (
@@ -474,24 +467,24 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <h4 className="font-bold text-base text-slate-900 dark:text-white">
+                            <h4 className="font-bold text-base text-white">
                               {finance.description || "Sem descrição"}
                             </h4>
                             {finance.category && (
-                              <span className="text-xs px-3 py-1 rounded-full border-2 border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold">
+                              <span className="text-xs px-3 py-1 rounded-full border border-slate-700/50 bg-slate-800 text-slate-300 font-semibold">
                                 {finance.category}
                               </span>
                             )}
                           </div>
-                          <p className="text-sm text-slate-600 dark:text-slate-400 font-medium mt-1.5">
+                          <p className="text-sm text-slate-400 font-medium mt-1.5">
                             {formatDate(finance.date)}
                           </p>
                         </div>
                         <div className="text-right">
                           <div
                             className={`text-2xl font-bold ${finance.type === "income"
-                              ? "text-green-600 dark:text-green-400"
-                              : "text-red-600 dark:text-red-400"
+                              ? "text-emerald-400"
+                              : "text-rose-400"
                               }`}
                           >
                             {finance.type === "income" ? "+" : "-"}
@@ -504,17 +497,17 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                           variant="ghost"
                           size="lg"
                           onClick={() => handleEdit(finance)}
-                          className="h-10 w-10 p-0 hover:bg-blue-100 dark:hover:bg-blue-950 hover:scale-110 transition-transform"
+                          className="h-10 w-10 p-0 hover:bg-blue-900/40 hover:scale-110 transition-transform text-white"
                         >
-                          <Edit className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                          <Edit className="h-5 w-5 text-blue-400" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="lg"
                           onClick={() => handleDelete(finance.id)}
-                          className="h-10 w-10 p-0 hover:bg-red-100 dark:hover:bg-red-950 hover:scale-110 transition-transform"
+                          className="h-10 w-10 p-0 hover:bg-red-900/40 hover:scale-110 transition-transform text-white"
                         >
-                          <Trash2 className="h-5 w-5 text-red-600 dark:text-red-400" />
+                          <Trash2 className="h-5 w-5 text-red-400" />
                         </Button>
                       </div>
                     </div>
@@ -526,9 +519,9 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
 
           {/* Modal */}
           {isModalOpen && (
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => { setIsModalOpen(false); resetForm(); }}>
-              <Card className="w-full max-w-lg bg-card border-2 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                <CardHeader className="border-b-2 border-slate-200 dark:border-slate-700 bg-linear-to-r from-emerald-500 to-teal-500 pb-5">
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => { setIsModalOpen(false); resetForm(); }}>
+              <Card className="w-full max-w-lg bg-slate-900 border border-slate-700/50 shadow-2xl rounded-2xl" onClick={(e) => e.stopPropagation()}>
+                <CardHeader className="border-b border-slate-700/50 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 pb-5 rounded-t-2xl">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-white font-bold flex items-center gap-2">
                       <DollarSign className="h-6 w-6" />
@@ -550,7 +543,7 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-5 pt-6">
                     <div className="space-y-2">
-                      <Label htmlFor="type" className="font-semibold text-slate-900 dark:text-white">Tipo</Label>
+                      <Label htmlFor="type" className="font-semibold text-white">Tipo</Label>
                       <Select
                         value={formData.type}
                         onValueChange={(value) =>
@@ -562,7 +555,7 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                         }
                         disabled={submitting}
                       >
-                        <SelectTrigger className="border-2 h-11 font-medium">
+                        <SelectTrigger className="h-11 font-medium bg-slate-800 border border-slate-700/50 text-white">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -574,7 +567,7 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
 
                     <div className="space-y-2">
                       <Label htmlFor="amount">
-                        <span className="font-semibold text-slate-900 dark:text-white">
+                        <span className="font-semibold text-white">
                           Valor <span className="text-red-500">*</span>
                         </span>
                       </Label>
@@ -589,13 +582,13 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                           setFormData({ ...formData, amount: e.target.value })
                         }
                         placeholder="0.00"
-                        className="border-2 h-11 font-medium"
+                        className="h-11 font-medium bg-slate-800 border border-slate-700/50 text-white placeholder:text-slate-400"
                         disabled={submitting}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="category" className="font-semibold text-slate-900 dark:text-white">Categoria</Label>
+                      <Label htmlFor="category" className="font-semibold text-white">Categoria</Label>
                       <Select
                         value={formData.category}
                         onValueChange={(value) =>
@@ -603,7 +596,7 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                         }
                         disabled={submitting}
                       >
-                        <SelectTrigger className="border-2 h-11 font-medium">
+                        <SelectTrigger className="h-11 font-medium bg-slate-800 border border-slate-700/50 text-white">
                           <SelectValue placeholder="Selecione..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -617,7 +610,7 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="description" className="font-semibold text-slate-900 dark:text-white">Descrição</Label>
+                      <Label htmlFor="description" className="font-semibold text-white">Descrição</Label>
                       <Textarea
                         id="description"
                         value={formData.description}
@@ -626,13 +619,13 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                         }
                         placeholder="Detalhes da transação"
                         rows={3}
-                        className="border-2 resize-none font-medium"
+                        className="resize-none font-medium bg-slate-800 border border-slate-700/50 text-white placeholder:text-slate-400"
                         disabled={submitting}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="date" className="font-semibold text-slate-900 dark:text-white">Data</Label>
+                      <Label htmlFor="date" className="font-semibold text-white">Data</Label>
                       <Input
                         id="date"
                         type="date"
@@ -641,17 +634,17 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                         onChange={(e) =>
                           setFormData({ ...formData, date: e.target.value })
                         }
-                        className="border-2 h-11 font-medium"
+                        className="h-11 font-medium bg-slate-800 border border-slate-700/50 text-white"
                         disabled={submitting}
                       />
                     </div>
 
-                    <div className="flex gap-3 pt-6 border-t-2 border-slate-200 dark:border-slate-700">
+                    <div className="flex gap-3 pt-6 border-t border-slate-700/50">
                       <Button
                         type="submit"
                         disabled={submitting}
                         size="lg"
-                        className="flex-1 bg-linear-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 font-semibold"
+                        className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-semibold"
                       >
                         {submitting && (
                           <Spinner size="sm" />
@@ -662,7 +655,7 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                         type="button"
                         variant="outline"
                         size="lg"
-                        className="border-2 font-semibold"
+                        className="bg-slate-800 border border-slate-700/50 text-white hover:bg-slate-700 font-semibold"
                         onClick={() => {
                           setIsModalOpen(false);
                           resetForm();

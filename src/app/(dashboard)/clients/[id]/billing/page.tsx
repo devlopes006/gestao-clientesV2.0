@@ -50,13 +50,13 @@ export default function BillingPage() {
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      PAID: 'bg-green-100 text-green-800',
-      OVERDUE: 'bg-red-100 text-red-800',
-      OPEN: 'bg-blue-100 text-blue-800',
-      DRAFT: 'bg-gray-100 text-gray-800',
-      CANCELLED: 'bg-gray-100 text-gray-500',
+      PAID: 'bg-emerald-900/40 text-emerald-300 border border-emerald-700/50',
+      OVERDUE: 'bg-red-900/40 text-red-300 border border-red-700/50',
+      OPEN: 'bg-blue-900/40 text-blue-300 border border-blue-700/50',
+      DRAFT: 'bg-slate-800 text-slate-300 border border-slate-700/50',
+      CANCELLED: 'bg-slate-800 text-slate-400 border border-slate-700/50',
     }
-    return colors[status] || 'bg-gray-100 text-gray-800'
+    return colors[status] || 'bg-slate-800 text-slate-300 border border-slate-700/50'
   }
 
   const getStatusLabel = (status: string) => {
@@ -75,58 +75,65 @@ export default function BillingPage() {
   }
 
   return (
-    <div className="space-y-3 sm:space-y-4 lg:space-y-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="space-y-3 sm:space-y-4 lg:space-y-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 bg-slate-900 min-h-screen">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Faturas do Cliente</h1>
-          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-1">ID: {clientId || '—'}</p>
-        </div>
-        <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
-          <Link href={`/financeiro`} className="w-full sm:w-auto">
-            <Button variant="outline" className="w-full sm:w-auto">Ver Sistema Financeiro</Button>
-          </Link>
+      <div className="rounded-2xl border border-slate-700/50 bg-slate-900/80 backdrop-blur-sm px-4 sm:px-6 py-4 sm:py-5 shadow-lg">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">Faturas do Cliente</h1>
+            <p className="text-sm sm:text-base text-slate-300">ID: {clientId || '—'}</p>
+          </div>
+          <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
+            <Link href={`/financeiro`} className="w-full sm:w-auto">
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto rounded-2xl bg-slate-800/80 text-white hover:bg-slate-700/80 border border-slate-700/60 shadow-sm"
+              >
+                Ver Sistema Financeiro
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
       {/* Invoices List */}
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden bg-slate-900 border border-slate-700/50 rounded-2xl shadow-lg">
         <CardHeader>
-          <CardTitle>Faturas ({invoices.length})</CardTitle>
+          <CardTitle className="text-white">Faturas ({invoices.length})</CardTitle>
         </CardHeader>
         <CardContent className="p-0 sm:p-6">
           {invoices.length === 0 ? (
-            <p className="text-center text-slate-600 py-8 px-4">Nenhuma fatura encontrada</p>
+            <p className="text-center text-slate-400 py-8 px-4">Nenhuma fatura encontrada</p>
           ) : (
             <>
               {/* Mobile cards */}
               <div className="grid gap-3 sm:hidden px-3 pb-4">
                 {invoices.map((invoice) => (
-                  <div key={invoice.id} className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-4 space-y-2">
+                  <div key={invoice.id} className="rounded-2xl border border-slate-700/50 bg-slate-800 shadow-sm p-4 space-y-2">
                     <div className="flex items-center justify-between gap-2">
-                      <div className="text-xs text-muted-foreground">Número</div>
+                      <div className="text-xs text-slate-400">Número</div>
                       <Badge className={`${getStatusColor(invoice.status)} text-[10px] px-2 py-0.5`}>{getStatusLabel(invoice.status)}</Badge>
                     </div>
-                    <div className="text-base font-semibold text-slate-900 dark:text-white truncate">{invoice.number}</div>
-                    <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-300">
+                    <div className="text-base font-semibold text-white truncate">{invoice.number}</div>
+                    <div className="grid grid-cols-2 gap-2 text-xs text-slate-300">
                       <div className="space-y-1">
-                        <div className="font-medium text-slate-700 dark:text-slate-200">Emissão</div>
+                        <div className="font-medium text-slate-200">Emissão</div>
                         <div>{new Date(invoice.issueDate).toLocaleDateString('pt-BR')}</div>
                       </div>
                       <div className="space-y-1">
-                        <div className="font-medium text-slate-700 dark:text-slate-200">Vencimento</div>
+                        <div className="font-medium text-slate-200">Vencimento</div>
                         <div>{new Date(invoice.dueDate).toLocaleDateString('pt-BR')}</div>
                       </div>
                     </div>
                     <div className="flex items-center justify-between pt-2">
-                      <div className="text-xs text-muted-foreground">Total</div>
-                      <div className="text-base font-semibold text-slate-900 dark:text-white">
+                      <div className="text-xs text-slate-400">Total</div>
+                      <div className="text-base font-semibold text-white">
                         {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(invoice.total)}
                       </div>
                     </div>
                     <div className="pt-1">
                       <Link href={`/financeiro`} className="inline-flex w-full">
-                        <Button variant="ghost" size="sm" className="w-full justify-center">Ver no financeiro</Button>
+                        <Button variant="ghost" size="sm" className="w-full justify-center text-white hover:bg-white/20">Ver no financeiro</Button>
                       </Link>
                     </div>
                   </div>
@@ -136,7 +143,7 @@ export default function BillingPage() {
               {/* Desktop table */}
               <div className="hidden sm:block overflow-x-auto -mx-2 sm:mx-0">
                 <table className="w-full text-[10px] sm:text-xs lg:text-sm">
-                  <thead className="border-b">
+                  <thead className="border-b border-slate-700/50 text-white">
                     <tr>
                       <th className="text-left py-1 sm:py-1.5 px-1 sm:px-2 lg:px-3">Número</th>
                       <th className="text-left py-1 sm:py-1.5 px-1 sm:px-2 lg:px-3">Status</th>
@@ -148,16 +155,16 @@ export default function BillingPage() {
                   </thead>
                   <tbody>
                     {invoices.map((invoice) => (
-                      <tr key={invoice.id} className="border-b hover:bg-slate-50 dark:hover:bg-slate-800">
-                        <td className="py-1.5 sm:py-2 px-1 sm:px-2 lg:px-3 font-medium text-[10px] sm:text-xs lg:text-sm truncate max-w-[80px] sm:max-w-none">{invoice.number}</td>
+                      <tr key={invoice.id} className="border-b border-slate-700/50 hover:bg-slate-800">
+                        <td className="py-1.5 sm:py-2 px-1 sm:px-2 lg:px-3 font-medium text-[10px] sm:text-xs lg:text-sm truncate max-w-[80px] sm:max-w-none text-white">{invoice.number}</td>
                         <td className="py-1.5 sm:py-2 px-1 sm:px-2 lg:px-3">
                           <Badge className={`${getStatusColor(invoice.status)} text-[9px] sm:text-xs px-1 sm:px-1.5 py-0 sm:py-0.5`}>
                             {getStatusLabel(invoice.status)}
                           </Badge>
                         </td>
-                        <td className="py-1.5 sm:py-2 px-1 sm:px-2 lg:px-3 hidden sm:table-cell text-[10px] sm:text-xs lg:text-sm">{new Date(invoice.issueDate).toLocaleDateString('pt-BR')}</td>
-                        <td className="py-1.5 sm:py-2 px-1 sm:px-2 lg:px-3 hidden sm:table-cell text-[10px] sm:text-xs lg:text-sm">{new Date(invoice.dueDate).toLocaleDateString('pt-BR')}</td>
-                        <td className="py-1.5 sm:py-2 px-1 sm:px-2 lg:px-3 text-right font-medium text-[10px] sm:text-xs lg:text-sm">
+                        <td className="py-1.5 sm:py-2 px-1 sm:px-2 lg:px-3 hidden sm:table-cell text-[10px] sm:text-xs lg:text-sm text-slate-300">{new Date(invoice.issueDate).toLocaleDateString('pt-BR')}</td>
+                        <td className="py-1.5 sm:py-2 px-1 sm:px-2 lg:px-3 hidden sm:table-cell text-[10px] sm:text-xs lg:text-sm text-slate-300">{new Date(invoice.dueDate).toLocaleDateString('pt-BR')}</td>
+                        <td className="py-1.5 sm:py-2 px-1 sm:px-2 lg:px-3 text-right font-medium text-[10px] sm:text-xs lg:text-sm text-white">
                           {new Intl.NumberFormat('pt-BR', {
                             style: 'currency',
                             currency: 'BRL',
@@ -165,7 +172,7 @@ export default function BillingPage() {
                         </td>
                         <td className="py-1.5 sm:py-2 px-1 sm:px-2 lg:px-3 hidden md:table-cell">
                           <Link href={`/financeiro`}>
-                            <Button variant="ghost" size="sm" className="text-[10px] sm:text-xs h-6 sm:h-8 px-1.5 sm:px-2">
+                            <Button variant="ghost" size="sm" className="text-[10px] sm:text-xs h-6 sm:h-8 px-1.5 sm:px-2 text-white hover:bg-white/20">
                               Detalhes
                             </Button>
                           </Link>
@@ -181,15 +188,15 @@ export default function BillingPage() {
       </Card>
 
       {/* Info Box */}
-      <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+      <Card className="bg-slate-900 border border-slate-700/50 rounded-2xl shadow-lg">
         <CardHeader>
-          <CardTitle className="text-blue-900 dark:text-blue-100">ℹ️ Sistema Financeiro Modernizado</CardTitle>
+          <CardTitle className="text-white">ℹ️ Sistema Financeiro Modernizado</CardTitle>
         </CardHeader>
-        <CardContent className="text-blue-800 dark:text-blue-200">
-          <p>Esta página de billing foi migrada para o novo sistema financeiro em <code className="bg-white/50 dark:bg-black/30 px-2 py-1 rounded">/financeiro</code></p>
+        <CardContent className="text-slate-300">
+          <p>Esta página de billing foi migrada para o novo sistema financeiro em <code className="bg-slate-800 px-2 py-1 rounded border border-slate-700/50">/financeiro</code></p>
           <p className="mt-2">
             Para gerenciar faturas, despesas, transações e custos, acesse o{' '}
-            <Link href="/app/financeiro" className="underline font-semibold hover:opacity-80">
+            <Link href="/app/financeiro" className="underline font-semibold hover:opacity-80 text-white">
               novo sistema financeiro
             </Link>
           </p>

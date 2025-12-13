@@ -290,7 +290,7 @@ export function PaymentStatusCard({
                     "flex items-center justify-between p-3 rounded-lg border transition-colors",
                     inst.status === "CONFIRMED" && "bg-green-50/50 border-green-200",
                     inst.status === "LATE" && "bg-red-50/50 border-red-200",
-                    inst.status === "PENDING" && "bg-gray-50/50 border-gray-200"
+                    inst.status === "PENDING" && "bg-slate-900/50 border-gray-200"
                   )}
                 >
                   <div className="flex items-center gap-3">

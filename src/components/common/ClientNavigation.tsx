@@ -104,7 +104,7 @@ export function ClientNavigation({ items }: ClientNavigationProps) {
                   <Link
                     href={item.href}
                     className={`flex w-full items-center gap-2 ${isActive
-                        ? "bg-slate-100 dark:bg-slate-800 font-semibold"
+                        ? "bg-slate-900/60 dark:bg-slate-800 font-semibold"
                         : ""
                       }`}
                   >

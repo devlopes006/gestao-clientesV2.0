@@ -78,7 +78,7 @@ function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
       border: 'border-slate-700/50',
       text: 'text-slate-300',
       dot: 'bg-slate-400',
-      badge: 'bg-slate-500/20 text-slate-300 border-slate-500/30'
+      badge: 'bg-slate-900/600/20 text-slate-300 border-slate-500/30'
     },
   };
 
@@ -195,7 +195,7 @@ function KanbanColumn({ column, tasks, handleEdit, handleDelete }: KanbanColumnP
       header: 'bg-gradient-to-r from-slate-800/50 to-slate-700/30',
       text: 'text-slate-300',
       dot: 'bg-slate-400',
-      badge: 'bg-slate-500/20 text-slate-300 border-slate-500/30'
+      badge: 'bg-slate-900/600/20 text-slate-300 border-slate-500/30'
     },
   };
 
@@ -256,7 +256,7 @@ export function TasksPanel({ clientId, initialTasks = [], orgId }: TasksPanelPro
 
   // Kanban columns
   const columns = [
-    { id: 'TODO' as TaskStatus, title: 'A Fazer', color: 'bg-slate-100 dark:bg-slate-800' },
+    { id: 'TODO' as TaskStatus, title: 'A Fazer', color: 'bg-slate-900/60 dark:bg-slate-800' },
     { id: 'IN_PROGRESS' as TaskStatus, title: 'Em Progresso', color: 'bg-blue-100 dark:bg-blue-950/30' },
     { id: 'REVIEW' as TaskStatus, title: 'Em Revisão', color: 'bg-purple-100 dark:bg-purple-950/30' },
     { id: 'DONE' as TaskStatus, title: 'Concluído', color: 'bg-emerald-100 dark:bg-emerald-950/30' },

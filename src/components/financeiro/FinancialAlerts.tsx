@@ -163,8 +163,8 @@ export function FinancialAlerts() {
       default:
         return {
           border: 'border-gray-500/50',
-          bg: 'bg-gray-50',
-          iconBg: 'bg-gray-100',
+          bg: 'bg-slate-900/60',
+          iconBg: 'bg-slate-900/60',
           iconColor: 'text-gray-600',
           accent: 'from-gray-500 to-gray-500'
         }

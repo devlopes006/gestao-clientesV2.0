@@ -1088,7 +1088,7 @@ export function MediaManager({ clientId }: MediaManagerProps) {
                         {/* Preview thumbnail */}
                         {item.type === "image" && (item.thumbUrl || item.url) && (
                           <div
-                            className="w-full h-32 bg-slate-100 cursor-pointer relative"
+                            className="w-full h-32 bg-slate-900/60 cursor-pointer relative"
                             onClick={() => setPreviewItem(item)}
                           >
                             <Image

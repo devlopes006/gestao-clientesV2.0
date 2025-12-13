@@ -87,7 +87,7 @@ export function DashboardFinanceiro() {
         loading={loadingDashboard}
         error={errorDashboard}
         data={dashboardData}
-        skeleton={<div className="h-24 rounded-lg bg-slate-100 dark:bg-slate-800 animate-pulse" />}
+        skeleton={<div className="h-24 rounded-lg bg-slate-900/60 dark:bg-slate-800 animate-pulse" />}
       >
         <FinancialAlerts />
       </DataLoader>

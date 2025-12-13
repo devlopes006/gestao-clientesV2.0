@@ -116,8 +116,8 @@ export const KpiCard = React.forwardRef<HTMLDivElement, KpiCardProps>(
         ref={ref}
         className={cn(
           'group relative overflow-hidden rounded-2xl border p-5 sm:p-6 transition-all duration-300 h-full min-h-[180px] sm:min-h-[190px] flex flex-col justify-between backdrop-blur',
-          'before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/40 before:via-white/10 before:to-transparent before:pointer-events-none',
-          'after:absolute after:inset-x-6 after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-white/60 after:to-transparent dark:after:via-white/10',
+          'before:absolute before:inset-0 before:bg-gradient-to-br before:from-slate-900/40 before:via-slate-900/10 before:to-transparent before:pointer-events-none',
+          'after:absolute after:inset-x-6 after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-slate-900/60 after:to-transparent dark:after:via-slate-900/10',
           styles.card,
           interactive && 'hover:shadow-xl hover:-translate-y-0.5 cursor-default',
           className

@@ -103,7 +103,7 @@ export default function ContractManager({
       <div className="pt-2">
         <div className="flex items-center justify-between text-sm">
           <span className="text-slate-600">Status do Contrato</span>
-          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${isContractActive() ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-600"}`}>
+          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${isContractActive() ? "bg-green-100 text-green-700" : "bg-slate-900/60 text-slate-600"}`}>
             {isContractActive() ? "Ativo" : "Inativo"}
           </span>
         </div>

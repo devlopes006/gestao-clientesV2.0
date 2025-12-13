@@ -270,7 +270,7 @@ export function DespesasTab() {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-red-50/30 to-rose-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900/60 via-red-50/30 to-rose-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <div className="page-shell py-2 sm:py-6 lg:py-8 space-y-2 sm:space-y-6 lg:space-y-8">
 
         {/* Header */}
@@ -368,7 +368,7 @@ export function DespesasTab() {
             <CardDescription className="text-base">Mostrando {filteredExpenses.length} de {expenses.length} despesas</CardDescription>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="flex justify-between items-center gap-3 mb-4 sm:mb-6 p-2 sm:p-3 lg:p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-lg">
+            <div className="flex justify-between items-center gap-3 mb-4 sm:mb-6 p-2 sm:p-3 lg:p-4 bg-gradient-to-r from-slate-900/60 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-lg">
               <div className="text-sm font-medium text-muted-foreground">
                 Página {page} de {totalPages}
               </div>
@@ -412,14 +412,14 @@ export function DespesasTab() {
                 {filteredExpenses.map((expense) => (
                   <div key={expense.id} className="responsive-list-item border rounded-xl hover:bg-gradient-to-r hover:from-red-50 hover:to-rose-50 dark:hover:from-red-950/20 dark:hover:to-rose-950/20 hover:shadow-md transition-all cursor-pointer group" onClick={() => handleViewExpense(expense.id)}>
                     <div className="responsive-flex-container">
-                      <div className={`p-2 rounded-full shrink-0 ${expense.isActive ? 'bg-green-100' : 'bg-gray-100'}`}>
+                      <div className={`p-2 rounded-full shrink-0 ${expense.isActive ? 'bg-green-100' : 'bg-slate-900/60'}`}>
                         {expense.isActive ? <ToggleRight className="responsive-icon text-green-600" /> : <ToggleLeft className="responsive-icon text-gray-400" />}
                       </div>
                       <div className="responsive-content">
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-medium responsive-text">{expense.name}</p>
                           {getCycleBadge(expense.cycle)}
-                          {!expense.isActive && <Badge variant="outline" className="bg-gray-100 shrink-0">Inativo</Badge>}
+                          {!expense.isActive && <Badge variant="outline" className="bg-slate-900/60 shrink-0">Inativo</Badge>}
                         </div>
                         <div className="responsive-meta text-muted-foreground mt-1">
                           {expense.description && <span className="truncate max-w-[150px] sm:max-w-none">{expense.description}</span>}

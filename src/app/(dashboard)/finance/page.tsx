@@ -12,7 +12,7 @@ export default async function FinancePage() {
     redirect("/");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-blue-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900/60 via-emerald-50/30 to-blue-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <PageLayout centered={false}>
         <FinanceManagerGlobal orgId={orgId} />
       </PageLayout>

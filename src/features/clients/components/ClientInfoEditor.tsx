@@ -327,7 +327,7 @@ export function ClientInfoEditor({ client, canEdit }: ClientInfoEditorProps) {
                 variant="outline"
                 onClick={handleCancel}
                 disabled={loading}
-                className="gap-2 border-slate-300 hover:bg-slate-100"
+                className="gap-2 border-slate-300 hover:bg-slate-900/60"
               >
                 <X className="h-4 w-4" />
                 Cancelar

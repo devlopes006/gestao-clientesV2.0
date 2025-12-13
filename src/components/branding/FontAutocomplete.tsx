@@ -176,7 +176,7 @@ export default function FontAutocomplete({ value = "", onChange, onSelect }: Pro
               role="button"
               tabIndex={0}
               onMouseDown={() => handleSelect(s)}
-              className={`px-3 py-2 text-sm cursor-pointer ${i === selectedIndex ? 'bg-indigo-50 text-indigo-700' : 'hover:bg-slate-50'}`}
+              className={`px-3 py-2 text-sm cursor-pointer ${i === selectedIndex ? 'bg-indigo-50 text-indigo-700' : 'hover:bg-slate-900/60'}`}
             >
               {highlightMatch(s, q)}
             </div>

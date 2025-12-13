@@ -365,7 +365,7 @@ function MembersAdminPage() {
       }
     }
     return (
-      <Card className={`rounded-3xl border border-slate-200/50 dark:border-slate-800/50 bg-gradient-to-br from-white/80 to-slate-50/80 dark:from-slate-900/60 dark:to-slate-950/60 shadow-lg backdrop-blur-sm overflow-hidden hover:shadow-xl transition-all duration-300 ${responsiveClass}`}>
+      <Card className={`rounded-3xl border border-slate-200/50 dark:border-slate-800/50 bg-gradient-to-br from-slate-900/80 to-slate-900/80 dark:from-slate-900/60 dark:to-slate-950/60 shadow-lg backdrop-blur-sm overflow-hidden hover:shadow-xl transition-all duration-300 ${responsiveClass}`}>
         <div className="border-b border-slate-200/50 dark:border-slate-800/50 px-6 md:px-7 py-5 md:py-6 bg-gradient-to-r from-indigo-50/60 via-purple-50/60 to-pink-50/60 dark:from-indigo-950/30 dark:via-purple-950/30 dark:to-pink-950/30 backdrop-blur-md">
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 shadow-lg">
@@ -582,7 +582,7 @@ function MembersAdminPage() {
                     {ROLE_LABEL[roleKey]}
                   </p>
                   <div className="space-y-1">
-                    <p className="text-5xl md:text-6xl font-black bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+                    <p className="text-5xl md:text-6xl font-black bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-900 dark:to-slate-300 bg-clip-text text-transparent">
                       {count}
                     </p>
                     <p className="text-xs text-slate-600 dark:text-slate-400 font-semibold mt-2">
@@ -619,7 +619,7 @@ function MembersAdminPage() {
 
             {members.length === 0 ? (
               <Card className="p-12 text-center border-2 border-dashed rounded-2xl">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-slate-100 dark:bg-slate-800 mb-4">
+                <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-slate-900/60 dark:bg-slate-800 mb-4">
                   <Users className="h-10 w-10 text-slate-400" />
                 </div>
                 <p className="font-semibold text-slate-600 dark:text-slate-400 text-lg">Nenhum membro adicionado</p>
@@ -630,7 +630,7 @@ function MembersAdminPage() {
                 {members.map((m) => (
                   <div
                     key={m.id}
-                    className="flex items-center justify-between p-4 md:p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800/70 bg-slate-900/60 dark:bg-slate-900/40 hover:bg-slate-50/80 dark:hover:bg-slate-900/60 hover:border-slate-300/70 dark:hover:border-slate-700/70 hover:shadow-md transition-all duration-200 group backdrop-blur-sm"
+                    className="flex items-center justify-between p-4 md:p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800/70 bg-slate-900/60 dark:bg-slate-900/40 hover:bg-slate-900/80 dark:hover:bg-slate-900/60 hover:border-slate-300/70 dark:hover:border-slate-700/70 hover:shadow-md transition-all duration-200 group backdrop-blur-sm"
                   >
                     <div className="flex items-center gap-4 flex-1 min-w-0">
                       <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg">
@@ -698,7 +698,7 @@ function MembersAdminPage() {
 
             {activeInvites.length === 0 ? (
               <Card className="p-12 text-center border-2 border-dashed rounded-2xl">
-                <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-slate-100 dark:bg-slate-800 mb-4">
+                <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-slate-900/60 dark:bg-slate-800 mb-4">
                   <Mail className="h-10 w-10 text-slate-400" />
                 </div>
                 <p className="font-semibold text-slate-600 dark:text-slate-400 text-lg">Nenhum convite pendente</p>
@@ -709,7 +709,7 @@ function MembersAdminPage() {
                 {activeInvites.map((invite: any) => (
                   <div
                     key={invite.id}
-                    className="flex items-center justify-between p-4 md:p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800/70 bg-slate-900 dark:bg-slate-900/50 hover:bg-slate-50 dark:hover:bg-slate-900/80 hover:border-slate-300/70 dark:hover:border-slate-700/70 hover:shadow-md transition-all duration-200"
+                    className="flex items-center justify-between p-4 md:p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800/70 bg-slate-900 dark:bg-slate-900/50 hover:bg-slate-900/60 dark:hover:bg-slate-900/80 hover:border-slate-300/70 dark:hover:border-slate-700/70 hover:shadow-md transition-all duration-200"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1">

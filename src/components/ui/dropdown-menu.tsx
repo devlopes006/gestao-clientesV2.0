@@ -107,7 +107,7 @@ export function DropdownMenuTrigger({ children, asChild }: TriggerProps) {
   }
   return (
     <button data-dropdown-id={id} data-state={open ? "open" : "closed"} onClick={() => setOpen(!open)}
-      className="inline-flex items-center rounded-md px-3 py-2 text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
+      className="inline-flex items-center rounded-md px-3 py-2 text-sm bg-slate-900/60 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
     >
       {children}
     </button>
@@ -188,7 +188,7 @@ export function DropdownMenuItem({
         onClick?.();
       }}
       className={cn(
-        "cursor-pointer select-none rounded-sm px-3 py-2 text-sm flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800",
+        "cursor-pointer select-none rounded-sm px-3 py-2 text-sm flex items-center gap-2 hover:bg-slate-900/60 dark:hover:bg-slate-800",
         disabled && "opacity-50 pointer-events-none",
       )}
     >

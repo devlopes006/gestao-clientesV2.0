@@ -33,8 +33,8 @@ const statusMap: Record<string, { label: string; class: string }> = {
   OVERDUE: { label: "Vencida", class: "bg-red-100 text-red-700" },
   VOID: { label: "Cancelada", class: "bg-slate-200 text-slate-600" },
   CANCELED: { label: "Cancelada", class: "bg-slate-200 text-slate-600" },
-  PENDING: { label: "Pendente", class: "bg-slate-100 text-slate-700" },
-  DRAFT: { label: "Rascunho", class: "bg-slate-100 text-slate-500" },
+  PENDING: { label: "Pendente", class: "bg-slate-900/60 text-slate-700" },
+  DRAFT: { label: "Rascunho", class: "bg-slate-900/60 text-slate-500" },
 };
 
 export default function ClientInvoiceDetail({ invoice, role }: ClientInvoiceDetailProps) {
@@ -106,7 +106,7 @@ export default function ClientInvoiceDetail({ invoice, role }: ClientInvoiceDeta
               }) => (
                 <div key={p.id} className="py-2 flex items-center justify-between text-sm">
                   <div>
-                    <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${p.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' : p.status === 'PENDING' ? 'bg-slate-100 text-slate-700' : 'bg-red-100 text-red-700'}`}>{p.status}</span>
+                    <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${p.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' : p.status === 'PENDING' ? 'bg-slate-900/60 text-slate-700' : 'bg-red-100 text-red-700'}`}>{p.status}</span>
                     <span className="ml-2 font-mono text-xs text-slate-600">{p.method}</span>
                   </div>
                   <div>

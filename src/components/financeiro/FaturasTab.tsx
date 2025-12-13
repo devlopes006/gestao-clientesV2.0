@@ -186,11 +186,11 @@ export function FaturasTab() {
 
   const getStatusBadge = (status: InvoiceStatus) => {
     const configs: Record<InvoiceStatus, { icon: typeof Clock, label: string, className: string }> = {
-      DRAFT: { icon: Clock, label: 'Rascunho', className: 'bg-gray-100 text-gray-800' },
+      DRAFT: { icon: Clock, label: 'Rascunho', className: 'bg-slate-900/60 text-gray-800' },
       OPEN: { icon: Clock, label: 'Em Aberto', className: 'bg-yellow-100 text-yellow-800' },
       PAID: { icon: CheckCircle, label: 'Pago', className: 'bg-green-100 text-green-800' },
       OVERDUE: { icon: AlertCircle, label: 'Vencido', className: 'bg-red-100 text-red-800' },
-      CANCELLED: { icon: XCircle, label: 'Cancelado', className: 'bg-gray-100 text-gray-800' },
+      CANCELLED: { icon: XCircle, label: 'Cancelado', className: 'bg-slate-900/60 text-gray-800' },
     }
 
     const config = configs[status] || configs.OPEN
@@ -211,7 +211,7 @@ export function FaturasTab() {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-pink-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900/60 via-purple-50/30 to-pink-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <div className="page-shell py-2 sm:py-6 lg:py-8 space-y-2 sm:space-y-6 lg:space-y-8">
 
         {/* Header */}
@@ -329,7 +329,7 @@ export function FaturasTab() {
           <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-slate-900 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-lg sm:shadow-xl hover-raise transition-base">
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-full blur-3xl" />
 
-            <div className="relative z-10 p-4 sm:p-6 border-b border-slate-200/50 dark:border-slate-800/50 bg-gradient-to-br from-slate-50/50 to-transparent dark:from-slate-800/30 dark:to-transparent">
+            <div className="relative z-10 p-4 sm:p-6 border-b border-slate-200/50 dark:border-slate-800/50 bg-gradient-to-br from-slate-900/50 to-transparent dark:from-slate-800/30 dark:to-transparent">
               <div className="flex items-center gap-3">
                 <div className="p-2 sm:p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/25">
                   <TrendingUp className="h-5 w-5 text-white" />
@@ -419,7 +419,7 @@ export function FaturasTab() {
           <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-slate-900 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-lg sm:shadow-xl lg:shadow-2xl shadow-slate-900/10">
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-full blur-3xl" />
 
-            <div className="relative z-10 p-4 sm:p-6 lg:p-8 border-b border-slate-200/50 dark:border-slate-800/50 bg-gradient-to-br from-slate-50/50 to-transparent dark:from-slate-800/30 dark:to-transparent">
+            <div className="relative z-10 p-4 sm:p-6 lg:p-8 border-b border-slate-200/50 dark:border-slate-800/50 bg-gradient-to-br from-slate-900/50 to-transparent dark:from-slate-800/30 dark:to-transparent">
               <div className="flex items-center gap-3 sm:gap-4">
                 <div className="p-2 sm:p-2.5 lg:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/25">
                   <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
@@ -506,7 +506,7 @@ export function FaturasTab() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 20 }}
                         transition={{ delay: index * 0.05 }}
-                        className="responsive-list-item border rounded-xl bg-gradient-to-r from-white to-slate-50 dark:from-slate-950 dark:to-slate-900 hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-950/30 dark:hover:to-pink-950/30 hover:shadow-lg hover:border-purple-200 dark:hover:border-purple-800 transition-all cursor-pointer group"
+                        className="responsive-list-item border rounded-xl bg-gradient-to-r from-slate-900 to-slate-900/60 dark:from-slate-950 dark:to-slate-900 hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-950/30 dark:hover:to-pink-950/30 hover:shadow-lg hover:border-purple-200 dark:hover:border-purple-800 transition-all cursor-pointer group"
                         onClick={() => handleViewInvoice(invoice.id)}
                         whileHover={{ y: -2 }}
                       >
@@ -521,7 +521,7 @@ export function FaturasTab() {
                             </div>
                             <div className="responsive-meta text-muted-foreground mt-1.5 sm:mt-2">
                               {invoice.client?.name && (
-                                <span className="flex items-center gap-1 px-2 py-0.5 sm:py-1 bg-slate-100 dark:bg-slate-800 rounded-full shrink-0">
+                                <span className="flex items-center gap-1 px-2 py-0.5 sm:py-1 bg-slate-900/60 dark:bg-slate-800 rounded-full shrink-0">
                                   <Users className="h-3 w-3 shrink-0" />
                                   <span className="truncate max-w-[100px] sm:max-w-none">{invoice.client.name}</span>
                                 </span>

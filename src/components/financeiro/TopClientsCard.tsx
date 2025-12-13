@@ -33,7 +33,7 @@ const MEDAL_COLORS = {
     border: 'border-slate-300/70 dark:border-slate-700/50',
     medal: 'from-slate-300 to-gray-400',
     text: 'text-slate-800 dark:text-slate-200',
-    accent: 'from-slate-500 to-gray-600',
+    accent: 'from-slate-900/600 to-gray-600',
   },
   bronze: {
     bg: 'from-orange-50/60 to-amber-50/30 dark:from-orange-950/50 dark:to-amber-950/30',
@@ -130,7 +130,7 @@ export function TopClientsCard({ clients, items, title }: TopClientsCardProps) {
                 className={`group relative rounded-xl border-2 ${colors.border} bg-gradient-to-r ${colors.bg} p-5 sm:p-6 lg:p-7 transition-all duration-300 hover:shadow-lg hover:border-opacity-100 hover:-translate-y-1`}
               >
                 {/* Background shine effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-900/0 via-slate-900/10 to-slate-900/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                 <div className="relative flex items-center gap-3 sm:gap-4">
                   {/* Medal/Ranking Badge */}

@@ -1,6 +1,6 @@
 export default function MediaPage() {
   return (
-    <div className="relative bg-linear-to-br from-slate-50 via-blue-50/30 to-slate-100 dark:from-slate-950 dark:via-blue-950/20 dark:to-slate-900 p-6">
+    <div className="relative bg-linear-to-br from-slate-900/60 via-blue-50/30 to-slate-100 dark:from-slate-950 dark:via-blue-950/20 dark:to-slate-900 p-6">
       <div className="relative space-y-6">
         <div className="flex items-center justify-between">
           <div>

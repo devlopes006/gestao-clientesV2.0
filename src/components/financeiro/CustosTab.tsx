@@ -191,7 +191,7 @@ export function CustosTab() {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-amber-50/30 to-orange-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900/60 via-amber-50/30 to-orange-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <div className="page-shell py-2 sm:py-6 lg:py-8 space-y-2 sm:space-y-6 lg:space-y-8">
 
         {/* Header */}
@@ -288,7 +288,7 @@ export function CustosTab() {
                   <CardDescription className="text-base">Mostrando {filteredCostItems.length} de {costItems.length} itens</CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4 lg:mb-6 p-2 sm:p-3 lg:p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-lg">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4 lg:mb-6 p-2 sm:p-3 lg:p-4 bg-gradient-to-r from-slate-900/60 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-lg">
                     <div className="text-xs sm:text-sm font-medium text-muted-foreground">
                       Página {pageCostItems} de {totalPagesCostItems}
                     </div>
@@ -385,7 +385,7 @@ export function CustosTab() {
                   <CardDescription className="text-base">Mostrando {filteredSubscriptions.length} de {subscriptions.length} associações</CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4 lg:mb-6 p-2 sm:p-3 lg:p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-lg">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4 lg:mb-6 p-2 sm:p-3 lg:p-4 bg-gradient-to-r from-slate-900/60 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-lg">
                     <div className="text-xs sm:text-sm font-medium text-muted-foreground">
                       Página {pageSubscriptions} de {totalPagesSubscriptions}
                     </div>

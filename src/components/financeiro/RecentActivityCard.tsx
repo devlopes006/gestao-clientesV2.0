@@ -130,7 +130,7 @@ export function RecentActivityCard({ activities }: RecentActivityCardProps) {
                           <Badge
                             variant="outline"
                             className={`text-xs font-medium ${statusColors[activity.status] ||
-                              'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
+                              'bg-slate-900/60 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
                               }`}
                           >
                             {statusLabels[activity.status] || activity.status}

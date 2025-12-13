@@ -24,7 +24,7 @@ export default async function ProfilePage() {
 
   return (
     <AppShell>
-      <PageLayout centered={false} maxWidth="2xl" className="p-4 sm:p-6 lg:p-8 w-full min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
+      <PageLayout centered={false} maxWidth="2xl" className="p-4 sm:p-6 lg:p-8 w-full min-h-screen bg-gradient-to-br from-slate-900/60 via-blue-50/30 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
         <PageHeader
           title="Meu Perfil"
           description="Veja e edite suas informações pessoais."
@@ -32,7 +32,7 @@ export default async function ProfilePage() {
           iconColor="bg-blue-600"
         />
 
-        <Card className="p-6 sm:p-8 lg:p-10 shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 rounded-3xl w-full border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-white via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 backdrop-blur-sm">
+        <Card className="p-6 sm:p-8 lg:p-10 shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300 rounded-3xl w-full border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-slate-900 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 backdrop-blur-sm">
           <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8 lg:gap-10 w-full">
             {/* Avatar com ícone */}
             <div className="relative h-20 w-20 sm:h-24 sm:w-24 lg:h-28 lg:w-28 rounded-full overflow-hidden shadow-xl ring-4 ring-blue-500/30 group hover:ring-8 hover:ring-indigo-500/40 transition-all duration-300" aria-label="Avatar do usuário">
@@ -104,41 +104,41 @@ export default async function ProfilePage() {
 
         {/* Card de informações da organização */}
         {org && (
-          <Card className="mt-6 sm:mt-8 p-6 sm:p-8 lg:p-10 shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 rounded-3xl w-full border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-white via-purple-50/20 to-pink-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 backdrop-blur-sm">
+          <Card className="mt-6 sm:mt-8 p-6 sm:p-8 lg:p-10 shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-300 rounded-3xl w-full border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-slate-900 via-purple-50/20 to-pink-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 backdrop-blur-sm">
             <div className="mb-4 sm:mb-6">
               <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">Organização</h3>
               <p className="text-xs sm:text-sm lg:text-base text-slate-600 dark:text-slate-400 mt-1">Informações da empresa vinculada à sua conta.</p>
             </div>
             <div className="grid gap-3 sm:gap-4 lg:gap-5 grid-cols-1 md:grid-cols-2 text-sm sm:text-base text-slate-700 dark:text-slate-300">
-              <div className="hover:bg-slate-50 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
+              <div className="hover:bg-slate-900/60 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
                 <span className="font-semibold text-slate-900 dark:text-white">Nome:</span> {org.name || "-"}
               </div>
-              <div className="hover:bg-slate-50 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
+              <div className="hover:bg-slate-900/60 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
                 <span className="font-semibold text-slate-900 dark:text-white">CNPJ:</span> {org.cnpj || "-"}
               </div>
-              <div className="hover:bg-slate-50 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
+              <div className="hover:bg-slate-900/60 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
                 <span className="font-semibold text-slate-900 dark:text-white">Telefone:</span> {org.phone || "-"}
               </div>
-              <div className="hover:bg-slate-50 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
+              <div className="hover:bg-slate-900/60 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
                 <span className="font-semibold text-slate-900 dark:text-white">Website:</span> {org.website || "-"}
               </div>
-              <div className="md:col-span-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
+              <div className="md:col-span-2 hover:bg-slate-900/60 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
                 <span className="font-semibold text-slate-900 dark:text-white">Endereço:</span> {org.addressLine1 || "-"} {org.addressLine2 ? `, ${org.addressLine2}` : ""}
               </div>
-              <div className="hover:bg-slate-50 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
+              <div className="hover:bg-slate-900/60 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
                 <span className="font-semibold text-slate-900 dark:text-white">Cidade:</span> {org.city || "-"}
               </div>
-              <div className="hover:bg-slate-50 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
+              <div className="hover:bg-slate-900/60 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
                 <span className="font-semibold text-slate-900 dark:text-white">Estado:</span> {org.state || "-"}
               </div>
-              <div className="hover:bg-slate-50 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
+              <div className="hover:bg-slate-900/60 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
                 <span className="font-semibold text-slate-900 dark:text-white">CEP:</span> {org.postalCode || "-"}
               </div>
-              <div className="hover:bg-slate-50 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
+              <div className="hover:bg-slate-900/60 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
                 <span className="font-semibold text-slate-900 dark:text-white">País:</span> {org.country || "-"}
               </div>
               {org.description && (
-                <div className="md:col-span-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
+                <div className="md:col-span-2 hover:bg-slate-900/60 dark:hover:bg-slate-800/50 p-2 rounded-lg transition-colors duration-200">
                   <span className="font-semibold text-slate-900 dark:text-white">Descrição:</span> {org.description}
                 </div>
               )}

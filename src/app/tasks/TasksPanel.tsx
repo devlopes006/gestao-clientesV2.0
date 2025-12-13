@@ -38,7 +38,7 @@ function TaskCard({ task }: { task: Task }) {
       <h4 className="font-semibold text-base mb-2 line-clamp-2 text-blue-700 dark:text-blue-300">{task.title}</h4>
       {task.description && <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{task.description}</p>}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs px-2 py-1 rounded bg-slate-100 dark:bg-slate-800">{task.priority}</span>
+        <span className="text-xs px-2 py-1 rounded bg-slate-900/60 dark:bg-slate-800">{task.priority}</span>
         {task.dueDate && <span className="text-xs text-muted-foreground flex items-center gap-1">{task.dueDate}</span>}
       </div>
     </div>
@@ -53,7 +53,7 @@ export function TasksPanel({ clientId, initialTasks = [] }: TasksPanelProps) {
 
   // Kanban columns
   const columns = [
-    { id: 'todo', title: 'A Fazer', color: 'bg-slate-100 dark:bg-slate-800' },
+    { id: 'todo', title: 'A Fazer', color: 'bg-slate-900/60 dark:bg-slate-800' },
     { id: 'in-progress', title: 'Em Progresso', color: 'bg-blue-100 dark:bg-blue-950/30' },
     { id: 'done', title: 'Concluído', color: 'bg-emerald-100 dark:bg-emerald-950/30' },
   ];

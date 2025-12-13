@@ -32,7 +32,7 @@ export default function FinanceiroPage() {
   }, [activeTab])
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="min-h-screen bg-slate-900/60 text-slate-900">
       <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-8">
         <header className="space-y-3">
           <div className="space-y-1">

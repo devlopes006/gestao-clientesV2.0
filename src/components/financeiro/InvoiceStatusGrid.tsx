@@ -46,8 +46,8 @@ function colorClasses(color: string) {
       }
     default:
       return {
-        bg: 'from-slate-50/80 to-gray-50/80 dark:from-slate-950/30 dark:to-gray-950/30',
-        iconBg: 'bg-slate-100 dark:bg-slate-900/40',
+        bg: 'from-slate-900/80 to-gray-50/80 dark:from-slate-950/30 dark:to-gray-950/30',
+        iconBg: 'bg-slate-900/60 dark:bg-slate-900/40',
         text: 'text-slate-700 dark:text-slate-400',
         value: 'text-slate-900 dark:text-slate-100',
       }

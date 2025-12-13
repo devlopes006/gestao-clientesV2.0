@@ -274,7 +274,7 @@ export function ActivitiesCalendar({ activities }: ActivitiesCalendarProps) {
                   href={`/clients/${activity.clientId}/info`}
                   className="block"
                 >
-                  <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors group">
+                  <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-900/60 dark:hover:bg-slate-700/50 transition-colors group">
                     <div
                       className={`
                       w-8 h-8 rounded-lg flex items-center justify-center shrink-0

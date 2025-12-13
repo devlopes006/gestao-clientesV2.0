@@ -84,7 +84,7 @@ export function UpdateRoleForm({
         size="sm"
         variant="outline"
         disabled={isUpdating || selectedRole === currentRole}
-        className="rounded-full border-slate-300 hover:bg-slate-100 transition-all"
+        className="rounded-full border-slate-300 hover:bg-slate-900/60 transition-all"
       >
         {isUpdating ? "Atualizando..." : "Atualizar"}
       </Button>

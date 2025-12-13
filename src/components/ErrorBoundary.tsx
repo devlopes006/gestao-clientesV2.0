@@ -82,7 +82,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
       // Default error UI
       return (
-        <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
+        <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-slate-900/60 to-slate-100 dark:from-slate-950 dark:to-slate-900">
           <Card className="w-full max-w-2xl shadow-lg">
             <CardHeader>
               <div className="flex items-center gap-3">
@@ -99,7 +99,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               </p>
 
               {process.env.NODE_ENV === 'development' && this.state.error && (
-                <details className="mt-4 p-4 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                <details className="mt-4 p-4 bg-slate-900/60 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
                   <summary className="cursor-pointer font-medium mb-2 text-sm">
                     Detalhes do erro (modo desenvolvimento)
                   </summary>

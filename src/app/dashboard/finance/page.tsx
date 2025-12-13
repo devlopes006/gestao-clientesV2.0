@@ -174,7 +174,7 @@ function FixedExpenseList({
                     category: String(formData.get('category') || e.category || ''),
                   })
                 }}
-                className="mt-2 p-4 border rounded bg-gray-50 grid grid-cols-1 gap-2"
+                className="mt-2 p-4 border rounded bg-slate-900/60 grid grid-cols-1 gap-2"
               >
                 <input name="name" defaultValue={e.name} className="border rounded p-2" placeholder="Nome" />
                 <input

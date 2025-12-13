@@ -11,7 +11,7 @@ export default async function SettingsPage() {
   if (!user) redirect("/login");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900/60 via-blue-50/30 to-indigo-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <PageLayout centered={false} maxWidth="4xl">
         <div className="py-6 sm:py-8 lg:py-10 space-y-8">
           {/* Header Premium */}
@@ -32,7 +32,7 @@ export default async function SettingsPage() {
           </div>
 
           {/* Profile Card */}
-          <Card className="group relative overflow-visible rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 backdrop-blur-sm shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300">
+          <Card className="group relative overflow-visible rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-slate-900 via-blue-50/30 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 backdrop-blur-sm shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-300">
             <div className="p-6 sm:p-8 lg:p-10">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2.5 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30">
@@ -65,7 +65,7 @@ export default async function SettingsPage() {
               </div>
 
               {/* Organization Card */}
-              <Card className="group relative overflow-visible rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-white via-purple-50/30 to-pink-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 backdrop-blur-sm shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300" id="org">
+              <Card className="group relative overflow-visible rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-slate-900 via-purple-50/30 to-pink-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 backdrop-blur-sm shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-300" id="org">
                 <div className="p-6 sm:p-8 lg:p-10">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="p-2.5 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 shadow-lg shadow-purple-500/30">

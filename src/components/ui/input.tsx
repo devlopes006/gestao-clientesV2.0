@@ -11,7 +11,7 @@ const inputVariants = cva(
       variant: {
         default: "border-slate-200/70 dark:border-slate-800/70",
         error: "border-red-400/80 focus-visible:ring-red-400/30 focus-visible:border-red-400",
-        subtle: "bg-slate-100/70 dark:bg-slate-900/60 border-slate-200/60 dark:border-slate-800/60",
+        subtle: "bg-slate-900/70 dark:bg-slate-900/60 border-slate-200/60 dark:border-slate-800/60",
       },
       size: {
         sm: "h-10 text-xs sm:text-sm",

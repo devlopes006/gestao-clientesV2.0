@@ -13,8 +13,8 @@ export default async function AdminPage() {
 
   if (role !== "OWNER") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex items-center justify-center p-4">
-        <Card className="relative overflow-visible rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-white via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 backdrop-blur-sm p-8 max-w-md shadow-xl shadow-slate-200/50 dark:shadow-black/20">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900/60 via-blue-50/30 to-indigo-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex items-center justify-center p-4">
+        <Card className="relative overflow-visible rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-slate-900 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 backdrop-blur-sm p-8 max-w-md shadow-xl shadow-slate-200/50 dark:shadow-black/20">
           <div className="space-y-4 text-center">
             <div className="text-6xl animate-bounce">🔒</div>
             <h1 className="text-3xl font-black text-slate-900 dark:text-white bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">
@@ -33,7 +33,7 @@ export default async function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900/60 via-blue-50/30 to-indigo-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <PageLayout centered={false} maxWidth="7xl">
         <MembersAdminPage />
       </PageLayout>

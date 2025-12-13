@@ -167,14 +167,14 @@ export const components = {
       primary:
         'bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl hover:scale-[1.01]',
       secondary:
-        'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white',
+        'bg-slate-900/60 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white',
       success:
         'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-lg hover:shadow-xl hover:scale-[1.01]',
       danger:
         'bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white shadow-lg hover:shadow-xl hover:scale-[1.01]',
       outline:
-        'border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50',
-      ghost: 'hover:bg-slate-100 dark:hover:bg-slate-800',
+        'border border-slate-300 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-600 bg-transparent hover:bg-slate-900/60 dark:hover:bg-slate-800/50',
+      ghost: 'hover:bg-slate-900/60 dark:hover:bg-slate-800',
     },
   },
   input: {
@@ -185,7 +185,7 @@ export const components = {
     base: 'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition-colors',
     variants: {
       default:
-        'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-100',
+        'bg-slate-900/60 text-slate-900 dark:bg-slate-800 dark:text-slate-100',
       success:
         'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
       warning:
@@ -246,14 +246,14 @@ export const layouts = {
 export const utilities = {
   gradientText: {
     primary:
-      'bg-gradient-to-r from-slate-900 via-indigo-800 to-blue-700 dark:from-white dark:via-indigo-200 dark:to-blue-200 bg-clip-text text-transparent',
+      'bg-gradient-to-r from-slate-900 via-indigo-800 to-blue-700 dark:from-slate-900 dark:via-indigo-200 dark:to-blue-200 bg-clip-text text-transparent',
     brand:
       'bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent',
     emerald:
       'bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent',
   },
   pageBackground:
-    'min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/25 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950',
+    'min-h-screen bg-gradient-to-br from-slate-900/60 via-blue-50/25 to-purple-50/20 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950',
   iconContainer: {
     emerald:
       'p-2.5 bg-emerald-100 dark:bg-emerald-900/50 rounded-xl group-hover:scale-110 transition-transform',
@@ -263,7 +263,7 @@ export const utilities = {
     amber:
       'p-2.5 bg-amber-100 dark:bg-amber-900/50 rounded-xl group-hover:scale-110 transition-transform',
     slate:
-      'p-2.5 bg-slate-100 dark:bg-slate-800/50 rounded-xl group-hover:scale-110 transition-transform',
+      'p-2.5 bg-slate-900/60 dark:bg-slate-800/50 rounded-xl group-hover:scale-110 transition-transform',
   },
   statusDot: {
     success: 'h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse',

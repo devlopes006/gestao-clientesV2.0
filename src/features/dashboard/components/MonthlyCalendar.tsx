@@ -214,7 +214,7 @@ export function MonthlyCalendar({
               variant="outline"
               size="sm"
               onClick={prevMonth}
-              className="h-9 w-9 p-0 rounded-xl border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="h-9 w-9 p-0 rounded-xl border-slate-300 dark:border-slate-700 hover:bg-slate-900/60 dark:hover:bg-slate-800"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -222,7 +222,7 @@ export function MonthlyCalendar({
               variant="outline"
               size="sm"
               onClick={goToday}
-              className="h-9 px-4 text-xs rounded-xl border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold"
+              className="h-9 px-4 text-xs rounded-xl border-slate-300 dark:border-slate-700 hover:bg-slate-900/60 dark:hover:bg-slate-800 font-semibold"
             >
               Hoje
             </Button>
@@ -230,7 +230,7 @@ export function MonthlyCalendar({
               variant="outline"
               size="sm"
               onClick={nextMonth}
-              className="h-9 w-9 p-0 rounded-xl border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="h-9 w-9 p-0 rounded-xl border-slate-300 dark:border-slate-700 hover:bg-slate-900/60 dark:hover:bg-slate-800"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -341,7 +341,7 @@ export function MonthlyCalendar({
                 }
                 ${!current ? "opacity-40" : ""}
                 ${selected ? "ring-2 ring-blue-500 shadow-md" : ""}
-                ${isWeekend && current ? "bg-slate-50 dark:bg-slate-800/30" : ""}
+                ${isWeekend && current ? "bg-slate-900/60 dark:bg-slate-800/30" : ""}
                 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600
                 focus:outline-none focus:ring-2 focus:ring-blue-400
               `}
@@ -404,7 +404,7 @@ export function MonthlyCalendar({
 
       {/* Painel de detalhes do dia selecionado */}
       {selectedDate && (
-        <div className="mt-4 p-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+        <div className="mt-4 p-4 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-900/60 dark:bg-slate-800/50">
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
               <CalendarIcon className="h-4 w-4" />

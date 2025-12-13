@@ -44,7 +44,7 @@ export function PageLoader() {
 
 export function FullPageLoader({ message }: { message?: string }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-slate-50 via-blue-50 to-slate-100 dark:from-slate-950 dark:via-blue-950 dark:to-slate-900">
+    <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-slate-900/60 via-blue-50 to-slate-100 dark:from-slate-950 dark:via-blue-950 dark:to-slate-900">
       <div className="flex flex-col items-center gap-6 p-8">
         {/* Logo ou ícone animado */}
         <div className="relative">

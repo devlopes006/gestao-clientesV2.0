@@ -158,7 +158,7 @@ export function EditEventDialog({
                 variant="outline"
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={deleting}
-                className="flex-1 h-11 border-2 hover:bg-slate-50 dark:hover:bg-slate-800"
+                className="flex-1 h-11 border-2 hover:bg-slate-900/60 dark:hover:bg-slate-800"
               >
                 Cancelar
               </Button>
@@ -279,7 +279,7 @@ export function EditEventDialog({
                   variant="outline"
                   onClick={() => onOpenChange(false)}
                   disabled={loading}
-                  className="flex-1 sm:flex-initial h-11 border-2 hover:bg-slate-50 dark:hover:bg-slate-800"
+                  className="flex-1 sm:flex-initial h-11 border-2 hover:bg-slate-900/60 dark:hover:bg-slate-800"
                 >
                   Cancelar
                 </Button>

@@ -329,7 +329,7 @@ export function InstallmentManager({ clientId, canEdit }: InstallmentManagerProp
       ) : (
         <div className="space-y-3">
           <div className="text-center py-8">
-            <div className="inline-flex p-3 bg-slate-100 dark:bg-slate-800 rounded-full mb-3">
+            <div className="inline-flex p-3 bg-slate-900/60 dark:bg-slate-800 rounded-full mb-3">
               <CreditCard className="w-8 h-8 text-slate-400" />
             </div>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">Não há faturas ou parcelas cadastradas</p>

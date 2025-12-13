@@ -191,7 +191,7 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
               <div className="mt-3 space-y-3">
                 {priorities.length === 0 && <p className="text-sm text-slate-600">Nenhuma tarefa pendente.</p>}
                 {priorities.map((task) => (
-                  <div key={task.id} className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
+                  <div key={task.id} className="rounded-md border border-slate-200 bg-slate-900/60 px-3 py-2">
                     <div className="flex items-center justify-between">
                       <p className="font-medium text-slate-900">{task.title}</p>
                       <span className="text-xs font-semibold text-slate-600">{priorityLabel(task.priority)}</span>
@@ -271,7 +271,7 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
           </div>
           <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
             {clients.slice(0, 6).map((client) => (
-              <div key={client.id} className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
+              <div key={client.id} className="rounded-md border border-slate-200 bg-slate-900/60 px-3 py-2">
                 <p className="font-semibold text-slate-900">{client.name}</p>
                 <p className="text-xs text-slate-600">{client.email || 'Sem email'}</p>
                 <p className="text-xs text-slate-600">Criado em {formatDate(client.createdAt)}</p>

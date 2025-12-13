@@ -136,7 +136,7 @@ export function MetricCard({
           </div>
 
           {/* Shine Effect on Hover (non-interactive) */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-900/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
         </CardContent>
       </Card>
     </motion.div>

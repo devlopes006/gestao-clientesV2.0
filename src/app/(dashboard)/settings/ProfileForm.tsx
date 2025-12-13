@@ -194,7 +194,7 @@ export function ProfileForm({
         {/* Header com gradiente */}
         <div className="relative h-32 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600">
           <div className="absolute inset-0 bg-black/10" />
-          <div className="absolute bottom-0 left-0 right-0 h-20 bg-linear-to-t from-white dark:from-slate-900" />
+          <div className="absolute bottom-0 left-0 right-0 h-20 bg-linear-to-t from-slate-900 dark:from-slate-900" />
         </div>
 
         <CardContent className="relative -mt-20 px-6 sm:px-8 pb-8">
@@ -375,7 +375,7 @@ export function ProfileForm({
                   <Input
                     value={user?.email ?? ""}
                     disabled
-                    className="h-12 text-base bg-slate-50 dark:bg-slate-800/50"
+                    className="h-12 text-base bg-slate-900/60 dark:bg-slate-800/50"
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
                     <Shield className="h-4 w-4 text-emerald-600" />

@@ -38,7 +38,7 @@ interface Task {
 interface Column { id: string; title: string; status: 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE' | 'CANCELLED'; color: string }
 
 const columns: Column[] = [
-  { id: 'TODO', title: 'A Fazer', status: 'TODO', color: 'bg-slate-100 dark:bg-slate-800' },
+  { id: 'TODO', title: 'A Fazer', status: 'TODO', color: 'bg-slate-900/60 dark:bg-slate-800' },
   { id: 'IN_PROGRESS', title: 'Em Progresso', status: 'IN_PROGRESS', color: 'bg-blue-100 dark:bg-blue-950/30' },
   { id: 'REVIEW', title: 'Em Revisão', status: 'REVIEW', color: 'bg-purple-100 dark:bg-purple-950/30' },
   { id: 'DONE', title: 'Concluído', status: 'DONE', color: 'bg-emerald-100 dark:bg-emerald-950/30' },
@@ -66,11 +66,11 @@ function TaskCard({ task }: { task: Task }) {
     <div
       ref={setNodeRef}
       style={dragVars}
-      className={`task-card relative bg-gradient-to-br from-white via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 border-2 border-slate-200/70 dark:border-slate-800/70 rounded-2xl p-3 mb-3 shadow-lg hover:shadow-xl transition-all duration-300 cursor-move will-change-transform backdrop-blur-sm data-[dragging=true]:opacity-50${isDragging ? ' dragging' : ''}`}
+      className={`task-card relative bg-gradient-to-br from-slate-900 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 border-2 border-slate-200/70 dark:border-slate-800/70 rounded-2xl p-3 mb-3 shadow-lg hover:shadow-xl transition-all duration-300 cursor-move will-change-transform backdrop-blur-sm data-[dragging=true]:opacity-50${isDragging ? ' dragging' : ''}`}
       data-dragging={isDragging ? 'true' : 'false'}
     >
       <div className="flex items-start gap-2">
-        <button type="button" {...attributes} {...listeners} className="mt-1 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500" aria-label="Arrastar tarefa">
+        <button type="button" {...attributes} {...listeners} className="mt-1 p-1 rounded hover:bg-slate-900/60 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500" aria-label="Arrastar tarefa">
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </button>
         <div className="flex-1 min-w-0">
@@ -186,7 +186,7 @@ export default function TasksClient({ initialTasks, updateTaskStatusAction }: { 
 
   return (
     <AppShell>
-      <PageContainer className="space-y-6 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 px-4 sm:px-6 lg:px-8">
+      <PageContainer className="space-y-6 min-h-screen bg-gradient-to-br from-slate-900/60 via-blue-50/30 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 px-4 sm:px-6 lg:px-8">
         <Breadcrumbs items={[{ label: 'Kanban de Tarefas', icon: ListTodo }]} />
         <PageLayout centered={false}>
           <PageHeader

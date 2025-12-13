@@ -14,7 +14,7 @@ interface SectionCardProps {
 }
 
 const headerGradients: Record<Exclude<SectionCardProps["headerGradient"], undefined>, string> = {
-  default: "bg-linear-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800",
+  default: "bg-linear-to-r from-slate-900/60 to-slate-100 dark:from-slate-900 dark:to-slate-800",
   success: "bg-linear-to-r from-emerald-50 to-teal-50 dark:from-emerald-950 dark:to-teal-950",
   danger: "bg-linear-to-r from-red-50 to-pink-50 dark:from-red-950 dark:to-pink-950",
   none: "",

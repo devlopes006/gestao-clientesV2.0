@@ -32,7 +32,7 @@ const badgeVariants = cva(
 
         // Task status variants
         todo:
-          "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700",
+          "bg-slate-900/60 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700",
         "in-progress":
           "bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 border-purple-200/60 dark:border-purple-800",
         done:
@@ -40,7 +40,7 @@ const badgeVariants = cva(
 
         // Priority variants
         low:
-          "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700",
+          "bg-slate-900/60 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700",
         medium:
           "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border-amber-200/60 dark:border-amber-800",
         high:
@@ -50,7 +50,7 @@ const badgeVariants = cva(
         active:
           "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800",
         inactive:
-          "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700",
+          "bg-slate-900/60 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700",
         paused:
           "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border-amber-200/60 dark:border-amber-800",
 
@@ -62,7 +62,7 @@ const badgeVariants = cva(
         overdue:
           "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300 border-red-200/60 dark:border-red-800",
         draft:
-          "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700",
+          "bg-slate-900/60 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700",
       },
     },
     defaultVariants: {

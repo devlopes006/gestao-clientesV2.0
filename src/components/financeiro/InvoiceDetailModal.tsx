@@ -260,7 +260,7 @@ export function InvoiceDetailModal({
               <p className="text-sm text-muted-foreground mb-2">Itens</p>
               <div className="border rounded-lg overflow-hidden">
                 <table className="w-full">
-                  <thead className="bg-slate-50 dark:bg-slate-900">
+                  <thead className="bg-slate-900/60 dark:bg-slate-900">
                     <tr>
                       <th className="px-4 py-3 text-left text-sm font-medium">
                         Descrição

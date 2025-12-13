@@ -65,7 +65,7 @@ export function FinancialChart({ data, type = 'area', title = 'Visão Financeira
 
   return (
     <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow">
-      <CardHeader className="bg-linear-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <CardHeader className="bg-linear-to-r from-slate-900/60 to-slate-100 dark:from-slate-900 dark:to-slate-800">
         <CardTitle className="text-lg font-semibold">{title}</CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>

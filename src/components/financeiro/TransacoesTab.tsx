@@ -319,7 +319,7 @@ export function TransacoesTab() {
             <div className="overflow-hidden rounded-lg border bg-slate-900 shadow-sm md:block">
               <div className="overflow-x-auto">
                 <table className="min-w-full text-left text-sm text-slate-800">
-                  <thead className="border-b bg-slate-50 text-xs uppercase text-slate-600">
+                  <thead className="border-b bg-slate-900/60 text-xs uppercase text-slate-600">
                     <tr>
                       <th className="px-4 py-3">Data</th>
                       <th className="px-4 py-3">Descrição</th>

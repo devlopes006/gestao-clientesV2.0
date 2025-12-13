@@ -90,7 +90,7 @@ export default function AcceptInvitePage({
   const canAccept = invite?.status === "PENDING";
 
   return (
-    <div className="min-h-screen w-full bg-linear-to-b from-indigo-50 via-white to-white">
+    <div className="min-h-screen w-full bg-linear-to-b from-indigo-50 via-slate-900 to-slate-900">
       <div className="mx-auto max-w-2xl px-6 py-10">
         <div className="mb-8 flex items-center justify-center">
           <div className="flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 text-indigo-700">
@@ -102,7 +102,7 @@ export default function AcceptInvitePage({
         </div>
 
         <Card className="shadow-xl border-slate-200">
-          <CardHeader className="text-center border-b bg-slate-50">
+          <CardHeader className="text-center border-b bg-slate-900/60">
             <CardTitle className="text-xl">Aceitar convite</CardTitle>
             <CardDescription className="mt-1">
               Revise os detalhes e continue para criar/entrar na sua conta.

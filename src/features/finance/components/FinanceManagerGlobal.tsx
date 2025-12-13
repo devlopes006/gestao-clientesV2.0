@@ -430,7 +430,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
 
           {/* Stats Cards Premium */}
           <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-3">
-            <Card className="group relative overflow-hidden rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-white via-emerald-50/30 to-green-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300">
+            <Card className="group relative overflow-hidden rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-slate-900 via-emerald-50/30 to-green-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300">
               <div className="p-6 sm:p-8">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-600 to-green-600 shadow-lg shadow-emerald-500/30">
@@ -453,7 +453,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
               <div className="absolute bottom-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-600 to-green-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-b-3xl" />
             </Card>
 
-            <Card className="group relative overflow-hidden rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-white via-red-50/30 to-rose-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-red-500/20 transition-all duration-300">
+            <Card className="group relative overflow-hidden rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-gradient-to-br from-slate-900 via-red-50/30 to-rose-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl hover:shadow-red-500/20 transition-all duration-300">
               <div className="p-6 sm:p-8">
                 <div className="flex items-center justify-between mb-4">
                   <div className="p-3 rounded-2xl bg-gradient-to-br from-red-600 to-rose-600 shadow-lg shadow-red-500/30">
@@ -476,7 +476,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
               <div className="absolute bottom-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-600 to-rose-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-b-3xl" />
             </Card>
 
-            <Card className={`group relative overflow-visible rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 ${totals.balance >= 0 ? 'bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/40' : 'bg-gradient-to-br from-white via-orange-50/30 to-red-50/40'} dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl ${totals.balance >= 0 ? 'hover:shadow-blue-500/20' : 'hover:shadow-orange-500/20'} transition-all duration-300`}>
+            <Card className={`group relative overflow-visible rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 ${totals.balance >= 0 ? 'bg-gradient-to-br from-slate-900 via-blue-50/30 to-indigo-50/40' : 'bg-gradient-to-br from-slate-900 via-orange-50/30 to-red-50/40'} dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/20 hover:shadow-2xl ${totals.balance >= 0 ? 'hover:shadow-blue-500/20' : 'hover:shadow-orange-500/20'} transition-all duration-300`}>
               <div className="p-6 sm:p-8">
                 <div className="flex items-center justify-between mb-4">
                   <div className={`p-3 rounded-2xl ${totals.balance >= 0 ? 'bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30' : 'bg-gradient-to-br from-orange-600 to-red-600 shadow-lg shadow-orange-500/30'}`}>
@@ -535,7 +535,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                           {formatCurrency(Math.abs(stat.amount))}
                         </div>
                       </div>
-                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-2 bg-slate-900/60 rounded-full overflow-hidden">
                         <div
                           className={`h-full rounded-full ${stat.amount >= 0
                             ? "bg-linear-to-r from-green-500 to-emerald-500"

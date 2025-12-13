@@ -40,7 +40,7 @@ const variants = {
   },
   dark: {
     gradient: "from-slate-600 to-slate-800",
-    glow: "from-slate-500/10 to-slate-700/10",
+    glow: "from-slate-900/600/10 to-slate-700/10",
     textColor: "text-slate-600",
   },
 } as const;
@@ -51,7 +51,7 @@ export function KPICard({ label, value, description, icon: Icon, variant = "info
   return (
     <div
       className={cn(
-        "relative flex flex-col items-center justify-center bg-linear-to-br from-white to-gray-50 border border-gray-200 rounded-2xl p-5 sm:p-7 md:p-10 min-h-14 h-full shadow-lg transition-all hover:shadow-xl hover:border-gray-300 gap-1 sm:gap-2",
+        "relative flex flex-col items-center justify-center bg-linear-to-br from-slate-900 to-gray-50 border border-gray-200 rounded-2xl p-5 sm:p-7 md:p-10 min-h-14 h-full shadow-lg transition-all hover:shadow-xl hover:border-gray-300 gap-1 sm:gap-2",
         className
       )}
     >

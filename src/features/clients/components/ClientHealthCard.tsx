@@ -83,7 +83,7 @@ export function ClientHealthCard({
           </div>
 
           <div className="grid grid-cols-3 gap-2">
-            <div className="text-center p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
+            <div className="text-center p-2 rounded-lg bg-slate-900/60 dark:bg-slate-800">
               <div className="text-lg font-bold text-blue-600">
                 {metrics.completionRate}%
               </div>
@@ -91,7 +91,7 @@ export function ClientHealthCard({
                 Conclusão
               </p>
             </div>
-            <div className="text-center p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
+            <div className="text-center p-2 rounded-lg bg-slate-900/60 dark:bg-slate-800">
               <div
                 className={`text-lg font-bold ${metrics.balance >= 0 ? "text-green-600" : "text-red-600"}`}
               >
@@ -108,7 +108,7 @@ export function ClientHealthCard({
                 Saldo
               </p>
             </div>
-            <div className="text-center p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
+            <div className="text-center p-2 rounded-lg bg-slate-900/60 dark:bg-slate-800">
               <div className="text-lg font-bold text-amber-600">
                 {metrics.tasksPending}
               </div>
@@ -564,7 +564,7 @@ function getStatusGradient(status: string): string {
   };
   return (
     gradients[status as keyof typeof gradients] ||
-    "bg-linear-to-r from-slate-500 to-slate-600"
+    "bg-linear-to-r from-slate-900/600 to-slate-600"
   );
 }
 
@@ -577,7 +577,7 @@ function getStatusBadgeColor(status: string): string {
       "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
     critical: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
   };
-  return colors[status as keyof typeof colors] || "bg-slate-100 text-slate-700";
+  return colors[status as keyof typeof colors] || "bg-slate-900/60 text-slate-700";
 }
 
 function getStatusDotColor(status: string): string {
@@ -587,5 +587,5 @@ function getStatusDotColor(status: string): string {
     warning: "bg-amber-500",
     critical: "bg-red-500",
   };
-  return colors[status as keyof typeof colors] || "bg-slate-500";
+  return colors[status as keyof typeof colors] || "bg-slate-900/600";
 }

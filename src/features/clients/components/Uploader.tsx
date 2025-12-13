@@ -231,33 +231,35 @@ export default function Uploader({ clientId, onUploaded, onColorsExtracted }: Up
   };
 
   return (
-    <div className="p-3 border rounded studio-border studio-bg studio-radius">
+    <div className="p-4 bg-slate-900 border border-slate-700/50 rounded-2xl">
       <div className="mb-2">
-        <label htmlFor="branding-uploader" className="block text-sm font-medium mb-2">Enviar Arquivos</label>
-        <input id="branding-uploader" title="Selecionar arquivos" type="file" accept="image/*" multiple onChange={(e) => addFiles(e.target.files)} className="block w-full text-sm text-slate-700" />
+        <label htmlFor="branding-uploader" className="block text-sm font-medium mb-2 text-white">Enviar Arquivos</label>
+        <input id="branding-uploader" title="Selecionar arquivos" type="file" accept="image/*" multiple onChange={(e) => addFiles(e.target.files)} className="block w-full text-sm bg-slate-800 border border-slate-700 text-white rounded-lg file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-600 file:text-white file:cursor-pointer hover:file:bg-blue-500" />
       </div>
 
       {queue.length > 0 && (
         <div className="space-y-2">
           {queue.map((it) => (
             <div key={it.id} className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-slate-100 rounded overflow-hidden relative">
+              <div className="w-12 h-12 bg-slate-700 rounded overflow-hidden relative">
                 {it.previewUrl ? (
                   <Image src={it.previewUrl} alt={it.file.name} fill className="object-cover" sizes="48px" />
                 ) : null}
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <div className="truncate text-sm">{it.file.name}</div>
-                  <div className="text-xs text-slate-500">{it.status}</div>
+                  <div className="truncate text-sm text-white">{it.file.name}</div>
+                  <div className="text-xs text-slate-400">{it.status}</div>
                 </div>
                 <div className="mt-1">
-                  <progress value={it.progress} max={100} className="w-full h-2 appearance-none" />
+                  <div className="w-full h-2 rounded bg-slate-800">
+                    <div className="h-2 rounded bg-blue-600" style={{ width: `${it.progress}%` }} />
+                  </div>
                 </div>
                 {it.colors && it.colors.length > 0 && (
                   <div className="flex gap-1 mt-2">
                     {it.colors.map((c) => (
-                      <svg key={c} className="studio-palette-swatch" viewBox="0 0 16 16" role="img" aria-label={c}>
+                      <svg key={c} className="w-5 h-5 rounded" viewBox="0 0 16 16" role="img" aria-label={c}>
                         <title>{c}</title>
                         <rect width="16" height="16" fill={c} rx="3" ry="3" />
                       </svg>
@@ -266,12 +268,12 @@ export default function Uploader({ clientId, onUploaded, onColorsExtracted }: Up
                 )}
               </div>
               <div>
-                <Button size="sm" variant="ghost" onClick={() => removeItem(it.id)}>Remover</Button>
+                <Button size="sm" variant="ghost" className="text-slate-300 hover:bg-slate-800" onClick={() => removeItem(it.id)}>Remover</Button>
               </div>
             </div>
           ))}
           <div className="flex justify-end gap-2 mt-2">
-            <Button onClick={processQueue}>Enviar Todos</Button>
+            <Button className="bg-blue-600 hover:bg-blue-500 text-white" onClick={processQueue}>Enviar Todos</Button>
           </div>
         </div>
       )}

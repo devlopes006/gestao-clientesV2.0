@@ -66,7 +66,7 @@ export function TaskList({ tasks, onEdit, onDelete, onStatusChange }: TaskListPr
                   value={task.status}
                   onValueChange={(value) => onStatusChange(task.id, value as TaskStatus)}
                 >
-                  <SelectTrigger className="border rounded-md px-2 py-1 text-xs bg-white dark:bg-slate-800 dark:border-slate-600 h-auto">
+                  <SelectTrigger className="border rounded-md px-2 py-1 text-xs bg-slate-900 dark:bg-slate-800 dark:border-slate-600 h-auto">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

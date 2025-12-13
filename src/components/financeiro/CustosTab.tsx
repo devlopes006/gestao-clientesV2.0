@@ -201,18 +201,18 @@ export function CustosTab() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-slate-900/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
           <div className="relative z-10 flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-2 sm:space-y-3">
               <motion.div
-                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-white/20 backdrop-blur-sm px-2.5 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 text-xs font-bold text-white ring-1 ring-white/30 shadow-lg"
+                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-slate-900/20 backdrop-blur-sm px-2.5 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 text-xs font-bold text-white ring-1 ring-white/30 shadow-lg"
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 }}
               >
-                <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-white animate-pulse shadow-lg shadow-white/50" />
+                <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-slate-900 animate-pulse shadow-lg shadow-white/50" />
                 Gestão Financeira
               </motion.div>
               <div>
@@ -229,7 +229,7 @@ export function CustosTab() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 }}
             >
-              <Button onClick={handleMaterializeSubscriptions} disabled={materializing} className="shadow-lg bg-white text-amber-600 hover:bg-white/90 font-bold">
+              <Button onClick={handleMaterializeSubscriptions} disabled={materializing} className="shadow-lg bg-slate-900 text-amber-600 hover:bg-slate-900/90 font-bold">
                 {materializing ? <RefreshCw className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" /> : <DollarSign className="h-4 w-4 sm:h-5 sm:w-5" />}
                 <span className="ml-2">Materializar Custos</span>
               </Button>

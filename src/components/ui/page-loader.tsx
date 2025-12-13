@@ -15,7 +15,7 @@ export function PageLoader() {
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm dark:bg-slate-950/80">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm dark:bg-slate-950/80">
       <div className="flex flex-col items-center gap-4">
         <div className="relative">
           {/* Círculo externo animado */}

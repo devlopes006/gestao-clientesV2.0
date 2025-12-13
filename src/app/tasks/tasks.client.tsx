@@ -205,7 +205,7 @@ export default function TasksClient({ initialTasks, updateTaskStatusAction }: { 
               </Link>
             )}
           />
-          <Card className="p-4 border-2 border-slate-200/70 dark:border-slate-800/70 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm">
+          <Card className="p-4 border-2 border-slate-200/70 dark:border-slate-800/70 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 bg-slate-900/90 dark:bg-slate-900/90 backdrop-blur-sm">
             <div className="flex flex-col md:flex-row md:flex-wrap gap-3 items-stretch md:items-center">
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><Filter className="h-4 w-4" />Filtros:</div>
               <div className="flex-1 relative w-full min-w-[220px]">

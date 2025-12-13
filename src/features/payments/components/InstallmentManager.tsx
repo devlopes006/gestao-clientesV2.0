@@ -234,7 +234,7 @@ export function InstallmentManager({
           <CardContent className="space-y-6">
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white/50 dark:bg-slate-800/50 rounded-xl p-4 backdrop-blur-sm">
+              <div className="bg-slate-900/50 dark:bg-slate-800/50 rounded-xl p-4 backdrop-blur-sm">
                 <div className="flex items-center gap-2 mb-1">
                   <DollarSign className="w-4 h-4 text-slate-600 dark:text-slate-400" />
                   <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase">
@@ -246,7 +246,7 @@ export function InstallmentManager({
                 </p>
               </div>
 
-              <div className="bg-white/50 dark:bg-slate-800/50 rounded-xl p-4 backdrop-blur-sm">
+              <div className="bg-slate-900/50 dark:bg-slate-800/50 rounded-xl p-4 backdrop-blur-sm">
                 <div className="flex items-center gap-2 mb-1">
                   <CheckCircle2 className="w-4 h-4 text-green-600" />
                   <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase">
@@ -258,7 +258,7 @@ export function InstallmentManager({
                 </p>
               </div>
 
-              <div className="bg-white/50 dark:bg-slate-800/50 rounded-xl p-4 backdrop-blur-sm">
+              <div className="bg-slate-900/50 dark:bg-slate-800/50 rounded-xl p-4 backdrop-blur-sm">
                 <div className="flex items-center gap-2 mb-1">
                   <CalendarDays className="w-4 h-4 text-yellow-600" />
                   <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase">
@@ -270,7 +270,7 @@ export function InstallmentManager({
                 </p>
               </div>
 
-              <div className="bg-white/50 dark:bg-slate-800/50 rounded-xl p-4 backdrop-blur-sm">
+              <div className="bg-slate-900/50 dark:bg-slate-800/50 rounded-xl p-4 backdrop-blur-sm">
                 <div className="flex items-center gap-2 mb-1">
                   <XCircle className="w-4 h-4 text-red-600" />
                   <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase">
@@ -290,7 +290,7 @@ export function InstallmentManager({
                 {installments.map((installment) => (
                   <div
                     key={installment.id}
-                    className="bg-white/70 dark:bg-slate-800/70 rounded-xl p-4 backdrop-blur-sm border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
+                    className="bg-slate-900/70 dark:bg-slate-800/70 rounded-xl p-4 backdrop-blur-sm border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">

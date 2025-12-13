@@ -16,7 +16,7 @@ export default function ApiDocsPage() {
           </p>
         </div>
 
-        <div className="rounded-lg bg-white p-6 shadow">
+        <div className="rounded-lg bg-slate-900 p-6 shadow">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-xl font-semibold">Swagger UI</h2>
             <a

@@ -401,7 +401,7 @@ function MembersAdminPage() {
                 placeholder="contato@empresa.com"
                 autoComplete="email"
                 inputMode="email"
-                className="h-12 border-slate-200/70 dark:border-slate-800/70 bg-white dark:bg-slate-900/50 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 rounded-lg font-medium"
+                className="h-12 border-slate-200/70 dark:border-slate-800/70 bg-slate-900 dark:bg-slate-900/50 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 rounded-lg font-medium"
                 isInvalid={!!emailError}
                 error={emailError ?? undefined}
               />
@@ -427,7 +427,7 @@ function MembersAdminPage() {
                 }}
                 defaultValue="STAFF"
               >
-                <SelectTrigger id={`invite-role-${idSuffix}`} className="h-12 bg-white dark:bg-slate-900/50 border-slate-200/70 dark:border-slate-800/70 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 rounded-lg font-medium">
+                <SelectTrigger id={`invite-role-${idSuffix}`} className="h-12 bg-slate-900 dark:bg-slate-900/50 border-slate-200/70 dark:border-slate-800/70 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 rounded-lg font-medium">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -451,7 +451,7 @@ function MembersAdminPage() {
                     setSelectedClient(value === "__AUTO__" ? undefined : value)
                   }
                 >
-                  <SelectTrigger id={`invite-client-${idSuffix}`} className="h-12 bg-white dark:bg-slate-900/50 border-slate-200/70 dark:border-slate-800/70 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 rounded-lg font-medium">
+                  <SelectTrigger id={`invite-client-${idSuffix}`} className="h-12 bg-slate-900 dark:bg-slate-900/50 border-slate-200/70 dark:border-slate-800/70 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 rounded-lg font-medium">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -630,7 +630,7 @@ function MembersAdminPage() {
                 {members.map((m) => (
                   <div
                     key={m.id}
-                    className="flex items-center justify-between p-4 md:p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800/70 bg-white/60 dark:bg-slate-900/40 hover:bg-slate-50/80 dark:hover:bg-slate-900/60 hover:border-slate-300/70 dark:hover:border-slate-700/70 hover:shadow-md transition-all duration-200 group backdrop-blur-sm"
+                    className="flex items-center justify-between p-4 md:p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800/70 bg-slate-900/60 dark:bg-slate-900/40 hover:bg-slate-50/80 dark:hover:bg-slate-900/60 hover:border-slate-300/70 dark:hover:border-slate-700/70 hover:shadow-md transition-all duration-200 group backdrop-blur-sm"
                   >
                     <div className="flex items-center gap-4 flex-1 min-w-0">
                       <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg">
@@ -709,7 +709,7 @@ function MembersAdminPage() {
                 {activeInvites.map((invite: any) => (
                   <div
                     key={invite.id}
-                    className="flex items-center justify-between p-4 md:p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800/70 bg-white dark:bg-slate-900/50 hover:bg-slate-50 dark:hover:bg-slate-900/80 hover:border-slate-300/70 dark:hover:border-slate-700/70 hover:shadow-md transition-all duration-200"
+                    className="flex items-center justify-between p-4 md:p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800/70 bg-slate-900 dark:bg-slate-900/50 hover:bg-slate-50 dark:hover:bg-slate-900/80 hover:border-slate-300/70 dark:hover:border-slate-700/70 hover:shadow-md transition-all duration-200"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-1">

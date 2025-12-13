@@ -49,7 +49,7 @@ export function ConfirmInvoiceModal({ client, onCreated }: { client: Client; onC
       </Button>
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-2xl border border-slate-200 dark:border-slate-700 max-w-md w-full mx-4">
+          <div className="bg-slate-900 dark:bg-slate-900 rounded-2xl p-6 shadow-2xl border border-slate-200 dark:border-slate-700 max-w-md w-full mx-4">
             <div className="flex flex-col items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg">
                 <FileText className="h-8 w-8 text-white" />

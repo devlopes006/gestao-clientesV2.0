@@ -50,7 +50,7 @@ export default async function ProfilePage() {
                   {user.name ? user.name.slice(0, 2).toUpperCase() : user.email.slice(0, 2).toUpperCase()}
                 </div>
               )}
-              <span className="absolute bottom-0 right-0 bg-white dark:bg-slate-800 rounded-full p-1.5 shadow-lg ring-2 ring-white dark:ring-slate-700 transition-transform group-hover:scale-110">
+              <span className="absolute bottom-0 right-0 bg-slate-900 dark:bg-slate-800 rounded-full p-1.5 shadow-lg ring-2 ring-white dark:ring-slate-700 transition-transform group-hover:scale-110">
                 <UserIcon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600 dark:text-blue-400" aria-hidden="true" />
               </span>
             </div>

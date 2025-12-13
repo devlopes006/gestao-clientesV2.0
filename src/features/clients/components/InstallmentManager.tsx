@@ -399,7 +399,7 @@ function InstallmentCard({ installment, canEdit, onEdit, onDelete }: { installme
   const getStatusLabel = (status: InstallmentStatus) =>
     status === "CONFIRMED" ? "Pago" : status === "LATE" ? "Atrasado" : "Pendente";
   return (
-    <div className="bg-white/70 dark:bg-slate-800/70 rounded-lg p-2.5 backdrop-blur-sm border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+    <div className="bg-slate-900/70 dark:bg-slate-800/70 rounded-lg p-2.5 backdrop-blur-sm border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
       <div className="flex items-center justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">

@@ -159,7 +159,7 @@ export function DropdownMenuContent({
           transition={{ duration: 0.15 }}
           role="menu"
           className={cn(
-            "absolute z-50 min-w-48 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl p-1 origin-top",
+            "absolute z-50 min-w-48 rounded-md border border-slate-200 dark:border-slate-700 bg-slate-900 dark:bg-slate-900 shadow-xl p-1 origin-top",
             alignmentClass,
             verticalPositionClass,
             className,

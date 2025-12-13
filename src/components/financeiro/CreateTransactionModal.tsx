@@ -210,7 +210,7 @@ export function CreateTransactionModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl border bg-white p-0">
+      <DialogContent className="max-w-xl border bg-slate-900 p-0">
         <DialogHeader className="border-b px-6 py-4">
           <DialogTitle className="text-lg font-semibold text-slate-900">Nova transação</DialogTitle>
           <DialogDescription className="text-sm text-slate-600">

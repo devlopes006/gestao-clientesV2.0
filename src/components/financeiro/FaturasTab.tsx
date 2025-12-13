@@ -221,18 +221,18 @@ export function FaturasTab() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-slate-900/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-pink-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
           <div className="relative z-10 flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-2 sm:space-y-3">
               <motion.div
-                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-white/20 backdrop-blur-sm px-2.5 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 text-xs font-bold text-white ring-1 ring-white/30 shadow-lg"
+                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-slate-900/20 backdrop-blur-sm px-2.5 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 text-xs font-bold text-white ring-1 ring-white/30 shadow-lg"
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.2 }}
               >
-                <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-white animate-pulse shadow-lg shadow-white/50" />
+                <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-slate-900 animate-pulse shadow-lg shadow-white/50" />
                 Gestão Financeira
               </motion.div>
               <div>
@@ -250,11 +250,11 @@ export function FaturasTab() {
               transition={{ delay: 0.3 }}
               className="flex gap-2"
             >
-              <Button variant="secondary" onClick={handleGenerateMonthly} disabled={generating} className="shadow-lg bg-white/90 hover:bg-white font-bold">
+              <Button variant="secondary" onClick={handleGenerateMonthly} disabled={generating} className="shadow-lg bg-slate-900/90 hover:bg-slate-900 font-bold">
                 {generating ? <RefreshCw className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" /> : <FileText className="h-4 w-4 sm:h-5 sm:w-5" />}
                 <span className="ml-2">Gerar Mensais</span>
               </Button>
-              <Button onClick={() => setModalOpen(true)} className="shadow-lg bg-white text-purple-600 hover:bg-white/90 font-bold">
+              <Button onClick={() => setModalOpen(true)} className="shadow-lg bg-slate-900 text-purple-600 hover:bg-slate-900/90 font-bold">
                 <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
                 <span className="ml-2">Nova Fatura</span>
               </Button>
@@ -262,7 +262,7 @@ export function FaturasTab() {
           </div>
 
           {generationReport && (
-            <div className="relative z-10 mt-4 rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm p-4">
+            <div className="relative z-10 mt-4 rounded-xl border border-white/20 bg-slate-900/10 backdrop-blur-sm p-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                 <div className="font-semibold text-white">Resultado da Geração Mensal</div>
                 <div className="text-sm text-white/80">
@@ -281,7 +281,7 @@ export function FaturasTab() {
                         return acc
                       }, {})
                     ).map(([reasonKey, items]) => (
-                      <div key={reasonKey} className="rounded-md border border-white/20 p-2 bg-white/5">
+                      <div key={reasonKey} className="rounded-md border border-white/20 p-2 bg-slate-900/5">
                         <div className="text-xs font-semibold mb-1 text-white">{reasonKey}</div>
                         <div className="text-xs text-white/70">
                           {items.slice(0, 5).map((i, idx) => (
@@ -326,7 +326,7 @@ export function FaturasTab() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-lg sm:shadow-xl hover-raise transition-base">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-slate-900 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-lg sm:shadow-xl hover-raise transition-base">
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-full blur-3xl" />
 
             <div className="relative z-10 p-4 sm:p-6 border-b border-slate-200/50 dark:border-slate-800/50 bg-gradient-to-br from-slate-50/50 to-transparent dark:from-slate-800/30 dark:to-transparent">
@@ -416,7 +416,7 @@ export function FaturasTab() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-lg sm:shadow-xl lg:shadow-2xl shadow-slate-900/10">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-slate-900 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-lg sm:shadow-xl lg:shadow-2xl shadow-slate-900/10">
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-full blur-3xl" />
 
             <div className="relative z-10 p-4 sm:p-6 lg:p-8 border-b border-slate-200/50 dark:border-slate-800/50 bg-gradient-to-br from-slate-50/50 to-transparent dark:from-slate-800/30 dark:to-transparent">

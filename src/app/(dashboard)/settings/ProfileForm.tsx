@@ -190,7 +190,7 @@ export function ProfileForm({
       {/* Background decorativo */}
       <div className="absolute -inset-4 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl blur-2xl opacity-10" />
 
-      <Card className="relative bg-white/90 backdrop-blur-sm dark:bg-slate-900/90 border-slate-200/50 dark:border-slate-700/50 shadow-2xl overflow-hidden">
+      <Card className="relative bg-slate-900/90 backdrop-blur-sm dark:bg-slate-900/90 border-slate-200/50 dark:border-slate-700/50 shadow-2xl overflow-hidden">
         {/* Header com gradiente */}
         <div className="relative h-32 bg-linear-to-r from-blue-600 via-purple-600 to-pink-600">
           <div className="absolute inset-0 bg-black/10" />

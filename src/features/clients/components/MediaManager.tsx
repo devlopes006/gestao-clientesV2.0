@@ -920,7 +920,7 @@ export function MediaManager({ clientId }: MediaManagerProps) {
                   }}
                   className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all ${(idx === 0 && dragOverRoot) || (dragOverFolder === crumb.id)
                     ? "bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-500 scale-105 shadow-md"
-                    : "hover:bg-white/50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                    : "hover:bg-slate-900/50 dark:hover:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                     }`}
                 >
                   {idx === 0 ? (
@@ -1219,7 +1219,7 @@ export function MediaManager({ clientId }: MediaManagerProps) {
             onClick={() => setIsFolderModalOpen(false)}
           >
             <div
-              className="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-md m-4"
+              className="bg-slate-900 dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-md m-4"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6 space-y-4">
@@ -1290,7 +1290,7 @@ export function MediaManager({ clientId }: MediaManagerProps) {
             onClick={() => !uploading && setIsUploadModalOpen(false)}
           >
             <div
-              className="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-2xl m-4 my-8"
+              className="bg-slate-900 dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-2xl m-4 my-8"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
@@ -1542,7 +1542,7 @@ export function MediaManager({ clientId }: MediaManagerProps) {
                       download
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors flex items-center gap-2"
+                      className="px-3 py-2 rounded-lg bg-slate-900/10 hover:bg-slate-900/20 text-white text-sm font-medium transition-colors flex items-center gap-2"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Download className="h-4 w-4" />
@@ -1552,7 +1552,7 @@ export function MediaManager({ clientId }: MediaManagerProps) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="bg-white/10 hover:bg-white/20 text-white"
+                    className="bg-slate-900/10 hover:bg-slate-900/20 text-white"
                     onClick={() => setPreviewItem(null)}
                     aria-label="Fechar preview"
                   >
@@ -1602,7 +1602,7 @@ export function MediaManager({ clientId }: MediaManagerProps) {
                       <iframe
                         src={previewItem.url}
                         title={previewItem.title}
-                        className="flex-1 w-full h-full rounded-lg bg-white"
+                        className="flex-1 w-full h-full rounded-lg bg-slate-900"
                         sandbox="allow-scripts allow-same-origin allow-downloads"
                       />
                       <div className="mt-2 flex justify-end">
@@ -1656,7 +1656,7 @@ export function MediaManager({ clientId }: MediaManagerProps) {
                 {previewItem.tags && previewItem.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {previewItem.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="bg-white/20 text-white border-0">
+                      <Badge key={tag} variant="secondary" className="bg-slate-900/20 text-white border-0">
                         <Tag className="h-3 w-3 mr-1" />
                         {tag}
                       </Badge>

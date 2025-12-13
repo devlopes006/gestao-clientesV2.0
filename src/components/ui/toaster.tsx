@@ -8,7 +8,7 @@ export function Toaster() {
       position="top-right"
       toastOptions={{
         classNames: {
-          toast: "bg-white border-slate-200",
+          toast: "bg-slate-900 border-slate-200",
           title: "text-slate-900",
           description: "text-slate-500",
           actionButton: "bg-slate-900 text-white",

@@ -227,7 +227,7 @@ export function PaymentStatusCard({
 
       {/* Resumo de estatísticas - só mostrar se for parcelado */}
       {status.mode === "installment" && status.details.installments && (
-        <div className="bg-white rounded-lg border border-slate-200 p-4">
+        <div className="bg-slate-900 rounded-lg border border-slate-200 p-4">
           <div className="text-xs font-medium text-slate-500 mb-3">RESUMO DO MÊS</div>
           <div className="space-y-2">
             <div className="flex justify-between items-center">
@@ -270,7 +270,7 @@ export function PaymentStatusCard({
       )}
       {/* Lista de parcelas (se aplicável) */}
       {status.mode === "installment" && installments.length > 0 && (
-        <div className="bg-white rounded-lg border p-5 space-y-3">
+        <div className="bg-slate-900 rounded-lg border p-5 space-y-3">
           <div className="flex items-center justify-between border-b pb-3">
             <span className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Todas as Parcelas</span>
             <Button

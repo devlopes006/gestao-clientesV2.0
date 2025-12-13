@@ -42,7 +42,7 @@ function LoginPageInner() {
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-8 py-12 lg:py-16">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-400/30 bg-white/5 text-xs font-semibold text-cyan-100 mb-8 shadow-[0_10px_60px_-40px_rgba(34,211,238,0.8)]">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-400/30 bg-slate-900/5 text-xs font-semibold text-cyan-100 mb-8 shadow-[0_10px_60px_-40px_rgba(34,211,238,0.8)]">
           <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
           Painel MyGest · Acesso Seguro
         </div>
@@ -83,10 +83,10 @@ function LoginPageInner() {
             </div>
 
             <div className="flex flex-wrap gap-3 text-sm text-slate-300">
-              <span className="px-3 py-1.5 rounded-full border border-slate-700/60 bg-white/5">Agenda premium</span>
-              <span className="px-3 py-1.5 rounded-full border border-slate-700/60 bg-white/5">Tarefas e notas rápidas</span>
-              <span className="px-3 py-1.5 rounded-full border border-slate-700/60 bg-white/5">KPIs financeiros</span>
-              <span className="px-3 py-1.5 rounded-full border border-slate-700/60 bg-white/5">Alertas e billing</span>
+              <span className="px-3 py-1.5 rounded-full border border-slate-700/60 bg-slate-900/5">Agenda premium</span>
+              <span className="px-3 py-1.5 rounded-full border border-slate-700/60 bg-slate-900/5">Tarefas e notas rápidas</span>
+              <span className="px-3 py-1.5 rounded-full border border-slate-700/60 bg-slate-900/5">KPIs financeiros</span>
+              <span className="px-3 py-1.5 rounded-full border border-slate-700/60 bg-slate-900/5">Alertas e billing</span>
             </div>
           </div>
 

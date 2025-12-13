@@ -80,7 +80,7 @@
 //   return (
 //     <form
 //       onSubmit={handleSubmit}
-//       className={className ?? "space-y-6 p-6 bg-white rounded-xl shadow-md"}
+//       className={className ?? "space-y-6 p-6 bg-slate-900 rounded-xl shadow-md"}
 //     >
 //       <div className="flex flex-col sm:flex-row gap-6 sm:gap-5 items-stretch">
 //         <div className="flex-1 flex flex-col sm:flex-row gap-4 sm:gap-3">
@@ -94,7 +94,7 @@
 //                   name={filter.name}
 //                   defaultValue={currentValue}
 //                   placeholder={filter.placeholder}
-//                   className={filter.className ?? "flex w-full rounded-lg border bg-white px-4 py-3 text-base ring-offset-white file:border-0 file:bg-transparent file:text-base file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-200 border-slate-200 focus-visible:ring-slate-950 h-12"}
+//                   className={filter.className ?? "flex w-full rounded-lg border bg-slate-900 px-4 py-3 text-base ring-offset-white file:border-0 file:bg-transparent file:text-base file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-200 border-slate-200 focus-visible:ring-slate-950 h-12"}
 //                   aria-label={filter.label || filter.placeholder}
 //                 />
 //               );

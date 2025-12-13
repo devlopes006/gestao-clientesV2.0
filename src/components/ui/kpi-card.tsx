@@ -155,7 +155,7 @@ export const KpiCard = React.forwardRef<HTMLDivElement, KpiCardProps>(
         {/* Progress bar opcional */}
         {typeof progress === 'number' && (
           <div className="mt-4 relative z-10">
-            <div className="h-2 w-full bg-white/60 dark:bg-white/10 rounded-full overflow-hidden">
+            <div className="h-2 w-full bg-slate-900/60 dark:bg-slate-900/10 rounded-full overflow-hidden">
               <div
                 className={cn('h-full rounded-full transition-all duration-500 shadow-sm', styles.progress)}
                 style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}

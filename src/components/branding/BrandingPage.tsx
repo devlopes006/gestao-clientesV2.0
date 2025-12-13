@@ -597,7 +597,7 @@ export default function BrandingPage({ clientId, clientName, initialBranding }: 
                   a.click();
                   URL.revokeObjectURL(url);
                 }}>Exportar</Button>
-                <Button variant="ghost" size="lg" className="text-white hover:bg-white/20 h-10 w-10 p-0 rounded-full" onClick={() => setIsEditing(false)}>
+                <Button variant="ghost" size="lg" className="text-white hover:bg-slate-900/20 h-10 w-10 p-0 rounded-full" onClick={() => setIsEditing(false)}>
                   <X className="h-5 w-5" />
                 </Button>
               </div>

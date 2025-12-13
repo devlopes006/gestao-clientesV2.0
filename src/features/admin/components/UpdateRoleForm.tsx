@@ -67,7 +67,7 @@ export function UpdateRoleForm({
       >
         <SelectTrigger
           className={cn(
-            "h-10 min-w-[130px] rounded-full bg-white shadow-sm",
+            "h-10 min-w-[130px] rounded-full bg-slate-900 shadow-sm",
             "disabled:opacity-50 disabled:cursor-not-allowed",
           )}
         >

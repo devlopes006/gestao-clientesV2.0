@@ -409,7 +409,7 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                       variant="ghost"
                       size="lg"
                       onClick={() => setDateFilter("")}
-                      className="h-10 w-10 p-0 text-white hover:bg-white/20"
+                      className="h-10 w-10 p-0 text-white hover:bg-slate-900/20"
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -534,7 +534,7 @@ export function FinanceManagerV2({ clientId }: FinanceManagerProps) {
                         setIsModalOpen(false);
                         resetForm();
                       }}
-                      className="h-10 w-10 p-0 text-white hover:bg-white/20 rounded-full"
+                      className="h-10 w-10 p-0 text-white hover:bg-slate-900/20 rounded-full"
                     >
                       <X className="h-5 w-5" />
                     </Button>

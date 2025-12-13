@@ -32,7 +32,7 @@ function TaskCard({ task }: { task: Task }) {
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      className={`bg-white dark:bg-slate-900 border rounded-xl p-3 mb-2 shadow-md hover:shadow-lg transition cursor-move${isDragging ? ' opacity-60 scale-95 ring-2 ring-blue-400' : ''}`}
+      className={`bg-slate-900 dark:bg-slate-900 border rounded-xl p-3 mb-2 shadow-md hover:shadow-lg transition cursor-move${isDragging ? ' opacity-60 scale-95 ring-2 ring-blue-400' : ''}`}
       style={{ zIndex: isDragging ? 50 : undefined }}
     >
       <h4 className="font-semibold text-base mb-2 line-clamp-2 text-blue-700 dark:text-blue-300">{task.title}</h4>

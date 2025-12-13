@@ -10,15 +10,15 @@ export default function MediaPage() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <div className="p-6 border border-slate-200 rounded-lg bg-white shadow-sm">
+          <div className="p-6 border border-slate-200 rounded-lg bg-slate-900 shadow-sm">
             <h3 className="font-medium">Uploads recentes</h3>
             <p className="text-sm text-slate-500 mt-2">Nenhum upload recente</p>
           </div>
-          <div className="p-6 border border-slate-200 rounded-lg bg-white shadow-sm">
+          <div className="p-6 border border-slate-200 rounded-lg bg-slate-900 shadow-sm">
             <h3 className="font-medium">Integrações</h3>
             <p className="text-sm text-slate-500 mt-2">Conecte Instagram ou outras fontes</p>
           </div>
-          <div className="p-6 border border-slate-200 rounded-lg bg-white shadow-sm">
+          <div className="p-6 border border-slate-200 rounded-lg bg-slate-900 shadow-sm">
             <h3 className="font-medium">Biblioteca</h3>
             <p className="text-sm text-slate-500 mt-2">Organize seus ativos por tags</p>
           </div>

@@ -206,7 +206,7 @@ export default function NewClientPage() {
             <div className="relative">
               {/* Glow effect (sutil e contido ao card) */}
               <div className="pointer-events-none absolute -inset-1 bg-linear-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-15" />
-              <Card className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-slate-200 dark:border-slate-700">
+              <Card className="relative bg-slate-900/80 dark:bg-slate-900/80 backdrop-blur-sm border-slate-200 dark:border-slate-700">
                 <CardHeader>
                   <CardTitle className="text-2xl">
                     Informações do Cliente
@@ -534,7 +534,7 @@ export default function NewClientPage() {
                                     h-10 rounded-md text-sm font-medium transition-all
                                     ${formData.installmentPaymentDays.includes(day)
                                       ? "bg-blue-600 text-white hover:bg-blue-700 shadow-md"
-                                      : "bg-white dark:bg-slate-800 border hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+                                      : "bg-slate-900 dark:bg-slate-800 border hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/30"
                                     }
                                     disabled:opacity-50 disabled:cursor-not-allowed
                                   `}

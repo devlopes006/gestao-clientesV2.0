@@ -67,7 +67,7 @@ export default function FinanceiroPage() {
         </header>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-5">
-          <TabsList className="grid grid-cols-2 gap-2 rounded-lg border bg-white p-2 sm:grid-cols-5">
+          <TabsList className="grid grid-cols-2 gap-2 rounded-lg border bg-slate-900 p-2 sm:grid-cols-5">
             <TabsTrigger value="dashboard" className="text-sm font-medium">
               Dashboard
             </TabsTrigger>

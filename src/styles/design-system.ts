@@ -151,7 +151,7 @@ export const animations = {
  */
 export const components = {
   card: {
-    base: 'rounded-xl border bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all duration-200',
+    base: 'rounded-xl border bg-slate-900 dark:bg-slate-900 shadow-sm hover:shadow-md transition-all duration-200',
     elevated: 'shadow-md hover:shadow-lg',
     interactive: 'cursor-pointer hover:scale-[1.01] active:scale-[0.99]',
   },
@@ -178,7 +178,7 @@ export const components = {
     },
   },
   input: {
-    base: 'w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200',
+    base: 'w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-900 dark:bg-slate-900 px-4 py-2.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200',
     error: 'border-red-500 focus:border-red-500 focus:ring-red-500/20',
   },
   badge: {

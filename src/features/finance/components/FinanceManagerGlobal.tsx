@@ -502,7 +502,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
 
           {/* Top Categorias - Resumo Visual */}
           {categoryStats.length > 0 && (
-            <Card className="rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm shadow-xl shadow-slate-200/50 dark:shadow-black/20">
+            <Card className="rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-slate-900/90 dark:bg-slate-900/90 backdrop-blur-sm shadow-xl shadow-slate-200/50 dark:shadow-black/20">
               <div className="p-6 sm:p-8">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="p-2.5 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-600 shadow-lg shadow-violet-500/30">
@@ -550,7 +550,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
             </Card>
           )}          {/* Parcelas deste mês */}
           {installments.length > 0 && (
-            <Card className="rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm shadow-xl shadow-slate-200/50 dark:shadow-black/20">
+            <Card className="rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-slate-900/90 dark:bg-slate-900/90 backdrop-blur-sm shadow-xl shadow-slate-200/50 dark:shadow-black/20">
               <div className="p-6 sm:p-8">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="p-2.5 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-600 shadow-lg shadow-violet-500/30">
@@ -598,7 +598,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
           )}
 
           {/* Filters */}
-          <Card className="rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm shadow-xl shadow-slate-200/50 dark:shadow-black/20">
+          <Card className="rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-slate-900/90 dark:bg-slate-900/90 backdrop-blur-sm shadow-xl shadow-slate-200/50 dark:shadow-black/20">
             <div className="p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-3 sm:gap-4">
                 <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -681,7 +681,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
           </Card>
 
           {/* Transactions List */}
-          <Card className="rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm shadow-xl shadow-slate-200/50 dark:shadow-black/20">
+          <Card className="rounded-3xl border-2 border-slate-200/70 dark:border-slate-800/70 bg-slate-900/90 dark:bg-slate-900/90 backdrop-blur-sm shadow-xl shadow-slate-200/50 dark:shadow-black/20">
             <div className="p-6 sm:p-8">
               <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mb-6">
                 Histórico de Transações

@@ -104,7 +104,7 @@ export function ActivitiesCalendar({ activities }: ActivitiesCalendarProps) {
   ).length;
 
   return (
-    <Card className="relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200 dark:border-slate-700">
+    <Card className="relative overflow-hidden bg-slate-900/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200 dark:border-slate-700">
       {/* Header */}
       <div className="p-4 sm:p-6 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -210,7 +210,7 @@ export function ActivitiesCalendar({ activities }: ActivitiesCalendarProps) {
                   ${
                     today
                       ? "bg-blue-50 dark:bg-blue-950/30 border-blue-300 dark:border-blue-700 ring-2 ring-blue-400/50"
-                      : "bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700"
+                      : "bg-slate-900 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700"
                   }
                   ${dayActivities.length > 0 ? "hover:shadow-md cursor-pointer" : ""}
                 `}

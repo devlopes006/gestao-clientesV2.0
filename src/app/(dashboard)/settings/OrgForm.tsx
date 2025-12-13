@@ -111,7 +111,7 @@ export function OrgForm() {
         e.preventDefault();
         onSave();
       }}
-      className="space-y-8 max-w-2xl mx-auto bg-white dark:bg-slate-900 p-8 rounded-xl shadow-lg"
+      className="space-y-8 max-w-2xl mx-auto bg-slate-900 dark:bg-slate-900 p-8 rounded-xl shadow-lg"
       aria-label="Formulário de dados da organização"
     >
       <fieldset disabled={loading} className="space-y-6 border-0">

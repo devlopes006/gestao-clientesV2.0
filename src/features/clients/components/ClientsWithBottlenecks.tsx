@@ -104,7 +104,7 @@ export function ClientsWithBottlenecks({
                 href={`/clients/${client.clientId}/info`}
                 className="block"
               >
-                <div className="bg-white dark:bg-slate-800 rounded-xl p-3 sm:p-4 border border-slate-200 dark:border-slate-700 hover:border-red-300 dark:hover:border-red-700 hover:shadow-md transition-all group">
+                <div className="bg-slate-900 dark:bg-slate-800 rounded-xl p-3 sm:p-4 border border-slate-200 dark:border-slate-700 hover:border-red-300 dark:hover:border-red-700 hover:shadow-md transition-all group">
                   {/* Header */}
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div className="flex-1 min-w-0">

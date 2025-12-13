@@ -206,7 +206,7 @@ export function DashboardNotes({ initialNotes = [] }: DashboardNotesProps) {
       {/* Toolbar */}
       <div className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 px-3 py-2 w-full sm:w-[280px]">
+          <div className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-900/70 dark:bg-slate-900/70 px-3 py-2 w-full sm:w-[280px]">
             <Search className="w-4 h-4 text-slate-500" />
             <input className="bg-transparent outline-none text-sm flex-1" placeholder="Buscar notas..." value={query} onChange={(e) => setQuery(e.target.value)} />
           </div>
@@ -235,7 +235,7 @@ export function DashboardNotes({ initialNotes = [] }: DashboardNotesProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             <div className="space-y-2">
               <Input aria-label="Título" placeholder="Título da nota" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} maxLength={100} />
-              <textarea aria-label="Descrição" placeholder="Descrição da nota" className="w-full text-sm rounded-md border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 p-2 min-h-[100px]" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+              <textarea aria-label="Descrição" placeholder="Descrição da nota" className="w-full text-sm rounded-md border border-slate-200 dark:border-slate-800 bg-slate-900/80 dark:bg-slate-900/60 p-2 min-h-[100px]" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
               <Select value={form.color} onValueChange={(v) => setForm({ ...form, color: v })}>
                 <SelectTrigger className="w-[180px]"><SelectValue placeholder="Cor" /></SelectTrigger>
                 <SelectContent>
@@ -305,11 +305,11 @@ export function DashboardNotes({ initialNotes = [] }: DashboardNotesProps) {
         {/* Right: side panel editor */}
         <div className="lg:col-span-1">
           {formOpen && (
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 p-3">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-900/70 dark:bg-slate-900/60 p-3">
               {errorMsg && <div className="mb-2 text-sm text-red-600">{errorMsg}</div>}
               <div className="space-y-2">
                 <Input aria-label="Título" placeholder="Título da nota" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} maxLength={100} />
-                <textarea aria-label="Descrição" placeholder="Descrição da nota" className="w-full text-sm rounded-md border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 p-2 min-h-[140px]" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+                <textarea aria-label="Descrição" placeholder="Descrição da nota" className="w-full text-sm rounded-md border border-slate-200 dark:border-slate-800 bg-slate-900/80 dark:bg-slate-900/60 p-2 min-h-[140px]" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
                 <div className="flex items-center gap-2">
                   <Select value={form.color} onValueChange={(v) => setForm({ ...form, color: v })}>
                     <SelectTrigger className="w-[160px]"><SelectValue placeholder="Cor" /></SelectTrigger>

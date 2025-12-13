@@ -134,7 +134,7 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
 
         <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[{ label: 'Clientes ativos', value: totalClients, icon: Users }, { label: 'Tarefas pendentes', value: totalPendingTasks, icon: ListTodo }, { label: 'Em progresso', value: totalInProgressTasks, icon: Calendar }, { label: 'Concluídas', value: `${completedPercent}%`, icon: CheckCircle2 }].map((item) => (
-            <div key={item.label} className="flex items-center justify-between rounded-lg border bg-white p-4 shadow-sm">
+            <div key={item.label} className="flex items-center justify-between rounded-lg border bg-slate-900 p-4 shadow-sm">
               <div>
                 <p className="text-xs font-semibold uppercase text-slate-500">{item.label}</p>
                 <p className="text-2xl font-semibold text-slate-900">{item.value}</p>
@@ -146,7 +146,7 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
 
         <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-3">
-            <div className="rounded-lg border bg-white p-4 shadow-sm">
+            <div className="rounded-lg border bg-slate-900 p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-semibold">Calendário</h2>
@@ -183,7 +183,7 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
               )}
             </div>
 
-            <div className="rounded-lg border bg-white p-4 shadow-sm">
+            <div className="rounded-lg border bg-slate-900 p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold">Prioridades</h2>
                 <span className="text-xs text-slate-600">{priorities.length} selecionadas</span>
@@ -208,7 +208,7 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
           </div>
 
           <div className="space-y-3">
-            <div className="rounded-lg border bg-white p-4 shadow-sm">
+            <div className="rounded-lg border bg-slate-900 p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold">Notas rápidas</h2>
               </div>
@@ -230,7 +230,7 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
               </div>
             </div>
 
-            <div className="rounded-lg border bg-white p-4 shadow-sm">
+            <div className="rounded-lg border bg-slate-900 p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold">Clientes em foco</h2>
                 <span className="text-xs text-slate-600">{clients.length} clientes</span>
@@ -264,7 +264,7 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
           </div>
         </section>
 
-        <section className="rounded-lg border bg-white p-4 shadow-sm">
+        <section className="rounded-lg border bg-slate-900 p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Lista de clientes</h2>
             <span className="text-xs text-slate-600">Últimos cadastrados</span>

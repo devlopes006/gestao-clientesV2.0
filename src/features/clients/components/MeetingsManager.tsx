@@ -585,7 +585,7 @@ export function MeetingsManager({ clientId }: MeetingsManagerProps) {
                       variant="ghost"
                       size="sm"
                       onClick={() => setIsModalOpen(false)}
-                      className="text-white hover:bg-white/20"
+                      className="text-white hover:bg-slate-900/20"
                     >
                       <X className="h-4 w-4" />
                     </Button>

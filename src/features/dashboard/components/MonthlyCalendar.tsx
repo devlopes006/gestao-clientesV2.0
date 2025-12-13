@@ -337,7 +337,7 @@ export function MonthlyCalendar({
                 relative min-h-20 p-2 rounded-lg border transition-all
                 ${today
                   ? "bg-blue-50 dark:bg-blue-950/30 border-blue-400 dark:border-blue-600 shadow-sm"
-                  : "bg-white dark:bg-slate-800/50 border-slate-200 dark:border-slate-700"
+                  : "bg-slate-900 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700"
                 }
                 ${!current ? "opacity-40" : ""}
                 ${selected ? "ring-2 ring-blue-500 shadow-md" : ""}
@@ -439,7 +439,7 @@ export function MonthlyCalendar({
                     : undefined;
 
                 const content = (
-                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-white dark:hover:bg-slate-800 border 
+                  <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-900 dark:hover:bg-slate-800 border 
                   border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all group">
                     <div
                       className={`

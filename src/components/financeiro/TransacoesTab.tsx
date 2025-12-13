@@ -182,7 +182,7 @@ export function TransacoesTab() {
         onSuccess={handleTransactionCreated}
       />
 
-      <div className="space-y-4 rounded-lg border bg-white p-4">
+      <div className="space-y-4 rounded-lg border bg-slate-900 p-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-2">
             <Label htmlFor="search">Buscar</Label>
@@ -270,14 +270,14 @@ export function TransacoesTab() {
         )}
 
         {loading && (
-          <div className="flex items-center gap-2 rounded-md border bg-white px-4 py-6 text-sm text-slate-700">
+          <div className="flex items-center gap-2 rounded-md border bg-slate-900 px-4 py-6 text-sm text-slate-700">
             <Loader2 className="h-4 w-4 animate-spin" />
             Carregando transações...
           </div>
         )}
 
         {!loading && filteredTransactions.length === 0 && (
-          <div className="rounded-md border bg-white px-4 py-6 text-center text-sm text-slate-700">
+          <div className="rounded-md border bg-slate-900 px-4 py-6 text-center text-sm text-slate-700">
             Nenhuma transação encontrada.
           </div>
         )}
@@ -286,7 +286,7 @@ export function TransacoesTab() {
           <>
             <div className="space-y-2 md:hidden">
               {filteredTransactions.map((transaction) => (
-                <div key={transaction.id} className="rounded-md border bg-white p-4 shadow-sm">
+                <div key={transaction.id} className="rounded-md border bg-slate-900 p-4 shadow-sm">
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
                       <p className="text-sm font-semibold text-slate-900">{transaction.description}</p>
@@ -316,7 +316,7 @@ export function TransacoesTab() {
               ))}
             </div>
 
-            <div className="overflow-hidden rounded-lg border bg-white shadow-sm md:block">
+            <div className="overflow-hidden rounded-lg border bg-slate-900 shadow-sm md:block">
               <div className="overflow-x-auto">
                 <table className="min-w-full text-left text-sm text-slate-800">
                   <thead className="border-b bg-slate-50 text-xs uppercase text-slate-600">
@@ -369,7 +369,7 @@ export function TransacoesTab() {
       </div>
 
       {totalPages > 1 && (
-        <div className="flex flex-col items-center gap-3 rounded-md border bg-white p-4 text-sm text-slate-700 md:flex-row md:justify-between">
+        <div className="flex flex-col items-center gap-3 rounded-md border bg-slate-900 p-4 text-sm text-slate-700 md:flex-row md:justify-between">
           <div className="flex items-center gap-2">
             <Button
               variant="outline"

@@ -605,7 +605,7 @@ export function BrandingManager({
                         {list.map((item) => (
                           <div
                             key={item.id}
-                            className="p-3 border border-slate-200 rounded-lg bg-white hover:shadow-md transition-transform transform hover:-translate-y-0.5"
+                            className="p-3 border border-slate-200 rounded-lg bg-slate-900 hover:shadow-md transition-transform transform hover:-translate-y-0.5"
                             onDragOver={(e) => e.preventDefault()}
                             onDrop={async (e) => {
                               e.preventDefault();
@@ -716,7 +716,7 @@ export function BrandingManager({
               onClick={() => setIsModalOpen(false)}
             >
               <div
-                className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-auto m-4"
+                className="bg-slate-900 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-auto m-4"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="p-6 space-y-6">
@@ -951,7 +951,7 @@ export function BrandingManager({
               onClick={closeViewer}
             >
               <div
-                className="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-auto m-4"
+                className="bg-slate-900 dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-auto m-4"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="p-6 space-y-4">

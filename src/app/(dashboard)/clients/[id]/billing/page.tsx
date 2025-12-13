@@ -133,7 +133,7 @@ export default function BillingPage() {
                     </div>
                     <div className="pt-1">
                       <Link href={`/financeiro`} className="inline-flex w-full">
-                        <Button variant="ghost" size="sm" className="w-full justify-center text-white hover:bg-white/20">Ver no financeiro</Button>
+                        <Button variant="ghost" size="sm" className="w-full justify-center text-white hover:bg-slate-900/20">Ver no financeiro</Button>
                       </Link>
                     </div>
                   </div>
@@ -172,7 +172,7 @@ export default function BillingPage() {
                         </td>
                         <td className="py-1.5 sm:py-2 px-1 sm:px-2 lg:px-3 hidden md:table-cell">
                           <Link href={`/financeiro`}>
-                            <Button variant="ghost" size="sm" className="text-[10px] sm:text-xs h-6 sm:h-8 px-1.5 sm:px-2 text-white hover:bg-white/20">
+                            <Button variant="ghost" size="sm" className="text-[10px] sm:text-xs h-6 sm:h-8 px-1.5 sm:px-2 text-white hover:bg-slate-900/20">
                               Detalhes
                             </Button>
                           </Link>

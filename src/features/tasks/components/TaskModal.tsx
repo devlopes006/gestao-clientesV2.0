@@ -31,7 +31,7 @@ export function TaskModal({ open, onClose, editing, orgId, form, setForm, onSubm
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 rounded-t-2xl" />
           <div className="relative flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/10">
+              <div className="p-2 bg-slate-900/10 backdrop-blur-sm rounded-lg border border-white/10">
                 <Sparkles className="h-5 w-5 text-white" aria-hidden />
               </div>
               <div>
@@ -39,7 +39,7 @@ export function TaskModal({ open, onClose, editing, orgId, form, setForm, onSubm
                 <p className="text-sm text-blue-100 mt-1">Defina título, prioridade, prazo e descrição</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 shrink-0" onClick={onClose}>
+            <Button variant="ghost" size="sm" className="text-white hover:bg-slate-900/20 shrink-0" onClick={onClose}>
               <X className="h-5 w-5" aria-hidden />
             </Button>
           </div>

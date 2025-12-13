@@ -31,16 +31,16 @@
   }
 }
 
-/* Defensive override: convert any `bg-white` utilities to dark backgrounds
-   This prevents any remaining explicit `bg-white` classes from showing white
+/* Defensive override: convert any `bg-slate-900` utilities to dark backgrounds
+   This prevents any remaining explicit `bg-slate-900` classes from showing white
    backgrounds across the app when a fully dark UI is required. */
-[class*='bg-white'] {
+[class*='bg-slate-900'] {
   background-image: none !important;
   background-color: rgba(15, 23, 42, 0.95) !important; /* slate-900-like */
 }
 
-/* Also target common white-ish utility combinations (e.g., bg-white/xx) */
-[class*='bg-white/'] {
+/* Also target common white-ish utility combinations (e.g., bg-slate-900/xx) */
+[class*='bg-slate-900/'] {
   background-image: none !important;
   background-color: rgba(15, 23, 42, 0.95) !important;
 }

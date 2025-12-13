@@ -169,7 +169,7 @@ export default function FontAutocomplete({ value = "", onChange, onSelect }: Pro
         className="w-full px-3 py-2 border rounded"
       />
       {open && suggestions.length > 0 && (
-        <div className="absolute z-40 mt-2 w-full bg-white border border-slate-200 rounded-md shadow-lg">
+        <div className="absolute z-40 mt-2 w-full bg-slate-900 border border-slate-200 rounded-md shadow-lg">
           {suggestions.map((s, i) => (
             <div
               key={s}

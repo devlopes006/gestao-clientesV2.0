@@ -89,42 +89,16 @@ export async function POST(req: NextRequest) {
   const secret = process.env.WHATSAPP_WEBHOOK_SECRET
   const raw = await req.text()
 
-  console.log('[WhatsApp Webhook] Received request')
-  console.log('[WhatsApp Webhook] Secret configured:', secret ? 'YES' : 'NO')
-  console.log(
-    '[WhatsApp Webhook] Headers:',
-    Object.fromEntries(req.headers.entries())
-  )
+  console.log('[WhatsApp Webhook v3] ✅ WEBHOOK RECEBIDO - MODO TESTE')
+  console.log('[WhatsApp Webhook v3] Secret:', secret ? 'SIM' : 'NÃO')
 
-  // Se SECRET não estiver configurado, aceita sem verificação (modo de desenvolvimento)
-  if (secret && secret !== 'sua-chave-compartilhada-hmac') {
-    // Tenta ler header em diferentes cases
-    const signature =
-      req.headers.get('x-signature') || req.headers.get('X-Signature')
-    console.log(
-      '[WhatsApp Webhook] Signature received:',
-      signature ? 'YES' : 'NO'
-    )
-
-    // Sempre aceita por enquanto (debug mode)
-    console.log('[WhatsApp Webhook] DEBUG MODE: Accepting webhook')
-  } else {
-    console.log(
-      '[WhatsApp Webhook] No secret configured - accepting without verification'
-    )
-  }
+  // ✅ POR ENQUANTO: ACEITA TODOS OS WEBHOOKS (teste)
+  console.log('[WhatsApp Webhook v3] ✅ ACEITANDO WEBHOOK')
 
   const body = JSON.parse(raw)
 
-  console.log('[WhatsApp Webhook] Event:', body?.event, 'Data preview:', {
-    id: body?.data?.id,
-    from: body?.data?.from,
-    text: body?.data?.text,
-    timestamp: body?.data?.timestamp,
-  })
-
-  // Log completo para debugging
-  console.log('[WhatsApp Webhook] Full payload:', JSON.stringify(body, null, 2))
+  console.log('[WhatsApp Webhook v3] Evento:', body?.event)
+  console.log('[WhatsApp Webhook v3] De:', body?.data?.from || body?.from)
 
   // Normalizar dados - aceita formato direto ou aninhado
   const data = body.data || body

@@ -1,6 +1,6 @@
 'use client'
 
-import { CheckCheck, MessageCircle, RefreshCw, Send, Trash2, User } from 'lucide-react'
+import { CheckCheck, MessageCircle, RefreshCw, Send, Trash2, User, Pencil } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 type Msg = {
@@ -113,6 +113,35 @@ export default function MessagesPage() {
     } catch (e) {
       const err = e as Error
       alert(err?.message || 'Erro ao apagar conversa')
+    }
+  }
+
+  async function renameThread(thread: string) {
+    const t = normalizePhone(thread)
+    if (!t) return alert('Conversa inválida')
+    const current = selectedThread?.[1]?.[0]?.client?.name || selectedThread?.[1]?.[0]?.name || ''
+    const name = prompt('Novo nome da conversa/cliente', current)
+    if (!name || !name.trim()) return
+    try {
+      const res = await fetch('/api/integrations/whatsapp/messages', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ thread: `+${t}`, name: name.trim() }),
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error || 'Falha ao renomear')
+
+      // Atualiza localmente
+      setItems((prev) =>
+        prev.map((m) =>
+          getThreadKey(m) === t || getThreadKey(m) === `+${t}`
+            ? { ...m, name: name.trim(), client: m.client ? { ...m.client, name: name.trim() } : m.client }
+            : m
+        )
+      )
+    } catch (e) {
+      const err = e as Error
+      alert(err?.message || 'Erro ao renomear conversa')
     }
   }
 
@@ -261,7 +290,7 @@ export default function MessagesPage() {
                       key={phone}
                       className={`w-full p-4 border-b border-slate-800/60 hover:bg-slate-800/60 transition ${isSelected ? 'bg-slate-800/80' : ''}`}
                     >
-                      <div className="flex gap-3 items-center">
+                      <div className="flex gap-3 items-start">
                         <button
                           onClick={() => {
                             setSelected(phone)
@@ -286,14 +315,24 @@ export default function MessagesPage() {
                             </div>
                           </div>
                         </button>
-                        <button
-                          title="Apagar conversa"
-                          aria-label="Apagar conversa"
-                          onClick={(e) => { e.stopPropagation(); deleteThread(phone) }}
-                          className="p-2 rounded-lg hover:bg-red-900/30 text-red-400"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            title="Renomear conversa"
+                            aria-label="Renomear conversa"
+                            onClick={(e) => { e.stopPropagation(); renameThread(phone) }}
+                            className="p-2 rounded-lg hover:bg-slate-800 text-slate-300"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button
+                            title="Apagar conversa"
+                            aria-label="Apagar conversa"
+                            onClick={(e) => { e.stopPropagation(); deleteThread(phone) }}
+                            className="p-2 rounded-lg hover:bg-red-900/30 text-red-400"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )
@@ -334,10 +373,12 @@ export default function MessagesPage() {
                   <div className="max-w-4xl mx-auto space-y-3">
                     {selectedMessages.map((m, idx) => {
                       const fromKey = normalizePhone(m.from)
+                      const toKey = normalizePhone(m.to)
 
-                      // Regra: se o from do backend bate com o telefone selecionado, é entrada; senão, saída
-                      // Protege contra mensagens locais duplicadas e eco do gateway
-                      const isClient = fromKey === selectedKey
+                      // Entrada: from == cliente. Saída: qualquer outra combinação.
+                      // Protege contra eco (nossas mensagens não viram entrada).
+                      const isClient = fromKey === selectedKey && selectedKey !== ''
+                      const isOutgoing = !isClient
 
                       return (
                         <div

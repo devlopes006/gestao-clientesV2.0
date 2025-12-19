@@ -42,6 +42,67 @@ export async function GET(req: NextRequest) {
   }
 }
 
+// PATCH /api/integrations/whatsapp/messages
+// Body: { thread: string, name: string }
+// Atualiza o nome do cliente e normaliza nas mensagens
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json()
+    const raw = body.thread || ''
+    const name = (body.name || '').trim()
+    const thread = raw.replace(/\D/g, '')
+    const threadPlus = raw.startsWith('+') ? raw : `+${thread}`
+
+    if (!thread) {
+      return NextResponse.json(
+        { error: 'thread é obrigatório' },
+        { status: 400 }
+      )
+    }
+    if (!name) {
+      return NextResponse.json(
+        { error: 'name é obrigatório' },
+        { status: 400 }
+      )
+    }
+
+    const updatedClient = await prisma.client.updateMany({
+      where: {
+        OR: [{ phone: thread }, { phone: threadPlus }],
+      },
+      data: { name },
+    })
+
+    const updatedMsgs = await prisma.whatsAppMessage.updateMany({
+      where: {
+        OR: [
+          { from: thread },
+          { to: thread },
+          { recipientId: thread },
+          { recipient_id: thread },
+          { from: threadPlus },
+          { to: threadPlus },
+          { recipientId: threadPlus },
+          { recipient_id: threadPlus },
+        ],
+      },
+      data: { name },
+    })
+
+    return NextResponse.json({
+      success: true,
+      updatedClient: updatedClient.count,
+      updatedMessages: updatedMsgs.count,
+    })
+  } catch (error) {
+    console.error('[WhatsApp Messages PATCH] Error:', error)
+    return NextResponse.json(
+      { error: 'Falha ao atualizar conversa' },
+      { status: 500 }
+    )
+  }
+}
+
 // DELETE /api/integrations/whatsapp/messages?thread=+5541999998888
 // Apaga todas as mensagens de uma conversa (por telefone normalizado)
 export async function DELETE(req: NextRequest) {

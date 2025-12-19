@@ -19,6 +19,11 @@ export async function proxy(req: NextRequest) {
     pathname.startsWith('/api/invites/accept') && req.method === 'GET'
   // Allow creating a session without an existing auth cookie (POST /api/session)
   const isSessionCreate = pathname === '/api/session' && req.method === 'POST'
+  // Allow WhatsApp integrations (external and internal APIs)
+  const isWhatsAppWebhook =
+    pathname.startsWith('/api/integrations/whatsapp/webhook') &&
+    req.method === 'POST'
+  const isWhatsAppAPI = pathname.startsWith('/api/integrations/whatsapp/')
 
   // Bypass known static/asset paths immediately so middleware never intercepts
   // requests for Next static assets, service worker, or common static files.
@@ -35,6 +40,9 @@ export async function proxy(req: NextRequest) {
 
   // Allow session creation (login) to pass through without redirect
   if (isSessionCreate) return NextResponse.next()
+
+  // Allow WhatsApp integrations to pass through without authentication
+  if (isWhatsAppWebhook || isWhatsAppAPI) return NextResponse.next()
 
   // Cria response que será modificada com headers de segurança
   const response = NextResponse.next()
@@ -95,6 +103,9 @@ export async function proxy(req: NextRequest) {
 
     // Allow creating a session (POST /api/session) without an auth cookie
     if (isSessionCreate) return response
+
+    // Allow WhatsApp integrations
+    if (isWhatsAppWebhook || isWhatsAppAPI) return response
 
     if (isLoginRoute) return response
 
@@ -185,11 +196,22 @@ export function guardAccess(req: NextRequest) {
   const isInviteValidation =
     pathname.startsWith('/api/invites/accept') && req.method === 'GET'
   const isSessionCreate = pathname === '/api/session' && req.method === 'POST'
+  const isWhatsAppWebhook =
+    pathname.startsWith('/api/integrations/whatsapp/webhook') &&
+    req.method === 'POST'
+  const isWhatsAppAPI = pathname.startsWith('/api/integrations/whatsapp/')
 
   if (isAuthCallback) return null
 
   if (!token) {
-    if (isInviteValidation || isLoginRoute || isSessionCreate) return null
+    if (
+      isInviteValidation ||
+      isLoginRoute ||
+      isSessionCreate ||
+      isWhatsAppWebhook ||
+      isWhatsAppAPI
+    )
+      return null
     return NextResponse.redirect(new URL('/login', req.url))
   }
 

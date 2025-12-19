@@ -51,6 +51,7 @@ model Org {
   recurringExpenses       RecurringExpense[]
   tasks                   Task[]
   transactions            Transaction[]
+  whatsappMessages        WhatsAppMessage[]
 }
 
 model Member {
@@ -108,6 +109,7 @@ model Client {
   strategies              Strategy[]
   tasks                   Task[]
   transactions            Transaction[]
+  whatsappMessages        WhatsAppMessage[]
 
   @@index([orgId, status])
   @@index([orgId, createdAt])
@@ -549,4 +551,31 @@ enum TaskPriority {
   MEDIUM
   HIGH
   URGENT
+}
+
+model WhatsAppMessage {
+  id          String   @id @default(cuid())
+  messageId   String?  @unique
+  event       String // 'message' | 'status'
+  from        String?
+  to          String?
+  recipientId String?
+  name        String?
+  type        String? // 'text' | 'image' | 'video' | 'document' | 'audio'
+  text        String?
+  mediaUrl    String?
+  timestamp   DateTime @default(now())
+  status      String? // 'sent' | 'delivered' | 'read' | 'failed'
+  orgId       String?
+  clientId    String?
+  metadata    Json? // Dados adicionais flexíveis
+  createdAt   DateTime @default(now())
+
+  org    Org?    @relation(fields: [orgId], references: [id])
+  client Client? @relation(fields: [clientId], references: [id])
+
+  @@index([from])
+  @@index([to])
+  @@index([timestamp])
+  @@index([orgId])
 }

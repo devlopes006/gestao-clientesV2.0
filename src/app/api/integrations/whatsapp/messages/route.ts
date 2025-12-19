@@ -60,10 +60,7 @@ export async function PATCH(req: NextRequest) {
       )
     }
     if (!name) {
-      return NextResponse.json(
-        { error: 'name é obrigatório' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'name é obrigatório' }, { status: 400 })
     }
 
     const updatedClient = await prisma.client.updateMany({

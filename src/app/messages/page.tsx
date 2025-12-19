@@ -79,20 +79,38 @@ const getThreadKey = (m: Msg) => {
 
 // Une mensagens locais com remotas e remove duplicatas
 function mergeAndDedup(prev: Msg[], remote: Msg[]) {
-  const seen = new Set<string>()
-  const all = [...prev.filter((m) => m.isLocal), ...remote]
   const result: Msg[] = []
+  const strong = new Set<string>() // id/messageId
+  const soft = new Set<string>() // from->to + text + minute bucket
 
-  for (const m of all) {
-    const key =
-      m.id ||
-      m.messageId ||
-      `${normalizePhone(m.from)}-${normalizePhone(m.to)}-${m.timestamp || ''}-${m.text || ''}`
+  const timeBucket = (timestamp?: string) => {
+    if (!timestamp) return 'no-time'
+    const d = new Date(timestamp)
+    return Number.isNaN(d.getTime()) ? 'no-time' : Math.floor(d.getTime() / 60000).toString()
+  }
 
-    if (seen.has(key)) continue
-    seen.add(key)
+  const makeSoftKey = (m: Msg) => {
+    const from = normalizePhone(m.from) || 'admin'
+    const to = normalizePhone(m.to || m.recipientId || m.recipient_id) || 'client'
+    const text = (m.text || m.name || '').trim()
+    return `${from}->${to}::${text}::${timeBucket(m.timestamp)}`
+  }
+
+  const add = (m: Msg) => {
+    const strongKey = m.messageId || m.id || ''
+    const softKey = makeSoftKey(m)
+
+    if (strongKey && strong.has(strongKey)) return
+    if (soft.has(softKey)) return
+
+    if (strongKey) strong.add(strongKey)
+    soft.add(softKey)
     result.push(m)
   }
+
+  // Prefer remotos: mantemos ordem remota e só mantemos locais que não tenham par correspondente
+  remote.forEach(add)
+  prev.filter((m) => m.isLocal).forEach(add)
 
   return result
 }
@@ -543,10 +561,10 @@ export default function MessagesPage() {
           <div
             key={t.id}
             className={`min-w-[260px] max-w-sm rounded-xl border px-4 py-3 shadow-lg backdrop-blur bg-slate-900/90 ${t.variant === 'success'
-                ? 'border-emerald-500/50 text-emerald-50'
-                : t.variant === 'error'
-                  ? 'border-red-500/50 text-red-50'
-                  : 'border-slate-700 text-slate-100'
+              ? 'border-emerald-500/50 text-emerald-50'
+              : t.variant === 'error'
+                ? 'border-red-500/50 text-red-50'
+                : 'border-slate-700 text-slate-100'
               }`}
           >
             <p className="font-semibold">{t.title}</p>

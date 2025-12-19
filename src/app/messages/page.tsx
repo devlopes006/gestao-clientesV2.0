@@ -142,7 +142,7 @@ export default function MessagesPage() {
     selected
 
   return (
-    <div className="h-screen flex bg-slate-950">
+    <div className="h-screen flex flex-col bg-slate-950 pb-20">
       {/* Sidebar - Lista de Conversas */}
       <aside className="w-96 border-r border-slate-800 flex flex-col bg-slate-900">
         {/* Header */}

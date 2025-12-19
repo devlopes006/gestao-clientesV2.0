@@ -1,3 +1,4 @@
+import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 
 /**
@@ -7,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
  * então ela é quem realmente envia as mensagens.
  *
  * Este endpoint é um proxy para /api/messages/send da LP.
+ * Também salva a mensagem no banco de dados da Gestão.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -62,6 +64,31 @@ export async function POST(req: NextRequest) {
       to,
       messageId: data.messageId,
     })
+
+    // Salvar mensagem no banco de dados
+    try {
+      const normalizedPhone = to.replace(/\D/g, '')
+
+      await prisma.whatsAppMessage.create({
+        data: {
+          messageId: data.messageId || `sent-${Date.now()}`,
+          from: 'admin',
+          to: normalizedPhone,
+          type: 'text',
+          text: body,
+          timestamp: new Date(),
+          event: 'message',
+        },
+      })
+
+      console.log('[Send Message] Mensagem salva no banco:', {
+        to: normalizedPhone,
+        messageId: data.messageId,
+      })
+    } catch (dbError) {
+      console.error('[Send Message] Erro ao salvar no BD:', dbError)
+      // Não falhar a resposta se o BD falhar, mensagem já foi enviada
+    }
 
     return NextResponse.json(data)
   } catch (error) {

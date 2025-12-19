@@ -1,6 +1,6 @@
 'use client'
 
-import { CheckCheck, MessageCircle, RefreshCw, Send, Trash2, User, Pencil } from 'lucide-react'
+import { CheckCheck, MessageCircle, Pencil, RefreshCw, Send, Trash2, User } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 type Msg = {
@@ -373,12 +373,10 @@ export default function MessagesPage() {
                   <div className="max-w-4xl mx-auto space-y-3">
                     {selectedMessages.map((m, idx) => {
                       const fromKey = normalizePhone(m.from)
-                      const toKey = normalizePhone(m.to)
 
                       // Entrada: from == cliente. Saída: qualquer outra combinação.
                       // Protege contra eco (nossas mensagens não viram entrada).
                       const isClient = fromKey === selectedKey && selectedKey !== ''
-                      const isOutgoing = !isClient
 
                       return (
                         <div

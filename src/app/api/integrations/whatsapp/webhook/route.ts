@@ -89,13 +89,29 @@ export async function POST(req: NextRequest) {
   const secret = process.env.WHATSAPP_WEBHOOK_SECRET
   const raw = await req.text()
 
+  console.log('[WhatsApp Webhook] Received request')
+  console.log('[WhatsApp Webhook] Secret configured:', secret ? 'YES' : 'NO')
+  console.log(
+    '[WhatsApp Webhook] Headers:',
+    Object.fromEntries(req.headers.entries())
+  )
+
   // Se SECRET não estiver configurado, aceita sem verificação (modo de desenvolvimento)
   if (secret && secret !== 'sua-chave-compartilhada-hmac') {
-    const ok = verifySignature(secret, raw, req.headers.get('x-signature'))
+    // Tenta ler header em diferentes cases
+    const signature =
+      req.headers.get('x-signature') || req.headers.get('X-Signature')
+    console.log(
+      '[WhatsApp Webhook] Signature received:',
+      signature ? 'YES' : 'NO'
+    )
+
+    const ok = verifySignature(secret, raw, signature)
     if (!ok) {
       console.error('[WhatsApp Webhook] Invalid signature')
       return NextResponse.json({ error: 'invalid signature' }, { status: 401 })
     }
+    console.log('[WhatsApp Webhook] Signature valid ✅')
   } else {
     console.log(
       '[WhatsApp Webhook] No secret configured - accepting without verification'

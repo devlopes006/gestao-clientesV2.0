@@ -1,7 +1,7 @@
 'use client'
 
 import { CheckCheck, MessageCircle, Pencil, RefreshCw, Send, Trash2, User } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 type Msg = {
   event: 'message' | 'status'
@@ -23,6 +23,13 @@ type Msg = {
   isLocal?: boolean
 }
 
+type Toast = {
+  id: string
+  title: string
+  description?: string
+  variant?: 'success' | 'error' | 'info'
+}
+
 // Normaliza telefone para comparação de threads (somente dígitos)
 const normalizePhone = (value?: string | null) => value?.replace(/\D/g, '') || ''
 
@@ -38,6 +45,23 @@ const formatPhoneDisplay = (value?: string | null) => {
   }
   return `+${n}`
 }
+
+const showToast = (
+  setToasts: React.Dispatch<React.SetStateAction<Toast[]>>,
+  toast: Omit<Toast, 'id'>
+) => {
+  const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`
+  setToasts((prev) => [...prev, { ...toast, id }])
+  setTimeout(() => {
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }, 3200)
+}
+
+const toastSuccess = (setToasts: React.Dispatch<React.SetStateAction<Toast[]>>, title: string, description?: string) =>
+  showToast(setToasts, { title, description, variant: 'success' })
+
+const toastError = (setToasts: React.Dispatch<React.SetStateAction<Toast[]>>, title: string, description?: string) =>
+  showToast(setToasts, { title, description, variant: 'error' })
 
 const getThreadKey = (m: Msg) => {
   const clientPhone = normalizePhone(m.client?.phone)
@@ -80,6 +104,9 @@ export default function MessagesPage() {
   const [compose, setCompose] = useState({ to: '', body: '' })
   const [sending, setSending] = useState(false)
   const [filter, setFilter] = useState('')
+  const [toasts, setToasts] = useState<Toast[]>([])
+  const [confirmDelete, setConfirmDelete] = useState<{ open: boolean; thread: string }>({ open: false, thread: '' })
+  const [renameModal, setRenameModal] = useState<{ open: boolean; thread: string; value: string }>({ open: false, thread: '', value: '' })
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const load = useCallback(async () => {
@@ -98,9 +125,16 @@ export default function MessagesPage() {
 
   async function deleteThread(thread: string) {
     const t = normalizePhone(thread)
-    if (!t) return alert('Conversa inválida')
-    const ok = confirm('Apagar toda a conversa? Esta ação não pode ser desfeita.')
-    if (!ok) return
+    if (!t) {
+      toastError(setToasts, 'Conversa inválida')
+      return
+    }
+    setConfirmDelete({ open: true, thread: t })
+  }
+
+  async function confirmDeleteAction() {
+    const t = confirmDelete.thread
+    if (!t) return setConfirmDelete({ open: false, thread: '' })
     try {
       const res = await fetch(`/api/integrations/whatsapp/messages?thread=+${t}`, { method: 'DELETE' })
       const json = await res.json()
@@ -111,39 +145,54 @@ export default function MessagesPage() {
         setSelected(null)
         setCompose({ to: '', body: '' })
       }
+      toastSuccess(setToasts, 'Conversa apagada')
     } catch (e) {
       const err = e as Error
-      alert(err?.message || 'Erro ao apagar conversa')
+      toastError(setToasts, 'Erro ao apagar conversa', err?.message)
     }
+    setConfirmDelete({ open: false, thread: '' })
   }
 
-  async function renameThread(thread: string) {
-    const t = normalizePhone(thread)
-    if (!t) return alert('Conversa inválida')
-    const current = selectedThread?.[1]?.[0]?.client?.name || selectedThread?.[1]?.[0]?.name || ''
-    const name = prompt('Novo nome da conversa/cliente', current)
-    if (!name || !name.trim()) return
+  async function saveRename() {
+    const t = renameModal.thread
+    const name = renameModal.value.trim()
+    if (!t) return setRenameModal({ open: false, thread: '', value: '' })
+    if (!name) {
+      toastError(setToasts, 'Nome não pode ser vazio')
+      return
+    }
     try {
       const res = await fetch('/api/integrations/whatsapp/messages', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ thread: `+${t}`, name: name.trim() }),
+        body: JSON.stringify({ thread: `+${t}`, name }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Falha ao renomear')
 
-      // Atualiza localmente
       setItems((prev) =>
         prev.map((m) =>
           getThreadKey(m) === t || getThreadKey(m) === `+${t}`
-            ? { ...m, name: name.trim(), client: m.client ? { ...m.client, name: name.trim() } : m.client }
+            ? { ...m, name, client: m.client ? { ...m.client, name } : m.client }
             : m
         )
       )
+      toastSuccess(setToasts, 'Conversa renomeada')
     } catch (e) {
       const err = e as Error
-      alert(err?.message || 'Erro ao renomear conversa')
+      toastError(setToasts, 'Erro ao renomear conversa', err?.message)
     }
+    setRenameModal({ open: false, thread: '', value: '' })
+  }
+
+  async function renameThread(thread: string) {
+    const t = normalizePhone(thread)
+    if (!t) {
+      toastError(setToasts, 'Conversa inválida')
+      return
+    }
+    const current = selectedThread?.[1]?.[0]?.client?.name || selectedThread?.[1]?.[0]?.name || ''
+    setRenameModal({ open: true, thread: t, value: current })
   }
 
   useEffect(() => {
@@ -183,9 +232,13 @@ export default function MessagesPage() {
   async function send() {
     const toNormalized = normalizePhone(compose.to)
     if (!toNormalized) {
-      return alert('Informe o número E.164 (ex: +5541999998888)')
+      toastError(setToasts, 'Informe o número E.164', 'Ex: +5541999998888')
+      return
     }
-    if (!compose.body.trim()) return alert('Digite uma mensagem')
+    if (!compose.body.trim()) {
+      toastError(setToasts, 'Digite uma mensagem')
+      return
+    }
 
     const toE164 = `+${toNormalized}`
     setSending(true)
@@ -219,7 +272,7 @@ export default function MessagesPage() {
     } catch (e) {
       const err = e as Error
       setItems(prev => prev.filter(m => m.id !== localMsg.id))
-      alert(err?.message || 'Falha ao enviar')
+      toastError(setToasts, 'Falha ao enviar', err?.message)
     } finally {
       setSending(false)
     }
@@ -483,6 +536,78 @@ export default function MessagesPage() {
           </main>
         </div>
       </div>
+
+      {/* Toasts */}
+      <div className="fixed top-4 right-4 space-y-3 z-50">
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            className={`min-w-[260px] max-w-sm rounded-xl border px-4 py-3 shadow-lg backdrop-blur bg-slate-900/90 ${t.variant === 'success'
+                ? 'border-emerald-500/50 text-emerald-50'
+                : t.variant === 'error'
+                  ? 'border-red-500/50 text-red-50'
+                  : 'border-slate-700 text-slate-100'
+              }`}
+          >
+            <p className="font-semibold">{t.title}</p>
+            {t.description ? <p className="text-sm text-slate-300 mt-1">{t.description}</p> : null}
+          </div>
+        ))}
+      </div>
+
+      {/* Modal de confirmação de exclusão */}
+      {confirmDelete.open && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 backdrop-blur">
+          <div className="w-full max-w-md bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl">
+            <h3 className="text-lg font-semibold text-white mb-2">Apagar conversa</h3>
+            <p className="text-sm text-slate-300 mb-4">Esta ação não pode ser desfeita.</p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmDelete({ open: false, thread: '' })}
+                className="px-4 py-2 rounded-lg border border-slate-700 text-slate-200 hover:bg-slate-800"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDeleteAction}
+                className="px-4 py-2 rounded-lg border border-red-500/60 text-red-200 hover:bg-red-900/40"
+              >
+                Apagar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de renomear */}
+      {renameModal.open && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 backdrop-blur">
+          <div className="w-full max-w-md bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl">
+            <h3 className="text-lg font-semibold text-white mb-2">Renomear conversa</h3>
+            <p className="text-sm text-slate-300 mb-4">Altere o nome exibido para este cliente.</p>
+            <input
+              value={renameModal.value}
+              onChange={(e) => setRenameModal((p) => ({ ...p, value: e.target.value }))}
+              className="w-full bg-slate-800 text-white px-3 py-2 rounded-lg border border-slate-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 mb-4"
+              placeholder="Nome do cliente"
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setRenameModal({ open: false, thread: '', value: '' })}
+                className="px-4 py-2 rounded-lg border border-slate-700 text-slate-200 hover:bg-slate-800"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={saveRename}
+                className="px-4 py-2 rounded-lg border border-emerald-500/60 text-emerald-100 hover:bg-emerald-900/30"
+              >
+                Salvar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

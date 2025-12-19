@@ -79,6 +79,7 @@ export default function MessagesPage() {
   const [selected, setSelected] = useState<string | null>(null)
   const [compose, setCompose] = useState({ to: '', body: '' })
   const [sending, setSending] = useState(false)
+  const [filter, setFilter] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const load = useCallback(async () => {
@@ -169,6 +170,16 @@ export default function MessagesPage() {
     return Array.from(map.entries())
   }, [items])
 
+  const filteredThreads = useMemo(() => {
+    if (!filter.trim()) return threads
+    const q = filter.trim().toLowerCase()
+    return threads.filter(([phone, arr]) => {
+      const last = arr[arr.length - 1]
+      const name = last?.client?.name || last?.name || ''
+      return phone.includes(q) || name.toLowerCase().includes(q)
+    })
+  }, [threads, filter])
+
   async function send() {
     const toNormalized = normalizePhone(compose.to)
     if (!toNormalized) {
@@ -249,15 +260,15 @@ export default function MessagesPage() {
           {/* Sidebar - Lista de Conversas */}
           <aside className="w-80 border border-slate-800/70 bg-slate-900/70 backdrop-blur-xl rounded-2xl flex flex-col shadow-2xl shadow-emerald-900/10">
             {/* Header */}
-            <div className="p-4 border-b border-slate-800/70">
-              <div className="flex items-center justify-between mb-3">
+            <div className="p-4 border-b border-slate-800/70 space-y-3">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="bg-emerald-500/20 p-2.5 rounded-xl ring-1 ring-emerald-500/20">
                     <MessageCircle className="w-5 h-5 text-emerald-400" />
                   </div>
                   <div>
                     <h2 className="font-bold text-white">Conversas</h2>
-                    <p className="text-xs text-slate-400">{threads.length} ativas</p>
+                    <p className="text-xs text-slate-400">{filteredThreads.length} visíveis</p>
                   </div>
                 </div>
                 <button
@@ -270,17 +281,26 @@ export default function MessagesPage() {
                   <RefreshCw className={`w-4 h-4 text-slate-400 ${loading ? 'animate-spin' : ''}`} />
                 </button>
               </div>
+
+              <div className="relative">
+                <input
+                  value={filter}
+                  onChange={(e) => setFilter(e.target.value)}
+                  placeholder="Buscar por nome ou número..."
+                  className="w-full bg-slate-800 text-white text-sm px-3 py-2 rounded-lg border border-slate-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                />
+              </div>
             </div>
 
             {/* Lista de Conversas */}
             <div className="flex-1 overflow-y-auto">
-              {threads.length === 0 ? (
+              {filteredThreads.length === 0 ? (
                 <div className="p-8 text-center">
                   <MessageCircle className="w-12 h-12 text-slate-700 mx-auto mb-3" />
                   <p className="text-slate-500 text-sm">Nenhuma conversa ainda</p>
                 </div>
               ) : (
-                threads.map(([phone, arr]) => {
+                filteredThreads.map(([phone, arr]) => {
                   const last = arr[arr.length - 1]
                   const name = last?.client?.name || last?.name || formatPhoneDisplay(phone)
                   const isSelected = selected === phone
@@ -356,7 +376,7 @@ export default function MessagesPage() {
             ) : (
               <>
                 {/* Header da Conversa */}
-                <div className="p-4 border-b border-slate-800 bg-slate-900/50 backdrop-blur">
+                <div className="p-4 border-b border-slate-800 bg-slate-900/70 backdrop-blur flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
                       <User className="w-5 h-5 text-white" />
@@ -366,10 +386,28 @@ export default function MessagesPage() {
                       <p className="text-xs text-slate-400">{formatPhoneDisplay(selected)}</p>
                     </div>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      title="Renomear conversa"
+                      aria-label="Renomear conversa"
+                      onClick={() => renameThread(selected || '')}
+                      className="px-3 py-2 text-sm rounded-lg border border-slate-700 hover:border-emerald-500 hover:text-emerald-300"
+                    >
+                      Renomear
+                    </button>
+                    <button
+                      title="Apagar conversa"
+                      aria-label="Apagar conversa"
+                      onClick={() => deleteThread(selected || '')}
+                      className="px-3 py-2 text-sm rounded-lg border border-red-500/60 text-red-300 hover:bg-red-900/30"
+                    >
+                      Apagar
+                    </button>
+                  </div>
                 </div>
 
                 {/* Mensagens - COM SCROLL PRÓPRIO */}
-                <div className="flex-1 overflow-y-auto p-6 bg-[#0a0e14] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAyKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')]">
+                <div className="flex-1 overflow-y-auto p-6 bg-[#060910] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0icGF0dGVybiIgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiPjxnIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIwLjYiPjxwb2x5bGluZSBwb2ludHM9IjAgMTAgMTAgMCAyMCAxMCIvPjxwb2x5bGluZSBwb2ludHM9IjEwIDAgMjAgMTAgMzAgMCIvPjxwb2x5bGluZSBwb2ludHM9IjAgMzAgMTAgMjAgMjAgMzAiLz48cG9seWxpbmUgcG9pbnRzPSIxMCAyMCAyMCAzMCAzMCAyMCIvPjwvZz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSJ1cmwoI3BhdHRlcm4pIi8+PC9zdmc+')]">
                   <div className="max-w-4xl mx-auto space-y-3">
                     {selectedMessages.map((m, idx) => {
                       const fromKey = normalizePhone(m.from)
@@ -410,25 +448,27 @@ export default function MessagesPage() {
 
                 {/* Input - FIXO NO RODAPÉ */}
                 <div className="p-4 border-t border-slate-800 bg-slate-900/80 backdrop-blur">
-                  <div className="max-w-4xl mx-auto flex gap-3">
-                    <input
-                      type="text"
-                      value={compose.body}
-                      onChange={(e) => setCompose((c) => ({ ...c, body: e.target.value }))}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault()
-                          send()
-                        }
-                      }}
-                      placeholder="Digite sua mensagem..."
-                      disabled={sending}
-                      className="flex-1 bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition disabled:opacity-50"
-                    />
+                  <div className="max-w-4xl mx-auto flex gap-3 items-center">
+                    <div className="flex-1 bg-slate-800/80 border border-slate-700 rounded-2xl px-4 py-3 focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 transition">
+                      <textarea
+                        rows={1}
+                        value={compose.body}
+                        onChange={(e) => setCompose((c) => ({ ...c, body: e.target.value }))}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault()
+                            send()
+                          }
+                        }}
+                        placeholder="Digite sua mensagem..."
+                        disabled={sending}
+                        className="w-full bg-transparent text-white resize-none outline-none"
+                      />
+                    </div>
                     <button
                       onClick={send}
                       disabled={sending || !compose.body.trim()}
-                      className="bg-gradient-to-br from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white p-3 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-emerald-500/20"
+                      className="bg-gradient-to-br from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-4 py-3 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-emerald-500/20"
                     >
                       {sending ? (
                         <RefreshCw className="w-5 h-5 animate-spin" />

@@ -3,7 +3,7 @@
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { useUser } from "@/context/UserContext";
 import { cn } from "@/lib/utils";
-import { DollarSign, Home, LayoutDashboard, Plus, Settings, Users } from "lucide-react";
+import { DollarSign, Home, LayoutDashboard, MessageCircle, Plus, Settings, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -27,6 +27,12 @@ const navItems: NavItem[] = [
     href: "/clients",
     label: "Clientes",
     icon: <Users className="w-5 h-5" />,
+    roles: ["OWNER", "STAFF"],
+  },
+  {
+    href: "/messages",
+    label: "Mensagens",
+    icon: <MessageCircle className="w-5 h-5" />,
     roles: ["OWNER", "STAFF"],
   },
   {

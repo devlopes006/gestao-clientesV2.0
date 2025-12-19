@@ -21,6 +21,7 @@ import {
   DollarSign,
   LayoutDashboard,
   LogOut,
+  MessageCircle,
   Search,
   Settings,
   Sparkles,
@@ -50,6 +51,12 @@ const groups: NavItemGroup[] = [
         href: "/clients",
         label: "Clientes",
         icon: <Users className="w-4 h-4" />,
+        roles: ["OWNER", "STAFF"], // Acessível para OWNER e STAFF
+      },
+      {
+        href: "/messages",
+        label: "Mensagens WhatsApp",
+        icon: <MessageCircle className="w-4 h-4" />,
         roles: ["OWNER", "STAFF"], // Acessível para OWNER e STAFF
       },
       {

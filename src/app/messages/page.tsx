@@ -13,9 +13,9 @@ type Msg = {
   text?: string | null
   timestamp?: string
   recipient_id?: string
+  clientName?: string
+  clientPhone?: string
 }
-
-const GATEWAY = process.env.NEXT_PUBLIC_MESSAGES_GATEWAY || ''
 
 export default function MessagesPage() {
   const [items, setItems] = useState<Msg[]>([])
@@ -25,13 +25,13 @@ export default function MessagesPage() {
   const [compose, setCompose] = useState({ to: '', body: '' })
 
   async function load() {
-    if (!GATEWAY) return setError('NEXT_PUBLIC_MESSAGES_GATEWAY ausente')
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`${GATEWAY}/api/messages?limit=200`, { cache: 'no-store' })
-      const json = await res.json()
-      setItems(json.items || [])
+      const res = await fetch('/api/integrations/whatsapp/messages', { cache: 'no-store' })
+      if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+      const data = await res.json()
+      setItems(data.messages || [])
     } catch (e) {
       const err = e as Error
       setError(err?.message || 'Falha ao carregar mensagens')
@@ -59,21 +59,22 @@ export default function MessagesPage() {
     return Array.from(map.entries())
   }, [items])
 
-  // Verificar se está configurado
-  if (!GATEWAY) {
+  // Se há erro, mostrar
+  if (error && !loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-8">
         <div className="bg-gradient-to-br from-red-500/20 to-red-600/10 border border-red-500/30 rounded-2xl p-8 max-w-2xl backdrop-blur-lg">
           <div className="flex items-center gap-3 mb-4">
             <AlertCircle className="w-8 h-8 text-red-400" />
-            <h1 className="text-2xl font-bold text-red-400">⚠️ Configuração Pendente</h1>
+            <h1 className="text-2xl font-bold text-red-400">⚠️ Erro na API</h1>
           </div>
-          <p className="text-slate-300 mb-4">
-            Adicione <code className="bg-slate-900/50 px-2 py-1 rounded text-red-300">NEXT_PUBLIC_MESSAGES_GATEWAY</code> ao seu .env.local
-          </p>
-          <p className="text-sm text-slate-400">
-            Exemplo: <code className="bg-slate-900/50 px-2 py-1 rounded text-slate-300">NEXT_PUBLIC_MESSAGES_GATEWAY=&quot;https://lp-conversaoextrema-esther.vercel.app&quot;</code>
-          </p>
+          <p className="text-slate-300 mb-4">{error}</p>
+          <button
+            onClick={load}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition"
+          >
+            Tentar Novamente
+          </button>
         </div>
       </div>
     )

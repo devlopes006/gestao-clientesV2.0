@@ -1,6 +1,6 @@
 'use client'
 
-import { CheckCheck, MessageCircle, RefreshCw, Send, User } from 'lucide-react'
+import { CheckCheck, MessageCircle, RefreshCw, Send, Trash2, User } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 type Msg = {
@@ -75,6 +75,27 @@ export default function MessagesPage() {
       setError(err?.message || 'Falha ao carregar mensagens')
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function deleteThread(thread: string) {
+    const t = normalizePhone(thread)
+    if (!t) return alert('Conversa inválida')
+    const ok = confirm('Apagar toda a conversa? Esta ação não pode ser desfeita.')
+    if (!ok) return
+    try {
+      const res = await fetch(`/api/integrations/whatsapp/messages?thread=+${t}`, { method: 'DELETE' })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error || 'Falha ao apagar')
+      // Remove localmente
+      setItems(prev => prev.filter(m => getThreadKey(m) !== t))
+      if (selected === t) {
+        setSelected(null)
+        setCompose({ to: '', body: '' })
+      }
+    } catch (e) {
+      const err = e as Error
+      alert(err?.message || 'Erro ao apagar conversa')
     }
   }
 
@@ -240,31 +261,45 @@ export default function MessagesPage() {
                   const isSelected = selected === phone
 
                   return (
-                    <button
+                    <div
                       key={phone}
-                      onClick={() => {
-                        setSelected(phone)
-                        setCompose((c) => ({ ...c, to: `+${phone}` }))
-                      }}
-                      className={`w-full p-4 border-b border-slate-800/60 hover:bg-slate-800/60 transition text-left ${isSelected ? 'bg-slate-800/80' : ''}`}
+                      className={`w-full p-4 border-b border-slate-800/60 hover:bg-slate-800/60 transition ${isSelected ? 'bg-slate-800/80' : ''}`}
                     >
                       <div className="flex gap-3 items-center">
-                        <div className="flex-shrink-0">
-                          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-900/30">
-                            <User className="w-5 h-5 text-white" />
+                        <button
+                          onClick={() => {
+                            setSelected(phone)
+                            setCompose((c) => ({ ...c, to: `+${phone}` }))
+                          }}
+                          className="flex-1 text-left"
+                        >
+                          <div className="flex gap-3 items-center">
+                            <div className="flex-shrink-0">
+                              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-900/30">
+                                <User className="w-5 h-5 text-white" />
+                              </div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-1 gap-2">
+                                <span className="font-semibold text-white truncate">{name}</span>
+                                <span className="text-[11px] text-slate-500 flex-shrink-0">{formatTime(last?.timestamp)}</span>
+                              </div>
+                              <p className="text-sm text-slate-400 truncate">
+                                {last?.text || last?.name || `Mensagem ${last?.type || 'recebida'}`}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1 gap-2">
-                            <span className="font-semibold text-white truncate">{name}</span>
-                            <span className="text-[11px] text-slate-500 flex-shrink-0">{formatTime(last?.timestamp)}</span>
-                          </div>
-                          <p className="text-sm text-slate-400 truncate">
-                            {last?.text || last?.name || `Mensagem ${last?.type || 'recebida'}`}
-                          </p>
-                        </div>
+                        </button>
+                        <button
+                          title="Apagar conversa"
+                          aria-label="Apagar conversa"
+                          onClick={(e) => { e.stopPropagation(); deleteThread(phone) }}
+                          className="p-2 rounded-lg hover:bg-red-900/30 text-red-400"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
-                    </button>
+                    </div>
                   )
                 })
               )}

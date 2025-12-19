@@ -41,3 +41,39 @@ export async function GET(req: NextRequest) {
     )
   }
 }
+
+// DELETE /api/integrations/whatsapp/messages?thread=+5541999998888
+// Apaga todas as mensagens de uma conversa (por telefone normalizado)
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url)
+    const raw = searchParams.get('thread') || ''
+    const thread = raw.replace(/\D/g, '')
+
+    if (!thread) {
+      return NextResponse.json(
+        { error: 'Parâmetro thread é obrigatório' },
+        { status: 400 }
+      )
+    }
+
+    const result = await prisma.whatsAppMessage.deleteMany({
+      where: {
+        OR: [
+          { from: thread },
+          { to: thread },
+          { recipientId: thread },
+          { recipient_id: thread },
+        ],
+      },
+    })
+
+    return NextResponse.json({ success: true, deleted: result.count })
+  } catch (error) {
+    console.error('[WhatsApp Messages DELETE] Error:', error)
+    return NextResponse.json(
+      { error: 'Falha ao apagar conversa' },
+      { status: 500 }
+    )
+  }
+}

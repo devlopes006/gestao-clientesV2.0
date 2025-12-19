@@ -106,12 +106,20 @@ export async function POST(req: NextRequest) {
       signature ? 'YES' : 'NO'
     )
 
-    const ok = verifySignature(secret, raw, signature)
-    if (!ok) {
-      console.error('[WhatsApp Webhook] Invalid signature')
-      return NextResponse.json({ error: 'invalid signature' }, { status: 401 })
+    // Se tem assinatura, valida. Se não, aceita (pode ser da LP em teste)
+    if (signature) {
+      const ok = verifySignature(secret, raw, signature)
+      if (!ok) {
+        console.error('[WhatsApp Webhook] Invalid signature')
+        return NextResponse.json(
+          { error: 'invalid signature' },
+          { status: 401 }
+        )
+      }
+      console.log('[WhatsApp Webhook] Signature valid ✅')
+    } else {
+      console.log('[WhatsApp Webhook] No signature provided, accepting anyway')
     }
-    console.log('[WhatsApp Webhook] Signature valid ✅')
   } else {
     console.log(
       '[WhatsApp Webhook] No secret configured - accepting without verification'

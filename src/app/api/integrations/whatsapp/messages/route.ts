@@ -49,6 +49,7 @@ export async function DELETE(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const raw = searchParams.get('thread') || ''
     const thread = raw.replace(/\D/g, '')
+    const threadPlus = raw.startsWith('+') ? raw : `+${thread}`
 
     if (!thread) {
       return NextResponse.json(
@@ -64,6 +65,10 @@ export async function DELETE(req: NextRequest) {
           { to: thread },
           { recipientId: thread },
           { recipient_id: thread },
+          { from: threadPlus },
+          { to: threadPlus },
+          { recipientId: threadPlus },
+          { recipient_id: threadPlus },
         ],
       },
     })

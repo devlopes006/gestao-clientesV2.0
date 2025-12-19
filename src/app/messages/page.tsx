@@ -1,7 +1,7 @@
 'use client'
 
 import { CheckCheck, MessageCircle, RefreshCw, Send, Trash2, User } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 type Msg = {
   event: 'message' | 'status'
@@ -53,30 +53,47 @@ const getThreadKey = (m: Msg) => {
   return 'unknown'
 }
 
+// Une mensagens locais com remotas e remove duplicatas
+function mergeAndDedup(prev: Msg[], remote: Msg[]) {
+  const seen = new Set<string>()
+  const all = [...prev.filter((m) => m.isLocal), ...remote]
+  const result: Msg[] = []
+
+  for (const m of all) {
+    const key =
+      m.id ||
+      m.messageId ||
+      `${normalizePhone(m.from)}-${normalizePhone(m.to)}-${m.timestamp || ''}-${m.text || ''}`
+
+    if (seen.has(key)) continue
+    seen.add(key)
+    result.push(m)
+  }
+
+  return result
+}
+
 export default function MessagesPage() {
   const [items, setItems] = useState<Msg[]>([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [selected, setSelected] = useState<string | null>(null)
   const [compose, setCompose] = useState({ to: '', body: '' })
   const [sending, setSending] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true)
-    setError(null)
     try {
       const res = await fetch('/api/integrations/whatsapp/messages', { cache: 'no-store' })
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
       const data = await res.json()
-      setItems(mergeAndDedup(data.messages || []))
+      setItems((prev) => mergeAndDedup(prev, data.messages || []))
     } catch (e) {
-      const err = e as Error
-      setError(err?.message || 'Falha ao carregar mensagens')
+      console.error('[Messages] load error:', e)
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   async function deleteThread(thread: string) {
     const t = normalizePhone(thread)
@@ -103,7 +120,7 @@ export default function MessagesPage() {
     load()
     const t = setInterval(load, 8000)
     return () => clearInterval(t)
-  }, [])
+  }, [load])
 
   // Auto-scroll
   useEffect(() => {
@@ -122,26 +139,6 @@ export default function MessagesPage() {
     }
     return Array.from(map.entries())
   }, [items])
-
-  // Mantém mensagens locais e elimina duplicatas vindas do backend
-  const mergeAndDedup = (remote: Msg[]) => {
-    const seen = new Set<string>()
-    const all = [...items.filter((m) => m.isLocal), ...remote]
-    const result: Msg[] = []
-
-    for (const m of all) {
-      const key =
-        m.id ||
-        m.messageId ||
-        `${normalizePhone(m.from)}-${normalizePhone(m.to)}-${m.timestamp || ''}-${m.text || ''}`
-
-      if (seen.has(key)) continue
-      seen.add(key)
-      result.push(m)
-    }
-
-    return result
-  }
 
   async function send() {
     if (!compose.to || compose.to.trim() === '') {
@@ -338,7 +335,6 @@ export default function MessagesPage() {
                   <div className="max-w-4xl mx-auto space-y-3">
                     {selectedMessages.map((m, idx) => {
                       const fromKey = normalizePhone(m.from)
-                      const toKey = normalizePhone(m.to)
 
                       // Regra: se o from do backend bate com o telefone selecionado, é entrada; senão, saída
                       // Protege contra mensagens locais duplicadas e eco do gateway

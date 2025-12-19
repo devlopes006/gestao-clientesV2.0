@@ -141,15 +141,14 @@ export default function MessagesPage() {
   }, [items])
 
   async function send() {
-    if (!compose.to || compose.to.trim() === '') {
+    const toNormalized = normalizePhone(compose.to)
+    if (!toNormalized) {
       return alert('Informe o número E.164 (ex: +5541999998888)')
     }
     if (!compose.body.trim()) return alert('Digite uma mensagem')
 
+    const toE164 = `+${toNormalized}`
     setSending(true)
-
-    const toNormalized = normalizePhone(compose.to)
-    const toSend = compose.to.trim()
 
     // Mensagem local
     const localMsg: Msg = {
@@ -171,7 +170,7 @@ export default function MessagesPage() {
       const res = await fetch('/api/integrations/whatsapp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: toSend, body: bodyText }),
+        body: JSON.stringify({ to: toE164, body: bodyText }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Erro ao enviar')

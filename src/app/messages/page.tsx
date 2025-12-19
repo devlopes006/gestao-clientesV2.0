@@ -6,15 +6,20 @@ import { useEffect, useMemo, useState } from 'react'
 type Msg = {
   event: 'message' | 'status'
   id?: string
+  messageId?: string
   from?: string
   to?: string | null
   name?: string
   type?: string
   text?: string | null
   timestamp?: string
+  recipientId?: string
   recipient_id?: string
-  clientName?: string
-  clientPhone?: string
+  client?: {
+    id: string
+    name: string
+    phone: string
+  }
 }
 
 export default function MessagesPage() {
@@ -49,7 +54,8 @@ export default function MessagesPage() {
   const threads = useMemo(() => {
     const map = new Map<string, Msg[]>()
     for (const m of items) {
-      const key = m.from || m.recipient_id || 'unknown'
+      // Usar client.phone se disponível, senão from
+      const key = m.client?.phone || m.from || m.recipient_id || m.recipientId || 'unknown'
       if (!map.has(key)) map.set(key, [])
       map.get(key)!.push(m)
     }
@@ -160,7 +166,7 @@ export default function MessagesPage() {
           <div className="p-4 space-y-2">
             {threads.map(([phone, arr]) => {
               const last = arr[arr.length - 1]
-              const name = last?.name || phone
+              const name = last?.client?.name || last?.name || phone
               return (
                 <button
                   key={phone}
@@ -178,7 +184,7 @@ export default function MessagesPage() {
                     <div className="text-xs text-slate-400 ml-2">{formatTime(last?.timestamp)}</div>
                   </div>
                   <div className="text-sm text-slate-400 truncate">
-                    {last?.text || `(${last?.type})`}
+                    {last?.text || last?.name || `Mensagem ${last?.type || 'recebida'}`}
                   </div>
                 </button>
               )
@@ -238,7 +244,9 @@ export default function MessagesPage() {
                             {formatTime(m.timestamp)}
                           </span>
                         </div>
-                        <p className="text-white">{m.text || `(${m.type})`}</p>
+                        <p className="text-white whitespace-pre-wrap break-words">
+                          {m.text || m.name || `Mensagem do tipo ${m.type || 'desconhecido'}`}
+                        </p>
                       </div>
                     </div>
                   )

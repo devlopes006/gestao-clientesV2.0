@@ -87,7 +87,9 @@ export default function MessagesPage() {
   }
 
   async function send() {
-    if (!compose.to) return alert('Informe o número E.164 (ex: +5541999998888)')
+    if (!compose.to || compose.to.trim() === '') {
+      return alert('Informe o número E.164 (ex: +5541999998888)')
+    }
     if (!compose.body.trim()) return alert('Digite uma mensagem')
 
     try {

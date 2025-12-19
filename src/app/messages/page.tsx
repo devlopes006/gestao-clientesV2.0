@@ -23,6 +23,36 @@ type Msg = {
   isLocal?: boolean
 }
 
+// Normaliza telefone para comparação de threads (somente dígitos)
+const normalizePhone = (value?: string | null) => value?.replace(/\D/g, '') || ''
+
+// Exibe telefone em formato amigável
+const formatPhoneDisplay = (value?: string | null) => {
+  const n = normalizePhone(value)
+  if (!n) return ''
+  if (n.length >= 12) {
+    return `+${n.slice(0, 2)} (${n.slice(2, 4)}) ${n.slice(4, 8)}-${n.slice(8, 12)}`
+  }
+  if (n.length >= 10) {
+    return `+${n.slice(0, 2)} ${n.slice(2, 6)}-${n.slice(6, 10)}`
+  }
+  return `+${n}`
+}
+
+const getThreadKey = (m: Msg) => {
+  const clientPhone = normalizePhone(m.client?.phone)
+  if (clientPhone) return clientPhone
+
+  const from = normalizePhone(m.from)
+  const to = normalizePhone(m.to)
+  const recipient = normalizePhone(m.recipient_id || m.recipientId)
+
+  if (from && m.from !== 'admin') return from
+  if (to) return to
+  if (recipient) return recipient
+  return 'unknown'
+}
+
 export default function MessagesPage() {
   const [items, setItems] = useState<Msg[]>([])
   const [loading, setLoading] = useState(false)
@@ -62,7 +92,7 @@ export default function MessagesPage() {
   const threads = useMemo(() => {
     const map = new Map<string, Msg[]>()
     for (const m of items) {
-      const key = m.client?.phone || m.from || m.recipient_id || m.recipientId || 'unknown'
+      const key = getThreadKey(m)
       if (!map.has(key)) map.set(key, [])
       map.get(key)!.push(m)
     }
@@ -80,12 +110,15 @@ export default function MessagesPage() {
 
     setSending(true)
 
+    const toNormalized = normalizePhone(compose.to)
+    const toSend = compose.to.trim()
+
     // Mensagem local
     const localMsg: Msg = {
       id: `local-${Date.now()}`,
       event: 'message',
       from: 'admin',
-      to: compose.to,
+      to: toNormalized,
       text: compose.body,
       timestamp: new Date().toISOString(),
       type: 'text',
@@ -100,7 +133,7 @@ export default function MessagesPage() {
       const res = await fetch('/api/integrations/whatsapp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to: compose.to, body: bodyText }),
+        body: JSON.stringify({ to: toSend, body: bodyText }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Erro ao enviar')
@@ -136,181 +169,187 @@ export default function MessagesPage() {
     return new Date(timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
   }
 
-  const selectedMessages = threads.find(([p]) => p === selected)?.[1] || []
-  const selectedName = threads.find(([p]) => p === selected)?.[1][0]?.client?.name ||
-    threads.find(([p]) => p === selected)?.[1][0]?.name ||
-    selected
+  const selectedThread = threads.find(([p]) => p === selected)
+  const selectedMessages = selectedThread?.[1] || []
+  const selectedName = selectedThread?.[1]?.[0]?.client?.name ||
+    selectedThread?.[1]?.[0]?.name ||
+    formatPhoneDisplay(selected)
 
   return (
-    <div className="h-screen flex flex-col bg-slate-950 pb-20">
-      {/* Sidebar - Lista de Conversas */}
-      <aside className="w-96 border-r border-slate-800 flex flex-col bg-slate-900">
-        {/* Header */}
-        <div className="p-4 border-b border-slate-800 bg-slate-900/50 backdrop-blur">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <div className="bg-emerald-500/20 p-2.5 rounded-xl">
-                <MessageCircle className="w-5 h-5 text-emerald-400" />
-              </div>
-              <div>
-                <h2 className="font-bold text-white">Conversas</h2>
-                <p className="text-xs text-slate-400">{threads.length} ativas</p>
-              </div>
-            </div>
-            <button
-              title="Atualizar"
-              aria-label="Atualizar conversas"
-              onClick={load}
-              disabled={loading}
-              className="p-2 hover:bg-slate-800 rounded-lg transition"
-            >
-              <RefreshCw className={`w-4 h-4 text-slate-400 ${loading ? 'animate-spin' : ''}`} />
-            </button>
-          </div>
-        </div>
-
-        {/* Lista de Conversas */}
-        <div className="flex-1 overflow-y-auto">
-          {threads.length === 0 ? (
-            <div className="p-8 text-center">
-              <MessageCircle className="w-12 h-12 text-slate-700 mx-auto mb-3" />
-              <p className="text-slate-500 text-sm">Nenhuma conversa ainda</p>
-            </div>
-          ) : (
-            threads.map(([phone, arr]) => {
-              const last = arr[arr.length - 1]
-              const name = last?.client?.name || last?.name || phone
-              const isSelected = selected === phone
-
-              return (
-                <button
-                  key={phone}
-                  onClick={() => {
-                    setSelected(phone)
-                    setCompose((c) => ({ ...c, to: `+${phone}`.replace(/^\+?\+/, '+') }))
-                  }}
-                  className={`w-full p-4 border-b border-slate-800 hover:bg-slate-800/50 transition ${isSelected ? 'bg-slate-800/70' : ''
-                    }`}
-                >
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                        <User className="w-6 h-6 text-white" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0 text-left">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-semibold text-white truncate">{name}</span>
-                        <span className="text-xs text-slate-500">{formatTime(last?.timestamp)}</span>
-                      </div>
-                      <p className="text-sm text-slate-400 truncate">
-                        {last?.text || last?.name || `Mensagem ${last?.type || 'recebida'}`}
-                      </p>
-                    </div>
+    <div className="min-h-screen bg-[#05070d] pb-28">
+      <div className="mx-auto max-w-7xl px-6 pt-6">
+        <div className="flex gap-6 h-[calc(100vh-9rem)]">
+          {/* Sidebar - Lista de Conversas */}
+          <aside className="w-80 border border-slate-800/70 bg-slate-900/70 backdrop-blur-xl rounded-2xl flex flex-col shadow-2xl shadow-emerald-900/10">
+            {/* Header */}
+            <div className="p-4 border-b border-slate-800/70">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="bg-emerald-500/20 p-2.5 rounded-xl ring-1 ring-emerald-500/20">
+                    <MessageCircle className="w-5 h-5 text-emerald-400" />
                   </div>
+                  <div>
+                    <h2 className="font-bold text-white">Conversas</h2>
+                    <p className="text-xs text-slate-400">{threads.length} ativas</p>
+                  </div>
+                </div>
+                <button
+                  title="Atualizar"
+                  aria-label="Atualizar conversas"
+                  onClick={load}
+                  disabled={loading}
+                  className="p-2 hover:bg-slate-800 rounded-lg transition focus:outline-none focus:ring-2 focus:ring-emerald-500/30 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-4 h-4 text-slate-400 ${loading ? 'animate-spin' : ''}`} />
                 </button>
-              )
-            })
-          )}
-        </div>
-      </aside>
-
-      {/* Área Principal - Chat */}
-      <main className="flex-1 flex flex-col">
-        {!selected ? (
-          <div className="flex-1 flex items-center justify-center bg-slate-900/30">
-            <div className="text-center">
-              <div className="w-24 h-24 rounded-full bg-slate-800/50 flex items-center justify-center mx-auto mb-4">
-                <MessageCircle className="w-12 h-12 text-slate-600" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">WhatsApp Web</h3>
-              <p className="text-slate-400">Selecione uma conversa para começar</p>
-            </div>
-          </div>
-        ) : (
-          <>
-            {/* Header da Conversa */}
-            <div className="p-4 border-b border-slate-800 bg-slate-900/50 backdrop-blur">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                  <User className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-white">{selectedName}</h3>
-                  <p className="text-xs text-slate-400">{selected}</p>
-                </div>
               </div>
             </div>
 
-            {/* Mensagens - COM SCROLL PRÓPRIO */}
-            <div className="flex-1 overflow-y-auto p-6 bg-[#0a0e14] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAyKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')]">
-              <div className="max-w-4xl mx-auto space-y-3">
-                {selectedMessages.map((m, idx) => {
-                  const isClient = m.from === selected || !m.isLocal
+            {/* Lista de Conversas */}
+            <div className="flex-1 overflow-y-auto">
+              {threads.length === 0 ? (
+                <div className="p-8 text-center">
+                  <MessageCircle className="w-12 h-12 text-slate-700 mx-auto mb-3" />
+                  <p className="text-slate-500 text-sm">Nenhuma conversa ainda</p>
+                </div>
+              ) : (
+                threads.map(([phone, arr]) => {
+                  const last = arr[arr.length - 1]
+                  const name = last?.client?.name || last?.name || formatPhoneDisplay(phone)
+                  const isSelected = selected === phone
 
                   return (
-                    <div
-                      key={m.id || m.timestamp || idx}
-                      className={`flex ${isClient ? 'justify-start' : 'justify-end'} animate-in slide-in-from-bottom-2 duration-300`}
+                    <button
+                      key={phone}
+                      onClick={() => {
+                        setSelected(phone)
+                        setCompose((c) => ({ ...c, to: `+${phone}` }))
+                      }}
+                      className={`w-full p-4 border-b border-slate-800/60 hover:bg-slate-800/60 transition text-left ${isSelected ? 'bg-slate-800/80' : ''}`}
                     >
-                      <div
-                        className={`max-w-[65%] rounded-2xl px-4 py-2.5 shadow-lg ${isClient
-                          ? 'bg-slate-800 border border-slate-700'
-                          : 'bg-gradient-to-br from-emerald-600 to-teal-600'
-                          }`}
-                      >
-                        <p className="text-white text-[15px] leading-relaxed whitespace-pre-wrap break-words">
-                          {m.text || m.name || `Mensagem do tipo ${m.type || 'desconhecido'}`}
-                        </p>
-                        <div className="flex items-center justify-end gap-1 mt-1">
-                          <span className="text-[11px] text-slate-300/70">
-                            {formatMessageTime(m.timestamp)}
-                          </span>
-                          {!isClient && (
-                            <CheckCheck className="w-3.5 h-3.5 text-slate-300/70" />
-                          )}
+                      <div className="flex gap-3 items-center">
+                        <div className="flex-shrink-0">
+                          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-900/30">
+                            <User className="w-5 h-5 text-white" />
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1 gap-2">
+                            <span className="font-semibold text-white truncate">{name}</span>
+                            <span className="text-[11px] text-slate-500 flex-shrink-0">{formatTime(last?.timestamp)}</span>
+                          </div>
+                          <p className="text-sm text-slate-400 truncate">
+                            {last?.text || last?.name || `Mensagem ${last?.type || 'recebida'}`}
+                          </p>
                         </div>
                       </div>
-                    </div>
+                    </button>
                   )
-                })}
-                <div ref={messagesEndRef} />
-              </div>
+                })
+              )}
             </div>
+          </aside>
 
-            {/* Input - FIXO NO RODAPÉ */}
-            <div className="p-4 border-t border-slate-800 bg-slate-900/80 backdrop-blur">
-              <div className="max-w-4xl mx-auto flex gap-3">
-                <input
-                  type="text"
-                  value={compose.body}
-                  onChange={(e) => setCompose((c) => ({ ...c, body: e.target.value }))}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault()
-                      send()
-                    }
-                  }}
-                  placeholder="Digite sua mensagem..."
-                  disabled={sending}
-                  className="flex-1 bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition disabled:opacity-50"
-                />
-                <button
-                  onClick={send}
-                  disabled={sending || !compose.body.trim()}
-                  className="bg-gradient-to-br from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white p-3 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-emerald-500/20"
-                >
-                  {sending ? (
-                    <RefreshCw className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <Send className="w-5 h-5" />
-                  )}
-                </button>
+          {/* Área Principal - Chat */}
+          <main className="flex-1 flex flex-col border border-slate-800/70 bg-slate-900/70 backdrop-blur-xl rounded-2xl shadow-2xl shadow-emerald-900/10 overflow-hidden">
+            {!selected ? (
+              <div className="flex-1 flex items-center justify-center bg-slate-900/30">
+                <div className="text-center">
+                  <div className="w-24 h-24 rounded-full bg-slate-800/50 flex items-center justify-center mx-auto mb-4">
+                    <MessageCircle className="w-12 h-12 text-slate-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">WhatsApp Web</h3>
+                  <p className="text-slate-400">Selecione uma conversa para começar</p>
+                </div>
               </div>
-            </div>
-          </>
-        )}
-      </main>
+            ) : (
+              <>
+                {/* Header da Conversa */}
+                <div className="p-4 border-b border-slate-800 bg-slate-900/50 backdrop-blur">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                      <User className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-white">{selectedName}</h3>
+                      <p className="text-xs text-slate-400">{formatPhoneDisplay(selected)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mensagens - COM SCROLL PRÓPRIO */}
+                <div className="flex-1 overflow-y-auto p-6 bg-[#0a0e14] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAyKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')]">
+                  <div className="max-w-4xl mx-auto space-y-3">
+                    {selectedMessages.map((m, idx) => {
+                      const fromKey = normalizePhone(m.from)
+                      const toKey = normalizePhone(m.to)
+                      const isClient = fromKey === selected || (!m.isLocal && fromKey !== 'admin' && fromKey) || (!m.isLocal && toKey === selected && !m.isLocal)
+
+                      return (
+                        <div
+                          key={m.id || m.timestamp || idx}
+                          className={`flex ${isClient ? 'justify-start' : 'justify-end'} animate-in slide-in-from-bottom-2 duration-300`}
+                        >
+                          <div
+                            className={`max-w-[65%] rounded-2xl px-4 py-2.5 shadow-lg ${isClient
+                              ? 'bg-slate-800 border border-slate-700'
+                              : 'bg-gradient-to-br from-emerald-600 to-teal-600'
+                              }`}
+                          >
+                            <p className="text-white text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+                              {m.text || m.name || `Mensagem do tipo ${m.type || 'desconhecido'}`}
+                            </p>
+                            <div className="flex items-center justify-end gap-1 mt-1">
+                              <span className="text-[11px] text-slate-300/70">
+                                {formatMessageTime(m.timestamp)}
+                              </span>
+                              {!isClient && (
+                                <CheckCheck className="w-3.5 h-3.5 text-slate-300/70" />
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                    <div ref={messagesEndRef} />
+                  </div>
+                </div>
+
+                {/* Input - FIXO NO RODAPÉ */}
+                <div className="p-4 border-t border-slate-800 bg-slate-900/80 backdrop-blur">
+                  <div className="max-w-4xl mx-auto flex gap-3">
+                    <input
+                      type="text"
+                      value={compose.body}
+                      onChange={(e) => setCompose((c) => ({ ...c, body: e.target.value }))}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault()
+                          send()
+                        }
+                      }}
+                      placeholder="Digite sua mensagem..."
+                      disabled={sending}
+                      className="flex-1 bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition disabled:opacity-50"
+                    />
+                    <button
+                      onClick={send}
+                      disabled={sending || !compose.body.trim()}
+                      className="bg-gradient-to-br from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white p-3 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-emerald-500/20"
+                    >
+                      {sending ? (
+                        <RefreshCw className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <Send className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </main>
+        </div>
+      </div>
     </div>
   )
 }

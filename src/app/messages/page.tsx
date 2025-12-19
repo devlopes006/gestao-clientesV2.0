@@ -69,7 +69,7 @@ export default function MessagesPage() {
       const res = await fetch('/api/integrations/whatsapp/messages', { cache: 'no-store' })
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
       const data = await res.json()
-      setItems(data.messages || [])
+      setItems(mergeAndDedup(data.messages || []))
     } catch (e) {
       const err = e as Error
       setError(err?.message || 'Falha ao carregar mensagens')
@@ -101,6 +101,26 @@ export default function MessagesPage() {
     }
     return Array.from(map.entries())
   }, [items])
+
+  // Mantém mensagens locais e elimina duplicatas vindas do backend
+  const mergeAndDedup = (remote: Msg[]) => {
+    const seen = new Set<string>()
+    const all = [...items.filter((m) => m.isLocal), ...remote]
+    const result: Msg[] = []
+
+    for (const m of all) {
+      const key =
+        m.id ||
+        m.messageId ||
+        `${normalizePhone(m.from)}-${normalizePhone(m.to)}-${m.timestamp || ''}-${m.text || ''}`
+
+      if (seen.has(key)) continue
+      seen.add(key)
+      result.push(m)
+    }
+
+    return result
+  }
 
   async function send() {
     if (!compose.to || compose.to.trim() === '') {
@@ -174,6 +194,7 @@ export default function MessagesPage() {
   const selectedName = selectedThread?.[1]?.[0]?.client?.name ||
     selectedThread?.[1]?.[0]?.name ||
     formatPhoneDisplay(selected)
+  const selectedKey = normalizePhone(selected)
 
   return (
     <div className="min-h-screen bg-[#05070d] pb-28">
@@ -283,7 +304,10 @@ export default function MessagesPage() {
                     {selectedMessages.map((m, idx) => {
                       const fromKey = normalizePhone(m.from)
                       const toKey = normalizePhone(m.to)
-                      const isClient = fromKey === selected || (!m.isLocal && fromKey !== 'admin' && fromKey) || (!m.isLocal && toKey === selected && !m.isLocal)
+
+                      // Regra: se o from do backend bate com o telefone selecionado, é entrada; senão, saída
+                      // Protege contra mensagens locais duplicadas e eco do gateway
+                      const isClient = fromKey === selectedKey
 
                       return (
                         <div

@@ -214,7 +214,8 @@ export async function POST(req: NextRequest) {
       data.templateId ||
       data.template_id ||
       data.type === 'template' ||
-      data.message_type === 'template'
+      data.message_type === 'template' ||
+      !!data.templates
 
     const templateIdentifier =
       data.templateName ||
@@ -223,28 +224,41 @@ export async function POST(req: NextRequest) {
       data.template_id ||
       'Template desconhecido'
 
-    // Para templates, o conteúdo pode estar em diferentes campos
-    const messageText = isTemplate
-      ? data.text ||
-        data.body ||
-        data.message ||
-        data.content ||
-        data.templateText ||
-        data.template_text ||
-        data.templateContent ||
-        data.template_content ||
-        `[Template: ${templateIdentifier}]`
-      : data.text || data.body || data.message || null
+    // Extrair texto dos templates (LP envia em data.templates)
+    let messageText = null
+
+    if (data.templates) {
+      // LP envia templates em: { templates: { lead_confirmation: { text: "..." }, novo_lead_interno: { text: "..." } } }
+      const templateTexts = Object.values(data.templates)
+        .map((t: any) => t?.text)
+        .filter(Boolean)
+
+      messageText = templateTexts.join('\n\n---\n\n')
+      console.log('[WhatsApp Webhook] Templates extraídos da LP:', {
+        templates: Object.keys(data.templates),
+        textLength: messageText.length,
+      })
+    } else {
+      // Fallback para outras fontes
+      messageText = isTemplate
+        ? data.text ||
+          data.body ||
+          data.message ||
+          data.content ||
+          data.templateText ||
+          data.template_text ||
+          data.templateContent ||
+          data.template_content ||
+          `[Template: ${templateIdentifier}]`
+        : data.text || data.body || data.message || null
+    }
 
     console.log('[WhatsApp Webhook] Detecção de template:', {
       isTemplate,
       templateIdentifier,
+      hasTemplatesObject: !!data.templates,
       messageText: messageText?.substring(0, 200),
       availableFields: Object.keys(data),
-      dataText: data.text,
-      dataBody: data.body,
-      dataContent: data.content,
-      dataTemplateText: data.templateText,
     })
 
     await prisma.whatsAppMessage.create({

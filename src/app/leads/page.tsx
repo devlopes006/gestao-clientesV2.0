@@ -3,15 +3,19 @@
 import { Button } from '@/components/ui/button'
 import { useUser } from '@/context/UserContext'
 import {
-  Calendar,
   ExternalLink,
   Loader2,
   Mail,
+  MessageCircle,
   Phone,
   RefreshCw,
+  Search,
+  Trash2,
   TrendingUp,
+  UserCheck,
   UserPlus,
-  Users
+  Users,
+  X
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -23,16 +27,8 @@ interface Lead {
   phone: string | null
   status: string
   createdAt: string
-  metadata: {
-    leadSource?: string
-    capturedAt?: string
-    plan?: string
-    bestTime?: string
-    origin?: string
-    utm_source?: string
-    utm_medium?: string
-    utm_campaign?: string
-  }
+  plan?: string | null
+  mainChannel?: string | null
 }
 
 export default function LeadsPage() {
@@ -41,6 +37,9 @@ export default function LeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [converting, setConverting] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState<string | null>(null)
 
   useEffect(() => {
     if (!user) {
@@ -79,7 +78,14 @@ export default function LeadsPage() {
   }
 
   const convertToClient = async (leadId: string) => {
+    if (converting) return
+
+    if (!confirm('Deseja converter este lead em cliente ativo? Isso mudará o status para "active".')) {
+      return
+    }
+
     try {
+      setConverting(leadId)
       const response = await fetch(`/api/clients/${leadId}`, {
         method: 'PATCH',
         headers: {
@@ -92,13 +98,65 @@ export default function LeadsPage() {
         throw new Error('Erro ao converter lead')
       }
 
-      // Atualizar lista
-      fetchLeads()
+      // Remover da lista (agora é cliente ativo)
+      setLeads(prev => prev.filter(l => l.id !== leadId))
+      alert('✅ Lead convertido em cliente com sucesso!')
     } catch (err) {
       console.error('Erro ao converter lead:', err)
-      alert('Erro ao converter lead em cliente')
+      alert('❌ Erro ao converter lead em cliente')
+    } finally {
+      setConverting(null)
     }
   }
+
+  const deleteLead = async (leadId: string, leadName: string) => {
+    if (deleting) return
+
+    if (!confirm(`Deseja realmente deletar o lead "${leadName}"? Esta ação não pode ser desfeita.`)) {
+      return
+    }
+
+    try {
+      setDeleting(leadId)
+      const response = await fetch(`/api/clients/${leadId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Erro ao deletar lead')
+      }
+
+      // Remover da lista
+      setLeads(prev => prev.filter(l => l.id !== leadId))
+      alert('✅ Lead deletado com sucesso!')
+    } catch (err) {
+      console.error('Erro ao deletar lead:', err)
+      alert('❌ Erro ao deletar lead')
+    } finally {
+      setDeleting(null)
+    }
+  }
+
+  const openMessages = (phone: string) => {
+    if (!phone) {
+      alert('Lead sem telefone cadastrado')
+      return
+    }
+    // Navegar para mensagens com o telefone selecionado
+    router.push(`/messages?phone=${encodeURIComponent(phone)}`)
+  }
+
+  // Filtrar leads por busca
+  const filteredLeads = leads.filter(lead => {
+    if (!searchTerm) return true
+    const search = searchTerm.toLowerCase()
+    return (
+      lead.name.toLowerCase().includes(search) ||
+      lead.email?.toLowerCase().includes(search) ||
+      lead.phone?.includes(search) ||
+      lead.plan?.toLowerCase().includes(search)
+    )
+  })
 
   if (loading) {
     return (
@@ -158,6 +216,27 @@ export default function LeadsPage() {
           </Button>
         </div>
 
+        {/* Busca */}
+        <div className="relative mb-6">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Buscar por nome, email, telefone, plano..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-12 py-3.5 bg-slate-800/80 border border-slate-700/50 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+          />
+          {searchTerm && (
+            <button
+              title='limpar'
+              onClick={() => setSearchTerm('')}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30 rounded-2xl p-6 backdrop-blur-lg">
@@ -199,16 +278,29 @@ export default function LeadsPage() {
       </div>
 
       {/* Tabela de Leads */}
-      {leads.length === 0 ? (
+      {filteredLeads.length === 0 ? (
         <div className="max-w-7xl mx-auto">
           <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-slate-700/50 rounded-2xl p-12 text-center backdrop-blur-lg">
             <div className="bg-slate-800/50 p-4 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
               <Users className="w-10 h-10 text-slate-500" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">Nenhum lead encontrado</h3>
+            <h3 className="text-xl font-bold text-white mb-2">
+              {searchTerm ? 'Nenhum lead encontrado para esta busca' : 'Nenhum lead encontrado'}
+            </h3>
             <p className="text-slate-400">
-              Leads capturados pela Landing Page aparecerão aqui automaticamente
+              {searchTerm
+                ? 'Tente ajustar os termos da busca'
+                : 'Leads capturados pela Landing Page aparecerão aqui automaticamente'
+              }
             </p>
+            {searchTerm && (
+              <Button
+                onClick={() => setSearchTerm('')}
+                className="mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Limpar busca
+              </Button>
+            )}
           </div>
         </div>
       ) : (
@@ -228,7 +320,7 @@ export default function LeadsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {leads.map((lead, index) => (
+                  {filteredLeads.map((lead, index) => (
                     <tr
                       key={lead.id}
                       className={`border-b border-slate-700/30 hover:bg-slate-700/20 transition-colors ${index % 2 === 0 ? 'bg-slate-800/20' : 'bg-slate-800/40'
@@ -254,41 +346,24 @@ export default function LeadsPage() {
                         </div>
                       </td>
                       <td className="p-4">
-                        {lead.metadata?.plan ? (
+                        {lead.plan ? (
                           <span className="px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                            {lead.metadata.plan}
+                            {lead.plan}
                           </span>
                         ) : (
                           <span className="text-slate-500">-</span>
                         )}
                       </td>
                       <td className="p-4">
-                        {lead.metadata?.bestTime ? (
-                          <div className="flex items-center gap-2 text-sm text-slate-300">
-                            <Calendar className="h-3.5 w-3.5 text-orange-400" />
-                            <span>{lead.metadata.bestTime}</span>
-                          </div>
-                        ) : (
-                          <span className="text-slate-500">-</span>
-                        )}
+                        <span className="text-slate-500">-</span>
                       </td>
                       <td className="p-4">
-                        <div className="space-y-1">
-                          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                            {lead.metadata?.leadSource || 'Desconhecido'}
-                          </span>
-                          {lead.metadata?.utm_source && (
-                            <div className="text-xs text-slate-500">
-                              {lead.metadata.utm_source}
-                              {lead.metadata.utm_medium && ` / ${lead.metadata.utm_medium}`}
-                            </div>
-                          )}
-                        </div>
+                        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                          Landing Page
+                        </span>
                       </td>
                       <td className="p-4 text-sm text-slate-400">
-                        {new Date(
-                          lead.metadata?.capturedAt || lead.createdAt
-                        ).toLocaleDateString('pt-BR', {
+                        {new Date(lead.createdAt).toLocaleDateString('pt-BR', {
                           day: '2-digit',
                           month: '2-digit',
                           year: 'numeric',
@@ -298,21 +373,46 @@ export default function LeadsPage() {
                       </td>
                       <td className="p-4 text-right">
                         <div className="flex justify-end gap-2">
+                          {/* Abrir mensagens */}
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => router.push(`/clients/${lead.id}`)}
-                            className="bg-slate-700/50 hover:bg-slate-600 border-slate-600/50 text-slate-300"
+                            onClick={() => openMessages(lead.phone || '')}
+                            disabled={!lead.phone}
+                            title={lead.phone ? 'Abrir conversa' : 'Sem telefone'}
+                            className="bg-blue-600/20 hover:bg-blue-600/30 border-blue-500/30 text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <ExternalLink className="h-4 w-4" />
+                            <MessageCircle className="h-4 w-4" />
                           </Button>
+
+                          {/* Converter em cliente */}
                           <Button
                             size="sm"
                             onClick={() => convertToClient(lead.id)}
-                            className="bg-emerald-600/80 hover:bg-emerald-600 text-white border-0"
+                            disabled={converting === lead.id}
+                            className="bg-emerald-600/80 hover:bg-emerald-600 text-white border-0 disabled:opacity-50"
                           >
-                            <UserPlus className="mr-2 h-4 w-4" />
+                            {converting === lead.id ? (
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                              <UserCheck className="mr-2 h-4 w-4" />
+                            )}
                             Converter
+                          </Button>
+
+                          {/* Deletar */}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => deleteLead(lead.id, lead.name)}
+                            disabled={deleting === lead.id}
+                            className="bg-red-600/20 hover:bg-red-600/30 border-red-500/30 text-red-300 disabled:opacity-50"
+                          >
+                            {deleting === lead.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
                           </Button>
                         </div>
                       </td>

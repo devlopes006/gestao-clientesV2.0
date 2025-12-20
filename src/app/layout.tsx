@@ -108,23 +108,23 @@ export default async function RootLayout({
         <ErrorBoundary>
           <ReactQueryProvider>
             <UserProvider>
+              <Toaster
+                position="top-right"
+                expand={true}
+                richColors
+                closeButton
+                duration={4000}
+                toastOptions={{
+                  style: {
+                    background: "white",
+                    color: "#1e293b",
+                    border: "1px solid #e2e8f0",
+                  },
+                  className: "toast-custom",
+                }}
+              />
               <AppLayoutClient>{children}</AppLayoutClient>
             </UserProvider>
-            <Toaster
-              position="top-right"
-              expand={true}
-              richColors
-              closeButton
-              duration={4000}
-              toastOptions={{
-                style: {
-                  background: "white",
-                  color: "#1e293b",
-                  border: "1px solid #e2e8f0",
-                },
-                className: "toast-custom",
-              }}
-            />
           </ReactQueryProvider>
         </ErrorBoundary>
       </body>

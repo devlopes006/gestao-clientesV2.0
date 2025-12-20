@@ -182,6 +182,62 @@ export async function PATCH(
   }
 }
 
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { user, orgId, role } = await getSessionProfile()
+
+    if (!user || !orgId) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+    }
+
+    // Only OWNER can delete clients
+    if (role !== 'OWNER') {
+      return NextResponse.json(
+        { error: 'Sem permissão para deletar clientes' },
+        { status: 403 }
+      )
+    }
+
+    const { id: clientId } = await params
+
+    // Verify client belongs to org
+    const existingClient = await prisma.client.findFirst({
+      where: { id: clientId, orgId },
+    })
+
+    if (!existingClient) {
+      return NextResponse.json(
+        { error: 'Cliente não encontrado' },
+        { status: 404 }
+      )
+    }
+
+    // Soft delete - apenas marca como deletado
+    await prisma.client.update({
+      where: { id: clientId },
+      data: {
+        deletedAt: new Date(),
+        deletedBy: user.id,
+        status: 'inactive',
+      },
+    })
+
+    return NextResponse.json({
+      success: true,
+      message: 'Cliente deletado com sucesso',
+    })
+  } catch (error) {
+    console.error('Erro ao deletar cliente:', error)
+    return NextResponse.json(
+      { error: 'Erro ao deletar cliente' },
+      { status: 500 }
+    )
+  }
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }

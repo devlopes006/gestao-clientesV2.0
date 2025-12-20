@@ -18,6 +18,71 @@ function verifySignature(secret: string, payload: string, sig?: string | null) {
 }
 
 /**
+ * Cria mensagem de boas-vindas para o lead no WhatsApp
+ */
+async function createWelcomeMessage(client: any, orgId: string, leadData: any) {
+  try {
+    const firstName = client.name?.split(' ')[0] || 'visitante'
+    const planText = leadData.plan || 'Não especificado'
+    const emailText = client.email || 'Não informado'
+    const phoneDisplay = client.phone?.replace(/\+55/, '55 ') || 'Não informado'
+
+    // Mensagem de boas-vindas igual à enviada no WhatsApp
+    const welcomeText = `Olá ${client.name}! 👋
+
+Recebemos seu interesse no Método Gestão Extrema da Esther Social Media!
+
+📋 Seus dados:
+• E-mail: ${emailText}
+• Plano: ${planText}
+• WhatsApp: ${phoneDisplay}
+
+✅ Próximos passos:
+Nossa equipe entrará em contato em breve para agendar uma conversa inicial e explicar tudo sobre o programa.
+
+🚀 Prepare-se para transformar seu Instagram em uma máquina de autoridade!
+
+Esta é uma mensagem automática de confirmação.
+
+Esther Social Media © 2025`
+
+    // Criar mensagem no banco (simula recebimento no WhatsApp)
+    await prisma.whatsAppMessage.create({
+      data: {
+        event: 'message',
+        from: 'system',
+        to: client.phone,
+        recipientId: client.phone,
+        name: client.name,
+        type: 'text',
+        text: welcomeText,
+        timestamp: new Date(),
+        status: 'sent',
+        isRead: false,
+        orgId,
+        clientId: client.id,
+        metadata: {
+          source: 'landing_page_welcome',
+          leadData: {
+            plan: leadData.plan,
+            bestTime: leadData.bestTime,
+            origin: leadData.origin,
+          },
+        },
+      },
+    })
+
+    console.log(
+      '[Leads API] ✅ Mensagem de boas-vindas criada para:',
+      client.name
+    )
+  } catch (error) {
+    console.error('[Leads API] Erro ao criar mensagem de boas-vindas:', error)
+    // Não falha a criação do lead se mensagem falhar
+  }
+}
+
+/**
  * GET /api/leads
  * Lista todos os leads da organização do usuário autenticado
  */
@@ -38,6 +103,7 @@ export async function GET(req: NextRequest) {
       where: {
         orgId,
         status: 'lead',
+        deletedAt: null, // Não mostrar leads deletados
       },
       orderBy: {
         createdAt: 'desc',
@@ -129,17 +195,27 @@ export async function POST(req: NextRequest) {
       normalizedPhone = `+${normalizedPhone}`
     }
 
-    // Buscar primeira org disponível
-    const firstOrg = await prisma.org.findFirst({
+    // Buscar primeira org disponível ou criar uma padrão
+    let firstOrg = await prisma.org.findFirst({
       orderBy: { createdAt: 'asc' },
     })
 
     if (!firstOrg) {
-      console.error('[Leads API] Nenhuma organização encontrada')
-      return NextResponse.json(
-        { error: 'No organization found' },
-        { status: 500 }
+      console.log(
+        '[Leads API] ⚠️  Nenhuma organização encontrada - criando org padrão'
       )
+      firstOrg = await prisma.org.create({
+        data: {
+          name: 'Organização Padrão',
+          slug: 'organizacao-padrao',
+          plan: 'free',
+          settings: {
+            createdAutomatically: true,
+            createdAt: new Date().toISOString(),
+          },
+        },
+      })
+      console.log('[Leads API] ✅ Org padrão criada:', firstOrg.id)
     }
 
     // Verificar se cliente já existe
@@ -158,16 +234,7 @@ export async function POST(req: NextRequest) {
           email: data.email || client.email,
           phone: normalizedPhone || client.phone,
           status: client.status === 'inactive' ? 'lead' : client.status,
-          metadata: {
-            ...(client.metadata as any),
-            lastLeadCapture: new Date().toISOString(),
-            plan: data.plan,
-            bestTime: data.bestTime,
-            utmSource: data.utmSource,
-            utmMedium: data.utmMedium,
-            utmCampaign: data.utmCampaign,
-            origin: data.origin,
-          },
+          // Não temos campo metadata - informações do UTM são descartadas
         },
       })
 
@@ -184,16 +251,7 @@ export async function POST(req: NextRequest) {
           phone: normalizedPhone,
           orgId: firstOrg.id,
           status: 'lead',
-          metadata: {
-            leadSource: 'landing_page',
-            capturedAt: data.timestamp || new Date().toISOString(),
-            plan: data.plan,
-            bestTime: data.bestTime,
-            utmSource: data.utmSource,
-            utmMedium: data.utmMedium,
-            utmCampaign: data.utmCampaign,
-            origin: data.origin,
-          },
+          // Não temos campo metadata - informações do UTM são descartadas
         },
       })
 
@@ -202,6 +260,9 @@ export async function POST(req: NextRequest) {
         name: client.name,
         phone: client.phone,
       })
+
+      // Criar mensagem de boas-vindas apenas para novos leads
+      await createWelcomeMessage(client, firstOrg.id, data)
     }
 
     return NextResponse.json({

@@ -16,6 +16,7 @@ import {
   User,
   X
 } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 type Msg = {
@@ -37,7 +38,7 @@ type Msg = {
     phone: string
   }
   isLocal?: boolean
-  metadata?: any
+  metadata?: Record<string, unknown>
 }
 
 type Toast = {
@@ -97,11 +98,6 @@ const getStatusIcon = (status?: string) => {
   }
 }
 
-// Formatação simples de texto de mensagem
-const formatMessageText = (msg: Msg) => {
-  return msg.text || msg.name || ''
-}
-
 const getThreadKey = (m: Msg) => {
   const clientPhone = normalizePhone(m.client?.phone)
   if (clientPhone) return clientPhone
@@ -155,6 +151,7 @@ function mergeAndDedup(prev: Msg[], remote: Msg[]) {
 }
 
 export default function MessagesPage() {
+  const searchParams = useSearchParams()
   const [items, setItems] = useState<Msg[]>([])
   const [loading, setLoading] = useState(false)
   const [selected, setSelected] = useState<string | null>(null)
@@ -286,11 +283,6 @@ export default function MessagesPage() {
     return () => clearInterval(t)
   }, [load])
 
-  // Auto-scroll
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [items, selected])
-
   const threads = useMemo(() => {
     const map = new Map<string, Msg[]>()
     for (const m of items) {
@@ -303,6 +295,25 @@ export default function MessagesPage() {
     }
     return Array.from(map.entries())
   }, [items])
+
+  // Selecionar thread automaticamente se vier da URL
+  useEffect(() => {
+    const phoneParam = searchParams.get('phone')
+    if (phoneParam && items.length > 0) {
+      const normalized = normalizePhone(phoneParam)
+      // Verificar se existe thread com este telefone
+      const threadExists = threads.some(([phone]) => normalizePhone(phone) === normalized)
+      if (threadExists && selected !== normalized) {
+        setSelected(normalized)
+        markAsRead(normalized)
+      }
+    }
+  }, [searchParams, items, threads, selected, markAsRead])
+
+  // Auto-scroll quando mensagens mudam
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [items, selected])
 
   const filteredThreads = useMemo(() => {
     if (!filter.trim()) return threads
@@ -647,6 +658,8 @@ export default function MessagesPage() {
                       {selectedMessages.map((m, idx) => {
                         const fromKey = normalizePhone(m.from)
                         const isClient = fromKey === selectedKey && selectedKey !== ''
+                        const isWelcomeMessage = m.metadata && (m.metadata as Record<string, unknown>)?.source === 'landing_page_welcome'
+                        const isSystemMessage = m.from === 'system'
 
                         return (
                           <div
@@ -658,9 +671,19 @@ export default function MessagesPage() {
                                 ? 'bg-slate-800/90 border border-slate-700/50 backdrop-blur-sm'
                                 : m.status === 'failed'
                                   ? 'bg-red-900/30 border border-red-500/30'
-                                  : 'bg-gradient-to-br from-emerald-600 to-teal-600 shadow-emerald-900/30'
+                                  : isWelcomeMessage || isSystemMessage
+                                    ? 'bg-gradient-to-br from-blue-600 to-purple-600 shadow-blue-900/30 border border-blue-400/20'
+                                    : 'bg-gradient-to-br from-emerald-600 to-teal-600 shadow-emerald-900/30'
                                 }`}
                             >
+                              {isWelcomeMessage && (
+                                <div className="flex items-center gap-2 mb-2 pb-2 border-b border-white/10">
+                                  <Sparkles className="w-4 h-4 text-yellow-300" />
+                                  <span className="text-xs font-medium text-yellow-200">
+                                    Mensagem automática de boas-vindas
+                                  </span>
+                                </div>
+                              )}
                               <p className="text-white text-[15px] leading-relaxed whitespace-pre-wrap break-words">
                                 {m.text?.trim()?.length
                                   ? m.text
@@ -668,7 +691,7 @@ export default function MessagesPage() {
                                     ? m.name
                                     : m.type && m.type !== 'text'
                                       ? `📎 ${m.type}`
-                                      : ''}
+                                      : '[Mensagem sem conteúdo]'}
                               </p>
                               <div className="flex items-center justify-end gap-1.5 mt-2">
                                 <span className="text-[11px] text-slate-300/60 font-medium">

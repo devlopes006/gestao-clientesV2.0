@@ -24,6 +24,8 @@ export async function proxy(req: NextRequest) {
     pathname.startsWith('/api/integrations/whatsapp/webhook') &&
     req.method === 'POST'
   const isWhatsAppAPI = pathname.startsWith('/api/integrations/whatsapp/')
+  // Allow Landing Page lead submissions (public endpoint with HMAC verification)
+  const isLeadsAPI = pathname === '/api/leads' && req.method === 'POST'
 
   // Bypass known static/asset paths immediately so middleware never intercepts
   // requests for Next static assets, service worker, or common static files.
@@ -43,6 +45,9 @@ export async function proxy(req: NextRequest) {
 
   // Allow WhatsApp integrations to pass through without authentication
   if (isWhatsAppWebhook || isWhatsAppAPI) return NextResponse.next()
+
+  // Allow Landing Page lead submissions without authentication (uses HMAC)
+  if (isLeadsAPI) return NextResponse.next()
 
   // Cria response que será modificada com headers de segurança
   const response = NextResponse.next()

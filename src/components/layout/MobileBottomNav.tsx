@@ -2,6 +2,7 @@
 
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { useUser } from "@/context/UserContext";
+import { auth } from "@/lib/firebase";
 import { cn } from "@/lib/utils";
 import { DollarSign, Home, LayoutDashboard, MessageCircle, Plus, Settings, Users } from "lucide-react";
 import Image from "next/image";
@@ -62,7 +63,8 @@ export function MobileBottomNav() {
   const [quickOpen, setQuickOpen] = useState(false);
   const navRef = useRef<HTMLDivElement | null>(null);
   const [userProfile, setUserProfile] = useState<{ name?: string; avatarUrl?: string } | null>(null);
-  const { logout } = useUser();
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState<number>(0);
+  const { user, logout } = useUser();
 
   const handleLogout = async () => {
     setMenuOpen(false);
@@ -94,6 +96,42 @@ export function MobileBottomNav() {
       }
     });
   }, []);
+
+  // Buscar contagem de mensagens não lidas
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const currentUser = auth.currentUser;
+        if (!currentUser) return;
+
+        const token = await currentUser.getIdToken();
+        if (!token) return;
+
+        const res = await fetch('/api/integrations/whatsapp/messages/unread/count', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (typeof data?.unreadCount === 'number') {
+            setUnreadMessagesCount(data.unreadCount);
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao buscar contagem de mensagens não lidas:', error);
+      }
+    };
+
+    if (!user) return;
+
+    fetchUnreadCount();
+
+    // Atualizar a cada 30 segundos
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   // Fecha popovers ao clicar fora do dock
   useEffect(() => {
@@ -172,7 +210,7 @@ export function MobileBottomNav() {
               href={item.href}
               className={cn(
                 // Layout
-                "flex items-center justify-center",
+                "flex items-center justify-center relative",
                 "p-2 sm:p-2.5 rounded-xl transition-all duration-200",
                 // Estados
                 isActive
@@ -193,6 +231,11 @@ export function MobileBottomNav() {
               aria-label={item.label}
               title={item.label}
             >
+              {item.href === '/messages' && unreadMessagesCount > 0 && (
+                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full bg-emerald-600 text-white text-[9px] font-bold shadow-lg">
+                  {unreadMessagesCount}
+                </span>
+              )}
               <span
                 className={cn(
                   "flex items-center justify-center",

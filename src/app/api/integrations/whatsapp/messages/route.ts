@@ -1,6 +1,9 @@
 import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 
+export const runtime = 'nodejs'
+export const revalidate = 0
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
@@ -76,11 +79,9 @@ export async function PATCH(req: NextRequest) {
           { from: thread },
           { to: thread },
           { recipientId: thread },
-          { recipient_id: thread },
           { from: threadPlus },
           { to: threadPlus },
           { recipientId: threadPlus },
-          { recipient_id: threadPlus },
         ],
       },
       data: { name },
@@ -94,7 +95,10 @@ export async function PATCH(req: NextRequest) {
   } catch (error) {
     console.error('[WhatsApp Messages PATCH] Error:', error)
     return NextResponse.json(
-      { error: 'Falha ao atualizar conversa' },
+      {
+        error: 'Falha ao atualizar conversa',
+        detail: (error as Error)?.message,
+      },
       { status: 500 }
     )
   }
@@ -122,11 +126,9 @@ export async function DELETE(req: NextRequest) {
           { from: thread },
           { to: thread },
           { recipientId: thread },
-          { recipient_id: thread },
           { from: threadPlus },
           { to: threadPlus },
           { recipientId: threadPlus },
-          { recipient_id: threadPlus },
         ],
       },
     })
@@ -135,7 +137,7 @@ export async function DELETE(req: NextRequest) {
   } catch (error) {
     console.error('[WhatsApp Messages DELETE] Error:', error)
     return NextResponse.json(
-      { error: 'Falha ao apagar conversa' },
+      { error: 'Falha ao apagar conversa', detail: (error as Error)?.message },
       { status: 500 }
     )
   }

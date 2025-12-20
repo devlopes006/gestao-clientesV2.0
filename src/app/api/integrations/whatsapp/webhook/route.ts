@@ -2,6 +2,9 @@ import { prisma } from '@/lib/prisma'
 import crypto from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 
+export const runtime = 'nodejs'
+export const revalidate = 0
+
 function verifySignature(secret: string, payload: string, sig?: string | null) {
   if (!secret) return true
   if (!sig) return false
@@ -31,18 +34,34 @@ function normalizePhone(phone: string): string {
 }
 
 /**
- * Busca cliente pelo telefone
+ * Busca cliente pelo telefone (melhorada com múltiplas estratégias)
  */
 async function findClientByPhone(phone: string) {
   const normalized = normalizePhone(phone)
+  const digitsOnly = normalized.replace(/\D/g, '')
 
-  const phoneVariations = [normalized, normalized.replace('+', ''), phone]
-
-  const client = await prisma.client.findFirst({
+  // Estratégia 1: Match exato
+  let client = await prisma.client.findFirst({
     where: {
-      OR: phoneVariations.map((p) => ({ phone: { contains: p } })),
+      OR: [
+        { phone: normalized },
+        { phone: digitsOnly },
+        { phone: `+${digitsOnly}` },
+      ],
     },
   })
+
+  if (client) return client
+
+  // Estratégia 2: Match por sufixo (últimos 8 dígitos)
+  const suffix = digitsOnly.slice(-8)
+  if (suffix.length === 8) {
+    client = await prisma.client.findFirst({
+      where: {
+        phone: { endsWith: suffix },
+      },
+    })
+  }
 
   return client
 }
@@ -50,8 +69,19 @@ async function findClientByPhone(phone: string) {
 /**
  * Cria novo lead automaticamente
  */
-async function createLeadFromWhatsApp(data: { phone: string; name?: string }) {
+async function createLeadFromWhatsApp(data: {
+  phone: string
+  name?: string
+  email?: string
+}) {
   const normalized = normalizePhone(data.phone)
+
+  // Verificar se já existe cliente com esse telefone (recheck antes de criar)
+  const existingClient = await findClientByPhone(normalized)
+  if (existingClient) {
+    console.log('[WhatsApp Webhook] Cliente já existe, retornando existente')
+    return existingClient
+  }
 
   // Pegar a primeira org disponível
   const firstOrg = await prisma.org.findFirst({
@@ -64,53 +94,93 @@ async function createLeadFromWhatsApp(data: { phone: string; name?: string }) {
   }
 
   const timestamp = Date.now()
-  const tempEmail = `whatsapp+${normalized.replace(/\D/g, '')}+${timestamp}@lead.temp`
 
-  const client = await prisma.client.create({
-    data: {
-      name: data.name || `Lead WhatsApp ${normalized}`,
-      phone: normalized,
-      email: tempEmail,
-      orgId: firstOrg.id,
-      status: 'lead',
-    },
-  })
+  // Se email foi fornecido (ex: do formulário), usar ele
+  // Senão criar temporário único
+  const email =
+    data.email ||
+    `whatsapp+${normalized.replace(/\D/g, '')}+${timestamp}@lead.temp`
 
-  console.log('[WhatsApp Webhook] Novo lead criado:', {
-    clientId: client.id,
-    name: client.name,
-    phone: client.phone,
-  })
+  try {
+    const client = await prisma.client.create({
+      data: {
+        name: data.name || `Lead WhatsApp ${normalized}`,
+        phone: normalized,
+        email: email,
+        orgId: firstOrg.id,
+        status: 'lead',
+      },
+    })
 
-  return client
+    console.log('[WhatsApp Webhook] Novo lead criado:', {
+      clientId: client.id,
+      name: client.name,
+      phone: client.phone,
+    })
+
+    return client
+  } catch (error: any) {
+    // Se erro for de duplicação (unique constraint), tentar buscar novamente
+    if (error?.code === 'P2002') {
+      console.log(
+        '[WhatsApp Webhook] Conflito de duplicação, buscando cliente existente'
+      )
+      return await findClientByPhone(normalized)
+    }
+    throw error
+  }
 }
 
 export async function POST(req: NextRequest) {
   const secret = process.env.WHATSAPP_WEBHOOK_SECRET
   const raw = await req.text()
 
-  console.log('[WhatsApp Webhook v3] ✅ WEBHOOK RECEBIDO - MODO TESTE')
-  console.log('[WhatsApp Webhook v3] Secret:', secret ? 'SIM' : 'NÃO')
-
-  // ✅ POR ENQUANTO: ACEITA TODOS OS WEBHOOKS (teste)
-  console.log('[WhatsApp Webhook v3] ✅ ACEITANDO WEBHOOK')
+  console.log('[WhatsApp Webhook] Recebido')
 
   const body = JSON.parse(raw)
-
-  console.log('[WhatsApp Webhook v3] Evento:', body?.event)
-  console.log('[WhatsApp Webhook v3] De:', body?.data?.from || body?.from)
-
-  // Normalizar dados - aceita formato direto ou aninhado
+  const event = body?.event || 'message'
   const data = body.data || body
 
-  // Persistir no banco (Prisma) com criação automática de lead
+  console.log('[WhatsApp Webhook] Evento:', event)
+  console.log(
+    '[WhatsApp Webhook] Payload completo:',
+    JSON.stringify(data, null, 2)
+  )
+
+  // Processar STATUS UPDATES (delivered, read, failed)
+  if (event === 'status') {
+    try {
+      const messageId = data.messageId || data.id
+      const status = data.status
+
+      if (messageId && status) {
+        await prisma.whatsAppMessage.updateMany({
+          where: { messageId },
+          data: {
+            status,
+            metadata: data,
+          },
+        })
+        console.log(
+          `[WhatsApp Webhook] Status atualizado: ${messageId} -> ${status}`
+        )
+      }
+
+      return NextResponse.json({ received: true })
+    } catch (error) {
+      console.error('[WhatsApp Webhook] Erro ao atualizar status:', error)
+      return NextResponse.json({ received: true })
+    }
+  }
+
+  // Processar MENSAGENS
   try {
     const phoneNumber = data.from || data.recipient_id || data.recipientId
     let clientId: string | undefined
     let orgId: string | undefined
 
     // Buscar ou criar cliente automaticamente
-    if (phoneNumber && body?.event === 'message') {
+    if (phoneNumber) {
       let client = await findClientByPhone(phoneNumber)
 
       if (client) {
@@ -125,7 +195,8 @@ export async function POST(req: NextRequest) {
         console.log('[WhatsApp Webhook] Criando novo lead para:', phoneNumber)
         client = await createLeadFromWhatsApp({
           phone: phoneNumber,
-          name: data.name || data.profile?.name,
+          name: data.name || data.profile?.name || data.customerName,
+          email: data.email || data.customerEmail,
         })
 
         if (client) {
@@ -136,30 +207,70 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Detectar se é template (múltiplas fontes possíveis)
+    const isTemplate =
+      data.templateName ||
+      data.template_name ||
+      data.templateId ||
+      data.template_id ||
+      data.type === 'template' ||
+      data.message_type === 'template'
+
+    const templateIdentifier =
+      data.templateName ||
+      data.template_name ||
+      data.templateId ||
+      data.template_id ||
+      'Template desconhecido'
+
+    // Para templates, o conteúdo pode estar em diferentes campos
+    const messageText = isTemplate
+      ? data.text ||
+        data.body ||
+        data.message ||
+        data.content ||
+        data.templateText ||
+        data.template_text ||
+        data.templateContent ||
+        data.template_content ||
+        `[Template: ${templateIdentifier}]`
+      : data.text || data.body || data.message || null
+
+    console.log('[WhatsApp Webhook] Detecção de template:', {
+      isTemplate,
+      templateIdentifier,
+      messageText: messageText?.substring(0, 200),
+      availableFields: Object.keys(data),
+      dataText: data.text,
+      dataBody: data.body,
+      dataContent: data.content,
+      dataTemplateText: data.templateText,
+    })
+
     await prisma.whatsAppMessage.create({
       data: {
-        messageId: data.id || data.messageId,
-        event: body.event || 'message',
+        messageId: data.id || data.messageId || `msg-${Date.now()}`,
+        event: 'message',
         from: data.from,
         to: data.to,
         recipientId: data.recipient_id || data.recipientId,
         name: data.name || data.profile?.name,
-        type: data.type || 'text',
-        text: data.text,
+        type: data.type || (isTemplate ? 'template' : 'text'),
+        text: messageText,
         mediaUrl: data.media_url || data.mediaUrl,
         timestamp: data.timestamp ? new Date(data.timestamp) : new Date(),
-        status: data.status,
+        status: data.status || 'sent',
         clientId,
         orgId,
         metadata: data,
       },
     })
-    console.log('[WhatsApp Webhook] Message saved to database', {
+    console.log('[WhatsApp Webhook] Mensagem salva:', {
       linkedToClient: !!clientId,
+      isTemplate,
     })
   } catch (error) {
-    console.error('[WhatsApp Webhook] Error saving message:', error)
-    // Não falha o webhook, apenas loga o erro
+    console.error('[WhatsApp Webhook] Erro ao salvar mensagem:', error)
   }
 
   return NextResponse.json({ received: true })

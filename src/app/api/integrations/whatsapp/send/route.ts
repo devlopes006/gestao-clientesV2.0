@@ -1,6 +1,37 @@
 import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 
+export const runtime = 'nodejs'
+export const revalidate = 0
+
+/**
+ * Retry helper com exponential backoff
+ */
+async function retry<T>(
+  fn: () => Promise<T>,
+  maxRetries = 3,
+  delayMs = 1000
+): Promise<T> {
+  let lastError: Error | undefined
+
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn()
+    } catch (error) {
+      lastError = error as Error
+      if (i < maxRetries - 1) {
+        const delay = delayMs * Math.pow(2, i)
+        console.log(
+          `[Retry] Tentativa ${i + 1} falhou, aguardando ${delay}ms...`
+        )
+        await new Promise((resolve) => setTimeout(resolve, delay))
+      }
+    }
+  }
+
+  throw lastError
+}
+
 /**
  * Envia mensagem WhatsApp via Landing Page
  *
@@ -36,61 +67,104 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Chamar API da Landing Page
-    const response = await fetch(`${lpGateway}/api/messages/send`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    const normalizedPhone = to.replace(/\D/g, '')
+    const messageId = `sent-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+
+    // Salvar mensagem como 'sending' antes de enviar
+    try {
+      await prisma.whatsAppMessage.create({
+        data: {
+          messageId,
+          from: 'admin',
+          to: normalizedPhone,
+          type: templateName ? 'template' : 'text',
+          text: body || `[Template: ${templateName}]`,
+          timestamp: new Date(),
+          event: 'message',
+          status: 'sending',
+          metadata: templateName ? { templateName, templateParams } : undefined,
+        },
+      })
+    } catch (dbError) {
+      console.error('[Send Message] Erro ao salvar (sending):', dbError)
+    }
+
+    // Enviar com retry
+    let data: any
+    try {
+      data = await retry(
+        async () => {
+          const response = await fetch(`${lpGateway}/api/messages/send`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              to,
+              body,
+              templateName,
+              templateParams,
+            }),
+          })
+
+          const result = await response.json()
+
+          if (!response.ok) {
+            throw new Error(result.error || 'Falha ao enviar mensagem')
+          }
+
+          return result
+        },
+        3,
+        1000
+      )
+
+      console.log('[Send Message] Mensagem enviada:', {
         to,
-        body,
-        templateName,
-        templateParams,
-      }),
-    })
+        messageId: data.messageId,
+      })
+    } catch (error) {
+      // Atualizar status para 'failed'
+      try {
+        await prisma.whatsAppMessage.updateMany({
+          where: { messageId },
+          data: { status: 'failed' },
+        })
+      } catch (updateError) {
+        console.error(
+          '[Send Message] Erro ao atualizar status failed:',
+          updateError
+        )
+      }
 
-    const data = await response.json()
-
-    if (!response.ok) {
-      console.error('[Send Message] Erro da LP:', data)
+      const err = error as Error
       return NextResponse.json(
-        { error: data.error || 'Falha ao enviar mensagem' },
-        { status: response.status }
+        { error: err.message || 'Falha ao enviar mensagem' },
+        { status: 500 }
       )
     }
 
-    console.log('[Send Message] Mensagem enviada:', {
-      to,
-      messageId: data.messageId,
-    })
-
-    // Salvar mensagem no banco de dados
+    // Atualizar mensagem com messageId real e status 'sent'
     try {
-      const normalizedPhone = to.replace(/\D/g, '')
-
-      await prisma.whatsAppMessage.create({
+      await prisma.whatsAppMessage.updateMany({
+        where: { messageId },
         data: {
-          messageId: data.messageId || `sent-${Date.now()}`,
-          from: 'admin',
-          to: normalizedPhone,
-          type: 'text',
-          text: body,
-          timestamp: new Date(),
-          event: 'message',
+          messageId: data.messageId || messageId,
+          status: 'sent',
         },
       })
 
-      console.log('[Send Message] Mensagem salva no banco:', {
-        to: normalizedPhone,
+      console.log('[Send Message] Status atualizado para sent:', {
         messageId: data.messageId,
       })
     } catch (dbError) {
-      console.error('[Send Message] Erro ao salvar no BD:', dbError)
-      // Não falhar a resposta se o BD falhar, mensagem já foi enviada
+      console.error('[Send Message] Erro ao atualizar status:', dbError)
     }
 
-    return NextResponse.json(data)
+    return NextResponse.json({
+      ...data,
+      messageId: data.messageId || messageId,
+    })
   } catch (error) {
     console.error('[Send Message] Error:', error)
     return NextResponse.json(

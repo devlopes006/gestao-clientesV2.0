@@ -70,7 +70,7 @@ model Member {
 model Client {
   id                      String                   @id @default(cuid())
   name                    String
-  email                   String
+  email                   String?
   orgId                   String
   createdAt               DateTime                 @default(now())
   phone                   String?
@@ -566,6 +566,7 @@ model WhatsAppMessage {
   mediaUrl    String?
   timestamp   DateTime @default(now())
   status      String? // 'sent' | 'delivered' | 'read' | 'failed'
+  isRead      Boolean  @default(false) // Marca se a mensagem foi lida
   orgId       String?
   clientId    String?
   metadata    Json? // Dados adicionais flexíveis
@@ -578,4 +579,5 @@ model WhatsAppMessage {
   @@index([to])
   @@index([timestamp])
   @@index([orgId])
+  @@index([isRead])
 }

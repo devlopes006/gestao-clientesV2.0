@@ -92,6 +92,7 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
   const [orgName, setOrgName] = useState("");
   const [userRole, setUserRole] = useState<string | null>(null);
   const [alertsCount, setAlertsCount] = useState<number>(0);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState<number>(0);
   const { collapsed, toggleCollapsed } = useSidebar();
   const [profileOpen, setProfileOpen] = useState(false);
   const [showVerse, setShowVerse] = useState(true);
@@ -130,6 +131,37 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
       }
     });
   }, []);
+
+  // Buscar contagem de mensagens não lidas
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const token = await user?.getIdToken();
+        if (!token) return;
+
+        const res = await fetch('/api/integrations/whatsapp/messages/unread/count', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (typeof data?.unreadCount === 'number') {
+            setUnreadMessagesCount(data.unreadCount);
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao buscar contagem de mensagens não lidas:', error);
+      }
+    };
+
+    fetchUnreadCount();
+
+    // Atualizar a cada 30 segundos
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   // const toggleTheme = () => {
   //   const next = theme === 'light' ? 'dark' : 'light'
@@ -301,6 +333,11 @@ export function SidebarV3({ isOpen, onClose }: SidebarV3Props) {
                           {item.href === '/financeiro' && alertsCount > 0 && (
                             <span className="ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-semibold">
                               {alertsCount}
+                            </span>
+                          )}
+                          {item.href === '/messages' && unreadMessagesCount > 0 && (
+                            <span className="ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-emerald-600 text-white text-[10px] font-semibold">
+                              {unreadMessagesCount}
                             </span>
                           )}
                         </span>

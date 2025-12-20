@@ -97,35 +97,9 @@ const getStatusIcon = (status?: string) => {
   }
 }
 
-const isTemplateMessage = (msg: Msg) => {
-  return msg.type === 'template' || msg.text?.startsWith('[Template:')
-}
-
-const formatTemplateText = (msg: Msg) => {
-  // Se tem texto real do template (conteúdo formatado), mostrar ele
-  if (msg.text && !msg.text.startsWith('[Template:')) {
-    return msg.text
-  }
-
-  // Se o metadata tem o conteúdo do template
-  const metadata = msg.metadata as any
-  if (metadata?.templateText) {
-    return metadata.templateText
-  }
-  if (metadata?.content) {
-    return metadata.content
-  }
-  if (metadata?.body) {
-    return metadata.body
-  }
-
-  // Fallback: mostrar nome do template
-  if (msg.text?.startsWith('[Template:')) {
-    const match = msg.text.match(/\[Template: ([^\]]+)\]/)
-    return match ? `📨 ${match[1]}` : '📨 Template'
-  }
-
-  return msg.text || '📨 Template'
+// Formatação simples de texto de mensagem
+const formatMessageText = (msg: Msg) => {
+  return msg.text || msg.name || ''
 }
 
 const getThreadKey = (m: Msg) => {
@@ -673,7 +647,6 @@ export default function MessagesPage() {
                       {selectedMessages.map((m, idx) => {
                         const fromKey = normalizePhone(m.from)
                         const isClient = fromKey === selectedKey && selectedKey !== ''
-                        const isTemplate = isTemplateMessage(m)
 
                         return (
                           <div
@@ -688,23 +661,14 @@ export default function MessagesPage() {
                                   : 'bg-gradient-to-br from-emerald-600 to-teal-600 shadow-emerald-900/30'
                                 }`}
                             >
-                              {isTemplate && (
-                                <div className="flex items-center gap-2 mb-2">
-                                  <span className="text-xs text-slate-300/70 bg-slate-900/30 px-2.5 py-1 rounded-full font-medium">
-                                    📨 Template
-                                  </span>
-                                </div>
-                              )}
                               <p className="text-white text-[15px] leading-relaxed whitespace-pre-wrap break-words">
-                                {isTemplate
-                                  ? formatTemplateText(m)
-                                  : m.text?.trim()?.length
-                                    ? m.text
-                                    : m.name?.trim()?.length
-                                      ? m.name
-                                      : m.type && m.type !== 'text'
-                                        ? `📎 ${m.type}`
-                                        : ''}
+                                {m.text?.trim()?.length
+                                  ? m.text
+                                  : m.name?.trim()?.length
+                                    ? m.name
+                                    : m.type && m.type !== 'text'
+                                      ? `📎 ${m.type}`
+                                      : ''}
                               </p>
                               <div className="flex items-center justify-end gap-1.5 mt-2">
                                 <span className="text-[11px] text-slate-300/60 font-medium">

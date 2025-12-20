@@ -18,6 +18,7 @@
     "billing:backfill": "tsx scripts/billing-backfill.ts",
     "whatsapp:test": "tsx scripts/test-whatsapp.ts",
     "setup:whatsapp": "tsx scripts/setup-whatsapp.ts",
+    "leads:test": "node scripts/test-leads-endpoint.mjs",
     "outbox:retry": "tsx scripts/retry-outbox.ts",
     "postinstall": "node scripts/generate-css-vars.js && node scripts/prisma-generate.mjs",
     "prebuild": "node scripts/generate-css-vars.js && node scripts/validate-generated-vars.js",

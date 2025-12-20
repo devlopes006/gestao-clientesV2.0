@@ -4,7 +4,7 @@ import { NotificationCenter } from "@/components/NotificationCenter";
 import { useUser } from "@/context/UserContext";
 import { auth } from "@/lib/firebase";
 import { cn } from "@/lib/utils";
-import { DollarSign, Home, LayoutDashboard, MessageCircle, Plus, Settings, Users } from "lucide-react";
+import { DollarSign, Home, LayoutDashboard, MessageCircle, Plus, Settings, UserPlus, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -28,6 +28,12 @@ const navItems: NavItem[] = [
     href: "/clients",
     label: "Clientes",
     icon: <Users className="w-5 h-5" />,
+    roles: ["OWNER", "STAFF"],
+  },
+  {
+    href: "/leads",
+    label: "Leads",
+    icon: <UserPlus className="w-5 h-5" />,
     roles: ["OWNER", "STAFF"],
   },
   {

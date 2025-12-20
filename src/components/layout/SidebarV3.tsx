@@ -54,6 +54,12 @@ const groups: NavItemGroup[] = [
         roles: ["OWNER", "STAFF"], // Acessível para OWNER e STAFF
       },
       {
+        href: "/leads",
+        label: "Leads",
+        icon: <UserPlus className="w-4 h-4" />,
+        roles: ["OWNER", "STAFF"], // Acessível para OWNER e STAFF
+      },
+      {
         href: "/messages",
         label: "Mensagens WhatsApp",
         icon: <MessageCircle className="w-4 h-4" />,

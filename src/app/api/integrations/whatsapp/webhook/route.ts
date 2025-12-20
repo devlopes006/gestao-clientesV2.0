@@ -141,10 +141,19 @@ export async function POST(req: NextRequest) {
   const event = body?.event || 'message'
   const data = body.data || body
 
+  // Ignorar eventos de lead_submission (esses vão para /api/leads)
+  if (event === 'lead_submission' || data.event === 'lead_submission') {
+    console.log('[WhatsApp Webhook] Lead submission ignorado (use /api/leads)')
+    return NextResponse.json({
+      received: true,
+      note: 'Use /api/leads for lead submissions',
+    })
+  }
+
   console.log('[WhatsApp Webhook] Evento:', event)
   console.log(
-    '[WhatsApp Webhook] Payload completo:',
-    JSON.stringify(data, null, 2)
+    '[WhatsApp Webhook] Payload (primeiros 500 chars):',
+    JSON.stringify(data, null, 2).substring(0, 500)
   )
 
   // Processar STATUS UPDATES (delivered, read, failed)
@@ -207,58 +216,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Detectar se é template (múltiplas fontes possíveis)
-    const isTemplate =
-      data.templateName ||
-      data.template_name ||
-      data.templateId ||
-      data.template_id ||
-      data.type === 'template' ||
-      data.message_type === 'template' ||
-      !!data.templates
+    // Processar apenas mensagens reais do WhatsApp (texto, imagem, áudio, etc)
+    const messageType = data.type || 'text'
+    const messageText = data.text || data.body || data.message || null
 
-    const templateIdentifier =
-      data.templateName ||
-      data.template_name ||
-      data.templateId ||
-      data.template_id ||
-      'Template desconhecido'
-
-    // Extrair texto dos templates (LP envia em data.templates)
-    let messageText = null
-
-    if (data.templates) {
-      // LP envia templates em: { templates: { lead_confirmation: { text: "..." }, novo_lead_interno: { text: "..." } } }
-      const templateTexts = Object.values(data.templates)
-        .map((t: any) => t?.text)
-        .filter(Boolean)
-
-      messageText = templateTexts.join('\n\n---\n\n')
-      console.log('[WhatsApp Webhook] Templates extraídos da LP:', {
-        templates: Object.keys(data.templates),
-        textLength: messageText.length,
-      })
-    } else {
-      // Fallback para outras fontes
-      messageText = isTemplate
-        ? data.text ||
-          data.body ||
-          data.message ||
-          data.content ||
-          data.templateText ||
-          data.template_text ||
-          data.templateContent ||
-          data.template_content ||
-          `[Template: ${templateIdentifier}]`
-        : data.text || data.body || data.message || null
-    }
-
-    console.log('[WhatsApp Webhook] Detecção de template:', {
-      isTemplate,
-      templateIdentifier,
-      hasTemplatesObject: !!data.templates,
-      messageText: messageText?.substring(0, 200),
-      availableFields: Object.keys(data),
+    console.log('[WhatsApp Webhook] Mensagem processada:', {
+      type: messageType,
+      textLength: messageText?.length || 0,
+      linkedToClient: !!clientId,
     })
 
     await prisma.whatsAppMessage.create({
@@ -269,20 +234,18 @@ export async function POST(req: NextRequest) {
         to: data.to,
         recipientId: data.recipient_id || data.recipientId,
         name: data.name || data.profile?.name,
-        type: data.type || (isTemplate ? 'template' : 'text'),
+        type: messageType,
         text: messageText,
         mediaUrl: data.media_url || data.mediaUrl,
         timestamp: data.timestamp ? new Date(data.timestamp) : new Date(),
-        status: data.status || 'sent',
+        status: data.status || 'received',
         clientId,
         orgId,
         metadata: data,
       },
     })
-    console.log('[WhatsApp Webhook] Mensagem salva:', {
-      linkedToClient: !!clientId,
-      isTemplate,
-    })
+
+    console.log('[WhatsApp Webhook] Mensagem salva com sucesso')
   } catch (error) {
     console.error('[WhatsApp Webhook] Erro ao salvar mensagem:', error)
   }

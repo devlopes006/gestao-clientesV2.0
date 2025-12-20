@@ -1,22 +1,27 @@
 # 🔍 Troubleshooting - Leads não aparecem
 
 ## Problema
+
 Leads enviados da Landing Page não aparecem na página `/leads`
 
 ## ✅ Checklist de diagnóstico
 
 ### 1️⃣ Verificar servidor rodando
+
 ```bash
 pnpm dev
 ```
+
 - ✅ Deve iniciar em `http://localhost:3000`
 
 ### 2️⃣ Testar endpoint localmente
+
 ```bash
 pnpm leads:test
 ```
 
 **Resultado esperado:**
+
 ```
 ✅ Lead enviado com sucesso!
 Client ID: cltxxxxxxxxxxxxxx
@@ -24,6 +29,7 @@ Action: created
 ```
 
 **Se falhar:**
+
 - ❌ `ECONNREFUSED` → servidor não está rodando
 - ❌ `401 Invalid signature` → problema com WEBHOOK_SECRET
 - ❌ `500 Internal error` → problema no banco de dados
@@ -56,6 +62,7 @@ Quando enviar do formulário da LP, verificar terminal onde roda `pnpm dev`:
 ### 5️⃣ Verificar configuração da Landing Page
 
 **Arquivo `.env` da LP deve ter:**
+
 ```bash
 GESTAO_CLIENTES_LEADS_URL=http://localhost:3000/api/leads
 # Para produção:
@@ -66,6 +73,7 @@ GESTAO_CLIENTES_LEADS_URL=http://localhost:3000/api/leads
 ```
 
 **Código do formulário deve chamar:**
+
 ```typescript
 import { sendLeadToGestao } from '@/lib/gestaoClientesAPI'
 
@@ -76,7 +84,7 @@ await sendLeadToGestao({
   phone: formData.phone,
   plan: formData.plan,
   bestTime: formData.bestTime,
-  origin: 'landing-page-conversao-extrema'
+  origin: 'landing-page-conversao-extrema',
 })
 ```
 
@@ -87,6 +95,7 @@ await sendLeadToGestao({
 3. Deve listar os leads com status "lead"
 
 **Se aparecer erro:**
+
 - ❌ `401 Unauthorized` → problema de autenticação
 - ❌ `500 Internal error` → problema no banco
 - ❌ `0 leads encontrados` → nenhum lead cadastrado OU status diferente de "lead"
@@ -140,6 +149,7 @@ pnpm leads:test
 **Causa:** Status diferente de "lead"
 
 **Solução:**
+
 ```bash
 # Abrir Prisma Studio
 pnpm prisma:studio
@@ -153,6 +163,7 @@ pnpm prisma:studio
 **Causa:** SECRET diferente entre LP e Gestão
 
 **Solução:**
+
 ```bash
 # Landing Page .env
 GESTAO_CLIENTES_WEBHOOK_SECRET=meu-secret-123
@@ -168,6 +179,7 @@ WHATSAPP_WEBHOOK_SECRET=meu-secret-123
 **Causa:** URL incorreta na LP
 
 **Solução:**
+
 ```bash
 # Local
 GESTAO_CLIENTES_LEADS_URL=http://localhost:3000/api/leads
@@ -181,6 +193,7 @@ GESTAO_CLIENTES_LEADS_URL=https://mygest.netlify.app/api/leads
 **Causa:** Não está autenticado
 
 **Solução:**
+
 1. Fazer login em `/login`
 2. Acessar `/leads` novamente
 

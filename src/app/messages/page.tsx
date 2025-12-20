@@ -90,10 +90,10 @@ function mergeAndDedup(prev: Msg[], remote: Msg[]) {
   }
 
   const makeSoftKey = (m: Msg) => {
-    const from = normalizePhone(m.from) || 'admin'
-    const to = normalizePhone(m.to || m.recipientId || m.recipient_id) || 'client'
+    // Usa a chave da thread (telefone) para deduplicar, ignorando direção
+    const thread = normalizePhone(getThreadKey(m)) || 'unknown'
     const text = (m.text || m.name || '').trim()
-    return `${from}->${to}::${text}::${timeBucket(m.timestamp)}`
+    return `${thread}::${text}::${timeBucket(m.timestamp)}`
   }
 
   const add = (m: Msg) => {

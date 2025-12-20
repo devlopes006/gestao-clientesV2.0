@@ -154,12 +154,15 @@ export default function MessagesPage() {
     const t = confirmDelete.thread
     if (!t) return setConfirmDelete({ open: false, thread: '' })
     try {
-      const res = await fetch(`/api/integrations/whatsapp/messages?thread=+${t}`, { method: 'DELETE' })
+      const threadParam = t.startsWith('+') ? t : `+${t}`
+      const res = await fetch(`/api/integrations/whatsapp/messages?thread=${encodeURIComponent(threadParam)}`, { method: 'DELETE' })
       const json = await res.json()
-      if (!res.ok) throw new Error(json.error || 'Falha ao apagar')
+      if (!res.ok) throw new Error(json.error || `Falha ao apagar (HTTP ${res.status})`)
+
       // Remove localmente
-      setItems(prev => prev.filter(m => getThreadKey(m) !== t))
-      if (selected === t) {
+      const normalized = normalizePhone(threadParam)
+      setItems(prev => prev.filter(m => getThreadKey(m) !== normalized))
+      if (selected === normalized) {
         setSelected(null)
         setCompose({ to: '', body: '' })
       }
@@ -180,17 +183,19 @@ export default function MessagesPage() {
       return
     }
     try {
+      const threadParam = t.startsWith('+') ? t : `+${t}`
       const res = await fetch('/api/integrations/whatsapp/messages', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ thread: `+${t}`, name }),
+        body: JSON.stringify({ thread: threadParam, name }),
       })
       const json = await res.json()
-      if (!res.ok) throw new Error(json.error || 'Falha ao renomear')
+      if (!res.ok) throw new Error(json.error || `Falha ao renomear (HTTP ${res.status})`)
 
+      const normalized = normalizePhone(threadParam)
       setItems((prev) =>
         prev.map((m) =>
-          getThreadKey(m) === t || getThreadKey(m) === `+${t}`
+          getThreadKey(m) === normalized || getThreadKey(m) === `+${normalized}`
             ? { ...m, name, client: m.client ? { ...m.client, name } : m.client }
             : m
         )

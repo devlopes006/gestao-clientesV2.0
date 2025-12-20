@@ -176,17 +176,18 @@ export function MobileBottomNav() {
   return (
     <nav
       className={cn(
-        "fixed bottom-3 md:bottom-6 left-1/2 -translate-x-1/2 z-40",
+        "fixed bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 z-40",
         "rounded-2xl border border-slate-800/70 ring-1 ring-blue-500/10",
         "shadow-2xl shadow-blue-900/40 backdrop-blur-2xl",
         "bg-gradient-to-r from-slate-900/85 via-slate-950/85 to-slate-900/75",
+        "w-[calc(100%-2rem)] max-w-md md:max-w-2xl",
       )}
       ref={navRef}
     >
       <div
         className={cn(
-          "flex items-center gap-1.5 sm:gap-2 md:gap-3",
-          "px-3 py-2 md:px-4 md:py-2.5",
+          "flex items-center justify-between gap-2 sm:gap-3 md:gap-4",
+          "px-4 py-3 sm:px-5 sm:py-3.5 md:px-6 md:py-4",
         )}
       >
         {/* Botão de ações rápidas */}
@@ -195,15 +196,16 @@ export function MobileBottomNav() {
           aria-label="Ações rápidas"
           title="Ações rápidas"
           className={cn(
-            "flex items-center justify-center",
-            "p-2 rounded-xl transition-all duration-200",
+            "flex items-center justify-center flex-shrink-0",
+            "p-2.5 sm:p-3 rounded-xl transition-all duration-200",
             "text-slate-200",
             "hover:bg-blue-500/10 hover:text-white",
             "border border-slate-800/60",
+            "min-w-[44px] min-h-[44px]",
           )}
         >
           <span className="flex items-center justify-center">
-            <Plus className="w-5 h-5" />
+            <Plus className="w-5 h-5 sm:w-6 sm:h-6" />
           </span>
         </button>
 
@@ -216,8 +218,9 @@ export function MobileBottomNav() {
               href={item.href}
               className={cn(
                 // Layout
-                "flex items-center justify-center relative",
-                "p-2 sm:p-2.5 rounded-xl transition-all duration-200",
+                "flex items-center justify-center relative flex-shrink-0",
+                "p-2.5 sm:p-3 rounded-xl transition-all duration-200",
+                "min-w-[44px] min-h-[44px]",
                 // Estados
                 isActive
                   ? cn(
@@ -248,6 +251,7 @@ export function MobileBottomNav() {
                   isActive
                     ? "text-white"
                     : "text-slate-300",
+                  "[&>svg]:w-5 [&>svg]:h-5 sm:[&>svg]:w-6 sm:[&>svg]:h-6",
                 )}
               >
                 {item.icon}
@@ -267,28 +271,29 @@ export function MobileBottomNav() {
           aria-label="Perfil do usuário"
           title="Perfil do usuário"
           className={cn(
-            "flex items-center justify-center",
-            "p-2 rounded-xl transition-all duration-200",
+            "flex items-center justify-center flex-shrink-0",
+            "p-2 sm:p-2.5 rounded-xl transition-all duration-200",
             "text-slate-300",
             "hover:bg-slate-800/70 hover:text-white",
             "border border-transparent hover:border-slate-700/80",
+            "min-w-[44px] min-h-[44px]",
           )}
         >
           <span className="flex items-center justify-center">
             {userProfile?.avatarUrl ? (
-              <div className="w-6 h-6 rounded-full overflow-hidden">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden">
                 <Image
                   src={userProfile.avatarUrl}
                   alt="Avatar"
-                  width={24}
-                  height={24}
+                  width={32}
+                  height={32}
                   className="w-full h-full object-cover"
                   unoptimized
                   onError={() => setUserProfile((p) => (p ? { ...p, avatarUrl: undefined } : p))}
                 />
               </div>
             ) : (
-              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-300 text-slate-700 text-xs font-semibold">
+              <span className="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-300 text-slate-700 text-sm font-semibold">
                 {(userProfile?.name?.[0] || "U").toUpperCase()}
               </span>
             )}

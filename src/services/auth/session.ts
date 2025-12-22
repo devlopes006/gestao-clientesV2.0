@@ -30,14 +30,38 @@ export async function getSessionProfile(): Promise<SessionProfile> {
     if (!user) return { user: null, orgId: null, role: null }
 
     // Prefer an active membership
-    const membership =
+    let membership =
       user.memberships.find(
         (m: { isActive?: boolean }) => m.isActive !== false
       ) || user.memberships[0]
 
     if (!membership) {
-      logger.warn('Usuário sem membership', { email: user.email })
-      return { user: null, orgId: null, role: null }
+      // Autoheal: se o usuário é owner de alguma org, recria a membership para evitar ficar preso fora do app.
+      const ownedOrg = await prisma.org.findFirst({
+        where: { ownerId: user.id },
+      })
+      if (ownedOrg) {
+        membership = await prisma.member.upsert({
+          where: {
+            userId_orgId: {
+              userId: user.id,
+              orgId: ownedOrg.id,
+            },
+          },
+          update: { isActive: true, role: 'OWNER' },
+          create: {
+            userId: user.id,
+            orgId: ownedOrg.id,
+            role: 'OWNER',
+            isActive: true,
+          },
+        })
+      }
+
+      if (!membership) {
+        logger.warn('Usuário sem membership', { email: user.email })
+        return { user: null, orgId: null, role: null }
+      }
     }
 
     // O Prisma retorna enums como strings, então fazemos o cast direto

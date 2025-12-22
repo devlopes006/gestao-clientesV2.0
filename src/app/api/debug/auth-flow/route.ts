@@ -1,4 +1,4 @@
-import { adminAuth } from '@/lib/firebaseAdmin'
+import { getAdminAuth } from '@/lib/firebaseAdmin'
 import { prisma } from '@/lib/prisma'
 import { getSessionProfile } from '@/services/auth/session'
 import { NextRequest, NextResponse } from 'next/server'
@@ -111,6 +111,7 @@ export async function POST(req: NextRequest) {
 
     let decoded
     try {
+      const adminAuth = await getAdminAuth()
       decoded = await adminAuth.verifyIdToken(body.idToken)
       result[0] = {
         ...result[0],

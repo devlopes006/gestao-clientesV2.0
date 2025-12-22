@@ -24,6 +24,8 @@ async function loadFirebaseSecrets() {
     return {
       FIREBASE_PROJECT_ID:
         projectId ?? process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID:
+        projectId ?? process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
       FIREBASE_CLIENT_EMAIL: clientEmail,
       FIREBASE_PRIVATE_KEY: privateKey,
     }

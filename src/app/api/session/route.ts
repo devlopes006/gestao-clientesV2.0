@@ -1,4 +1,4 @@
-import { adminAuth } from '@/lib/firebaseAdmin'
+import { getAdminAuth } from '@/lib/firebaseAdmin'
 import { prisma } from '@/lib/prisma'
 import {
   authRatelimit,
@@ -65,6 +65,7 @@ export async function POST(req: NextRequest) {
     if (!idToken)
       return NextResponse.json({ error: 'Missing idToken' }, { status: 400 })
 
+    const adminAuth = await getAdminAuth()
     const decoded = await adminAuth.verifyIdToken(idToken)
     const cookieStore = await cookies()
     const expires = new Date(decoded.exp * 1000)

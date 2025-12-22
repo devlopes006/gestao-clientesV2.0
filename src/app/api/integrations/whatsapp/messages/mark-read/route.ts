@@ -1,4 +1,4 @@
-import { adminAuth } from '@/lib/firebaseAdmin'
+import { getAdminAuth } from '@/lib/firebaseAdmin'
 import { prisma } from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
     // Verificar token Firebase
     let decodedToken
     try {
+      const adminAuth = await getAdminAuth()
       decodedToken = await adminAuth.verifyIdToken(token)
     } catch (error) {
       console.error('Erro ao verificar token:', error)

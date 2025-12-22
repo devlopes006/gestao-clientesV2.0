@@ -1,4 +1,4 @@
-import { adminAuth } from '@/lib/firebaseAdmin'
+import { getAdminAuth } from '@/lib/firebaseAdmin'
 import { prisma } from '@/lib/prisma'
 import { applySecurityHeaders, guardAccess } from '@/proxy'
 import { cookies } from 'next/headers'
@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const adminAuth = await getAdminAuth()
     const decoded = await adminAuth.verifyIdToken(token)
     const firebaseUid = decoded.uid
 

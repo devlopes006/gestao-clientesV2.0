@@ -1,4 +1,4 @@
-import { adminAuth } from '@/lib/firebaseAdmin'
+import { getAdminAuth } from '@/lib/firebaseAdmin'
 import { prisma } from '@/lib/prisma'
 import { applySecurityHeaders, guardAccess } from '@/proxy'
 import { getSessionProfile } from '@/services/auth/session'
@@ -61,6 +61,7 @@ export async function PATCH(req: NextRequest | Request) {
       select: { firebaseUid: true },
     })
     if (dbUser?.firebaseUid) {
+      const adminAuth = await getAdminAuth()
       await adminAuth.updateUser(dbUser.firebaseUid, {
         displayName: updated.name ?? undefined,
         photoURL: updated.image ?? undefined,

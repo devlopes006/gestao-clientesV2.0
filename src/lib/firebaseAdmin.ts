@@ -1,85 +1,78 @@
-import { getFirebaseCredentialsSync } from '@/lib/firebase-credentials'
+import {
+  getFirebaseCredentials,
+  getFirebaseCredentialsSync,
+} from '@/lib/firebase-credentials'
 import { logger } from '@/lib/logger'
-import { cert, getApp, getApps, initializeApp } from 'firebase-admin/app'
-import { getAuth } from 'firebase-admin/auth'
+import { cert, getApps, initializeApp } from 'firebase-admin/app'
+import { getAuth, type Auth } from 'firebase-admin/auth'
 
-// Helper to build a clearer error message listing missing envs.
-function assertServerEnv() {
-  const raw = {
-    NEXT_PUBLIC_FIREBASE_PROJECT_ID:
-      process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    FIREBASE_CLIENT_EMAIL: process.env.FIREBASE_CLIENT_EMAIL,
-    FIREBASE_PRIVATE_KEY: process.env.FIREBASE_PRIVATE_KEY,
+let cachedAuth: Auth | null = null
+let authPromise: Promise<Auth> | null = null
+
+function buildCredentialArgs() {
+  const creds = getFirebaseCredentialsSync()
+  return {
+    projectId: creds.projectId,
+    clientEmail: creds.clientEmail,
+    privateKey: creds.privateKey.replace(/\\n/g, '\n'),
   }
-  const missing = Object.entries(raw)
-    .filter(([, v]) => !v)
-    .map(([k]) => k)
-  return { raw, missing }
 }
 
-if (!getApps().length) {
+function initSync(): Auth | null {
   try {
-    // Tenta carregar credentials (Netlify Blobs ou env vars)
-    let creds: ReturnType<typeof getFirebaseCredentialsSync> | null = null
-
-    // Durante build-time: precisa de env vars
-    // Durante runtime: tenta Blobs primeiro (async), mas firebaseAdmin.ts é sync
-    // Solução: usar env vars quando disponíveis (build), confiar em Blobs para runtime via getFirebaseCredentials async
-    try {
-      creds = getFirebaseCredentialsSync()
-    } catch (err) {
-      // Em runtime sem env vars, isso vai falhar - mas está OK porque as funções
-      // que precisam de Firebase devem usar getFirebaseCredentials() async do firebase-credentials.ts
-      if (process.env.NODE_ENV === 'production') {
-        // Em produção, deixa falhar silenciosamente - as funções que precisam usarão async
-        console.warn(
-          'Firebase Admin não inicializado (esperado em produção sem env vars). Use getFirebaseCredentials() async.'
-        )
-        // Exporta um stub que vai falhar se alguém tentar usar
-        process.env._FIREBASE_NOT_INITIALIZED = 'true'
-        throw err
-      }
-      throw err
-    }
-
-    const privateKey = creds.privateKey.replace(/\\n/g, '\n')
+    const { projectId, clientEmail, privateKey } = buildCredentialArgs()
     if (!privateKey.includes('BEGIN PRIVATE KEY')) {
       logger.warn(
         'FIREBASE_PRIVATE_KEY parece inválida (não contém BEGIN PRIVATE KEY). Verifique se as quebras de linha estão escapadas como \\n.'
       )
     }
 
-    initializeApp({
-      credential: cert({
-        projectId: creds.projectId,
-        clientEmail: creds.clientEmail,
-        privateKey,
-      }),
-    })
-
-    // Log informativo apenas em desenvolvimento
-    if (process.env.NODE_ENV !== 'production') {
-      logger.debug('Firebase Admin inicializado', {
-        projectId: creds.projectId,
-        clientEmailDomain: creds.clientEmail?.split('@')[1],
-        source: process.env.FIREBASE_PRIVATE_KEY ? 'env' : 'blobs',
+    const app =
+      getApps()[0] ??
+      initializeApp({
+        credential: cert({ projectId, clientEmail, privateKey }),
       })
-    }
+    cachedAuth = getAuth(app)
+    return cachedAuth
   } catch (error) {
-    const { missing } = assertServerEnv()
-    // Se estamos em build, isso é erro sério
     if (process.env.NODE_ENV !== 'production') {
-      throw new Error(
-        `Firebase Admin não inicializado. Variáveis faltando: ${
-          missing.join(', ') || 'desconhecidas'
-        }\n` +
-          'Defina-as em .env.local ou configure Netlify Blobs. Erro: ' +
-          (error instanceof Error ? error.message : String(error))
-      )
+      throw error instanceof Error ? error : new Error(String(error))
     }
-    // Em produção, deixa continuar - vai falhar se alguma função tentar usar
-    console.error('Firebase Admin init failed:', error)
+    logger.warn('Firebase Admin sync init falhou; tentando async', {
+      message: error instanceof Error ? error.message : String(error),
+    })
+    return null
   }
 }
 
-export const adminAuth = getAuth(getApp())
+async function initAsync(): Promise<Auth> {
+  if (cachedAuth) return cachedAuth
+  if (authPromise) return authPromise
+
+  authPromise = (async () => {
+    const creds = await getFirebaseCredentials()
+    const app =
+      getApps()[0] ??
+      initializeApp({
+        credential: cert({
+          projectId: creds.projectId,
+          clientEmail: creds.clientEmail,
+          privateKey: creds.privateKey.replace(/\\n/g, '\n'),
+        }),
+      })
+    cachedAuth = getAuth(app)
+    return cachedAuth
+  })().catch((err) => {
+    authPromise = null
+    throw err
+  })
+
+  return authPromise
+}
+
+// Tenta inicializar de forma síncrona (útil em dev e build). Em produção sem env vars, cai no caminho async.
+cachedAuth = initSync()
+
+export async function getAdminAuth(): Promise<Auth> {
+  return initAsync()
+}

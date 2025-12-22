@@ -3,7 +3,7 @@
  * Refresh Firebase ID Token using refresh token
  */
 
-import { adminAuth } from '@/lib/firebaseAdmin'
+import { getAdminAuth } from '@/lib/firebaseAdmin'
 import {
   authRatelimit,
   checkRateLimit,
@@ -121,6 +121,7 @@ export async function POST(req: NextRequest): Promise<Response> {
       expiresIn = parseInt(data.expires_in || '3600', 10)
 
       // Verify the new token is valid
+      const adminAuth = await getAdminAuth()
       const decoded = await adminAuth.verifyIdToken(newAccessToken)
       if (!decoded) {
         throw new Error('Failed to verify refreshed token')

@@ -1,5 +1,5 @@
 [build]
-  command = "pnpm install --frozen-lockfile && pnpm run prisma:migrate:deploy && pnpm run prisma:generate && pnpm run build"
+  command = "pnpm install --frozen-lockfile && pnpm run prisma:generate && pnpm run build"
   publish = ".next"
 
 [build.environment]

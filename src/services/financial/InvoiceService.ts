@@ -1,4 +1,7 @@
-import { InvoiceService as DomainInvoiceService } from '@/domain/invoices/InvoiceService'
+import {
+  InvoiceService as DomainInvoiceService,
+  type TransactionRepository,
+} from '@/domain/invoices/InvoiceService'
 import { ClientPrismaRepository } from '@/infrastructure/prisma/ClientPrismaRepository'
 import { InvoicePrismaRepository } from '@/infrastructure/prisma/InvoicePrismaRepository'
 import { prisma } from '@/lib/prisma'
@@ -8,6 +11,13 @@ import {
   type InvoiceItem,
   type Prisma,
 } from '@prisma/client'
+
+// Type definition for approve payment input
+export interface ApprovPaymentInput {
+  paidAt?: Date
+  notes?: string
+  createdBy?: string
+}
 
 export interface CreateInvoiceInput {
   clientId: string
@@ -175,19 +185,22 @@ export class InvoiceService {
     const { TransactionPrismaRepository } = await import(
       '@/infrastructure/prisma/TransactionPrismaRepository'
     )
-    const txRepo = new TransactionPrismaRepository(prisma)
+    const txRepo = new TransactionPrismaRepository(
+      prisma
+    ) as unknown as TransactionRepository
     // create a domain instance with transaction repository
     const domainWithTx = new DomainInvoiceService(
       new ClientPrismaRepository(prisma),
       new InvoicePrismaRepository(prisma),
-      txRepo as any
+      txRepo
     )
 
-    return domainWithTx.approvePayment(invoiceId, orgId, {
+    const paymentData: ApprovPaymentInput = {
       paidAt: input.paidAt,
       notes: input.notes,
       createdBy: input.createdBy,
-    } as any)
+    }
+    return domainWithTx.approvePayment(invoiceId, orgId, paymentData)
   }
 
   /**

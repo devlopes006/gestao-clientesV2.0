@@ -84,14 +84,15 @@ export class EmailNotificationService {
         html: payload.html,
         ...(payload.replyTo && { reply_to: payload.replyTo }),
         ...(payload.tags && { tags: payload.tags }),
-      } as any)
+      })
 
       // Type guard for response
       if (response && typeof response === 'object') {
         if ('error' in response && response.error) {
           const errorMsg =
             typeof response.error === 'object' && 'message' in response.error
-              ? (response.error as any).message
+              ? ((response.error as { message?: string }).message ??
+                'Unknown error')
               : String(response.error)
           console.error(`Error sending email to ${payload.to}:`, errorMsg)
           return { error: errorMsg }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Prisma } from '@prisma/client'
 import { z } from 'zod'
 
@@ -63,7 +62,7 @@ export function buildInvoiceWhereClause(
   filter: InvoiceFilter,
   orgId: string
 ): Prisma.InvoiceWhereInput {
-  const where: any = {
+  const where: Prisma.InvoiceWhereInput = {
     orgId,
   }
 
@@ -168,7 +167,11 @@ export function buildInvoiceOrderBy(
 /**
  * Format date for CSV output
  */
-export function formatCsvDate(date: Date, format: string): string {
+export function formatCsvDate(
+  date: Date | string | undefined,
+  format: string
+): string {
+  if (!date) return ''
   const d = new Date(date)
   const day = String(d.getDate()).padStart(2, '0')
   const month = String(d.getMonth() + 1).padStart(2, '0')
@@ -188,7 +191,8 @@ export function formatCsvDate(date: Date, format: string): string {
 /**
  * Format currency for CSV
  */
-export function formatCsvCurrency(value: number): string {
+export function formatCsvCurrency(value: number | undefined): string {
+  if (!value) return '0,00'
   return value.toFixed(2).replace('.', ',')
 }
 
@@ -226,10 +230,32 @@ export function generateCsvHeader(includeItems: boolean): string[] {
 }
 
 /**
+ * Invoice type for CSV export
+ */
+interface InvoiceData {
+  number: string
+  client?: { name?: string; email?: string }
+  status: string
+  issueDate?: Date | string
+  dueDate?: Date | string
+  subtotal?: number
+  discount?: number
+  tax?: number
+  total?: number
+  items?: InvoiceItemData[]
+}
+
+interface InvoiceItemData {
+  description: string
+  quantity: number
+  unitAmount: number
+}
+
+/**
  * Generate CSV data rows from invoices
  */
 export function generateCsvRows(
-  invoices: any[],
+  invoices: InvoiceData[],
   options: CsvExportOptions
 ): string[][] {
   const rows: string[][] = []
@@ -251,7 +277,7 @@ export function generateCsvRows(
     if (options.includeInvoiceItems && invoice.items?.length) {
       const itemsStr = invoice.items
         .map(
-          (item: any) =>
+          (item: InvoiceItemData) =>
             `${item.description} (${item.quantity}x ${formatCsvCurrency(item.unitAmount)})`
         )
         .join('; ')
@@ -288,7 +314,7 @@ export function convertCsvToString(
  * Generate complete CSV from invoices
  */
 export function generateInvoicesCsv(
-  invoices: any[],
+  invoices: InvoiceData[],
   options: CsvExportOptions
 ): string {
   const headers = generateCsvHeader(options.includeInvoiceItems)

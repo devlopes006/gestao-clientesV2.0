@@ -86,7 +86,9 @@ export class TransactionService {
       description: input.description,
       clientId: input.clientId,
     }
-    const created = await svc.create(payload as any)
+    const created = await svc.create(
+      payload as Parameters<typeof svc.create>[0]
+    )
     return created as Transaction
   }
 

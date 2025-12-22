@@ -13,6 +13,15 @@ import { FieldValue, getFirestore } from 'firebase-admin/firestore'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
+interface SessionResponseBody {
+  ok: true
+  nextPath: string | null
+  accessToken: string
+  refreshToken: string
+  expiresIn: number
+  inviteStatus?: { status: string; email?: string; reason?: string }
+}
+
 // GET: return session info
 export async function GET(req?: NextRequest) {
   try {
@@ -61,6 +70,14 @@ export async function POST(req: NextRequest) {
     const expires = new Date(decoded.exp * 1000)
     const isProduction = process.env.NODE_ENV === 'production'
 
+    // Generate refresh token using Firebase custom claims
+    // Create a custom refresh token with a long expiration (30 days)
+    const refreshTokenExpiry = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60 // 30 days
+    const refreshToken = await adminAuth.createCustomToken(decoded.uid, {
+      type: 'refresh',
+      exp: refreshTokenExpiry,
+    })
+
     // Auth cookie com sameSite 'lax' para compatibilidade mobile (atualização de página)
     // 'lax' mantém segurança contra CSRF mas permite cookies em navegação top-level
     cookieStore.set('auth', idToken, {
@@ -69,6 +86,15 @@ export async function POST(req: NextRequest) {
       sameSite: 'lax',
       path: '/',
       expires,
+    })
+
+    // Store refresh token in httpOnly cookie (secure)
+    cookieStore.set('refresh', refreshToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      path: '/',
+      expires: new Date(refreshTokenExpiry * 1000),
     })
 
     await handleUserOnboarding({
@@ -191,13 +217,15 @@ export async function POST(req: NextRequest) {
         expires,
       })
 
-    const resp: {
-      ok: true
-      nextPath: string | null
-      inviteStatus?: { status: string; email?: string; reason?: string }
-    } = {
+    // Calculate expiresIn in seconds
+    const expiresIn = Math.floor((expires.getTime() - Date.now()) / 1000)
+
+    const resp: SessionResponseBody = {
       ok: true,
       nextPath,
+      accessToken: idToken,
+      refreshToken,
+      expiresIn,
     }
     if (inviteStatus) resp.inviteStatus = inviteStatus
     return applySecurityHeaders(req, NextResponse.json(resp))

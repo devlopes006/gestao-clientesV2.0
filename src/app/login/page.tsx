@@ -8,28 +8,32 @@ import { Suspense, useState } from "react";
 import styles from "./login.module.css";
 
 function LoginPageInner() {
-  const { loginWithGoogle, loading } = useUser();
+  const { loginWithGoogle, loading, error, clearError } = useUser();
   const searchParams = useSearchParams();
   const inviteToken = searchParams?.get?.("invite") ?? null;
   const [isLogging, setIsLogging] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const hasInvite = Boolean(inviteToken);
 
   const handleLogin = async () => {
     try {
-      setError(null);
+      clearError();
       setIsLogging(true);
-      await loginWithGoogle();
-    } catch (err: any) {
-      setError(err?.message || "Erro ao autenticar");
+      await loginWithGoogle(inviteToken);
+    } catch (err) {
+      // Error already handled in UserContext
+      console.error("Login error:", err);
     } finally {
       setIsLogging(false);
     }
   };
 
+  const handleRetry = async () => {
+    await handleLogin();
+  };
+
   const handleSignOutForInvite = () => {
-    // noop placeholder for invite flows
+    // TODO: Implement sign out for different email
     console.warn("handleSignOutForInvite called");
   };
 
@@ -100,6 +104,8 @@ function LoginPageInner() {
                 error={error}
                 onLogin={handleLogin}
                 onSignOutForInvite={handleSignOutForInvite}
+                onRetry={handleRetry}
+                onDismiss={clearError}
               />
             </div>
           </div>

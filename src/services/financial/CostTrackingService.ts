@@ -1,11 +1,21 @@
+import type {
+  CreateCostItemInput,
+  CreateSubscriptionInput,
+  UpdateCostItemInput,
+  UpdateSubscriptionInput,
+} from '@/domain/costs/CostTrackingService'
 import { CostTrackingService as DomainCostTrackingService } from '@/domain/costs/CostTrackingService'
 
 export class CostTrackingService {
-  static async createCostItem(input: any) {
+  static async createCostItem(input: CreateCostItemInput) {
     return DomainCostTrackingService.createCostItem(input)
   }
 
-  static async updateCostItem(id: string, orgId: string, input: any) {
+  static async updateCostItem(
+    id: string,
+    orgId: string,
+    input: UpdateCostItemInput
+  ) {
     return DomainCostTrackingService.updateCostItem(id, orgId, input)
   }
 
@@ -17,15 +27,23 @@ export class CostTrackingService {
     return DomainCostTrackingService.getCostItemById(id, orgId)
   }
 
-  static async listCostItems(filters: any) {
+  static async listCostItems(filters: {
+    orgId: string
+    active?: boolean
+    category?: string
+  }) {
     return DomainCostTrackingService.listCostItems(filters)
   }
 
-  static async createSubscription(input: any) {
+  static async createSubscription(input: CreateSubscriptionInput) {
     return DomainCostTrackingService.createSubscription(input)
   }
 
-  static async updateSubscription(id: string, orgId: string, input: any) {
+  static async updateSubscription(
+    id: string,
+    orgId: string,
+    input: UpdateSubscriptionInput
+  ) {
     return DomainCostTrackingService.updateSubscription(id, orgId, input)
   }
 
@@ -41,7 +59,13 @@ export class CostTrackingService {
     return DomainCostTrackingService.getSubscriptionById(id, orgId)
   }
 
-  static async listSubscriptions(filters: any) {
+  static async listSubscriptions(filters: {
+    orgId: string
+    clientId?: string
+    costItemId?: string
+    active?: boolean
+    includeDeleted?: boolean
+  }) {
     return DomainCostTrackingService.listSubscriptions(filters)
   }
 

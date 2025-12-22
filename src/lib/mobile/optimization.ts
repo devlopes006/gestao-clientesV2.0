@@ -153,15 +153,15 @@ export function buildPaginatedResponse<T>(
 ): PaginatedResponse<T> {
   const meta = calculatePaginationMeta(total, page, limit)
   // Best-effort cursor derivation when data items have 'id'
-  const first: any = data[0] as any
-  const last: any = data[data.length - 1] as any
+  const first = data[0] as T | undefined
+  const last = data[data.length - 1] as T | undefined
   const firstId =
     first && typeof first === 'object'
-      ? (first.id as string | undefined)
+      ? ((first as unknown as { id?: string }).id as string | undefined)
       : undefined
   const lastId =
     last && typeof last === 'object'
-      ? (last.id as string | undefined)
+      ? ((last as unknown as { id?: string }).id as string | undefined)
       : undefined
   return {
     data,

@@ -26,6 +26,7 @@ import {
   Settings,
   Sparkles,
   User as UserIcon,
+  UserPlus,
   Users
 } from "lucide-react";
 import Image from "next/image";

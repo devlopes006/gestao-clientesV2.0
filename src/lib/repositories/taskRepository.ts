@@ -15,6 +15,10 @@ export type TaskCreateInput = {
   priority?: string
 }
 
+// Type-safe status and priority enums
+type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED'
+type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
+
 export async function createTask(input: TaskCreateInput) {
   const task = await prisma.task.create({
     data: {
@@ -22,10 +26,10 @@ export async function createTask(input: TaskCreateInput) {
       clientId: input.clientId,
       title: input.title,
       description: input.description ?? undefined,
-      status: (input.status?.toUpperCase() as any) ?? 'TODO',
+      status: (input.status?.toUpperCase() as TaskStatus) ?? 'TODO',
       assignee: input.assignee ?? undefined,
       dueDate: input.dueDate ?? undefined,
-      priority: (input.priority?.toUpperCase() as any) ?? 'MEDIUM',
+      priority: (input.priority?.toUpperCase() as TaskPriority) ?? 'MEDIUM',
     },
   })
 

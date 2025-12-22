@@ -107,6 +107,7 @@ export function MobileBottomNav() {
   useEffect(() => {
     const fetchUnreadCount = async () => {
       try {
+        if (!auth) return;
         const currentUser = auth.currentUser;
         if (!currentUser) return;
 

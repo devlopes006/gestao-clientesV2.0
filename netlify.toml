@@ -7,6 +7,11 @@
   PNPM_VERSION = "9"
   # Desabilita smart detection para Firebase API Key (pública por natureza)
   SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
+  # Firebase credentials - APENAS para build-time (não passadas ao runtime)
+  # Em produção, use Netlify Blobs via getFirebaseCredentials() async
+  # Nota: Estas variáveis devem ser definidas via Netlify Dashboard com escopo "builds" somente
+  # FIREBASE_PRIVATE_KEY = "definir no Netlify Dashboard"
+  # FIREBASE_CLIENT_EMAIL = "definir no Netlify Dashboard"
 
 [scheduled.functions]
   # Daily reconciliation at 02:00 UTC

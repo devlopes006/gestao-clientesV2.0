@@ -20,7 +20,27 @@ function assertServerEnv() {
 if (!getApps().length) {
   try {
     // Tenta carregar credentials (Netlify Blobs ou env vars)
-    const creds = getFirebaseCredentialsSync()
+    let creds: ReturnType<typeof getFirebaseCredentialsSync> | null = null
+
+    // Durante build-time: precisa de env vars
+    // Durante runtime: tenta Blobs primeiro (async), mas firebaseAdmin.ts é sync
+    // Solução: usar env vars quando disponíveis (build), confiar em Blobs para runtime via getFirebaseCredentials async
+    try {
+      creds = getFirebaseCredentialsSync()
+    } catch {
+      // Em runtime sem env vars, isso vai falhar - mas está OK porque as funções
+      // que precisam de Firebase devem usar getFirebaseCredentials() async do firebase-credentials.ts
+      if (process.env.NODE_ENV === 'production') {
+        // Em produção, deixa falhar silenciosamente - as funções que precisam usarão async
+        console.warn(
+          'Firebase Admin não inicializado (esperado em produção sem env vars). Use getFirebaseCredentials() async.'
+        )
+        // Exporta um stub que vai falhar se alguém tentar usar
+        process.env._FIREBASE_NOT_INITIALIZED = 'true'
+        throw error
+      }
+      throw error
+    }
 
     const privateKey = creds.privateKey.replace(/\\n/g, '\n')
     if (!privateKey.includes('BEGIN PRIVATE KEY')) {
@@ -47,13 +67,18 @@ if (!getApps().length) {
     }
   } catch (error) {
     const { missing } = assertServerEnv()
-    throw new Error(
-      `Firebase Admin não inicializado. Variáveis faltando: ${
-        missing.join(', ') || 'desconhecidas'
-      }\n` +
-        'Defina-as em .env.local ou configure Netlify Blobs. Erro: ' +
-        (error instanceof Error ? error.message : String(error))
-    )
+    // Se estamos em build, isso é erro sério
+    if (process.env.NODE_ENV !== 'production') {
+      throw new Error(
+        `Firebase Admin não inicializado. Variáveis faltando: ${
+          missing.join(', ') || 'desconhecidas'
+        }\n` +
+          'Defina-as em .env.local ou configure Netlify Blobs. Erro: ' +
+          (error instanceof Error ? error.message : String(error))
+      )
+    }
+    // Em produção, deixa continuar - vai falhar se alguma função tentar usar
+    console.error('Firebase Admin init failed:', error)
   }
 }
 

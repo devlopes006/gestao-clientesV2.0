@@ -16,6 +16,24 @@ export class CreateClientUseCase {
       orgId: string
     }
   ): Promise<ClientAggregate> {
+    // Check for duplicate email if email is provided
+    if (input.email) {
+      const existingClients = await this.repository.list({
+        orgId: input.orgId,
+        take: 1000,
+      })
+
+      const isDuplicate = existingClients.data.some(
+        (c) =>
+          c.email &&
+          c.email.toLowerCase() === (input.email as string).toLowerCase()
+      )
+
+      if (isDuplicate) {
+        throw new Error('Email já está em uso nesta organização')
+      }
+    }
+
     const client = await this.repository.create({
       orgId: input.orgId,
       name: input.name,

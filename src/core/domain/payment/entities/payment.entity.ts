@@ -191,6 +191,9 @@ export class Payment {
   }
 
   fail(reason: string) {
+    if (this.props.status === PaymentStatus.VERIFIED) {
+      throw new Error('Pagamento verificado não pode ser marcado como falho')
+    }
     this.props.status = PaymentStatus.FAILED
     this.props.failureReason = reason
     this.props.updatedAt = new Date()

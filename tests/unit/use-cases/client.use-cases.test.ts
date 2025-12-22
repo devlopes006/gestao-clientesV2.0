@@ -1,7 +1,12 @@
 import { Client } from '@/core/domain/client/entities/client.entity'
 import { ClientStatus } from '@/core/domain/client/value-objects/client-status.vo'
 import { Email } from '@/core/domain/client/value-objects/email.vo'
-import { ClientRepository, CreateClientRepositoryInput, ListClientsRepositoryInput, ListClientsRepositoryOutput } from '@/core/ports/repositories/client.repository'
+import {
+  ClientRepository,
+  CreateClientRepositoryInput,
+  ListClientsRepositoryInput,
+  ListClientsRepositoryOutput,
+} from '@/core/ports/repositories/client.repository'
 import { CreateClientUseCase } from '@/core/use-cases/client/create-client.use-case'
 import { DeleteClientUseCase } from '@/core/use-cases/client/delete-client.use-case'
 import { GetClientUseCase } from '@/core/use-cases/client/get-client.use-case'
@@ -31,7 +36,7 @@ class MockClientRepository implements ClientRepository {
       name: data.name,
       email: data.email ? new Email(data.email) : undefined,
       phone: data.phone,
-      status: data.status || 'NEW' as ClientStatus,
+      status: data.status || ('NEW' as ClientStatus),
       plan: data.plan || null,
       mainChannel: data.mainChannel || null,
       contractStart: data.contractStart || null,
@@ -51,7 +56,13 @@ class MockClientRepository implements ClientRepository {
     return null
   }
 
-  async list(params: ListClientsRepositoryInput): Promise<ListClientsRepositoryOutput> {
+  async findById(id: string): Promise<Client | null> {
+    return this.clients.get(id) || null
+  }
+
+  async list(
+    params: ListClientsRepositoryInput
+  ): Promise<ListClientsRepositoryOutput> {
     let filtered = Array.from(this.clients.values()).filter(
       (c) => c.orgId === params.orgId && !c.isDeleted
     )
@@ -68,6 +79,54 @@ class MockClientRepository implements ClientRepository {
     }
   }
 
+  addClient(client: any): void {
+    this.clients.set(client.id, client)
+  }
+
+  async save(client: any): Promise<void> {
+    this.clients.set(client.id, client)
+  }
+
+  async findByEmail(email: string, orgId: string): Promise<Client | null> {
+    const found = Array.from(this.clients.values()).find(
+      (c) => c.orgId === orgId && c.email && c.email._value === email
+    )
+    return found || null
+  }
+
+  async findByCNPJ(cnpj: string, orgId: string): Promise<Client | null> {
+    return null
+  }
+
+  async findByOrgId(
+    orgId: string,
+    options?: {
+      page?: number
+      limit?: number
+      status?: string[]
+      search?: string
+    }
+  ): Promise<{ clients: Client[]; total: number }> {
+    const clients = Array.from(this.clients.values()).filter(
+      (c) => c.orgId === orgId && !c.isDeleted
+    )
+    return { clients, total: clients.length }
+  }
+
+  async delete(id: string): Promise<void> {
+    const client = this.clients.get(id)
+    if (client) {
+      client.softDelete()
+      this.clients.set(id, client)
+    }
+  }
+
+  async exists(id: string): Promise<boolean> {
+    const client = this.clients.get(id)
+    return client ? !client.isDeleted : false
+  }
+}
+
 describe('Client Use Cases', () => {
   let repository: MockClientRepository
   const orgId = generateUUID()
@@ -78,7 +137,13 @@ describe('Client Use Cases', () => {
 
   describe('CreateClientUseCase', () => {
     it('should create a new client successfully', async () => {
-      const useCase = new CreateClientUseCase(repository)
+      const mockBillingService = {
+        generateInstallments: vi.fn().mockResolvedValue(undefined),
+      }
+      const useCase = new CreateClientUseCase(
+        repository,
+        mockBillingService as any
+      )
       const result = await useCase.execute({
         name: 'Test Company',
         email: 'test@company.com',
@@ -86,13 +151,19 @@ describe('Client Use Cases', () => {
         orgId,
       })
 
-      expect(result.clientId).toBeDefined()
-      const saved = await repository.findById(result.clientId)
+      expect(result.id).toBeDefined()
+      const saved = await repository.findById(result.id)
       expect(saved?.name).toBe('Test Company')
     })
 
     it('should reject duplicate email', async () => {
-      const useCase = new CreateClientUseCase(repository)
+      const mockBillingService = {
+        generateInstallments: vi.fn().mockResolvedValue(undefined),
+      }
+      const useCase = new CreateClientUseCase(
+        repository,
+        mockBillingService as any
+      )
 
       await useCase.execute({
         name: 'First',
@@ -152,9 +223,15 @@ describe('Client Use Cases', () => {
         repository.addClient(client)
       }
 
-      const result = await useCase.execute({ orgId, page: 1, limit: 10 })
-      expect(result.clients).toHaveLength(5)
-      expect(result.total).toBe(5)
+      const result = await useCase.execute({
+        orgId,
+        page: 1,
+        limit: 10,
+        role: 'ADMIN',
+        userId: 'test',
+      } as any)
+      expect((result as any).data).toHaveLength(5)
+      expect((result as any).meta.total).toBe(5)
     })
   })
 

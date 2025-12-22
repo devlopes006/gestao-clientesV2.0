@@ -233,13 +233,14 @@ describe('Mobile Optimization Utils', () => {
       const result = buildPaginatedResponse(data, 50, 1, 20)
 
       expect(result.data).toEqual(data)
-      expect(result.meta).toEqual({
-        page: 1,
-        limit: 20,
-        total: 50,
-        totalPages: 3,
-        hasMore: true,
-      })
+      expect(result.meta.page).toBe(1)
+      expect(result.meta.limit).toBe(20)
+      expect(result.meta.total).toBe(50)
+      expect(result.meta.totalPages).toBe(3)
+      expect(result.meta.hasMore).toBe(true)
+      // Cursor fields may also be present
+      expect(result.meta).toHaveProperty('nextCursor')
+      expect(result.meta).toHaveProperty('prevCursor')
     })
   })
 

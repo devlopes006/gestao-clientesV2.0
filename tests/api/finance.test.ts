@@ -1,3 +1,4 @@
+import { NextRequest } from 'next/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/services/auth/session', () => ({
@@ -22,6 +23,29 @@ vi.mock('@/lib/prisma', () => ({
     },
   },
 }))
+
+// Helper to create mock NextRequest
+function createMockRequest(
+  url: string,
+  options?: {
+    method?: string
+    body?: unknown
+    headers?: Record<string, string>
+  }
+): NextRequest {
+  const fullUrl = url.startsWith('http') ? url : `http://localhost${url}`
+  const init: RequestInit = {
+    method: options?.method || 'GET',
+    headers: {
+      'x-forwarded-for': '127.0.0.1',
+      ...options?.headers,
+    },
+  }
+  if (options?.body) {
+    init.body = JSON.stringify(options.body)
+  }
+  return new NextRequest(fullUrl, init)
+}
 
 // Import after mocks
 import { DELETE, GET, PATCH, POST } from '@/app/api/finance/route'
@@ -105,16 +129,16 @@ describe('POST /api/finance', () => {
       client: { id: 'c1', name: 'Cliente' },
     })
 
-    const mockReq = {
-      headers: new Map([['x-forwarded-for', '127.0.0.1']]),
-      json: async () => ({
+    const mockReq = createMockRequest('/api/finance', {
+      method: 'POST',
+      body: {
         type: 'expense',
         amount: 50,
         description: 'Custo',
         category: 'Operacional',
         clientId: 'c1',
-      }),
-    } as unknown as Request
+      },
+    })
 
     const res = await POST(mockReq)
     expect(res.status).toBe(201)
@@ -130,10 +154,10 @@ describe('POST /api/finance', () => {
     })
     mockedCan.mockReturnValue(true)
 
-    const mockReq = {
-      headers: new Map([['x-forwarded-for', '127.0.0.1']]),
-      json: async () => ({ description: 'Missing type/amount' }),
-    } as unknown as Request
+    const mockReq = createMockRequest('/api/finance', {
+      method: 'POST',
+      body: { description: 'Missing type/amount' },
+    })
 
     const res = await POST(mockReq)
     expect(res.status).toBe(400)
@@ -158,8 +182,9 @@ describe('PATCH /api/finance', () => {
       id: 'f1',
       type: 'income',
       amount: 100,
+      orgId: 'org1',
       clientId: 'c1',
-      client: { id: 'c1', orgId: 'org1' },
+      client: { id: 'c1', name: 'Cliente' },
     })
     ;(
       prisma.transaction.update as unknown as ReturnType<typeof vi.fn>
@@ -174,11 +199,10 @@ describe('PATCH /api/finance', () => {
       client: { id: 'c1', name: 'Cliente' },
     })
 
-    const mockReq = {
-      url: 'http://localhost/api/finance?id=f1',
-      headers: new Map([['x-forwarded-for', '127.0.0.1']]),
-      json: async () => ({ amount: 150, description: 'Atualizado' }),
-    } as unknown as Request
+    const mockReq = createMockRequest('/api/finance?id=f1', {
+      method: 'PATCH',
+      body: { amount: 150, description: 'Atualizado' },
+    })
 
     const res = await PATCH(mockReq)
     expect(res.status).toBe(200)
@@ -197,11 +221,10 @@ describe('PATCH /api/finance', () => {
       prisma.transaction.findUnique as unknown as ReturnType<typeof vi.fn>
     ).mockResolvedValue(null)
 
-    const mockReq = {
-      url: 'http://localhost/api/finance?id=f999',
-      headers: new Map([['x-forwarded-for', '127.0.0.1']]),
-      json: async () => ({ amount: 150 }),
-    } as unknown as Request
+    const mockReq = createMockRequest('/api/finance?id=f999', {
+      method: 'PATCH',
+      body: { amount: 150 },
+    })
 
     const res = await PATCH(mockReq)
     expect(res.status).toBe(404)
@@ -226,17 +249,17 @@ describe('DELETE /api/finance', () => {
       id: 'f1',
       type: 'income',
       amount: 100,
+      orgId: 'org1',
       clientId: 'c1',
-      client: { id: 'c1', orgId: 'org1' },
+      client: { id: 'c1', name: 'Cliente' },
     })
     ;(
       prisma.transaction.delete as unknown as ReturnType<typeof vi.fn>
     ).mockResolvedValue({ id: 'f1' })
 
-    const mockReq = {
-      url: 'http://localhost/api/finance?id=f1',
-      headers: new Map([['x-forwarded-for', '127.0.0.1']]),
-    } as unknown as Request
+    const mockReq = createMockRequest('/api/finance?id=f1', {
+      method: 'DELETE',
+    })
 
     const res = await DELETE(mockReq)
     expect(res.status).toBe(200)
@@ -255,10 +278,9 @@ describe('DELETE /api/finance', () => {
       prisma.transaction.findUnique as unknown as ReturnType<typeof vi.fn>
     ).mockResolvedValue(null)
 
-    const mockReq = {
-      url: 'http://localhost/api/finance?id=f999',
-      headers: new Map([['x-forwarded-for', '127.0.0.1']]),
-    } as unknown as Request
+    const mockReq = createMockRequest('/api/finance?id=f999', {
+      method: 'DELETE',
+    })
 
     const res = await DELETE(mockReq)
     expect(res.status).toBe(404)

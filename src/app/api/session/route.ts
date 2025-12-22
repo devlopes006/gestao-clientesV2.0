@@ -72,10 +72,13 @@ export async function POST(req: NextRequest) {
 
     // Generate refresh token using Firebase custom claims
     // Create a custom refresh token with a long expiration (30 days)
+    // Note: Firebase automatically sets "exp" claim - we cannot manually set it
+    // The token TTL is controlled by createCustomToken's default behavior (1 hour)
+    // but we'll store the expiry time separately for client-side reference
     const refreshTokenExpiry = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60 // 30 days
     const refreshToken = await adminAuth.createCustomToken(decoded.uid, {
       type: 'refresh',
-      exp: refreshTokenExpiry,
+      refreshExpiry: refreshTokenExpiry, // Store separately - 'exp' is reserved
     })
 
     // Auth cookie com sameSite 'lax' para compatibilidade mobile (atualização de página)

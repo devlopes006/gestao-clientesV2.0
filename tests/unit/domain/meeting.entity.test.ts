@@ -222,23 +222,24 @@ describe('Meeting Entity', () => {
       const startDate = new Date(Date.now() - 2 * 3600000) // 2 horas atrás
       const endDate = new Date(Date.now() - 3600000) // 1 hora atrás
 
-      const meeting = Meeting.create({
-        title: 'Reunião',
+      // Usar restore para contornar a validação de agendamento no passado
+      const pastMeeting = Meeting.restore({
+        id: 'meeting-1',
+        title: 'Reunião Passada',
+        description: 'Uma reunião que ocorreu no passado',
         type: MeetingType.PRESENCIAL,
         status: MeetingStatus.SCHEDULED,
         participantIds: ['user-1'],
         startDate,
         endDate,
         orgId: 'org-123',
+        clientId: null,
+        createdAt: startDate,
+        updatedAt: startDate,
+        cancelledAt: null,
       })
 
-      // Criar um novo meeting com data no passado para testar (bypass da validação de agendamento)
-      const pastMeeting = Meeting.restore({
-        ...meeting,
-        startDate,
-        endDate,
-      })
-
+      expect(pastMeeting).toBeDefined()
       expect(pastMeeting.isOverdue()).toBe(true)
     })
 

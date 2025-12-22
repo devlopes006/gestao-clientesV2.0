@@ -21,7 +21,7 @@ function normalizePrivateKey(key: string): string {
 function buildCredentialArgs() {
   const creds = getFirebaseCredentialsSync()
   const privateKey = normalizePrivateKey(creds.privateKey)
-  
+
   if (!privateKey.includes('BEGIN PRIVATE KEY')) {
     const preview = privateKey.substring(0, 50)
     logger.error('Invalid Firebase private key format', {
@@ -30,9 +30,11 @@ function buildCredentialArgs() {
       hasEscapedNewlines: creds.privateKey.includes('\\n'),
       length: privateKey.length,
     })
-    throw new Error('FIREBASE_PRIVATE_KEY format is invalid. Must be a valid PEM-encoded private key.')
+    throw new Error(
+      'FIREBASE_PRIVATE_KEY format is invalid. Must be a valid PEM-encoded private key.'
+    )
   }
-  
+
   return {
     projectId: creds.projectId,
     clientEmail: creds.clientEmail,
@@ -50,14 +52,14 @@ function initSync(): Auth | null {
         credential: cert({ projectId, clientEmail, privateKey }),
       })
     cachedAuth = getAuth(app)
-    
+
     if (process.env.NODE_ENV !== 'production') {
       logger.debug('Firebase Admin inicializado (sync)', {
         projectId,
         clientEmailDomain: clientEmail.split('@')[1],
       })
     }
-    
+
     return cachedAuth
   } catch (error) {
     if (process.env.NODE_ENV !== 'production') {
@@ -65,7 +67,10 @@ function initSync(): Auth | null {
     }
     logger.error('Firebase Admin sync init failed', {
       error: error instanceof Error ? error.message : String(error),
-      code: error instanceof Error && 'code' in error ? (error as any).code : undefined,
+      code:
+        error instanceof Error && 'code' in error
+          ? (error as any).code
+          : undefined,
     })
     return null
   }
@@ -79,7 +84,7 @@ async function initAsync(): Promise<Auth> {
     try {
       const creds = await getFirebaseCredentials()
       const privateKey = normalizePrivateKey(creds.privateKey)
-      
+
       if (!privateKey.includes('BEGIN PRIVATE KEY')) {
         const preview = privateKey.substring(0, 50)
         logger.error('Invalid Firebase private key format (async)', {
@@ -88,9 +93,11 @@ async function initAsync(): Promise<Auth> {
           hasEscapedNewlines: creds.privateKey.includes('\\n'),
           length: privateKey.length,
         })
-        throw new Error('FIREBASE_PRIVATE_KEY format is invalid. Must be a valid PEM-encoded private key.')
+        throw new Error(
+          'FIREBASE_PRIVATE_KEY format is invalid. Must be a valid PEM-encoded private key.'
+        )
       }
-      
+
       const app =
         getApps()[0] ??
         initializeApp({
@@ -101,17 +108,18 @@ async function initAsync(): Promise<Auth> {
           }),
         })
       cachedAuth = getAuth(app)
-      
+
       logger.debug('Firebase Admin inicializado (async)', {
         projectId: creds.projectId,
         clientEmailDomain: creds.clientEmail.split('@')[1],
       })
-      
+
       return cachedAuth
     } catch (err) {
       logger.error('Firebase Admin async init failed', {
         error: err instanceof Error ? err.message : String(err),
-        code: err instanceof Error && 'code' in err ? (err as any).code : undefined,
+        code:
+          err instanceof Error && 'code' in err ? (err as any).code : undefined,
       })
       throw err
     }

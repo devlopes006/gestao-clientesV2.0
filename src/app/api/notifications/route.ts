@@ -88,9 +88,14 @@ export async function GET(req: NextRequest) {
       dynamicNotifications = await getDynamicNotifications(orgId)
     } catch (e) {
       // Em ambientes onde o Postgres não tem todas as tabelas/colunas, ignore dinâmicas
-      const code = typeof e === 'object' && e && 'code' in (e as any) ? (e as any).code : undefined
+      const code =
+        typeof e === 'object' && e && 'code' in (e as any)
+          ? (e as any).code
+          : undefined
       if (code === 'P2021' || code === 'P2022') {
-        console.warn('[notifications] Esquema incompleto, ignorando notificações dinâmicas')
+        console.warn(
+          '[notifications] Esquema incompleto, ignorando notificações dinâmicas'
+        )
         dynamicNotifications = []
       } else {
         throw e

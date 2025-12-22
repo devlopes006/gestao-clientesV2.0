@@ -44,7 +44,8 @@
     "redis:local:logs": "docker logs -f redis-local",
     "redis:status": "pnpm redis:test",
     "redis:test:upstash": "tsx scripts/upstash-rest-quick-test.ts",
-    "db:check-urls": "node scripts/check-db-urls.mjs"
+    "db:check-urls": "node scripts/check-db-urls.mjs",
+    "firebase:upload-to-blobs": "node scripts/upload-firebase-to-blobs.mjs"
   },
   "dependencies": {
     "@apollo/server": "^5.2.0",
@@ -54,6 +55,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^5.2.2",
+    "@netlify/blobs": "^10.5.0",
     "@prisma/adapter-pg": "^7.0.0",
     "@prisma/client": "^7.1.0",
     "@radix-ui/react-checkbox": "^1.3.3",

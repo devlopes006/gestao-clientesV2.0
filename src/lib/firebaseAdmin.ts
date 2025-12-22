@@ -1,4 +1,4 @@
-import { getServerEnv } from '@/lib/env'
+import { getFirebaseCredentialsSync } from '@/lib/firebase-credentials'
 import { logger } from '@/lib/logger'
 import { cert, getApp, getApps, initializeApp } from 'firebase-admin/app'
 import { getAuth } from 'firebase-admin/auth'
@@ -18,39 +18,42 @@ function assertServerEnv() {
 }
 
 if (!getApps().length) {
-  const senv = getServerEnv()
-  if (!senv) {
+  try {
+    // Tenta carregar credentials (Netlify Blobs ou env vars)
+    const creds = getFirebaseCredentialsSync()
+
+    const privateKey = creds.privateKey.replace(/\\n/g, '\n')
+    if (!privateKey.includes('BEGIN PRIVATE KEY')) {
+      logger.warn(
+        'FIREBASE_PRIVATE_KEY parece inválida (não contém BEGIN PRIVATE KEY). Verifique se as quebras de linha estão escapadas como \\n.'
+      )
+    }
+
+    initializeApp({
+      credential: cert({
+        projectId: creds.projectId,
+        clientEmail: creds.clientEmail,
+        privateKey,
+      }),
+    })
+
+    // Log informativo apenas em desenvolvimento
+    if (process.env.NODE_ENV !== 'production') {
+      logger.debug('Firebase Admin inicializado', {
+        projectId: creds.projectId,
+        clientEmailDomain: creds.clientEmail?.split('@')[1],
+        source: process.env.FIREBASE_PRIVATE_KEY ? 'env' : 'blobs',
+      })
+    }
+  } catch (error) {
     const { missing } = assertServerEnv()
-    // Provide actionable guidance without cryptic TypeError.
     throw new Error(
       `Firebase Admin não inicializado. Variáveis faltando: ${
         missing.join(', ') || 'desconhecidas'
       }\n` +
-        'Defina-as em .env.local (nunca prefixe segredos com NEXT_PUBLIC_) e reinicie o servidor.'
+        'Defina-as em .env.local ou configure Netlify Blobs. Erro: ' +
+        (error instanceof Error ? error.message : String(error))
     )
-  }
-
-  const privateKey = senv.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
-  if (!privateKey.includes('BEGIN PRIVATE KEY')) {
-    logger.warn(
-      'FIREBASE_PRIVATE_KEY parece inválida (não contém BEGIN PRIVATE KEY). Verifique se as quebras de linha estão escapadas como \\n.'
-    )
-  }
-
-  initializeApp({
-    credential: cert({
-      projectId: senv.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      clientEmail: senv.FIREBASE_CLIENT_EMAIL,
-      privateKey,
-    }),
-  })
-
-  // Log informativo apenas em desenvolvimento para facilitar diagnóstico de mismatch
-  if (process.env.NODE_ENV !== 'production') {
-    logger.debug('Firebase Admin inicializado', {
-      projectId: senv.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      clientEmailDomain: senv.FIREBASE_CLIENT_EMAIL?.split('@')[1],
-    })
   }
 }
 

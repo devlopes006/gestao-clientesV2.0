@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
-import { NextResponse } from 'next/server'
 import fs from 'fs'
+import { NextResponse } from 'next/server'
 import path from 'path'
 
 function safeDbInfo() {
@@ -39,10 +39,12 @@ async function safeCount(label: string, fn: () => Promise<number>) {
 
 async function getAppliedMigrations() {
   try {
-    const rows = await prisma.$queryRaw<{
-      migration_name: string
-      finished_at: Date | null
-    }[]>`select migration_name, finished_at from "_prisma_migrations" order by finished_at desc nulls last`
+    const rows = await prisma.$queryRaw<
+      {
+        migration_name: string
+        finished_at: Date | null
+      }[]
+    >`select migration_name, finished_at from "_prisma_migrations" order by finished_at desc nulls last`
     return {
       ok: true,
       appliedCount: rows.length,
@@ -79,13 +81,14 @@ function getLocalMigrations() {
 export async function GET() {
   const dbInfo = safeDbInfo()
 
-  const [migrations, locals, clientCount, orgCount, userCount] = await Promise.all([
-    getAppliedMigrations(),
-    Promise.resolve(getLocalMigrations()),
-    safeCount('client', () => prisma.client.count()),
-    safeCount('org', () => prisma.org.count()),
-    safeCount('user', () => prisma.user.count()),
-  ])
+  const [migrations, locals, clientCount, orgCount, userCount] =
+    await Promise.all([
+      getAppliedMigrations(),
+      Promise.resolve(getLocalMigrations()),
+      safeCount('client', () => prisma.client.count()),
+      safeCount('org', () => prisma.org.count()),
+      safeCount('user', () => prisma.user.count()),
+    ])
 
   return NextResponse.json({
     timestamp: new Date().toISOString(),

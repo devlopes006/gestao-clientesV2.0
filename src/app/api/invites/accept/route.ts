@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { invalidatePermissionCache } from '@/lib/rbac/cache'
 import { getSessionProfile } from '@/services/auth/session'
 import { FieldValue, getFirestore } from 'firebase-admin/firestore'
 import { NextRequest, NextResponse } from 'next/server'
@@ -52,6 +53,8 @@ export async function POST(req: Request) {
         },
       })
     }
+
+    await invalidatePermissionCache(user.id, invite.orgId)
 
     let nextPath = '/'
 

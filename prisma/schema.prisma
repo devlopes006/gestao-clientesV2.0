@@ -7,19 +7,20 @@ datasource db {
 }
 
 model User {
-  id             String          @id @default(cuid())
-  email          String          @unique
-  name           String?
-  createdAt      DateTime        @default(now())
-  firebaseUid    String          @unique
-  image          String?
-  updatedAt      DateTime        @updatedAt
-  lastActiveAt   DateTime?
-  client         Client?
-  memberships    Member[]
-  notifications  Notification[]
-  orgs           Org[]           @relation("OrgOwner")
-  firestoreSyncs FirestoreSync[]
+  id               String            @id @default(cuid())
+  email            String            @unique
+  name             String?
+  createdAt        DateTime          @default(now())
+  firebaseUid      String            @unique
+  image            String?
+  updatedAt        DateTime          @updatedAt
+  lastActiveAt     DateTime?
+  client           Client?
+  memberships      Member[]
+  notifications    Notification[]
+  orgs             Org[]             @relation("OrgOwner")
+  firestoreSyncs   FirestoreSync[]
+  permissionAudits PermissionAudit[]
 }
 
 model Org {
@@ -53,6 +54,7 @@ model Org {
   tasks                   Task[]
   transactions            Transaction[]
   whatsappMessages        WhatsAppMessage[]
+  permissionAudits        PermissionAudit[]
 }
 
 model Member {
@@ -220,6 +222,25 @@ model FirestoreSync {
 
   @@index([userId])
   @@index([status])
+  @@index([createdAt])
+}
+
+model PermissionAudit {
+  id           String   @id @default(cuid())
+  userId       String?
+  orgId        String?
+  action       String
+  resource     String
+  reason       String?
+  requiredRole String?
+  role         String?
+  metadata     Json?
+  createdAt    DateTime @default(now())
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  org          Org?     @relation(fields: [orgId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([orgId])
   @@index([createdAt])
 }
 

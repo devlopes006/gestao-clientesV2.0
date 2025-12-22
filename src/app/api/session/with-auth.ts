@@ -13,6 +13,7 @@
  * ```
  */
 
+import { logPermissionDenied } from '@/lib/rbac/audit'
 import { getSessionProfile } from '@/services/auth/session'
 import { NextRequest, NextResponse } from 'next/server'
 import { validateUserAccess, ValidationResult } from './validate'
@@ -72,6 +73,17 @@ export function withAuth(handler: ProtectedHandler) {
         console.warn(
           `[Auth] User ${user.id} access revoked: ${validation.reason}`
         )
+
+        await logPermissionDenied({
+          userId: user.id,
+          orgId,
+          action: 'SESSION_VALIDATE',
+          resource: req.nextUrl.pathname,
+          reason: validation.reason,
+          role: role || 'UNKNOWN',
+          metadata: { stage: 'withAuth' },
+        })
+
         return NextResponse.json(
           {
             error: 'Access denied',
@@ -125,6 +137,16 @@ export function withAuthRole(requiredRole: string, handler: ProtectedHandler) {
     const hasRequiredRole = context.role === requiredRole
 
     if (!isOwner && !hasRequiredRole) {
+      await logPermissionDenied({
+        userId: context.user.id,
+        orgId: context.orgId,
+        action: 'ROLE_CHECK',
+        resource: req.nextUrl.pathname,
+        reason: 'insufficient_role',
+        requiredRole,
+        role: context.role,
+      })
+
       return NextResponse.json(
         {
           error: 'Insufficient permissions',

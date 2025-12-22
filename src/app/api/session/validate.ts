@@ -6,6 +6,7 @@
  */
 
 import { prisma } from '@/lib/prisma'
+import { getPermissionCache, setPermissionCache } from '@/lib/rbac/cache'
 import { USER_ROLE, type UserRole } from '@/shared/types/enums'
 
 /**
@@ -14,6 +15,7 @@ import { USER_ROLE, type UserRole } from '@/shared/types/enums'
 export interface ValidationResult {
   valid: boolean
   reason?: 'user_not_found' | 'team_removed' | 'role_revoked' | 'org_deleted'
+  role?: UserRole
   user?: {
     id: string
     email: string
@@ -43,6 +45,19 @@ export async function validateUserAccess(
   expectedOrgId?: string
 ): Promise<ValidationResult> {
   try {
+    if (expectedOrgId) {
+      const cached = await getPermissionCache(userId, expectedOrgId)
+      if (cached?.valid) {
+        return {
+          valid: true,
+          reason: cached.reason as ValidationResult['reason'],
+          role: cached.role as UserRole | undefined,
+          user: cached.user as ValidationResult['user'],
+          org: cached.org as ValidationResult['org'],
+        }
+      }
+    }
+
     // 1. Verificar se user existe no DB
     const user = await prisma.user.findUnique({
       where: { firebaseUid: userId },
@@ -100,8 +115,9 @@ export async function validateUserAccess(
         }
       }
 
-      return {
+      const result: ValidationResult = {
         valid: true,
+        role: orgMembership.role as UserRole,
         user: {
           id: user.id,
           email: user.email,
@@ -112,6 +128,12 @@ export async function validateUserAccess(
           name: orgMembership.organization.name,
         },
       }
+
+      if (expectedOrgId) {
+        await setPermissionCache(userId, expectedOrgId, result)
+      }
+
+      return result
     }
 
     // Se não há expectedOrgId, apenas validar que user existe e tem memberships
@@ -124,7 +146,7 @@ export async function validateUserAccess(
       }
     }
 
-    return {
+    const result: ValidationResult = {
       valid: true,
       user: {
         id: user.id,
@@ -136,6 +158,8 @@ export async function validateUserAccess(
         name: primaryOrg.name,
       },
     }
+
+    return result
   } catch (error) {
     console.error('[Validation] Error validating user access:', error)
     // Em caso de erro no DB, negamos acesso (fail-safe)
@@ -160,6 +184,11 @@ export async function userHasRole(
   requiredRole: UserRole | string
 ): Promise<boolean> {
   try {
+    const cached = await getPermissionCache(userId, orgId)
+    if (cached?.valid && cached.role) {
+      return cached.role === requiredRole || cached.role === USER_ROLE.OWNER
+    }
+
     const member = await prisma.member.findFirst({
       where: {
         userId,
@@ -171,6 +200,14 @@ export async function userHasRole(
     })
 
     if (!member) return false
+
+    await setPermissionCache(userId, orgId, {
+      valid: true,
+      role: member.role as UserRole,
+      org: { id: orgId },
+      user: { id: userId },
+    })
+
     return member.role === requiredRole || member.role === USER_ROLE.OWNER
   } catch (error) {
     console.error('[Validation] Error checking role:', error)
@@ -192,21 +229,38 @@ export async function userCanAccessClient(
   orgId: string
 ): Promise<boolean> {
   try {
-    // 1. Verificar se user é membro do org
-    const isMember = await prisma.member.findFirst({
-      where: {
-        userId,
-        organization: {
-          id: orgId,
-          deletedAt: null,
-        },
-      },
-    })
+    const cached = await getPermissionCache(userId, orgId)
+    let role = cached?.role as UserRole | undefined
 
-    if (!isMember) return false
+    if (!cached?.valid) {
+      const isMember = await prisma.member.findFirst({
+        where: {
+          userId,
+          organization: {
+            id: orgId,
+            deletedAt: null,
+          },
+        },
+        include: {
+          organization: {
+            select: { name: true },
+          },
+        },
+      })
+
+      if (!isMember) return false
+      role = isMember.role as UserRole
+
+      await setPermissionCache(userId, orgId, {
+        valid: true,
+        role,
+        org: { id: orgId, name: isMember.organization?.name },
+        user: { id: userId },
+      })
+    }
 
     // 2. Se é CLIENT role, verificar se está atribuído ao cliente
-    if (isMember.role === USER_ROLE.CLIENT) {
+    if (role === USER_ROLE.CLIENT) {
       const client = await prisma.client.findFirst({
         where: {
           id: clientId,

@@ -4,7 +4,7 @@ import { spawn } from 'node:child_process'
 async function loadFirebaseSecrets() {
   try {
     const store = getStore('firebase-secrets')
-    
+
     // Carrega each blob directly
     const projectIdBlob = await store.get('project_id')
     const clientEmailBlob = await store.get('client_email')

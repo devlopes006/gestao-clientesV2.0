@@ -37,7 +37,7 @@
 | Task 1: /api/refresh | ✅ COMPLETO | 1-2h  | ✓          |
 | Task 2: /api/session | ✅ COMPLETO | 30min | ✓          |
 | Task 3: UserContext  | ✅ COMPLETO | 1-2h  | ✓          |
-| Task 4: Middleware   | ⏳ TODO     | 2-3h  |            |
+| Task 4: Middleware   | ✅ COMPLETO | 2-3h  | ✓          |
 | Task 5: Validação    | ⏳ TODO     | 1h    |            |
 | Task 6: E2E Tests    | ⏳ TODO     | 2-3h  |            |
 | Task 7: Documentação | ⏳ TODO     | 30min |            |
@@ -228,46 +228,105 @@ interface TokenState {
 
 ---
 
-### TASK 4: Criar Middleware para Interceptar 401
+### TASK 4: Criar Fetch Interceptor para Interceptar 401
 
-**Arquivo**: `src/middleware.ts`  
+**Arquivos**:
+
+- `src/lib/useFetch.ts` ✅ CRIADO
+- `src/lib/fetch-interceptor.ts` ✅ CRIADO
+- `src/lib/fetch-examples.ts` ✅ CRIADO (Documentação + Exemplos)
+
 **Prioridade**: 🔴 CRÍTICA  
-**Status**: ⏳ TODO
+**Status**: ✅ COMPLETO
 
 ```typescript
-// Adicionar ao context:
-interface TokenState {
-  accessToken: string | null
-  refreshToken: string | null
-  expiresAt: number | null
-}
+// Hook useFetch (simples, recomendado)
+const { fetch } = useFetch()
+const response = await fetch('/api/data') // Auto-retry em 401!
 
-// Métodos:
-;-saveTokens(accessToken, refreshToken, expiresIn) -
-  getAccessToken() -
-  isTokenExpired() -
-  refreshTokens() // chamado automaticamente
+// createFetchInterceptor (avançado)
+const interceptedFetch = createFetchInterceptor(() => ({
+  refreshTokens,
+  tokenState,
+  router,
+  user,
+}))
+const response = await interceptedFetch('/api/data', { timeout: 60000 })
 ```
 
 **Checklist**:
 
-- [ ] Criar TokenState interface
-- [ ] Adicionar ao context state
-- [ ] Implementar saveTokens()
-- [ ] Implementar isTokenExpired()
-- [ ] Implementar refreshTokens() (chama /api/refresh)
-- [ ] Type-safe
-- [ ] TypeScript validation passa
+- [x] Criar Hook useFetch() ✅
+- [x] Criar createFetchInterceptor() ✅
+- [x] Interceptar respostas 401 ✅
+- [x] Chamar refreshTokens() automaticamente ✅
+- [x] Retry automático com novo token ✅
+- [x] Limpar tokens se refresh falhar ✅
+- [x] Redirect para /login se necessário ✅
+- [x] Type-safe (ZERO `any`) ✅
+- [x] TypeScript validation passa ✅ PASSED
+- [x] Documentação + Exemplos de Uso ✅
 
-**Tempo estimado**: 1-2 horas
+**Implementação Realizada**:
+
+✅ Hook `useFetch()`:
+
+- Wrapper simples para fetch com retry automático
+- Acesso direto ao context via `useUser()`
+- Ideal para uso em componentes React
+- Suporta `skipTokenRefresh` para endpoints específicos
+
+✅ Função `createFetchInterceptor()`:
+
+- Mais flexible e configurável
+- Aceita provider de context
+- Retry automático em 401
+- Timeout configurável (default: 30000ms)
+- maxRetries configurável (default: 1)
+
+✅ Fluxo de Interceptação:
+
+1. Client faz fetch('/api/data')
+2. Interceptor intercepta e adiciona credentials
+3. Server retorna response
+4. Se 401:
+   - Tenta refresh automático via refreshTokens()
+   - Se sucesso: retenta a requisição original
+   - Se falha: redireciona para /login
+5. Se não 401: retorna response
+
+✅ Tratamento de Erros:
+
+- Timeout automático com AbortController
+- Debug logging para troubleshooting
+- Graceful redirect em falhas críticas
+
+✅ Documentação Completa:
+
+- `fetch-examples.ts`: Exemplos de uso
+- Comentários detalhados no código
+- Fluxo de execução documentado
+- Configurações avançadas explicadas
+
+**Tempo Real**: ~1 hora
 
 ---
 
-### TASK 4: Criar Middleware para Interceptar 401
+### TASK 5: Validação de Permissões (DB CHECK)
 
-**Arquivo**: `src/middleware.ts`  
-**Prioridade**: 🔴 CRÍTICA  
+**Arquivo**: `src/app/api/session/validate.ts` (NOVO)
+**Prioridade**: 🟠 IMPORTANTE  
 **Status**: ⏳ TODO
+
+```typescript
+// Função para validar se user ainda tem acesso
+// Cenário: Admin removeu user do team mid-session
+// Solução: Validar contra DB a cada request crítico
+```
+
+**Checklist**:
+
+````
 
 ```typescript
 // Middleware:
@@ -294,8 +353,8 @@ interface TokenState {
 
 ### TASK 5: Validar Permissões a Cada Request
 
-**Arquivo**: `src/app/api/session/validate.ts` (NOVO)  
-**Prioridade**: 🟠 IMPORTANTE  
+**Arquivo**: `src/app/api/session/validate.ts` (NOVO)
+**Prioridade**: 🟠 IMPORTANTE
 **Status**: ⏳ TODO
 
 ```typescript
@@ -320,8 +379,8 @@ interface TokenState {
 
 ### TASK 6: Testes E2E para Fase 2
 
-**Arquivo**: `e2e/session.spec.ts` (NOVO)  
-**Prioridade**: 🟠 IMPORTANTE  
+**Arquivo**: `e2e/session.spec.ts` (NOVO)
+**Prioridade**: 🟠 IMPORTANTE
 **Status**: ⏳ TODO
 
 ```typescript
@@ -349,8 +408,8 @@ interface TokenState {
 
 ### TASK 7: Documentação & Atualizar Roteiro
 
-**Arquivo**: `FASES_2_3_4_ROTEIRO.md` (ATUALIZAR)  
-**Prioridade**: 🟡 LEGAL TER  
+**Arquivo**: `FASES_2_3_4_ROTEIRO.md` (ATUALIZAR)
+**Prioridade**: 🟡 LEGAL TER
 **Status**: ⏳ TODO
 
 **Checklist**:
@@ -367,8 +426,8 @@ interface TokenState {
 
 ### TASK 8: Executar Protocolo de Checagem
 
-**Referência**: `PROTOCOLO_PERMANENTE_CHECAGEM.md`  
-**Prioridade**: 🔴 CRÍTICA  
+**Referência**: `PROTOCOLO_PERMANENTE_CHECAGEM.md`
+**Prioridade**: 🔴 CRÍTICA
 **Status**: ⏳ TODO
 
 **Checklist**:
@@ -456,13 +515,13 @@ interface TokenState {
 
 ## 🎯 CRITÉRIO DE SUCESSO
 
-✅ Token expira automaticamente e é renovado sem intervenção do usuário  
-✅ Usuário não vê erro 401 (é tratado internamente)  
-✅ Sessão dura > 1 hora seamlessly  
-✅ Logout limpa tokens corretamente  
-✅ Permissões revogadas são refletidas em próximo request  
-✅ 0 erros TypeScript  
-✅ 0 `any` em código novo  
+✅ Token expira automaticamente e é renovado sem intervenção do usuário
+✅ Usuário não vê erro 401 (é tratado internamente)
+✅ Sessão dura > 1 hora seamlessly
+✅ Logout limpa tokens corretamente
+✅ Permissões revogadas são refletidas em próximo request
+✅ 0 erros TypeScript
+✅ 0 `any` em código novo
 ✅ 100% type-safe
 
 ---
@@ -486,19 +545,19 @@ Task 8: Checagem & Validação [ ] TODO
 
 ## 📞 DÚVIDAS COMUNS
 
-**P: Como refresh funciona?**  
+**P: Como refresh funciona?**
 R: Middleware intercepta 401 → chama /api/refresh → retry request automaticamente
 
-**P: E se refresh token expirar?**  
+**P: E se refresh token expirar?**
 R: Middleware redireciona para /login
 
-**P: Refresh é seguro?**  
+**P: Refresh é seguro?**
 R: Sim! Token fica em httpOnly cookie (JS não consegue acessar)
 
-**P: Quanto tempo leva?**  
+**P: Quanto tempo leva?**
 R: 2-3 dias com testes inclusos
 
-**P: Quando posso fazer merge?**  
+**P: Quando posso fazer merge?**
 R: Após executar PROTOCOLO_PERMANENTE_CHECAGEM.md (20 min)
 
 ---
@@ -506,3 +565,4 @@ R: Após executar PROTOCOLO_PERMANENTE_CHECAGEM.md (20 min)
 **Próximo passo**: Começar TASK 1 - Criar `/api/refresh` endpoint
 
 Quer que eu comece a implementar agora? 👇
+````

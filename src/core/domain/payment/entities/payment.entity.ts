@@ -148,6 +148,26 @@ export class Payment {
     return this.props.refundedAmount ?? null
   }
 
+  get isVerified(): boolean {
+    return this.props.status === PaymentStatus.VERIFIED
+  }
+
+  get isFailed(): boolean {
+    return this.props.status === PaymentStatus.FAILED
+  }
+
+  get isRefunded(): boolean {
+    return this.props.status === PaymentStatus.REFUNDED
+  }
+
+  get createdAt() {
+    return this.props.createdAt
+  }
+
+  get updatedAt() {
+    return this.props.updatedAt
+  }
+
   process(reference?: string) {
     if (this.props.status !== PaymentStatus.PENDING) {
       throw new Error('Somente pagamentos pendentes podem ser processados')
@@ -159,6 +179,9 @@ export class Payment {
   }
 
   verify() {
+    if (this.props.status === PaymentStatus.VERIFIED) {
+      throw new Error('Pagamento já foi verificado')
+    }
     if (this.props.status !== PaymentStatus.PROCESSED) {
       throw new Error('Pagamento deve estar processado para verificação')
     }
@@ -174,8 +197,11 @@ export class Payment {
   }
 
   refund(amount?: Money) {
+    if (this.props.status === PaymentStatus.REFUNDED) {
+      throw new Error('Pagamento já foi reembolsado')
+    }
     if (!this.canBeRefunded()) {
-      throw new Error('Este pagamento não pode ser reembolsado')
+      throw new Error('Apenas pagamentos verificados podem ser reembolsados')
     }
     if (amount && amount.isGreaterThan(this.props.amount)) {
       throw new Error(
@@ -193,10 +219,7 @@ export class Payment {
       throw new Error('Nota não pode ser vazia')
     }
     const existingNotes = this.props.notes ?? ''
-    const timestamp = new Date().toLocaleString('pt-BR')
-    this.props.notes = existingNotes
-      ? `${existingNotes}\n[${timestamp}] ${note}`
-      : `[${timestamp}] ${note}`
+    this.props.notes = existingNotes ? `${existingNotes}\n${note}` : note
     this.props.updatedAt = new Date()
   }
 

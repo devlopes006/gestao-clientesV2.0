@@ -83,7 +83,7 @@ export function toMobileClient(
     name: String(client.name),
     email: String(client.email || ''),
     avatar: client.avatar as string | null | undefined,
-    status: String(client.status) === 'ACTIVE' ? 'active' : 'inactive',
+    status: client.isActive === false ? 'inactive' : 'active',
   }
 }
 
@@ -93,11 +93,13 @@ export function toMobileClient(
 export function toMobileInvoice(
   invoice: Record<string, unknown>
 ): MobileInvoiceResponse {
+  const invoiceNumber = invoice.invoiceNumber || invoice.number
+  const totalAmount = invoice.totalAmount || invoice.total
   return {
     id: String(invoice.id),
-    number: String(invoice.number),
+    number: String(invoiceNumber),
     status: String(invoice.status),
-    totalAmount: Number(invoice.total),
+    totalAmount: Number(totalAmount),
     dueDate: invoice.dueDate
       ? new Date(invoice.dueDate as string | Date).toISOString()
       : new Date().toISOString(),

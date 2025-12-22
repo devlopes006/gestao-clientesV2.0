@@ -10,7 +10,7 @@ vi.mock('@/lib/permissions', () => ({
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
-    finance: {
+    transaction: {
       findMany: vi.fn(),
       findUnique: vi.fn(),
       create: vi.fn(),
@@ -55,7 +55,7 @@ describe('GET /api/finance', () => {
     })
     mockedCan.mockReturnValue(true)
     ;(
-      prisma.finance.findMany as unknown as ReturnType<typeof vi.fn>
+      prisma.transaction.findMany as unknown as ReturnType<typeof vi.fn>
     ).mockResolvedValueOnce([
       {
         id: 'f1',
@@ -93,7 +93,7 @@ describe('POST /api/finance', () => {
       prisma.client.findUnique as unknown as ReturnType<typeof vi.fn>
     ).mockResolvedValue({ id: 'c1', orgId: 'org1' })
     ;(
-      prisma.finance.create as unknown as ReturnType<typeof vi.fn>
+      prisma.transaction.create as unknown as ReturnType<typeof vi.fn>
     ).mockResolvedValue({
       id: 'f2',
       type: 'expense',
@@ -106,6 +106,7 @@ describe('POST /api/finance', () => {
     })
 
     const mockReq = {
+      headers: new Map([['x-forwarded-for', '127.0.0.1']]),
       json: async () => ({
         type: 'expense',
         amount: 50,
@@ -130,6 +131,7 @@ describe('POST /api/finance', () => {
     mockedCan.mockReturnValue(true)
 
     const mockReq = {
+      headers: new Map([['x-forwarded-for', '127.0.0.1']]),
       json: async () => ({ description: 'Missing type/amount' }),
     } as unknown as Request
 
@@ -151,7 +153,7 @@ describe('PATCH /api/finance', () => {
     })
     mockedCan.mockReturnValue(true)
     ;(
-      prisma.finance.findUnique as unknown as ReturnType<typeof vi.fn>
+      prisma.transaction.findUnique as unknown as ReturnType<typeof vi.fn>
     ).mockResolvedValue({
       id: 'f1',
       type: 'income',
@@ -160,7 +162,7 @@ describe('PATCH /api/finance', () => {
       client: { id: 'c1', orgId: 'org1' },
     })
     ;(
-      prisma.finance.update as unknown as ReturnType<typeof vi.fn>
+      prisma.transaction.update as unknown as ReturnType<typeof vi.fn>
     ).mockResolvedValue({
       id: 'f1',
       type: 'income',
@@ -174,6 +176,7 @@ describe('PATCH /api/finance', () => {
 
     const mockReq = {
       url: 'http://localhost/api/finance?id=f1',
+      headers: new Map([['x-forwarded-for', '127.0.0.1']]),
       json: async () => ({ amount: 150, description: 'Atualizado' }),
     } as unknown as Request
 
@@ -191,11 +194,12 @@ describe('PATCH /api/finance', () => {
     })
     mockedCan.mockReturnValue(true)
     ;(
-      prisma.finance.findUnique as unknown as ReturnType<typeof vi.fn>
+      prisma.transaction.findUnique as unknown as ReturnType<typeof vi.fn>
     ).mockResolvedValue(null)
 
     const mockReq = {
       url: 'http://localhost/api/finance?id=f999',
+      headers: new Map([['x-forwarded-for', '127.0.0.1']]),
       json: async () => ({ amount: 150 }),
     } as unknown as Request
 
@@ -217,7 +221,7 @@ describe('DELETE /api/finance', () => {
     })
     mockedCan.mockReturnValue(true)
     ;(
-      prisma.finance.findUnique as unknown as ReturnType<typeof vi.fn>
+      prisma.transaction.findUnique as unknown as ReturnType<typeof vi.fn>
     ).mockResolvedValue({
       id: 'f1',
       type: 'income',
@@ -226,11 +230,12 @@ describe('DELETE /api/finance', () => {
       client: { id: 'c1', orgId: 'org1' },
     })
     ;(
-      prisma.finance.delete as unknown as ReturnType<typeof vi.fn>
+      prisma.transaction.delete as unknown as ReturnType<typeof vi.fn>
     ).mockResolvedValue({ id: 'f1' })
 
     const mockReq = {
       url: 'http://localhost/api/finance?id=f1',
+      headers: new Map([['x-forwarded-for', '127.0.0.1']]),
     } as unknown as Request
 
     const res = await DELETE(mockReq)
@@ -247,11 +252,12 @@ describe('DELETE /api/finance', () => {
     })
     mockedCan.mockReturnValue(true)
     ;(
-      prisma.finance.findUnique as unknown as ReturnType<typeof vi.fn>
+      prisma.transaction.findUnique as unknown as ReturnType<typeof vi.fn>
     ).mockResolvedValue(null)
 
     const mockReq = {
       url: 'http://localhost/api/finance?id=f999',
+      headers: new Map([['x-forwarded-for', '127.0.0.1']]),
     } as unknown as Request
 
     const res = await DELETE(mockReq)

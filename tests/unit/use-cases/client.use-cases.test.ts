@@ -1,13 +1,13 @@
 import { Client } from '@/core/domain/client/entities/client.entity'
 import { ClientStatus } from '@/core/domain/client/value-objects/client-status.vo'
 import { Email } from '@/core/domain/client/value-objects/email.vo'
-import { IClientRepository } from '@/core/ports/repositories/client.repository.interface'
+import { ClientRepository, CreateClientRepositoryInput, ListClientsRepositoryInput, ListClientsRepositoryOutput } from '@/core/ports/repositories/client.repository'
 import { CreateClientUseCase } from '@/core/use-cases/client/create-client.use-case'
 import { DeleteClientUseCase } from '@/core/use-cases/client/delete-client.use-case'
 import { GetClientUseCase } from '@/core/use-cases/client/get-client.use-case'
 import { ListClientsUseCase } from '@/core/use-cases/client/list-clients.use-case'
 import { UpdateClientUseCase } from '@/core/use-cases/client/update-client.use-case'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // UUID Generator
 function generateUUID(): string {
@@ -19,96 +19,54 @@ function generateUUID(): string {
 }
 
 // Mock Repository
-class MockClientRepository implements IClientRepository {
+class MockClientRepository implements ClientRepository {
   private clients: Map<string, Client> = new Map()
+  private clientCounter = 0
 
-  async save(client: Client): Promise<void> {
-    this.clients.set(client.id, client)
+  async create(data: CreateClientRepositoryInput): Promise<Client> {
+    const id = `client-${++this.clientCounter}`
+    const client = Client.create({
+      id,
+      orgId: data.orgId,
+      name: data.name,
+      email: data.email ? new Email(data.email) : undefined,
+      phone: data.phone,
+      status: data.status || 'NEW' as ClientStatus,
+      plan: data.plan || null,
+      mainChannel: data.mainChannel || null,
+      contractStart: data.contractStart || null,
+      contractEnd: data.contractEnd || null,
+      paymentDay: data.paymentDay || null,
+      contractValue: data.contractValue || null,
+      isInstallment: data.isInstallment || false,
+      installmentCount: data.installmentCount || null,
+      installmentValue: data.installmentValue || null,
+      installmentPaymentDays: data.installmentPaymentDays || null,
+    })
+    this.clients.set(id, client)
+    return client
   }
 
-  async findById(id: string): Promise<Client | null> {
-    return this.clients.get(id) ?? null
-  }
-
-  async findByEmail(email: string, orgId: string): Promise<Client | null> {
-    for (const client of this.clients.values()) {
-      if (
-        client.email.value === email &&
-        client.orgId === orgId &&
-        !client.isDeleted
-      ) {
-        return client
-      }
-    }
+  async findClientForUser(): Promise<null> {
     return null
   }
 
-  async findByCNPJ(cnpj: string, orgId: string): Promise<Client | null> {
-    const cleanCNPJ = cnpj.replace(/\D/g, '')
-    for (const client of this.clients.values()) {
-      if (
-        client.cnpj?.value === cleanCNPJ &&
-        client.orgId === orgId &&
-        !client.isDeleted
-      ) {
-        return client
-      }
-    }
-    return null
-  }
-
-  async findByOrgId(
-    orgId: string,
-    options?: {
-      page?: number
-      limit?: number
-      status?: string[]
-      search?: string
-    }
-  ): Promise<{ clients: Client[]; total: number }> {
+  async list(params: ListClientsRepositoryInput): Promise<ListClientsRepositoryOutput> {
     let filtered = Array.from(this.clients.values()).filter(
-      (c) => c.orgId === orgId && !c.isDeleted
+      (c) => c.orgId === params.orgId && !c.isDeleted
     )
 
-    if (options?.status) {
-      filtered = filtered.filter((c) => options.status!.includes(c.status))
-    }
-
-    if (options?.search) {
-      filtered = filtered.filter(
-        (c) =>
-          c.name.toLowerCase().includes(options.search!.toLowerCase()) ||
-          c.email.value.includes(options.search!)
-      )
-    }
-
-    const page = options?.page ?? 1
-    const limit = options?.limit ?? 10
-    const start = (page - 1) * limit
+    const start = params.cursor ? parseInt(params.cursor) : 0
+    const data = filtered.slice(start, start + params.take)
+    const hasNextPage = start + params.take < filtered.length
+    const nextCursor = hasNextPage ? (start + params.take).toString() : null
 
     return {
-      clients: filtered.slice(start, start + limit),
-      total: filtered.length,
+      data,
+      hasNextPage,
+      nextCursor,
     }
   }
-
-  async delete(id: string): Promise<void> {
-    const client = this.clients.get(id)
-    if (client) {
-      client.softDelete()
-      this.clients.set(id, client)
-    }
-  }
-
-  async exists(id: string): Promise<boolean> {
-    const client = this.clients.get(id)
-    return client ? !client.isDeleted : false
-  }
-
-  addClient(client: Client): void {
-    this.clients.set(client.id, client)
-  }
-}
 
 describe('Client Use Cases', () => {
   let repository: MockClientRepository

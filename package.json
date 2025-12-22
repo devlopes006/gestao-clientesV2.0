@@ -11,6 +11,7 @@
     "lint": "eslint",
     "prisma:generate": "node scripts/prisma-generate.mjs",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "db:push": "prisma db push",
@@ -36,7 +37,14 @@
     "docker:logs": "docker-compose -f docker-compose.prod.yml logs -f",
     "deploy:prod": "bash scripts/deploy.sh",
     "health": "curl -f http://localhost:3000/api/health || exit 1",
-    "security:audit": "pnpm audit --audit-level=high"
+    "security:audit": "pnpm audit --audit-level=high",
+    "redis:test": "tsx scripts/redis-quick-test.ts",
+    "redis:local:start": "docker run -d --name redis-local -p 6379:6379 redis:7",
+    "redis:local:stop": "docker rm -f redis-local",
+    "redis:local:logs": "docker logs -f redis-local",
+    "redis:status": "pnpm redis:test",
+    "redis:test:upstash": "tsx scripts/upstash-rest-quick-test.ts",
+    "db:check-urls": "node scripts/check-db-urls.mjs"
   },
   "dependencies": {
     "@apollo/server": "^5.2.0",

@@ -1,5 +1,6 @@
 import { cacheManager } from '@/lib/cache'
 import { Redis } from '@upstash/redis'
+import { createClient, type RedisClientType } from 'redis'
 
 export interface PermissionCacheEntry {
   valid: boolean
@@ -18,14 +19,30 @@ export interface PermissionCacheEntry {
 }
 
 const TTL_SECONDS = 300
-const redisConfigured =
+const upstashConfigured =
   process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
-const redis = redisConfigured ? Redis.fromEnv() : null
+const redisRest = upstashConfigured ? Redis.fromEnv() : null
+const genericRedisUrl = process.env.REDIS_URL
+let redisNode: RedisClientType | null = null
+
+async function ensureNode() {
+  if (redisNode || !genericRedisUrl) return
+  try {
+    redisNode = createClient({ url: genericRedisUrl })
+    redisNode.on('error', (err) => {
+      console.error('[RBAC Cache] node-redis error', err)
+    })
+    await redisNode.connect()
+  } catch (err) {
+    console.error('[RBAC Cache] failed to connect to REDIS_URL', err)
+    redisNode = null
+  }
+}
 
 const keyFor = (userId: string, orgId: string) =>
   `rbac:perms:${userId}:${orgId}`
 
-export const permissionCacheUsesRedis = Boolean(redis)
+export const permissionCacheUsesRedis = Boolean(genericRedisUrl || redisRest)
 
 export async function getPermissionCache(
   userId: string,
@@ -33,8 +50,14 @@ export async function getPermissionCache(
 ): Promise<PermissionCacheEntry | null> {
   const key = keyFor(userId, orgId)
   try {
-    if (redis) {
-      const cached = await redis.get<PermissionCacheEntry>(key)
+    if (genericRedisUrl) {
+      await ensureNode()
+      if (redisNode) {
+        const raw = await redisNode.get(key)
+        return raw ? (JSON.parse(raw) as PermissionCacheEntry) : null
+      }
+    } else if (redisRest) {
+      const cached = await redisRest.get<PermissionCacheEntry>(key)
       return cached ?? null
     }
     return cacheManager.get<PermissionCacheEntry>(key)
@@ -57,8 +80,14 @@ export async function setPermissionCache(
   }
 
   try {
-    if (redis) {
-      await redis.set(key, value, { ex: ttlSeconds })
+    if (genericRedisUrl) {
+      await ensureNode()
+      if (redisNode) {
+        await redisNode.set(key, JSON.stringify(value), { EX: ttlSeconds })
+        return
+      }
+    } else if (redisRest) {
+      await redisRest.set(key, value, { ex: ttlSeconds })
       return
     }
     cacheManager.set(key, value, ttlSeconds)
@@ -73,8 +102,11 @@ export async function invalidatePermissionCache(
 ): Promise<void> {
   const key = keyFor(userId, orgId)
   try {
-    if (redis) {
-      await redis.del(key)
+    if (genericRedisUrl) {
+      await ensureNode()
+      if (redisNode) await redisNode.del(key)
+    } else if (redisRest) {
+      await redisRest.del(key)
     }
   } catch (error) {
     console.error('[RBAC Cache] redis del error', error)

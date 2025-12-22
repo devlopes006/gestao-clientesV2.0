@@ -645,11 +645,11 @@ export function BrandingManager({
                                     </div>
                                   )}
                                   <div className="min-w-0">
-                                    <h4 className="font-medium text-sm text-slate-900 truncate">
+                                    <h4 className="font-medium text-sm text-slate-100 dark:text-slate-100 truncate">
                                       {item.title}
                                     </h4>
                                     {item.description && (
-                                      <p className="text-xs text-slate-600 mt-1">
+                                      <p className="text-xs text-slate-400 dark:text-slate-400 mt-1">
                                         {item.description}
                                       </p>
                                     )}

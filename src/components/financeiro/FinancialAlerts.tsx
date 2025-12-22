@@ -130,59 +130,69 @@ export function FinancialAlerts() {
     switch (type) {
       case 'danger':
         return {
-          border: 'border-rose-500/50 dark:border-rose-700/50',
-          bg: 'bg-gradient-to-r from-rose-50 to-red-50 dark:from-rose-950/20 dark:to-red-950/20',
-          iconBg: 'bg-rose-100 dark:bg-rose-900/40',
-          iconColor: 'text-rose-600 dark:text-rose-400',
+          border: 'border-rose-500/30',
+          bg: 'bg-gradient-to-br from-rose-500/10 via-red-500/5 to-slate-900/90 backdrop-blur-xl',
+          iconBg: 'bg-rose-500/20 border border-rose-500/30',
+          iconColor: 'text-rose-300',
+          textColor: 'text-slate-100',
+          subtextColor: 'text-slate-400',
           accent: 'from-rose-500 to-red-500'
         }
       case 'warning':
         return {
-          border: 'border-amber-500/50 dark:border-amber-700/50',
-          bg: 'bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20',
-          iconBg: 'bg-amber-100 dark:bg-amber-900/40',
-          iconColor: 'text-amber-600 dark:text-amber-400',
+          border: 'border-amber-500/30',
+          bg: 'bg-gradient-to-br from-amber-500/10 via-yellow-500/5 to-slate-900/90 backdrop-blur-xl',
+          iconBg: 'bg-amber-500/20 border border-amber-500/30',
+          iconColor: 'text-amber-300',
+          textColor: 'text-slate-100',
+          subtextColor: 'text-slate-400',
           accent: 'from-amber-500 to-yellow-500'
         }
       case 'success':
         return {
-          border: 'border-emerald-500/50 dark:border-emerald-700/50',
-          bg: 'bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20',
-          iconBg: 'bg-emerald-100 dark:bg-emerald-900/40',
-          iconColor: 'text-emerald-600 dark:text-emerald-400',
+          border: 'border-emerald-500/30',
+          bg: 'bg-gradient-to-br from-emerald-500/10 via-green-500/5 to-slate-900/90 backdrop-blur-xl',
+          iconBg: 'bg-emerald-500/20 border border-emerald-500/30',
+          iconColor: 'text-emerald-300',
+          textColor: 'text-slate-100',
+          subtextColor: 'text-slate-400',
           accent: 'from-emerald-500 to-green-500'
         }
       case 'info':
         return {
-          border: 'border-blue-500/50 dark:border-blue-700/50',
-          bg: 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20',
-          iconBg: 'bg-blue-100 dark:bg-blue-900/40',
-          iconColor: 'text-blue-600 dark:text-blue-400',
+          border: 'border-blue-500/30',
+          bg: 'bg-gradient-to-br from-blue-500/10 via-indigo-500/5 to-slate-900/90 backdrop-blur-xl',
+          iconBg: 'bg-blue-500/20 border border-blue-500/30',
+          iconColor: 'text-blue-300',
+          textColor: 'text-slate-100',
+          subtextColor: 'text-slate-400',
           accent: 'from-blue-500 to-indigo-500'
         }
       default:
         return {
-          border: 'border-gray-500/50',
-          bg: 'bg-slate-900/60',
-          iconBg: 'bg-slate-900/60',
-          iconColor: 'text-gray-600',
-          accent: 'from-gray-500 to-gray-500'
+          border: 'border-slate-600/30',
+          bg: 'bg-slate-900/90 backdrop-blur-xl',
+          iconBg: 'bg-slate-700/20 border border-slate-600/30',
+          iconColor: 'text-slate-400',
+          textColor: 'text-slate-100',
+          subtextColor: 'text-slate-400',
+          accent: 'from-slate-500 to-slate-500'
         }
     }
   }
 
   if (loading) {
     return (
-      <Card size="sm" variant="elevated" className="bg-gradient-to-br from-background via-background to-muted/10">
+      <Card size="sm" variant="elevated" className="border border-blue-500/20 bg-gradient-to-br from-slate-900 via-blue-950/20 to-slate-900/90 backdrop-blur-xl shadow-2xl">
         <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 h-1 animate-pulse" />
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Bell className="h-5 w-5 animate-pulse" />
+          <CardTitle className="flex items-center gap-2 text-lg text-slate-100">
+            <Bell className="h-5 w-5 animate-pulse text-blue-400" />
             Alertas Financeiros
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground animate-pulse">Carregando alertas...</p>
+          <p className="text-sm text-slate-400 animate-pulse">Carregando alertas...</p>
         </CardContent>
       </Card>
     )
@@ -193,51 +203,53 @@ export function FinancialAlerts() {
   }
 
   return (
-    <Card size="sm" variant="elevated" className="overflow-hidden">
-      <CardHeader className="pb-2">
+    <Card size="sm" variant="elevated" className="overflow-hidden border border-indigo-500/20 bg-gradient-to-br from-slate-900 via-indigo-950/20 to-slate-900/90 backdrop-blur-xl shadow-2xl">
+      <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 h-1" />
+      <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-md shadow-sm">
-              <Bell className="h-4 w-4 text-white" />
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-blue-500/30 to-indigo-500/30 rounded-xl shadow-lg shadow-blue-500/30">
+              <Bell className="h-5 w-5 text-white" />
             </div>
             <div>
-              <CardTitle className="text-sm font-bold text-primary flex items-center gap-2">
+              <CardTitle className="text-lg font-bold text-slate-100 flex items-center gap-2">
                 Alertas Financeiros
-                <Badge className="text-xs px-2 py-0.5">{alerts.length}</Badge>
+                <Badge className="text-xs px-2.5 py-0.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">{alerts.length}</Badge>
               </CardTitle>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={fetchAlerts} className="text-xs">
+            <Button variant="ghost" size="sm" onClick={fetchAlerts} className="text-xs text-slate-300 hover:text-slate-100 hover:bg-slate-800/50">
               Atualizar
             </Button>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="pt-4">
         <AnimatePresence>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             {alerts.map((alert, index) => {
               const colors = getAlertColors(alert.type)
               return (
                 <motion.div
                   key={alert.id}
-                  initial={{ opacity: 0, y: -6 }}
+                  initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 6 }}
-                  transition={{ duration: 0.18, delay: index * 0.04 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className="flex-1 min-w-[280px]"
                 >
-                  <div className={`flex items-center gap-3 px-3 py-2 rounded-lg max-w-xs ${colors.bg}`}>
-                    <div className={`${colors.iconBg} rounded-full p-2 flex-shrink-0`}>
+                  <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border ${colors.border} ${colors.bg} shadow-lg hover:shadow-xl transition-all duration-300 group`}>
+                    <div className={`${colors.iconBg} rounded-xl p-2.5 flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}>
                       <div className={colors.iconColor}>{getAlertIcon(alert.type)}</div>
                     </div>
-                    <div className="min-w-0">
-                      <div className="text-sm font-semibold truncate">{alert.title}</div>
-                      <div className="text-xs text-muted-foreground truncate">{alert.message}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className={`text-sm font-bold ${colors.textColor} mb-0.5`}>{alert.title}</div>
+                      <div className={`text-xs ${colors.subtextColor} leading-relaxed`}>{alert.message}</div>
                     </div>
                     {alert.action && (
-                      <Link href={alert.action.href} className="ml-2 text-xs text-primary hover:underline">
+                      <Link href={alert.action.href} className={`ml-2 text-xs font-semibold ${colors.iconColor} hover:underline whitespace-nowrap`}>
                         {alert.action.label} →
                       </Link>
                     )}

@@ -25,31 +25,35 @@ function colorClasses(color: string) {
   switch (color) {
     case 'amber':
       return {
-        bg: 'from-amber-50/80 to-orange-50/80 dark:from-amber-950/30 dark:to-orange-950/30',
-        iconBg: 'bg-amber-100 dark:bg-amber-900/40',
-        text: 'text-amber-700 dark:text-amber-400',
-        value: 'text-amber-900 dark:text-amber-100',
+        bg: 'from-slate-900 via-amber-950/30 to-slate-900/90',
+        iconBg: 'bg-amber-500/20 border border-amber-500/30',
+        text: 'text-amber-400',
+        value: 'text-amber-100',
+        border: 'border-amber-500/20'
       }
     case 'emerald':
       return {
-        bg: 'from-emerald-50/80 to-green-50/80 dark:from-emerald-950/30 dark:to-green-950/30',
-        iconBg: 'bg-emerald-100 dark:bg-emerald-900/40',
-        text: 'text-emerald-700 dark:text-emerald-400',
-        value: 'text-emerald-900 dark:text-emerald-100',
+        bg: 'from-slate-900 via-emerald-950/30 to-slate-900/90',
+        iconBg: 'bg-emerald-500/20 border border-emerald-500/30',
+        text: 'text-emerald-400',
+        value: 'text-emerald-100',
+        border: 'border-emerald-500/20'
       }
     case 'rose':
       return {
-        bg: 'from-rose-50/80 to-red-50/80 dark:from-rose-950/30 dark:to-red-950/30',
-        iconBg: 'bg-rose-100 dark:bg-rose-900/40',
-        text: 'text-rose-700 dark:text-rose-400',
-        value: 'text-rose-900 dark:text-rose-100',
+        bg: 'from-slate-900 via-rose-950/30 to-slate-900/90',
+        iconBg: 'bg-rose-500/20 border border-rose-500/30',
+        text: 'text-rose-400',
+        value: 'text-rose-100',
+        border: 'border-rose-500/20'
       }
     default:
       return {
-        bg: 'from-slate-900/80 to-gray-50/80 dark:from-slate-950/30 dark:to-gray-950/30',
-        iconBg: 'bg-slate-900/60 dark:bg-slate-900/40',
-        text: 'text-slate-700 dark:text-slate-400',
-        value: 'text-slate-900 dark:text-slate-100',
+        bg: 'from-slate-900 via-slate-950/30 to-slate-900/90',
+        iconBg: 'bg-slate-700/20 border border-slate-600/30',
+        text: 'text-slate-400',
+        value: 'text-slate-100',
+        border: 'border-slate-600/20'
       }
   }
 }
@@ -58,16 +62,16 @@ export function InvoiceStatusGrid({ invoices }: InvoiceStatusGridProps) {
   if (!invoices) return null
 
   return (
-    <Card size="md" variant="elevated" className="overflow-visible">
+    <Card size="md" variant="elevated" className="overflow-visible border border-blue-500/20 bg-gradient-to-br from-slate-900 via-blue-950/20 to-slate-900/90 backdrop-blur-xl shadow-2xl">
       <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 h-1 rounded-t-xl" />
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-3 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 border-b border-blue-500/20">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-sm">
-            <FileText className="h-5 w-5 text-white" />
+          <div className="p-2.5 bg-blue-500/20 border border-blue-500/30 rounded-xl shadow-sm">
+            <FileText className="h-5 w-5 text-blue-400" />
           </div>
           <div>
-            <CardTitle className="text-xl font-bold">Status das Faturas</CardTitle>
-            <CardDescription className="text-sm">Visão geral completa do status de todas as faturas</CardDescription>
+            <CardTitle className="text-xl font-bold text-slate-100">Status das Faturas</CardTitle>
+            <CardDescription className="text-sm text-slate-400">Visão geral completa do status de todas as faturas</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -82,7 +86,7 @@ export function InvoiceStatusGrid({ invoices }: InvoiceStatusGridProps) {
             const total = data?.total ?? 0
 
             return (
-              <Card key={s.key} size="sm" variant="elevated" className={`h-full ${classes.bg} p-0 overflow-visible`}>
+              <Card key={s.key} size="sm" variant="elevated" className={`h-full border ${classes.border} bg-gradient-to-br ${classes.bg} backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-300 p-0 overflow-visible`}>
                 <CardContent className="py-6 px-6 flex flex-col justify-between h-full">
                   <div className="flex items-start gap-3">
                     <div className={`${classes.iconBg} p-3 rounded-lg shadow-sm flex items-center justify-center`}>

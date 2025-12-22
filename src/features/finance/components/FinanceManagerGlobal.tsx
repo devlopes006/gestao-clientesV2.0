@@ -520,7 +520,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                           <span className="text-xs font-bold text-slate-400 shrink-0">
                             #{index + 1}
                           </span>
-                          <p className="text-sm font-medium text-slate-900 truncate">
+                          <p className="text-sm font-medium text-slate-100 dark:text-slate-100 truncate">
                             {stat.category}
                           </p>
                           <span className="text-xs text-slate-500 shrink-0">
@@ -567,7 +567,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                       className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 sm:p-4 border-2 rounded-lg hover:border-violet-300 transition-colors"
                     >
                       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                        <div className="text-sm font-medium text-slate-900">
+                        <div className="text-sm font-medium text-slate-100 dark:text-slate-100">
                           {i.client.name}
                         </div>
                         <span className="text-xs px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 font-medium">
@@ -721,7 +721,7 @@ export function FinanceManagerGlobal({ orgId }: FinanceManagerGlobalProps) {
                         </div>
                         <div className="flex-1 min-w-0 w-full">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="font-semibold text-slate-900 text-sm sm:text-base wrap-break-word">
+                            <h4 className="font-semibold text-slate-800 dark:text-slate-100 text-sm sm:text-base wrap-break-word">
                               {finance.description || "Sem descrição"}
                             </h4>
                             {finance.category && (

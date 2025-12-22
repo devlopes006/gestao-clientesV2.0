@@ -63,7 +63,7 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
     fetch(`/api/dashboard?month=${encodeURIComponent(monthKey)}`)
       .then((r) => (r.ok ? r.json() : Promise.reject('Falha ao atualizar mês')))
       .then((j) => setData(j))
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoadingMonth(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [monthKey]);
@@ -115,14 +115,14 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
   })();
 
   return (
-    <main className="min-h-screen bg-neutral-50 text-slate-900">
+    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8">
         <header className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Painel</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Painel</p>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-3xl font-semibold">Visão geral</h1>
-              <p className="text-sm text-slate-600">Resumo rápido de clientes, tarefas e agenda.</p>
+              <h1 className="text-3xl font-semibold text-slate-100">Visão geral</h1>
+              <p className="text-sm text-slate-400">Resumo rápido de clientes, tarefas e agenda.</p>
             </div>
             <div className="flex items-center gap-2 text-sm text-slate-600">
               <Calendar className="h-4 w-4" />
@@ -134,12 +134,12 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
 
         <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[{ label: 'Clientes ativos', value: totalClients, icon: Users }, { label: 'Tarefas pendentes', value: totalPendingTasks, icon: ListTodo }, { label: 'Em progresso', value: totalInProgressTasks, icon: Calendar }, { label: 'Concluídas', value: `${completedPercent}%`, icon: CheckCircle2 }].map((item) => (
-            <div key={item.label} className="flex items-center justify-between rounded-lg border bg-slate-900 p-4 shadow-sm">
+            <div key={item.label} className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-900/50 p-4 shadow-sm">
               <div>
-                <p className="text-xs font-semibold uppercase text-slate-500">{item.label}</p>
-                <p className="text-2xl font-semibold text-slate-900">{item.value}</p>
+                <p className="text-xs font-semibold uppercase text-slate-400">{item.label}</p>
+                <p className="text-2xl font-semibold text-slate-100">{item.value}</p>
               </div>
-              <item.icon className="h-5 w-5 text-slate-700" />
+              <item.icon className="h-5 w-5 text-slate-400" />
             </div>
           ))}
         </section>
@@ -189,15 +189,15 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
                 <span className="text-xs text-slate-600">{priorities.length} selecionadas</span>
               </div>
               <div className="mt-3 space-y-3">
-                {priorities.length === 0 && <p className="text-sm text-slate-600">Nenhuma tarefa pendente.</p>}
+                {priorities.length === 0 && <p className="text-sm text-slate-400">Nenhuma tarefa pendente.</p>}
                 {priorities.map((task) => (
-                  <div key={task.id} className="rounded-md border border-slate-200 bg-slate-900/60 px-3 py-2">
+                  <div key={task.id} className="rounded-md border border-slate-700/50 bg-slate-900/50 px-3 py-2">
                     <div className="flex items-center justify-between">
-                      <p className="font-medium text-slate-900">{task.title}</p>
-                      <span className="text-xs font-semibold text-slate-600">{priorityLabel(task.priority)}</span>
+                      <p className="font-medium text-slate-100">{task.title}</p>
+                      <span className="text-xs font-semibold text-slate-400">{priorityLabel(task.priority)}</span>
                     </div>
-                    <p className="text-xs text-slate-600">Cliente: {task.client.name}</p>
-                    <div className="mt-1 flex flex-wrap gap-3 text-xs text-slate-600">
+                    <p className="text-xs text-slate-400">Cliente: {task.client.name}</p>
+                    <div className="mt-1 flex flex-wrap gap-3 text-xs text-slate-400">
                       <span>Status: {statusLabel(task.status)}</span>
                       <span>Prazo: {formatDate(task.dueDate)}</span>
                     </div>
@@ -250,11 +250,11 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
                 )}
                 {metrics?.urgentTasks?.length ? (
                   <div className="space-y-1">
-                    <p className="font-semibold text-slate-800">Tarefas urgentes</p>
+                    <p className="font-semibold text-slate-100 dark:text-slate-100">Tarefas urgentes</p>
                     {metrics.urgentTasks.slice(0, 3).map((task) => (
-                      <div key={task.id} className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs">
-                        <p className="font-medium text-slate-900">{task.title}</p>
-                        <p className="text-slate-700">Cliente: {task.client.name}</p>
+                      <div key={task.id} className="rounded border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs">
+                        <p className="font-medium text-amber-100">{task.title}</p>
+                        <p className="text-amber-200/80">Cliente: {task.client.name}</p>
                       </div>
                     ))}
                   </div>
@@ -267,17 +267,17 @@ export function DashboardClient({ initialData, initialMonthKey, role }: Dashboar
         <section className="rounded-lg border bg-slate-900 p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Lista de clientes</h2>
-            <span className="text-xs text-slate-600">Últimos cadastrados</span>
+            <span className="text-xs text-slate-400">Últimos cadastrados</span>
           </div>
           <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
             {clients.slice(0, 6).map((client) => (
-              <div key={client.id} className="rounded-md border border-slate-200 bg-slate-900/60 px-3 py-2">
-                <p className="font-semibold text-slate-900">{client.name}</p>
-                <p className="text-xs text-slate-600">{client.email || 'Sem email'}</p>
-                <p className="text-xs text-slate-600">Criado em {formatDate(client.createdAt)}</p>
+              <div key={client.id} className="rounded-md border border-slate-700/50 bg-slate-900/50 px-3 py-2">
+                <p className="font-semibold text-slate-100">{client.name}</p>
+                <p className="text-xs text-slate-400">{client.email || 'Sem email'}</p>
+                <p className="text-xs text-slate-400">Criado em {formatDate(client.createdAt)}</p>
               </div>
             ))}
-            {clients.length === 0 && <p className="text-sm text-slate-600">Nenhum cliente cadastrado.</p>}
+            {clients.length === 0 && <p className="text-sm text-slate-400">Nenhum cliente cadastrado.</p>}
           </div>
         </section>
       </div>

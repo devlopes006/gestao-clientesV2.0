@@ -29,6 +29,9 @@ interface Lead {
   createdAt: string
   plan?: string | null
   mainChannel?: string | null
+  metadata?: {
+    capturedAt?: string
+  }
 }
 
 export default function LeadsPage() {

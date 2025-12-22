@@ -3,14 +3,11 @@
 import { CreateRecurringExpenseModal } from '@/components/financeiro/CreateRecurringExpenseModal'
 import { RecurringExpenseDetailModal } from '@/components/financeiro/RecurringExpenseDetailModal'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { ExpenseCycle } from '@prisma/client'
-import { motion } from 'framer-motion'
 import {
   AlertCircle,
   Calendar,
@@ -248,19 +245,14 @@ export function DespesasTab() {
   }
 
   const getCycleBadge = (cycle: ExpenseCycle) => {
-    const configs: Record<ExpenseCycle, { label: string, className: string }> = {
-      MONTHLY: { label: 'Mensal', className: 'bg-blue-100 text-blue-800' },
-      ANNUAL: { label: 'Anual', className: 'bg-purple-100 text-purple-800' },
+    const configs: Record<ExpenseCycle, { label: string, styles: string }> = {
+      MONTHLY: { label: 'Mensal', styles: 'bg-gradient-to-r from-rose-500/20 to-orange-500/20 text-rose-200 border border-rose-500/30 shadow-sm shadow-rose-500/20' },
+      ANNUAL: { label: 'Anual', styles: 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-pink-200 border border-pink-500/30 shadow-sm shadow-pink-500/20' },
     }
 
-    const config = configs[cycle] || configs.MONTHLY
+    const { label, styles } = configs[cycle] || configs.MONTHLY
 
-    return (
-      <Badge className={config.className}>
-        <Calendar className="mr-1 h-3 w-3" />
-        {config.label}
-      </Badge>
-    )
+    return <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${styles}`}><Calendar className="mr-1 h-3 w-3" />{label}</span>
   }
 
   const filteredExpenses = expenses.filter(exp => {
@@ -270,216 +262,233 @@ export function DespesasTab() {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900/60 via-red-50/30 to-rose-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-      <div className="page-shell py-2 sm:py-6 lg:py-8 space-y-2 sm:space-y-6 lg:space-y-8">
+    <section className="space-y-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-2">
+          <p className="text-xs font-bold text-rose-400 uppercase tracking-widest">Gestão Financeira</p>
+          <h2 className="text-3xl font-black bg-gradient-to-r from-rose-400 via-red-400 to-orange-400 bg-clip-text text-transparent drop-shadow-lg">Despesas Fixas</h2>
+          <p className="text-sm text-slate-400 max-w-2xl">
+            Cadastre, materialize e acompanhe suas despesas recorrentes com controle total.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <Button
+            variant="outline"
+            onClick={handleMaterialize}
+            disabled={materializing}
+            className="border-slate-700 bg-slate-900/50 hover:bg-slate-800 text-slate-200"
+          >
+            {materializing ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : <Repeat className="mr-2 h-4 w-4" />}
+            Materializar
+          </Button>
+          <Button
+            onClick={() => setModalOpen(true)}
+            className="bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 shadow-lg shadow-rose-500/30"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Nova Despesa
+          </Button>
+        </div>
+      </div>
 
-        {/* Header */}
-        <motion.div
-          className="relative overflow-hidden rounded-xl sm:rounded-3xl bg-gradient-to-br from-red-600 via-rose-600 to-pink-600 p-3 sm:p-6 lg:p-8 shadow-lg sm:shadow-xl lg:shadow-2xl shadow-red-500/25"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="absolute top-0 right-0 w-96 h-96 bg-slate-900/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-rose-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-
-          <div className="relative z-10 flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-2 sm:space-y-3">
-              <motion.div
-                className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-slate-900/20 backdrop-blur-sm px-2.5 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 text-xs font-bold text-white ring-1 ring-white/30 shadow-lg"
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-slate-900 animate-pulse shadow-lg shadow-white/50" />
-                Gestão Financeira
-              </motion.div>
-              <div>
-                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white leading-tight tracking-tight">
-                  Despesas Fixas
-                </h1>
-                <p className="text-xs sm:text-sm md:text-base text-white/90 font-medium mt-1 sm:mt-2">
-                  Gestão de despesas recorrentes
-                </p>
-              </div>
+      <div className="rounded-2xl border border-rose-500/20 bg-gradient-to-br from-slate-900 via-rose-950/10 to-slate-900/90 backdrop-blur-xl p-6 shadow-2xl">
+        <div className="bg-gradient-to-r from-rose-500 via-red-500 to-orange-500 h-1 rounded-t-2xl absolute top-0 left-0 right-0" />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mb-5">
+          <div className="space-y-2">
+            <Label htmlFor="search" className="text-slate-300 font-semibold">Buscar</Label>
+            <div className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/50 px-3 py-2.5 focus-within:border-rose-500/50 focus-within:ring-2 focus-within:ring-rose-500/20 transition-all">
+              <Repeat className="h-4 w-4 text-slate-400" />
+              <Input
+                id="search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Nome da despesa"
+                className="border-0 p-0 bg-transparent text-slate-100 placeholder:text-slate-500 focus-visible:ring-0"
+              />
             </div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.94 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
-              className="flex gap-2"
-            >
-              <Button variant="secondary" onClick={handleMaterialize} disabled={materializing} className="shadow-lg bg-slate-900/90 hover:bg-slate-900 font-bold">
-                {materializing ? <RefreshCw className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" /> : <Repeat className="h-4 w-4 sm:h-5 sm:w-5" />}
-                <span className="ml-2">Materializar</span>
-              </Button>
-              <Button onClick={() => setModalOpen(true)} className="shadow-lg bg-slate-900 text-red-600 hover:bg-slate-900/90 font-bold">
-                <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
-                <span className="ml-2">Nova Despesa</span>
-              </Button>
-            </motion.div>
           </div>
-        </motion.div>
+          <div className="space-y-2">
+            <Label htmlFor="cycle" className="text-slate-300 font-semibold">Ciclo</Label>
+            <select
+              id="cycle"
+              title="Filtrar por ciclo"
+              value={cycleFilter}
+              onChange={(e) => setCycleFilter(e.target.value)}
+              className="h-11 w-full rounded-xl border border-slate-700 bg-slate-900/50 px-4 text-sm text-slate-100 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition-all"
+            >
+              <option value="" className="bg-slate-900">Todos</option>
+              <option value="MONTHLY" className="bg-slate-900">Mensal</option>
+              <option value="ANNUAL" className="bg-slate-900">Anual</option>
+            </select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="active" className="text-slate-300 font-semibold">Status</Label>
+            <select
+              id="active"
+              title="Filtrar por status"
+              value={activeFilter}
+              onChange={(e) => setActiveFilter(e.target.value)}
+              className="h-11 w-full rounded-xl border border-slate-700 bg-slate-900/50 px-4 text-sm text-slate-100 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition-all"
+            >
+              <option value="" className="bg-slate-900">Todos</option>
+              <option value="active" className="bg-slate-900">Ativos</option>
+              <option value="inactive" className="bg-slate-900">Inativos</option>
+            </select>
+          </div>
+        </div>
 
-        {/* Filtros */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-700/30 pt-4">
+          <span className="text-sm font-semibold text-slate-300">
+            Mostrando <span className="text-rose-400">{filteredExpenses.length}</span> de <span className="text-rose-400">{expenses.length}</span> despesas
+          </span>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => { setSearchTerm(''); setCycleFilter(''); setActiveFilter('') }}
+              className="text-slate-300 hover:text-slate-100 hover:bg-slate-800"
+            >
+              Limpar filtros
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleMaterialize}
+              disabled={materializing}
+              className="border-slate-700 bg-slate-900/50 hover:bg-slate-800 text-slate-200"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Materializar agora
+            </Button>
+          </div>
+        </div>
+      </div>
 
-          <Card size="md" className="surface-elevated hover-raise transition-base">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg">Filtros</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="search">Buscar</Label>
-                    <Input id="search" placeholder="Nome da despesa..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-11" />
+      <div className="space-y-4">
+        {error && (
+          <Alert variant="destructive" className="border-red-500/30 bg-red-500/10">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="text-slate-100">{error}</AlertDescription>
+          </Alert>
+        )}
+        {loading ? (
+          <div className="flex items-center gap-3 rounded-2xl border border-rose-500/30 bg-gradient-to-br from-rose-500/10 to-slate-900/90 backdrop-blur-xl px-6 py-8 shadow-xl">
+            <RefreshCw className="h-5 w-5 animate-spin text-rose-400" />
+            <span className="text-sm font-semibold text-slate-200">Carregando despesas...</span>
+          </div>
+        ) : filteredExpenses.length === 0 ? (
+          <div className="rounded-2xl border border-slate-700/50 bg-gradient-to-br from-slate-900/50 to-slate-800/50 backdrop-blur-xl px-6 py-12 text-center shadow-xl">
+            <p className="text-sm font-semibold text-slate-400">Nenhuma despesa encontrada.</p>
+            <p className="text-xs text-slate-500 mt-1">Tente ajustar os filtros ou criar uma nova despesa.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filteredExpenses.map((expense) => (
+              <div
+                key={expense.id}
+                onClick={() => handleViewExpense(expense.id)}
+                className="group rounded-2xl border border-slate-700/50 bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-xl p-5 shadow-lg hover:shadow-xl hover:border-rose-500/30 transition-all duration-300 cursor-pointer"
+              >
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2.5 rounded-full border ${expense.isActive ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-slate-700 bg-slate-900/60 text-slate-400'}`}>
+                      {expense.isActive ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-base font-bold text-slate-100 line-clamp-1">{expense.name}</p>
+                        {getCycleBadge(expense.cycle)}
+                        {!expense.isActive && <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">Inativo</span>}
+                      </div>
+                      {expense.description && <p className="text-sm text-slate-400 line-clamp-2">{expense.description}</p>}
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          Próximo: {formatDate(expense.nextDueDate)}
+                        </span>
+                        {expense.paidThisMonth && (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2 py-1 text-[11px] font-semibold text-emerald-300">
+                            <CheckCircle className="h-3 w-3" /> Pago este mês
+                          </span>
+                        )}
+                        <span className="text-slate-500">{expense.cycle === 'MONTHLY' ? '/ mês' : '/ ano'}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cycle">Ciclo</Label>
-                    <select id="cycle" value={cycleFilter} onChange={(e) => setCycleFilter(e.target.value)} className="w-full h-11 px-3 py-2 border rounded-md" aria-label="Filtrar por ciclo">
-                      <option value="">Todos</option>
-                      <option value="MONTHLY">Mensal</option>
-                      <option value="ANNUAL">Anual</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="active">Status</Label>
-                    <select id="active" value={activeFilter} onChange={(e) => setActiveFilter(e.target.value)} className="w-full h-11 px-3 py-2 border rounded-md" aria-label="Filtrar por status ativo">
-                      <option value="">Todos</option>
-                      <option value="active">Ativos</option>
-                      <option value="inactive">Inativos</option>
-                    </select>
+                  <div className="text-right space-y-2">
+                    <p className="text-xl font-black bg-gradient-to-r from-rose-400 to-orange-400 bg-clip-text text-transparent">
+                      {formatCurrency(expense.amount)}
+                    </p>
+                    <div className="flex gap-2 justify-end">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(ev) => handleToggleActive(expense.id, expense.isActive, ev)}
+                        className="border-slate-700 text-slate-200 hover:border-rose-500/40 hover:text-rose-300"
+                      >
+                        {expense.isActive ? <ToggleLeft className="h-4 w-4" /> : <ToggleRight className="h-4 w-4" />}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(ev) => handleDelete(expense.id, ev)}
+                        className="border-slate-700 text-rose-400 hover:border-rose-500/50 hover:text-rose-300"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={(ev) => handleMaterializeOne(expense.id, ev)}
+                        disabled={!expense.isActive || expense.paidThisMonth}
+                        title={expense.paidThisMonth ? 'Já pago/materializado este mês' : 'Pagar este mês'}
+                        className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white disabled:opacity-50"
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
-                <Button variant="outline" onClick={() => { setSearchTerm(''); setCycleFilter(''); setActiveFilter('') }} className="w-full sm:w-auto">Limpar Filtros</Button>
               </div>
-            </CardContent>
-          </Card>
-        </motion.section>
-
-        <Card size="md" className="surface-elevated hover-raise transition-base">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-xl">Despesas Recorrentes</CardTitle>
-            <CardDescription className="text-base">Mostrando {filteredExpenses.length} de {expenses.length} despesas</CardDescription>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="flex justify-between items-center gap-3 mb-4 sm:mb-6 p-2 sm:p-3 lg:p-4 bg-gradient-to-r from-slate-900/60 to-slate-100 dark:from-slate-900 dark:to-slate-800 rounded-lg">
-              <div className="text-sm font-medium text-muted-foreground">
-                Página {page} de {totalPages}
-              </div>
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                >
-                  Anterior
-                </Button>
-                <select
-                  value={page}
-                  onChange={(e) => setPage(Number(e.target.value))}
-                  className="px-3 py-1.5 border rounded-md text-sm font-medium"
-                  aria-label="Ir para página"
-                >
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
-                    <option key={p} value={p}>Página {p}</option>
-                  ))}
-                </select>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                  disabled={page === totalPages}
-                >
-                  Próxima
-                </Button>
-              </div>
-            </div>
-            {error && <Alert variant="destructive" className="mb-4"><AlertCircle className="h-4 w-4" /><AlertDescription>{error}</AlertDescription></Alert>}
-            {loading ? <div className="text-center py-12 text-muted-foreground">Carregando...</div> : filteredExpenses.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Repeat className="h-16 w-16 mx-auto mb-4 opacity-20" />
-                <p className="text-lg font-medium">Nenhuma despesa encontrada</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredExpenses.map((expense) => (
-                  <div key={expense.id} className="responsive-list-item border rounded-xl hover:bg-gradient-to-r hover:from-red-50 hover:to-rose-50 dark:hover:from-red-950/20 dark:hover:to-rose-950/20 hover:shadow-md transition-all cursor-pointer group" onClick={() => handleViewExpense(expense.id)}>
-                    <div className="responsive-flex-container">
-                      <div className={`p-2 rounded-full shrink-0 ${expense.isActive ? 'bg-green-100' : 'bg-slate-900/60'}`}>
-                        {expense.isActive ? <ToggleRight className="responsive-icon text-green-600" /> : <ToggleLeft className="responsive-icon text-gray-400" />}
-                      </div>
-                      <div className="responsive-content">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-medium responsive-text">{expense.name}</p>
-                          {getCycleBadge(expense.cycle)}
-                          {!expense.isActive && <Badge variant="outline" className="bg-slate-900/60 shrink-0">Inativo</Badge>}
-                        </div>
-                        <div className="responsive-meta text-muted-foreground mt-1">
-                          {expense.description && <span className="truncate max-w-[150px] sm:max-w-none">{expense.description}</span>}
-                          <span className="flex items-center gap-1 shrink-0"><Calendar className="h-3 w-3" />Próximo: {formatDate(expense.nextDueDate)}</span>
-                          {expense.paidThisMonth && <Badge variant="outline" className="border-green-200 text-green-700 shrink-0 text-[10px] sm:text-xs">Pago este mês</Badge>}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="responsive-actions">
-                      <div className="text-left sm:text-right shrink-0">
-                        <div className="responsive-value text-red-600">{formatCurrency(expense.amount)}</div>
-                        <div className="responsive-badge text-muted-foreground">{expense.cycle === 'MONTHLY' ? '/mês' : '/ano'}</div>
-                      </div>
-                      <div className="flex gap-1.5 sm:gap-2 shrink-0">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={(ev) => handleToggleActive(expense.id, expense.isActive, ev)}
-                          className={expense.isActive ? 'text-orange-600' : 'text-green-600'}
-                        >
-                          {expense.isActive ? <ToggleLeft className="h-4 w-4" /> : <ToggleRight className="h-4 w-4" />}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={(ev) => handleDelete(expense.id, ev)}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={(ev) => handleMaterializeOne(expense.id, ev)}
-                          disabled={!expense.isActive || expense.paidThisMonth}
-                          title={expense.paidThisMonth ? 'Já pago/materializado este mês' : 'Pagar este mês'}
-                        >
-                          <CheckCircle className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Modals */}
-        <CreateRecurringExpenseModal
-          open={modalOpen}
-          onOpenChange={setModalOpen}
-          onSuccess={handleExpenseCreated}
-        />
-
-        <RecurringExpenseDetailModal
-          open={detailModalOpen}
-          onOpenChange={setDetailModalOpen}
-          expenseId={selectedExpenseId}
-        />
+            ))}
+          </div>
+        )}
       </div>
-    </div>
+
+      {totalPages > 1 && (
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-slate-700/50 bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl p-4 text-sm text-slate-300 md:flex-row md:justify-between shadow-lg">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="border-slate-700 bg-slate-900/50 hover:bg-slate-800 text-slate-200"
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="border-slate-700 bg-slate-900/50 hover:bg-slate-800 text-slate-200"
+            >
+              Próxima
+            </Button>
+          </div>
+          <span className="text-rose-400 font-semibold">Página {page} de {totalPages}</span>
+        </div>
+      )}
+
+      <CreateRecurringExpenseModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        onSuccess={handleExpenseCreated}
+      />
+
+      <RecurringExpenseDetailModal
+        open={detailModalOpen}
+        onOpenChange={setDetailModalOpen}
+        expenseId={selectedExpenseId}
+      />
+    </section>
   )
 }

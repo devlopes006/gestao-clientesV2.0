@@ -167,7 +167,7 @@ export const components = {
       primary:
         'bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl hover:scale-[1.01]',
       secondary:
-        'bg-slate-900/60 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white',
+        'bg-slate-800/60 hover:bg-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-100 dark:text-white',
       success:
         'bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-lg hover:shadow-xl hover:scale-[1.01]',
       danger:
@@ -178,14 +178,14 @@ export const components = {
     },
   },
   input: {
-    base: 'w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-900 dark:bg-slate-900 px-4 py-2.5 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200',
+    base: 'w-full rounded-lg border border-slate-700 dark:border-slate-700 bg-slate-900 dark:bg-slate-900 px-4 py-2.5 text-slate-100 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all duration-200',
     error: 'border-red-500 focus:border-red-500 focus:ring-red-500/20',
   },
   badge: {
     base: 'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition-colors',
     variants: {
       default:
-        'bg-slate-900/60 text-slate-900 dark:bg-slate-800 dark:text-slate-100',
+        'bg-slate-800/60 text-slate-100 dark:bg-slate-800 dark:text-slate-100',
       success:
         'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
       warning:

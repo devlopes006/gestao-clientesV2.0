@@ -337,10 +337,10 @@ export function ClientInfoEditor({ client, canEdit }: ClientInfoEditorProps) {
         ) : (
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-1">
-              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+              <p className="text-xs font-medium text-slate-400 dark:text-slate-400 uppercase tracking-wider">
                 Nome
               </p>
-              <p className="text-base font-semibold text-slate-900">
+              <p className="text-base font-semibold text-slate-100 dark:text-slate-100">
                 {client.name || "—"}
               </p>
             </div>

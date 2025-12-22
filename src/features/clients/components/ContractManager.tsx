@@ -64,18 +64,18 @@ export default function ContractManager({
       {/* Grid de informações */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <div className="flex items-center gap-1.5 text-xs text-slate-600 mb-1">
+          <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-400 mb-1">
             <Calendar className="w-3.5 h-3.5" />
             <span>Início</span>
           </div>
-          <p className="text-sm font-semibold text-slate-900">{formatDate(contractStart)}</p>
+          <p className="text-sm font-semibold text-slate-100 dark:text-slate-100">{formatDate(contractStart)}</p>
         </div>
         <div>
-          <div className="flex items-center gap-1.5 text-xs text-slate-600 mb-1">
+          <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-400 mb-1">
             <Calendar className="w-3.5 h-3.5" />
             <span>Término</span>
           </div>
-          <p className="text-sm font-semibold text-slate-900">{contractEnd ? formatDate(contractEnd) : "Não definido"}</p>
+          <p className="text-sm font-semibold text-slate-100 dark:text-slate-100">{contractEnd ? formatDate(contractEnd) : "Não definido"}</p>
         </div>
         <div>
           <div className="flex items-center gap-1.5 text-xs text-slate-600 mb-1">
@@ -85,11 +85,11 @@ export default function ContractManager({
           <p className="text-base font-bold text-green-700">{formatCurrency(contractValue)}</p>
         </div>
         <div>
-          <div className="flex items-center gap-1.5 text-xs text-slate-600 mb-1">
+          <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-400 mb-1">
             <Calendar className="w-3.5 h-3.5" />
             <span>Dia{paymentDays && paymentDays.length > 1 ? 's' : ''} de Pagamento</span>
           </div>
-          <p className="text-sm font-semibold text-slate-900">
+          <p className="text-sm font-semibold text-slate-100 dark:text-slate-100">
             {paymentDays && paymentDays.length > 0
               ? paymentDays.map(d => `Dia ${d}`).join(', ')
               : paymentDay

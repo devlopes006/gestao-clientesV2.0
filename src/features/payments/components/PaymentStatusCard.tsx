@@ -227,20 +227,20 @@ export function PaymentStatusCard({
 
       {/* Resumo de estatísticas - só mostrar se for parcelado */}
       {status.mode === "installment" && status.details.installments && (
-        <div className="bg-slate-900 rounded-lg border border-slate-200 p-4">
-          <div className="text-xs font-medium text-slate-500 mb-3">RESUMO DO MÊS</div>
+        <div className="bg-slate-900 rounded-lg border border-slate-700/50 p-4">
+          <div className="text-xs font-medium text-slate-400 mb-3">RESUMO DO MÊS</div>
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-sm text-slate-600">Total de parcelas no mês:</span>
-              <span className="font-bold text-slate-900">{status.details.installments.total}</span>
+              <span className="text-sm text-slate-300">Total de parcelas no mês:</span>
+              <span className="font-bold text-slate-100">{status.details.installments.total}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-slate-600">Parcelas pagas:</span>
-              <span className="font-bold text-green-600">{status.details.installments.paid}</span>
+              <span className="text-sm text-slate-300">Parcelas pagas:</span>
+              <span className="font-bold text-green-400">{status.details.installments.paid}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-slate-600">Parcelas pendentes:</span>
-              <span className="font-bold text-amber-600">{status.details.installments.pending}</span>
+              <span className="text-sm text-slate-300">Parcelas pendentes:</span>
+              <span className="font-bold text-amber-400">{status.details.installments.pending}</span>
             </div>
           </div>
         </div>
@@ -270,9 +270,9 @@ export function PaymentStatusCard({
       )}
       {/* Lista de parcelas (se aplicável) */}
       {status.mode === "installment" && installments.length > 0 && (
-        <div className="bg-slate-900 rounded-lg border p-5 space-y-3">
-          <div className="flex items-center justify-between border-b pb-3">
-            <span className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Todas as Parcelas</span>
+        <div className="bg-slate-900 rounded-lg border border-slate-700/50 p-5 space-y-3">
+          <div className="flex items-center justify-between border-b border-slate-700/50 pb-3">
+            <span className="text-sm font-semibold text-slate-100 uppercase tracking-wide">Todas as Parcelas</span>
             <Button
               variant="ghost"
               size="sm"
@@ -288,9 +288,9 @@ export function PaymentStatusCard({
                   key={inst.id}
                   className={cn(
                     "flex items-center justify-between p-3 rounded-lg border transition-colors",
-                    inst.status === "CONFIRMED" && "bg-green-50/50 border-green-200",
-                    inst.status === "LATE" && "bg-red-50/50 border-red-200",
-                    inst.status === "PENDING" && "bg-slate-900/50 border-gray-200"
+                    inst.status === "CONFIRMED" && "bg-green-500/10 border-green-500/30",
+                    inst.status === "LATE" && "bg-red-500/10 border-red-500/30",
+                    inst.status === "PENDING" && "bg-slate-800/50 border-slate-700/50"
                   )}
                 >
                   <div className="flex items-center gap-3">
@@ -305,10 +305,10 @@ export function PaymentStatusCard({
                       {inst.status === "PENDING" && <Clock className="h-4 w-4 text-white" />}
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-gray-900">
+                      <div className="text-sm font-semibold text-slate-100">
                         Parcela {inst.number}/{inst.totalInstallments}
                       </div>
-                      <div className="text-xs text-gray-600">
+                      <div className="text-xs text-slate-400">
                         {formatDate(inst.dueDate)}
                         {inst.paidAt && ` • Pago em ${formatDate(inst.paidAt)}`}
                       </div>
@@ -316,7 +316,7 @@ export function PaymentStatusCard({
                   </div>
                   <div className="text-right flex items-center gap-2">
                     <div>
-                      <div className="text-base font-bold text-gray-900">{formatCurrency(inst.amount)}</div>
+                      <div className="text-base font-bold text-slate-100">{formatCurrency(inst.amount)}</div>
                       {canEdit && inst.status !== "CONFIRMED" && (
                         <Button
                           size="sm"

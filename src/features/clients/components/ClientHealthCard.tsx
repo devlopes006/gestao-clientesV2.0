@@ -53,9 +53,8 @@ export function ClientHealthCard({
   if (variant === "compact") {
     return (
       <Card
-        className={`relative overflow-hidden border-2 transition-all duration-200 hover:shadow-lg ${
-          onClientClick ? "cursor-pointer hover:-translate-y-1" : ""
-        } ${getStatusBorderColor(status)}`}
+        className={`relative overflow-hidden border-2 transition-all duration-200 hover:shadow-lg ${onClientClick ? "cursor-pointer hover:-translate-y-1" : ""
+          } ${getStatusBorderColor(status)}`}
         onClick={handleClick}
       >
         <div
@@ -97,11 +96,11 @@ export function ClientHealthCard({
               >
                 {canViewAmounts
                   ? new Intl.NumberFormat("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    }).format(metrics.balance)
+                    style: "currency",
+                    currency: "BRL",
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  }).format(metrics.balance)
                   : "••••"}
               </div>
               <p className="text-xs text-slate-600 dark:text-slate-400">
@@ -129,13 +128,12 @@ export function ClientHealthCard({
                   <AlertTriangle className="h-3 w-3 text-yellow-600" />
                 )}
                 <span
-                  className={`font-medium truncate ${
-                    issues[0].severity === "high"
+                  className={`font-medium truncate ${issues[0].severity === "high"
                       ? "text-red-600 dark:text-red-400"
                       : issues[0].severity === "medium"
                         ? "text-orange-600 dark:text-orange-400"
                         : "text-yellow-700 dark:text-yellow-400"
-                  }`}
+                    }`}
                 >
                   {issues[0].type === "balance" && !canViewAmounts
                     ? "O cliente está com saldo negativo."
@@ -184,20 +182,19 @@ export function ClientHealthCard({
             </p>
           </div>
           <div
-            className={`text-center p-4 rounded-lg border ${
-              metrics.balance >= 0
+            className={`text-center p-4 rounded-lg border ${metrics.balance >= 0
                 ? "bg-green-50 border-green-200"
                 : "bg-red-50 border-red-200"
-            }`}
+              }`}
           >
             <div
               className={`text-2xl font-bold ${metrics.balance >= 0 ? "text-green-600" : "text-red-600"}`}
             >
               {canViewAmounts
                 ? new Intl.NumberFormat("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  }).format(metrics.balance)
+                  style: "currency",
+                  currency: "BRL",
+                }).format(metrics.balance)
                 : "••••"}
             </div>
             <p className="text-xs text-slate-600 mt-1">Balanço</p>
@@ -212,12 +209,12 @@ export function ClientHealthCard({
 
         {/* Status geral */}
         <div className="space-y-2">
-          <p className="text-sm font-medium text-slate-700">Status Geral</p>
+          <p className="text-sm font-medium text-slate-400 dark:text-slate-400">Status Geral</p>
           <div className="flex items-center gap-2">
             <div
               className={`h-3 w-3 rounded-full ${getStatusDotColor(status)}`}
             />
-            <span className="text-base font-semibold text-slate-900">
+            <span className="text-base font-semibold text-slate-100 dark:text-slate-100">
               {getStatusLabel(status)}
             </span>
           </div>
@@ -296,14 +293,14 @@ function calculateHealthScore(metrics: ClientHealthMetrics): number {
 // Identificar problemas específicos com severidade
 export type Gargalo = {
   type:
-    | "overdue"
-    | "pending"
-    | "balance"
-    | "completion"
-    | "noneDone"
-    | "paymentLate"
-    | "meetingMissed"
-    | "installmentLate";
+  | "overdue"
+  | "pending"
+  | "balance"
+  | "completion"
+  | "noneDone"
+  | "paymentLate"
+  | "meetingMissed"
+  | "installmentLate";
   message: string;
   severity: "high" | "medium" | "low";
   action?: string;
@@ -400,127 +397,127 @@ export function getClientIssues(metrics: ExtendedMetrics): Gargalo[] {
       count?: number;
     };
   }> = [
-    {
-      type: "overdue",
-      check: (m) => {
-        const overdue = m.tasksOverdue ?? 0;
-        return {
-          active: overdue > 0,
-          message: `${overdue} tarefa${overdue > 1 ? "s" : ""} atrasada${overdue > 1 ? "s" : ""}`,
-          severity: overdue > 3 ? "high" : overdue > 0 ? "medium" : "low",
-          action: "Ver tarefas",
-          count: overdue,
-        };
+      {
+        type: "overdue",
+        check: (m) => {
+          const overdue = m.tasksOverdue ?? 0;
+          return {
+            active: overdue > 0,
+            message: `${overdue} tarefa${overdue > 1 ? "s" : ""} atrasada${overdue > 1 ? "s" : ""}`,
+            severity: overdue > 3 ? "high" : overdue > 0 ? "medium" : "low",
+            action: "Ver tarefas",
+            count: overdue,
+          };
+        },
       },
-    },
-    {
-      type: "pending",
-      check: (m) => {
-        const pendingRatio =
-          m.tasksTotal > 0 ? m.tasksPending / m.tasksTotal : 0;
-        return {
-          active: pendingRatio > 0.6 && m.tasksPending > 5,
-          message: `${Math.round(pendingRatio * 100)}% das tarefas pendentes (${m.tasksPending})`,
-          severity:
-            pendingRatio > 0.8 ? "high" : pendingRatio > 0.6 ? "medium" : "low",
-          action: "Ver pendências",
-          count: m.tasksPending,
-        };
+      {
+        type: "pending",
+        check: (m) => {
+          const pendingRatio =
+            m.tasksTotal > 0 ? m.tasksPending / m.tasksTotal : 0;
+          return {
+            active: pendingRatio > 0.6 && m.tasksPending > 5,
+            message: `${Math.round(pendingRatio * 100)}% das tarefas pendentes (${m.tasksPending})`,
+            severity:
+              pendingRatio > 0.8 ? "high" : pendingRatio > 0.6 ? "medium" : "low",
+            action: "Ver pendências",
+            count: m.tasksPending,
+          };
+        },
       },
-    },
-    {
-      type: "balance",
-      check: (m) => {
-        return {
-          active: m.balance < 0,
-          message: `Saldo negativo: ${new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(m.balance)}`,
-          severity:
-            m.balance < -5000 ? "high" : m.balance < 0 ? "medium" : "low",
-          action: "Ver financeiro",
-          amount: m.balance,
-        };
+      {
+        type: "balance",
+        check: (m) => {
+          return {
+            active: m.balance < 0,
+            message: `Saldo negativo: ${new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(m.balance)}`,
+            severity:
+              m.balance < -5000 ? "high" : m.balance < 0 ? "medium" : "low",
+            action: "Ver financeiro",
+            amount: m.balance,
+          };
+        },
       },
-    },
-    {
-      type: "completion",
-      check: (m) => {
-        return {
-          active: m.completionRate < 40 && m.tasksTotal > 3,
-          message: `Taxa de conclusão baixa: ${m.completionRate.toFixed(0)}%`,
-          severity:
-            m.completionRate < 20
-              ? "high"
-              : m.completionRate < 40
-                ? "low"
-                : "medium",
-          action: "Ver tarefas",
-        };
+      {
+        type: "completion",
+        check: (m) => {
+          return {
+            active: m.completionRate < 40 && m.tasksTotal > 3,
+            message: `Taxa de conclusão baixa: ${m.completionRate.toFixed(0)}%`,
+            severity:
+              m.completionRate < 20
+                ? "high"
+                : m.completionRate < 40
+                  ? "low"
+                  : "medium",
+            action: "Ver tarefas",
+          };
+        },
       },
-    },
-    {
-      type: "noneDone",
-      check: (m) => {
-        return {
-          active: m.tasksCompleted === 0 && m.tasksTotal > 5,
-          message: "Nenhuma tarefa concluída",
-          severity: "medium",
-          action: "Criar tarefa",
-        };
+      {
+        type: "noneDone",
+        check: (m) => {
+          return {
+            active: m.tasksCompleted === 0 && m.tasksTotal > 5,
+            message: "Nenhuma tarefa concluída",
+            severity: "medium",
+            action: "Criar tarefa",
+          };
+        },
       },
-    },
-    {
-      type: "paymentLate",
-      check: (m) => {
-        const late = m.paymentsLate ?? 0;
-        return {
-          active: late > 0,
-          message: `${late} pagamento${late > 1 ? "s" : ""} pendente${late > 1 ? "s" : ""}`,
-          severity: late > 2 ? "high" : "medium",
-          action: "Cobrar pagamento",
-          count: late,
-        };
+      {
+        type: "paymentLate",
+        check: (m) => {
+          const late = m.paymentsLate ?? 0;
+          return {
+            active: late > 0,
+            message: `${late} pagamento${late > 1 ? "s" : ""} pendente${late > 1 ? "s" : ""}`,
+            severity: late > 2 ? "high" : "medium",
+            action: "Cobrar pagamento",
+            count: late,
+          };
+        },
       },
-    },
-    {
-      type: "meetingMissed",
-      check: (m) => {
-        const missed = m.meetingsMissed ?? 0;
-        return {
-          active: missed > 0,
-          message: `${missed} reunião${missed > 1 ? "s" : ""} não realizada${missed > 1 ? "s" : ""}`,
-          severity: missed > 2 ? "high" : "medium",
-          action: "Remarcar reunião",
-          count: missed,
-        };
+      {
+        type: "meetingMissed",
+        check: (m) => {
+          const missed = m.meetingsMissed ?? 0;
+          return {
+            active: missed > 0,
+            message: `${missed} reunião${missed > 1 ? "s" : ""} não realizada${missed > 1 ? "s" : ""}`,
+            severity: missed > 2 ? "high" : "medium",
+            action: "Remarcar reunião",
+            count: missed,
+          };
+        },
       },
-    },
-    {
-      type: "installmentLate",
-      check: (m) => {
-        const late = m.installmentsLate ?? 0;
-        return {
-          active: late > 0,
-          message: `${late} parcela${late > 1 ? "s" : ""} em atraso`,
-          severity: late > 2 ? "high" : "medium",
-          action: "Ver parcelas",
-          count: late,
-        };
+      {
+        type: "installmentLate",
+        check: (m) => {
+          const late = m.installmentsLate ?? 0;
+          return {
+            active: late > 0,
+            message: `${late} parcela${late > 1 ? "s" : ""} em atraso`,
+            severity: late > 2 ? "high" : "medium",
+            action: "Ver parcelas",
+            count: late,
+          };
+        },
       },
-    },
-  ];
+    ];
 
   return rules
     .map((rule) => {
       const res = rule.check(metrics);
       return res.active
         ? {
-            type: rule.type,
-            message: res.message,
-            severity: res.severity,
-            action: res.action,
-            amount: res.amount,
-            count: res.count,
-          }
+          type: rule.type,
+          message: res.message,
+          severity: res.severity,
+          action: res.action,
+          amount: res.amount,
+          count: res.count,
+        }
         : null;
     })
     .filter(Boolean) as Gargalo[];

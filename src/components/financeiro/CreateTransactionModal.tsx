@@ -94,12 +94,12 @@ export function CreateTransactionModal({
       const rawClients = Array.isArray(payload)
         ? payload
         : payload.data?.data ||
-          payload.data?.clients ||
-          payload.data ||
-          payload.clients ||
-          payload.items ||
-          payload.results ||
-          [];
+        payload.data?.clients ||
+        payload.data ||
+        payload.clients ||
+        payload.items ||
+        payload.results ||
+        [];
 
       const normalized = (rawClients as Client[])
         .filter((client): client is Client => Boolean(client?.id && client?.name))
@@ -210,10 +210,10 @@ export function CreateTransactionModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl border bg-slate-900 p-0">
-        <DialogHeader className="border-b px-6 py-4">
-          <DialogTitle className="text-lg font-semibold text-slate-900">Nova transação</DialogTitle>
-          <DialogDescription className="text-sm text-slate-600">
+      <DialogContent className="max-w-xl border border-slate-700/50 bg-slate-900 p-0">
+        <DialogHeader className="border-b border-slate-700/50 px-6 py-4">
+          <DialogTitle className="text-lg font-semibold text-slate-100">Nova transação</DialogTitle>
+          <DialogDescription className="text-sm text-slate-400">
             Cadastre uma nova movimentação com dados completos para controle.
           </DialogDescription>
         </DialogHeader>

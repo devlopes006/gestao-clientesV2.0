@@ -59,10 +59,10 @@ export default function OnboardingPage() {
   return (
     <div className="flex items-center justify-center h-screen bg-linear-to-br from-purple-100 to-purple-300">
       <div className="bg-slate-900 rounded-xl shadow-lg p-10 w-[450px]">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">
+        <h1 className="text-2xl font-bold text-slate-100 mb-2">
           Crie sua primeira Organização
         </h1>
-        <p className="text-gray-500 mb-6">
+        <p className="text-slate-300 mb-6">
           Dê um nome à sua agência, estúdio ou marca para começar.
         </p>
         <input

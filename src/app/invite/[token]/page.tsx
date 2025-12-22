@@ -130,9 +130,9 @@ export default function AcceptInvitePage({
               <div className="space-y-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1 text-sm">
-                    <p className="text-slate-500">Convite para</p>
-                    <p className="font-medium text-slate-900">{invite.email}</p>
-                    <p className="text-slate-500">
+                    <p className="text-slate-400">Convite para</p>
+                    <p className="font-medium text-slate-100">{invite.email}</p>
+                    <p className="text-slate-400">
                       Papel:{" "}
                       <span className="font-medium">
                         {invite.roleRequested}

@@ -27,7 +27,7 @@ if (!getApps().length) {
     // Solução: usar env vars quando disponíveis (build), confiar em Blobs para runtime via getFirebaseCredentials async
     try {
       creds = getFirebaseCredentialsSync()
-    } catch {
+    } catch (err) {
       // Em runtime sem env vars, isso vai falhar - mas está OK porque as funções
       // que precisam de Firebase devem usar getFirebaseCredentials() async do firebase-credentials.ts
       if (process.env.NODE_ENV === 'production') {
@@ -37,9 +37,9 @@ if (!getApps().length) {
         )
         // Exporta um stub que vai falhar se alguém tentar usar
         process.env._FIREBASE_NOT_INITIALIZED = 'true'
-        throw error
+        throw err
       }
-      throw error
+      throw err
     }
 
     const privateKey = creds.privateKey.replace(/\\n/g, '\n')

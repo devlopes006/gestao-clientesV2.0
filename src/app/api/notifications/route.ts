@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
     }
 
     const adminAuth = await getAdminAuth()
+    const adminAuth = await getAdminAuth()
     const decoded = await adminAuth.verifyIdToken(token)
     const firebaseUid = decoded.uid
 

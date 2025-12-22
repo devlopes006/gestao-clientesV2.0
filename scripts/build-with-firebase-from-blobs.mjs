@@ -4,11 +4,15 @@ import { spawn } from 'node:child_process'
 async function loadFirebaseSecrets() {
   try {
     const store = getStore('firebase-secrets')
-    const [projectId, clientEmail, privateKey] = await Promise.all([
-      store.get('project_id')?.then((r) => r?.body?.text()),
-      store.get('client_email')?.then((r) => r?.body?.text()),
-      store.get('private_key')?.then((r) => r?.body?.text()),
-    ])
+    
+    // Carrega each blob directly
+    const projectIdBlob = await store.get('project_id')
+    const clientEmailBlob = await store.get('client_email')
+    const privateKeyBlob = await store.get('private_key')
+
+    const projectId = projectIdBlob ? await projectIdBlob.text() : null
+    const clientEmail = clientEmailBlob ? await clientEmailBlob.text() : null
+    const privateKey = privateKeyBlob ? await privateKeyBlob.text() : null
 
     if (!clientEmail || !privateKey) {
       console.warn(

@@ -45,7 +45,8 @@
     "redis:status": "pnpm redis:test",
     "redis:test:upstash": "tsx scripts/upstash-rest-quick-test.ts",
     "db:check-urls": "node scripts/check-db-urls.mjs",
-    "firebase:upload-to-blobs": "node scripts/upload-firebase-to-blobs.mjs"
+    "firebase:upload-to-blobs": "node scripts/upload-firebase-to-blobs.mjs",
+    "env:compare": "node scripts/compare-env-vars.mjs"
   },
   "dependencies": {
     "@apollo/server": "^5.2.0",

@@ -64,22 +64,32 @@ export async function POST(request: NextRequest) {
     const normalizedPhone = phone.replace(/\D/g, '')
 
     // Marcar como lidas todas as mensagens RECEBIDAS (from = phone) dessa conversa
-    const result = await prisma.whatsAppMessage.updateMany({
-      where: {
-        orgId,
-        isRead: false,
-        event: 'message',
-        from: { contains: normalizedPhone }, // Mensagens recebidas desse número
-      },
-      data: {
-        isRead: true,
-      },
-    })
+    try {
+      const result = await prisma.whatsAppMessage.updateMany({
+        where: {
+          orgId,
+          isRead: false,
+          event: 'message',
+          from: { contains: normalizedPhone }, // Mensagens recebidas desse número
+        },
+        data: {
+          isRead: true,
+        },
+      })
 
-    return NextResponse.json({
-      success: true,
-      updated: result.count,
-    })
+      return NextResponse.json({ success: true, updated: result.count })
+    } catch (err) {
+      const isPrismaMissingTable =
+        typeof err === 'object' &&
+        err !== null &&
+        'code' in (err as any) &&
+        ((err as any).code === 'P2021' || (err as any).code === 'P2022')
+      if (isPrismaMissingTable) {
+        console.warn('[WhatsApp mark-read] Tabela/coluna ausente, noop')
+        return NextResponse.json({ success: true, updated: 0 })
+      }
+      throw err
+    }
   } catch (error) {
     console.error('Erro ao marcar mensagens como lidas:', error)
     return NextResponse.json(

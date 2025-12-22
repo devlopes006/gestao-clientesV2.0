@@ -61,6 +61,17 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ unreadCount })
   } catch (error) {
+    const isPrismaMissingTable =
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in (error as any) &&
+      ((error as any).code === 'P2021' || (error as any).code === 'P2022')
+
+    if (isPrismaMissingTable) {
+      console.warn('[WhatsApp unread] Tabela/coluna ausente, retornando 0')
+      return NextResponse.json({ unreadCount: 0 })
+    }
+
     console.error('Erro ao buscar contagem de mensagens não lidas:', error)
     return NextResponse.json(
       { error: 'Erro ao buscar contagem de mensagens não lidas' },

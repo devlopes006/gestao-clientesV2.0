@@ -6,7 +6,7 @@
  */
 
 import { prisma } from '@/lib/prisma'
-import { type UserRole } from '@/shared/types/enums'
+import { USER_ROLE, type UserRole } from '@/shared/types/enums'
 
 /**
  * Interface de resposta de validação
@@ -157,7 +157,7 @@ export async function validateUserAccess(
 export async function userHasRole(
   userId: string,
   orgId: string,
-  requiredRole: UserRole
+  requiredRole: UserRole | string
 ): Promise<boolean> {
   try {
     const member = await prisma.member.findFirst({
@@ -171,7 +171,7 @@ export async function userHasRole(
     })
 
     if (!member) return false
-    return member.role === requiredRole || member.role === UserRole.OWNER
+    return member.role === requiredRole || member.role === USER_ROLE.OWNER
   } catch (error) {
     console.error('[Validation] Error checking role:', error)
     return false
@@ -206,7 +206,7 @@ export async function userCanAccessClient(
     if (!isMember) return false
 
     // 2. Se é CLIENT role, verificar se está atribuído ao cliente
-    if (isMember.role === UserRole.CLIENT) {
+    if (isMember.role === USER_ROLE.CLIENT) {
       const client = await prisma.client.findFirst({
         where: {
           id: clientId,

@@ -364,8 +364,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         setTimeout(() => {
           if (nextPath) router.push(nextPath);
         }, 300);
+
+        // Garantir liberação do loading mesmo sem novo evento do Firebase
+        setLoading(false);
       } catch (error) {
         console.error("Error in handleAuthResult:", error);
+        setLoading(false);
         throw error;
       }
     },

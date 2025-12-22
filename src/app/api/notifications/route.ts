@@ -291,6 +291,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const adminAuth = await getAdminAuth()
     const decoded = await adminAuth.verifyIdToken(token)
     const firebaseUid = decoded.uid
 

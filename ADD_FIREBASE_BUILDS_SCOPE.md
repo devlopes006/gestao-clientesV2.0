@@ -47,16 +47,17 @@ git push origin master
 
 ## ✅ O Que Isso Faz
 
-| Contexto | Source | Status |
-|----------|--------|--------|
-| **Build-time** | `FIREBASE_PRIVATE_KEY` env var (builds scope) | ✅ Disponível |
-| **Runtime** | Netlify Blobs | ✅ Disponível |
-| **Env var size** | Removido do runtime | ✅ Economiza ~1700 bytes |
-| **4KB limit** | Não excede mais | ✅ Dentro do limite |
+| Contexto         | Source                                        | Status                   |
+| ---------------- | --------------------------------------------- | ------------------------ |
+| **Build-time**   | `FIREBASE_PRIVATE_KEY` env var (builds scope) | ✅ Disponível            |
+| **Runtime**      | Netlify Blobs                                 | ✅ Disponível            |
+| **Env var size** | Removido do runtime                           | ✅ Economiza ~1700 bytes |
+| **4KB limit**    | Não excede mais                               | ✅ Dentro do limite      |
 
 ## 🎯 Resultado Esperado
 
 Próximo deploy:
+
 1. ✅ Build completará com Firebase inicializado (via env vars)
 2. ✅ Runtime usará Netlify Blobs (sem env vars)
 3. ✅ Deploy será bem-sucedido (dentro do 4KB limit)

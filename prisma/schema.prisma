@@ -7,18 +7,19 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  email         String         @unique
-  name          String?
-  createdAt     DateTime       @default(now())
-  firebaseUid   String         @unique
-  image         String?
-  updatedAt     DateTime       @updatedAt
-  lastActiveAt  DateTime?
-  client        Client?
-  memberships   Member[]
-  notifications Notification[]
-  orgs          Org[]          @relation("OrgOwner")
+  id             String          @id @default(cuid())
+  email          String          @unique
+  name           String?
+  createdAt      DateTime        @default(now())
+  firebaseUid    String          @unique
+  image          String?
+  updatedAt      DateTime        @updatedAt
+  lastActiveAt   DateTime?
+  client         Client?
+  memberships    Member[]
+  notifications  Notification[]
+  orgs           Org[]           @relation("OrgOwner")
+  firestoreSyncs FirestoreSync[]
 }
 
 model Org {
@@ -194,13 +195,32 @@ model Invite {
   roleRequested Role
   token         String       @unique
   status        InviteStatus @default(PENDING)
+  type          InviteType   @default(TEAM_INVITE)
   expiresAt     DateTime
   acceptedAt    DateTime?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   clientId      String?
+  clientName    String?
   client        Client?      @relation(fields: [clientId], references: [id])
   org           Org          @relation(fields: [orgId], references: [id])
+}
+
+model FirestoreSync {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  data      Json
+  status    String   @default("PENDING")
+  attempts  Int      @default(0)
+  lastError String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model Strategy {
@@ -511,6 +531,12 @@ enum InviteStatus {
   ACCEPTED
   CANCELED
   EXPIRED
+}
+
+enum InviteType {
+  TEAM_INVITE
+  CLIENT_INVITE
+  CLIENT_CREATE
 }
 
 enum ClientPlan {

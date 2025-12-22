@@ -142,7 +142,7 @@ test.describe('Session Management', () => {
    * - Request sem token retorna 401
    * - Frontend redireciona para login
    */
-  test('should redirect to login on 401', async ({ page, context }) => {
+  test('should redirect to login on 401', async ({ page }) => {
     // Ir direto para dashboard (sem estar logado)
     await page.goto(`${BASE_URL}/dashboard`)
 
@@ -218,7 +218,7 @@ test.describe('Session Management', () => {
     await page.waitForURL(`${BASE_URL}/dashboard`)
 
     // Em outro contexto (admin), remover user do team
-    const adminPage = await context.newPage()
+    const _adminPage = await context.newPage()
     // ... (fazer login como admin)
     // ... (remover user de team)
 
@@ -230,7 +230,7 @@ test.describe('Session Management', () => {
 
     // Se 403, página deve mostrar mensagem de acesso negado
     if (response.status() === 403) {
-      await expect(page).toContainText('Acesso negado')
+      await expect(page.locator('body')).toContainText('Acesso negado')
     }
   })
 

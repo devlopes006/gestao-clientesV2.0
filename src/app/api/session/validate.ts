@@ -93,7 +93,7 @@ export async function validateUserAccess(
 
       // 5. Verificar se role ainda é válido
       const validRoles = Object.values(USER_ROLE)
-      if (!validRoles.includes(orgMembership.role as any)) {
+      if (!validRoles.includes(orgMembership.role as UserRole)) {
         return {
           valid: false,
           reason: 'role_revoked',
